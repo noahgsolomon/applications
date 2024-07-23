@@ -1,14 +1,17 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { hash } from "bcrypt";
-import { getServerAuthSession } from "@/server/auth";
 import { users } from "@/server/db/schemas/users/schema";
+import { eq } from "drizzle-orm";
+import { getServerAuthSession } from "@/app/api/auth/[...nextauth]/route";
 
 export const authRouter = createTRPCRouter({
   getSession: publicProcedure.query(async ({ ctx }) => {
     const session = await getServerAuthSession();
-    console.log(ctx.session?.user.name);
     return session;
+  }),
+  secret: protectedProcedure.query(async ({ ctx }) => {
+    return "secret";
   }),
   register: publicProcedure
     .input(
@@ -28,7 +31,7 @@ export const authRouter = createTRPCRouter({
           email,
           password: hashedPassword,
         });
-        return { message: "success" };
+        return { message: "success", email, password };
       } catch (e) {
         console.log({ e });
         throw new Error("Error creating user");

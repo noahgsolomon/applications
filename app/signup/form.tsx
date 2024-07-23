@@ -1,16 +1,29 @@
 "use client";
 import { api } from "@/trpc/react";
 import { Button, Flex, TextFieldInput, TextFieldRoot } from "frosted-ui";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
 
 export default function Form() {
+  const router = useRouter();
   const registerMutation = api.auth.register.useMutation({
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: async (data) => {
+      const response = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      console.log({ response });
+      if (!response?.error) {
+        router.push("/");
+        router.refresh();
+      }
     },
   });
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     registerMutation.mutate({
