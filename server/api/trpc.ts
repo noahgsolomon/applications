@@ -11,8 +11,11 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { users } from "../db/schemas/users/schema";
+import { eq } from "drizzle-orm";
+import { getSession } from "next-auth/react";
+import { getServerAuthSession } from "@/app/api/auth/[...nextauth]/route";
 
 /**
  * 1. CONTEXT
@@ -119,8 +122,13 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
-  .use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
+  .use(async ({ ctx, next }) => {
+    const user = await ctx.db
+      .select()
+      .from(users)
+      .where(eq(users.email, ctx.session?.user?.email ?? ""));
+
+    if (!ctx.session || !ctx.session.user || user.length === 0) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({

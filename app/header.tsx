@@ -1,18 +1,13 @@
-// app/header.tsx
-"use client";
-
 import { Box, Container, Separator, Button } from "frosted-ui";
 import WhopLogo from "./WhopLogo";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { Moon12, Sun12 } from "@frosted-ui/icons";
+import { api } from "@/trpc/server";
+import { signOut } from "next-auth/react";
+import ThemeButton from "./theme-button";
+import LogoutButton from "./logout-button";
 
-export default function Header() {
-  const { theme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+export default async function Header() {
+  const user = await api.user.me();
 
   return (
     <header className="sticky top-0 backdrop-blur-lg z-10 backdrop-saturate-150">
@@ -24,31 +19,28 @@ export default function Header() {
               <WhopLogo className="w-[137px] h-auto" />
             </Link>
             <div className="flex items-center gap-4">
-              <Button
-                style={{ cursor: "pointer" }}
-                onClick={toggleTheme}
-                variant="surface"
-              >
-                {theme === "light" ? (
-                  <Moon12 className="size-3 text-[#6c7278]" />
-                ) : (
-                  <Sun12 className="size-3 stroke-surface  fill-white" />
-                )}
-              </Button>
-              <Link href="/login">
-                <Button className="hover:cursor-pointer" variant="surface">
-                  Log in
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button
-                  className="hover:cursor-pointer"
-                  variant="classic"
-                  color="orange"
-                >
-                  Sign up
-                </Button>
-              </Link>
+              <ThemeButton />
+
+              {!user?.isLoggedIn ? (
+                <>
+                  <Link href="/login">
+                    <Button className="hover:cursor-pointer" variant="surface">
+                      Log in
+                    </Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button
+                      className="hover:cursor-pointer"
+                      variant="classic"
+                      color="orange"
+                    >
+                      Sign up
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <LogoutButton />
+              )}
             </div>
           </div>
         </Box>

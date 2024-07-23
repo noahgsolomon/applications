@@ -1,11 +1,11 @@
 import { Card, Container, Flex, Heading } from "frosted-ui";
 import Form from "./form";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { api } from "@/trpc/server";
 
 export default async function Page() {
-  const session = await getServerSession();
-  if (session) {
+  const user = await api.user.me();
+  if (user.isLoggedIn) {
     redirect("/");
   }
   return (

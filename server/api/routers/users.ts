@@ -1,13 +1,18 @@
 import { users } from "@/server/db/schemas/users/schema";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { eq } from "drizzle-orm";
 
 export const userRouter = createTRPCRouter({
-  me: protectedProcedure.query(async ({ ctx }) => {
+  me: publicProcedure.query(async ({ ctx }) => {
+    console.log(ctx.session);
+
     const user = await ctx.db
       .select()
       .from(users)
-      .where(eq(users.id, ctx.session.user.id));
-    return user;
+      .where(eq(users.email, ctx.session?.user?.email ?? ""));
+    return {
+      user: user[0],
+      isLoggedIn: !!ctx.session && user.length > 0,
+    };
   }),
 });
