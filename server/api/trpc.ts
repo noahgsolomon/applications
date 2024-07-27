@@ -14,8 +14,7 @@ import { ZodError } from "zod";
 import { db } from "@/server/db";
 import { users } from "../db/schemas/users/schema";
 import { eq } from "drizzle-orm";
-import { getSession } from "next-auth/react";
-import { getServerAuthSession } from "@/app/api/auth/[...nextauth]/route";
+import { getServerAuthSession } from "../auth";
 
 /**
  * 1. CONTEXT

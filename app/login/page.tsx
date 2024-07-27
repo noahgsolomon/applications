@@ -1,7 +1,6 @@
 import { Card, Container, Flex, Heading } from "frosted-ui";
 import Form from "./form";
 import { redirect } from "next/navigation";
-import { getServerAuthSession } from "../api/auth/[...nextauth]/route";
 import { api } from "@/trpc/server";
 
 export default async function Page() {
