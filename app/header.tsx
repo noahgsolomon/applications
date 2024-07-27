@@ -28,15 +28,6 @@ export default async function Header() {
                       Log in
                     </Button>
                   </Link>
-                  <Link href="/signup">
-                    <Button
-                      className="hover:cursor-pointer"
-                      variant="classic"
-                      color="orange"
-                    >
-                      Sign up
-                    </Button>
-                  </Link>
                 </>
               ) : (
                 <LogoutButton />

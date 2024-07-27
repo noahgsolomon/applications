@@ -1,9 +1,8 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import { users } from "@/server/db/schemas/users/schema";
-import { eq } from "drizzle-orm";
-import { getServerAuthSession } from "@/app/api/auth/[...nextauth]/route";
+import { getServerAuthSession } from "@/server/auth";
 
 export const authRouter = createTRPCRouter({
   getSession: publicProcedure.query(async ({ ctx }) => {

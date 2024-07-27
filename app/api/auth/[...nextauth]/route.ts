@@ -2,7 +2,7 @@ import NextAuth, { getServerSession, NextAuthOptions } from "next-auth";
 import { db } from "@/server/db";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { eq } from "drizzle-orm";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 import { users } from "@/server/db/schemas/users/schema";
 
 const authOptions: NextAuthOptions = {
@@ -50,7 +50,5 @@ const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
-export const getServerAuthSession = () => getServerSession(authOptions);
 
 export { handler as GET, handler as POST };
