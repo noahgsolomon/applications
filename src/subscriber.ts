@@ -8,7 +8,7 @@ const connection = neon(process.env.DB_URL!);
 
 const db = drizzle(connection, {
   schema: {
-    userSchema,
+    ...userSchema,
   },
 });
 
@@ -25,7 +25,11 @@ export async function handler(event: any) {
     .from(userSchema.pendingOutbound)
     .where(eq(userSchema.pendingOutbound.id, pendingOutboundId));
 
+  if (pendingOutbound[0].progress !== 0) {
+    return;
+  }
+
   console.log(pendingOutbound);
 
-  // await outbound(pendingOutbound[0], { db });
+  await outbound(pendingOutbound[0], { db });
 }

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { pendingOutbound } from "@/server/db/schemas/users/schema";
+import {
+  candidates,
+  outbound,
+  pendingOutbound,
+} from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
@@ -15,6 +19,14 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  searches: protectedProcedure.query(async ({ ctx }) => {
+    const outboundSearch = await ctx.db.query.outbound.findMany({
+      with: {
+        candidates: true,
+      },
+    });
+    return outboundSearch;
+  }),
   pollPendingOutbound: protectedProcedure
     .input(z.object({ existingPendingOutboundId: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -94,27 +106,26 @@ export const outboundRouter = createTRPCRouter({
 
       console.log(JSON.stringify(response, null, 2));
 
-      const pendingOutboundInsert = await ctx.db
-        .insert(pendingOutbound)
-        .values({
-          job: input.job,
-          company: response.company,
-          query: input.query,
-          progress: 0,
-          status: "Starting scrape",
-          userId: ctx.user_id,
-          outboundId: uuid(),
-          nearBrooklyn: input.nearBrooklyn,
-          booleanSearch: response.booleanSearch,
-          logs: "",
-        })
-        .returning();
+      const uuidId = uuid();
+      await ctx.db.insert(pendingOutbound).values({
+        id: uuidId,
+        job: input.job,
+        company: response.company,
+        query: input.query,
+        progress: 0,
+        status: "Starting scrape",
+        userId: ctx.user_id,
+        outboundId: uuid(),
+        nearBrooklyn: input.nearBrooklyn,
+        booleanSearch: response.booleanSearch,
+        logs: "",
+      });
 
       await client.send(
         new SendMessageCommand({
           QueueUrl: Resource.WhopQueue.url,
           MessageBody: JSON.stringify({
-            pendingOutboundId: pendingOutboundInsert[0].id,
+            pendingOutboundId: uuidId,
           }),
         }),
       );

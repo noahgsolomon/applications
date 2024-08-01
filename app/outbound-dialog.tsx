@@ -22,7 +22,6 @@ import {
   SelectItem,
   DialogRoot,
   Card,
-  Slider,
   Progress,
   ScrollArea,
 } from "frosted-ui";
@@ -66,6 +65,9 @@ export default function OutboundDialog() {
           (existingPendingOutboundQuery.data?.id as string) ?? "",
       });
       setPollingData(response);
+      if (response?.progress === 100 || response?.status === "COMPLETED") {
+        setExisting(false);
+      }
     };
 
     let interval: any;

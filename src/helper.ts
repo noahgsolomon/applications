@@ -92,9 +92,7 @@ const googleSearch = async (
     });
     const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:linkedin.com/in ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
     try {
-      console.log(url);
       const response = await axios.get(url);
-      console.log("finish");
       const results = response.data.items;
       if (results) {
         results.forEach((result: any) => {
@@ -117,13 +115,17 @@ const googleSearch = async (
         break;
       }
     } catch (error) {
+      await logUpdate(
+        `Error fetching search results: ${error}`,
+        pendingOutbound,
+        { db },
+      );
       console.error(`Error fetching search results: ${error}`);
       break;
     }
     start += 10;
   }
   await logUpdate(`Google search completed.`, pendingOutbound, { db });
-  searchResults.map((s) => console.log(s.link));
   return searchResults;
 };
 
@@ -155,6 +157,11 @@ const scrapeLinkedInProfile = async (
     );
     return response.data;
   } catch (error) {
+    await logUpdate(
+      `Error fetching LinkedIn profile data: ${error}`,
+      pendingOutbound,
+      { db },
+    );
     console.error(`Error fetching LinkedIn profile data: ${error}`);
     return null;
   }
@@ -193,7 +200,6 @@ const askCondition = async (
   pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  await logUpdate(`Asking condition: ${condition}`, pendingOutbound, { db });
   const completion = await openai.chat.completions.create({
     messages: [
       {
@@ -302,19 +308,13 @@ const processLinkedInProfile = async (
       livesNearBrooklyn,
       workedInPosition,
       url: linkedinUrl,
-      similarity: 0, // Will be calculated later
-      weight: 0, // Will be calculated later
+      similarity: 0,
+      weight: 0,
+      outboundId: pendingOutbound.outboundId,
       linkedinData: personData,
     });
 
     // Update progress in the pendingOutbound table
-    await db
-      .update(pendingOutboundTable)
-      .set({
-        progress: Math.min((index / NUM_PROFILES) * 100, 100),
-        status: `Processing profile #${index + 1}`,
-      })
-      .where(eq(pendingOutboundTable.outboundId, outboundId));
 
     await logUpdate(`LinkedIn profile #${index} processed.`, pendingOutbound, {
       db,
@@ -361,10 +361,26 @@ export const outbound = async (
     booleanSearch,
   } = pendingOutbound;
   await logUpdate(`Starting main function...`, pendingOutbound, { db });
+  await db
+    .update(pendingOutboundTable)
+    .set({
+      progress: 2,
+      status: `Parsed Queue Message`,
+    })
+    .where(eq(pendingOutboundTable.outboundId, outboundId));
   const apiKey = process.env.GOOGLE_API_KEY!;
   const cseId = process.env.GOOGLE_CSE_ID!;
 
   await logUpdate(`Performing Google search...`, pendingOutbound, { db });
+
+  await db
+    .update(pendingOutboundTable)
+    .set({
+      progress: 5,
+      status: `Performing Google Search`,
+    })
+    .where(eq(pendingOutboundTable.outboundId, outboundId));
+
   const googleResults = await googleSearch(
     booleanSearch,
     apiKey,
@@ -376,6 +392,13 @@ export const outbound = async (
   await logUpdate(`Google search completed.`, pendingOutbound, { db });
 
   await logUpdate(`Processing LinkedIn profiles...`, pendingOutbound, { db });
+  await db
+    .update(pendingOutboundTable)
+    .set({
+      progress: 35,
+      status: `Processing LinkedIn profiles...`,
+    })
+    .where(eq(pendingOutboundTable.outboundId, outboundId));
   let profiles: any[] = [];
   for (let i = 0; i < linkedinUrls.length; i += 10) {
     const batch = linkedinUrls
@@ -398,7 +421,10 @@ export const outbound = async (
     await logUpdate(`Waiting for 5 seconds...`, pendingOutbound, { db });
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
-
+  await db.update(pendingOutboundTable).set({
+    progress: 65,
+    status: `Getting job description embedding...`,
+  });
   await logUpdate(`LinkedIn profiles processed.`, pendingOutbound, { db });
 
   await logUpdate(`Getting job description embedding...`, pendingOutbound, {
@@ -409,7 +435,10 @@ export const outbound = async (
     pendingOutbound,
     { db },
   );
-
+  await db.update(pendingOutboundTable).set({
+    progress: 85,
+    status: `Evaluating and sorting profiles...`,
+  });
   await logUpdate(`Evaluating and sorting profiles...`, pendingOutbound, {
     db,
   });
@@ -466,11 +495,12 @@ export const outbound = async (
   // Update status and progress in the pendingOutbound table
   await db
     .update(pendingOutboundTable)
-    .set({ progress: 100, status: "Scrape completed" })
+    .set({ progress: 100, status: "COMPLETED" })
     .where(eq(pendingOutboundTable.outboundId, outboundId));
 
   // Insert row in the outbound table
   await db.insert(outboundTable).values({
+    id: pendingOutbound.outboundId,
     user_id: pendingOutbound.userId,
     query: searchQuery,
     job: position,
@@ -482,10 +512,4 @@ export const outbound = async (
   await logUpdate(`Finalists written to outbound table.`, pendingOutbound, {
     db,
   });
-
-  // Update status to COMPLETED
-  await db
-    .update(pendingOutboundTable)
-    .set({ status: "COMPLETED" })
-    .where(eq(pendingOutboundTable.outboundId, outboundId));
 };

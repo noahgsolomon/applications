@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -63,8 +64,20 @@ export const candidates = pgTable("candidates", {
   workedAtRelevant: boolean("worked_at_relevant").default(false),
   livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
   workedInPosition: boolean("worked_in_position").default(false),
-  url: text("url"),
+  url: text("url").unique(),
   similarity: real("similarity"),
   weight: real("weight"),
   linkedinData: json("linkedin_data").$type<any>().default({}),
+  outboundId: varchar("outbound_id", { length: 255 }).notNull(),
 });
+
+export const outboundRelations = relations(outbound, ({ many }) => ({
+  candidates: many(candidates),
+}));
+
+export const candidatesRelations = relations(candidates, ({ one }) => ({
+  outbound: one(outbound, {
+    fields: [candidates.outboundId],
+    references: [outbound.id],
+  }),
+}));

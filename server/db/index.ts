@@ -7,6 +7,6 @@ const connection = neon(process.env.DB_URL!);
 
 export const db = drizzle(connection, {
   schema: {
-    userSchema,
+    ...userSchema,
   },
 });
