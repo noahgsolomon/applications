@@ -1,6 +1,7 @@
 import { api } from "@/trpc/server";
 import { Button, Container, Flex, Heading, Link } from "frosted-ui";
 import { redirect } from "next/navigation";
+import OutboundDialog from "./outbound-dialog";
 
 export default async function Home() {
   const user = await api.user.me();
@@ -15,7 +16,8 @@ export default async function Home() {
           direction={"column"}
           gap={"4"}
         >
-          <Heading>Sup {user.user.name}.</Heading>
+          <Heading>Welcome in</Heading>
+          <OutboundDialog />
         </Flex>
       </Container>
     </div>

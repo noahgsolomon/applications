@@ -23,7 +23,7 @@ import {
 } from "frosted-ui";
 import { ScanSearch } from "lucide-react";
 
-export default function OutboundButton() {
+export default function OutboundDialog() {
   const [query, setQuery] = useState("");
   const [nearBrooklyn, setNearBrooklyn] = useState(false);
   const [job, setJob] = useState("Staff Frontend Engineer");

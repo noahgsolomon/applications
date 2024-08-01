@@ -132,6 +132,8 @@ export const protectedProcedure = t.procedure
     }
     return next({
       ctx: {
+        user_id: user[0].id,
+        hono_url: process.env.HONO_URL!,
         // infers the `session` as non-nullable
         session: { ...ctx.session, user: ctx.session.user },
       },
