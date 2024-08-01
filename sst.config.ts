@@ -1,5 +1,5 @@
 /// <reference path="./.sst/platform/config.d.ts" />
-import { HonoEnv, NextEnv } from "./sst.env";
+import { SubscriberEnv, NextEnv } from "./sst.env";
 
 export default $config({
   app(input) {
@@ -10,18 +10,27 @@ export default $config({
     };
   },
   async run() {
-    new sst.aws.Nextjs("WhopApplications", {
-      environment: NextEnv,
+    // const hono = new sst.aws.Function("PoliticalBlogHono", {
+    //   environment: HonoEnv,
+    //   url: true,
+    //   handler: "src/hono.handler",
+    // });
+
+    const queue = new sst.aws.Queue("WhopQueue");
+
+    queue.subscribe({
+      handler: "src/subscriber.handler",
+      environment: SubscriberEnv,
+      timeout: "10 minutes",
     });
 
-    const hono = new sst.aws.Function("PoliticalBlogHono", {
-      environment: HonoEnv,
-      url: true,
-      handler: "src/hono.handler",
+    new sst.aws.Nextjs("WhopApplications", {
+      environment: NextEnv,
+      link: [queue],
     });
 
     return {
-      api: hono.url,
+      queue: queue.url,
     };
   },
 });

@@ -17,6 +17,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const NUM_PROFILES = 10;
+
 const JOB_DESCRIPTION = `
 As a Staff Frontend Engineer, you will lead our frontend team, ensuring high performance, low latency, and exceptional user experiences. You will solve frontend challenges, implement comprehensive testing frameworks, and mentor our engineering team.
 
@@ -47,46 +49,52 @@ Experience in optimizing web app resource usage.`;
 
 async function getEmbedding(
   text: string,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ): Promise<number[]> {
-  console.log("Getting embedding for text...");
+  await logUpdate(`Getting embedding for text...`, pendingOutbound, { db });
   const response = await openai.embeddings.create({
     model: "text-embedding-ada-002",
     input: text,
   });
-  console.log("Received embedding.");
+  await logUpdate(`Received embedding.`, pendingOutbound, { db });
   return response.data[0].embedding;
 }
 
 function cosineSimilarity(
   vec1: number[],
   vec2: number[],
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ): number {
-  console.log("Calculating cosine similarity...");
+  logUpdate(`Calculating cosine similarity...`, pendingOutbound, { db });
   const dotProduct = vec1.reduce((acc, val, i) => acc + val * vec2[i], 0);
   const magnitude1 = Math.sqrt(vec1.reduce((acc, val) => acc + val * val, 0));
   const magnitude2 = Math.sqrt(vec2.reduce((acc, val) => acc + val * val, 0));
   const similarity = dotProduct / (magnitude1 * magnitude2);
-  console.log("Cosine similarity calculated.");
+  logUpdate(`Cosine similarity calculated.`, pendingOutbound, { db });
   return similarity;
 }
 
 const googleSearch = async (
-  query: string,
+  booleanSearch: string,
   apiKey: string,
   cseId: string,
-  numResults: number = 10,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  console.log("Starting Google search...");
+  await logUpdate(`Starting Google search...`, pendingOutbound, { db });
   let searchResults: any[] = [];
   let start = 1;
-  while (searchResults.length < numResults) {
-    console.log(`Fetching results from ${start}...`);
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:linkedin.com/in ${query}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
+  while (searchResults.length < NUM_PROFILES) {
+    await logUpdate(`Fetching results from ${start}...`, pendingOutbound, {
+      db,
+    });
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:linkedin.com/in ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
     try {
+      console.log(url);
       const response = await axios.get(url);
+      console.log("finish");
       const results = response.data.items;
       if (results) {
         results.forEach((result: any) => {
@@ -95,11 +103,17 @@ const googleSearch = async (
           }
         });
         if (results.length < 10) {
-          console.log("Less than 10 results returned, breaking loop...");
+          await logUpdate(
+            `Less than 10 results returned, breaking loop...`,
+            pendingOutbound,
+            { db },
+          );
           break;
         }
       } else {
-        console.log("No results found, breaking loop...");
+        await logUpdate(`No results found, breaking loop...`, pendingOutbound, {
+          db,
+        });
         break;
       }
     } catch (error) {
@@ -108,28 +122,37 @@ const googleSearch = async (
     }
     start += 10;
   }
-  console.log("Google search completed.");
+  await logUpdate(`Google search completed.`, pendingOutbound, { db });
   searchResults.map((s) => console.log(s.link));
   return searchResults;
 };
 
 const scrapeLinkedInProfile = async (
   linkedinUrl: string,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  console.log(`Scraping LinkedIn profile: ${linkedinUrl}`);
+  await logUpdate(
+    `Scraping LinkedIn profile: ${linkedinUrl}`,
+    pendingOutbound,
+    { db },
+  );
   const options = {
     method: "GET",
     url: `https://api.scrapin.io/enrichment/profile`,
     params: {
-      apikey: "sk_live_66a7e55bc1d09007e25c5533_key_dnp74n04co7",
+      apikey: process.env.SCRAPIN_API_KEY,
       linkedInUrl: linkedinUrl,
     },
   };
 
   try {
     const response = await axios.request(options);
-    console.log(`Profile data retrieved for ${linkedinUrl}`);
+    await logUpdate(
+      `Profile data retrieved for ${linkedinUrl}`,
+      pendingOutbound,
+      { db },
+    );
     return response.data;
   } catch (error) {
     console.error(`Error fetching LinkedIn profile data: ${error}`);
@@ -139,9 +162,10 @@ const scrapeLinkedInProfile = async (
 
 const generateSummary = async (
   profileData: any,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  console.log("Generating summary for profile...");
+  await logUpdate(`Generating summary for profile...`, pendingOutbound, { db });
   const completion = await openai.chat.completions.create({
     messages: [
       {
@@ -160,15 +184,16 @@ const generateSummary = async (
     max_tokens: 2048,
   });
 
-  console.log("Summary generated.");
+  await logUpdate(`Summary generated.`, pendingOutbound, { db });
   return completion.choices[0].message.content;
 };
 
 const askCondition = async (
   condition: string,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  console.log(`Asking condition: ${condition}`);
+  await logUpdate(`Asking condition: ${condition}`, pendingOutbound, { db });
   const completion = await openai.chat.completions.create({
     messages: [
       {
@@ -187,7 +212,7 @@ const askCondition = async (
     max_tokens: 256,
   });
 
-  console.log("Condition response received.");
+  await logUpdate(`Condition response received.`, pendingOutbound, { db });
   return JSON.parse(
     completion.choices[0].message.content ?? '{ "condition": false }',
   ).condition;
@@ -199,14 +224,23 @@ const processLinkedInProfile = async (
   searchQuery: string,
   position: string,
   outboundId: string,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
   { db }: { db: typeof dbType },
 ) => {
-  console.log(`Processing LinkedIn profile #${index}: ${linkedinUrl}`);
-  const profileData = await scrapeLinkedInProfile(linkedinUrl, { db });
+  await logUpdate(
+    `Processing LinkedIn profile #${index}: ${linkedinUrl}`,
+    pendingOutbound,
+    { db },
+  );
+  const profileData = await scrapeLinkedInProfile(
+    linkedinUrl,
+    pendingOutbound,
+    { db },
+  );
 
   if (profileData && profileData.success) {
     const personData = profileData.person;
-    const summary = await generateSummary(personData, { db });
+    const summary = await generateSummary(personData, pendingOutbound, { db });
     const workedInBigTech = await askCondition(
       `Has this person worked in big tech? ${JSON.stringify(
         personData.positions.positionHistory.map(
@@ -215,6 +249,7 @@ const processLinkedInProfile = async (
         null,
         2,
       )}`,
+      pendingOutbound,
       { db },
     );
 
@@ -227,11 +262,13 @@ const processLinkedInProfile = async (
         null,
         2,
       )}`,
+      pendingOutbound,
       { db },
     );
 
     const livesNearBrooklyn = await askCondition(
       `Does this person live within 50 miles of Brookyln? ${personData.location ?? "unknown location"}`,
+      pendingOutbound,
       { db },
     );
 
@@ -243,6 +280,7 @@ const processLinkedInProfile = async (
         null,
         2,
       )}`,
+      pendingOutbound,
       { db },
     );
 
@@ -273,17 +311,41 @@ const processLinkedInProfile = async (
     await db
       .update(pendingOutboundTable)
       .set({
-        progress: Math.min((index / 10) * 100, 100), // Example calculation for progress
+        progress: Math.min((index / NUM_PROFILES) * 100, 100),
         status: `Processing profile #${index + 1}`,
       })
       .where(eq(pendingOutboundTable.outboundId, outboundId));
 
-    console.log(`LinkedIn profile #${index} processed.`);
+    await logUpdate(`LinkedIn profile #${index} processed.`, pendingOutbound, {
+      db,
+    });
     return userSummary;
   }
 
-  console.log(`LinkedIn profile #${index} failed to process.`);
+  await logUpdate(
+    `LinkedIn profile #${index} failed to process.`,
+    pendingOutbound,
+    { db },
+  );
   return null;
+};
+
+const logUpdate = async (
+  message: string,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
+  { db }: { db: typeof dbType },
+) => {
+  const pendingOutboundRecord = await db
+    .select()
+    .from(pendingOutboundTable)
+    .where(eq(pendingOutboundTable.outboundId, pendingOutbound.outboundId))
+    .then((results) => results[0]);
+
+  const updatedLogs = (pendingOutboundRecord?.logs ?? "") + `\n\n\n${message}`;
+  await db
+    .update(pendingOutboundTable)
+    .set({ logs: updatedLogs })
+    .where(eq(pendingOutboundTable.outboundId, pendingOutbound.outboundId));
 };
 
 export const outbound = async (
@@ -295,18 +357,25 @@ export const outbound = async (
     job: position,
     nearBrooklyn,
     outboundId,
+    company,
+    booleanSearch,
   } = pendingOutbound;
-  console.log("Starting main function...");
+  await logUpdate(`Starting main function...`, pendingOutbound, { db });
   const apiKey = process.env.GOOGLE_API_KEY!;
-  const cseId = process.env.CSE_ID!;
-  const query = `"${searchQuery}" AND "${position}" AND "New York"`;
+  const cseId = process.env.GOOGLE_CSE_ID!;
 
-  console.log("Performing Google search...");
-  const googleResults = await googleSearch(query, apiKey, cseId, 10, { db });
+  await logUpdate(`Performing Google search...`, pendingOutbound, { db });
+  const googleResults = await googleSearch(
+    booleanSearch,
+    apiKey,
+    cseId,
+    pendingOutbound,
+    { db },
+  );
   const linkedinUrls = googleResults.map((result) => result.link);
-  console.log("Google search completed.");
+  await logUpdate(`Google search completed.`, pendingOutbound, { db });
 
-  console.log("Processing LinkedIn profiles...");
+  await logUpdate(`Processing LinkedIn profiles...`, pendingOutbound, { db });
   let profiles: any[] = [];
   for (let i = 0; i < linkedinUrls.length; i += 10) {
     const batch = linkedinUrls
@@ -318,6 +387,7 @@ export const outbound = async (
           searchQuery,
           position,
           outboundId,
+          pendingOutbound,
           { db },
         ),
       );
@@ -325,27 +395,38 @@ export const outbound = async (
     const batchProfiles = await Promise.all(batch);
     profiles = profiles.concat(batchProfiles);
 
-    console.log("Waiting for 5 seconds...");
+    await logUpdate(`Waiting for 5 seconds...`, pendingOutbound, { db });
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
-  console.log("LinkedIn profiles processed.");
+  await logUpdate(`LinkedIn profiles processed.`, pendingOutbound, { db });
 
-  console.log("Getting job description embedding...");
-  const jobDescriptionEmbedding = await getEmbedding(JOB_DESCRIPTION, { db });
+  await logUpdate(`Getting job description embedding...`, pendingOutbound, {
+    db,
+  });
+  const jobDescriptionEmbedding = await getEmbedding(
+    JOB_DESCRIPTION,
+    pendingOutbound,
+    { db },
+  );
 
-  console.log("Evaluating and sorting profiles...");
+  await logUpdate(`Evaluating and sorting profiles...`, pendingOutbound, {
+    db,
+  });
   const finalists = [];
   const matched_engineers = [];
 
   for (const profile of profiles) {
     if (profile) {
-      const profileEmbedding = await getEmbedding(profile.summary ?? "", {
-        db,
-      });
+      const profileEmbedding = await getEmbedding(
+        profile.summary ?? "",
+        pendingOutbound,
+        { db },
+      );
       const similarity = cosineSimilarity(
         jobDescriptionEmbedding,
         profileEmbedding,
+        pendingOutbound,
         { db },
       );
 
@@ -363,7 +444,13 @@ export const outbound = async (
         .where(eq(candidatesTable.url, profile.url));
 
       if (profile.workedAtRelevant && profile.workedInPosition) {
-        matched_engineers.push({ ...profile, similarity, weight });
+        if (nearBrooklyn) {
+          if (profile.nearBrooklyn) {
+            matched_engineers.push({ ...profile, similarity, weight });
+          }
+        } else {
+          matched_engineers.push({ ...profile, similarity, weight });
+        }
       }
 
       finalists.push({ ...profile, similarity, weight });
@@ -371,8 +458,10 @@ export const outbound = async (
   }
 
   finalists.sort((a, b) => b.weight - a.weight);
+
   matched_engineers.sort((a, b) => b.weight - a.weight);
-  console.log("Finalists evaluated and sorted.");
+
+  await logUpdate(`Finalists evaluated and sorted.`, pendingOutbound, { db });
 
   // Update status and progress in the pendingOutbound table
   await db
@@ -387,9 +476,12 @@ export const outbound = async (
     job: position,
     near_brooklyn: nearBrooklyn,
     matched: matched_engineers.map((engineer) => engineer.id),
+    company: company,
   });
 
-  console.log("Finalists written to outbound table.");
+  await logUpdate(`Finalists written to outbound table.`, pendingOutbound, {
+    db,
+  });
 
   // Update status to COMPLETED
   await db
