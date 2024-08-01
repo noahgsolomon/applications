@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import {
   Text,
@@ -27,13 +27,27 @@ export default function OutboundDialog() {
   const [query, setQuery] = useState("");
   const [nearBrooklyn, setNearBrooklyn] = useState(false);
   const [job, setJob] = useState("Staff Frontend Engineer");
+  const [error, setError] = useState("");
 
-  const outbound = api.outbound.addOutboundRequest.useMutation({
-    onSuccess: (data) => {},
+  const outboundMutation = api.outbound.addOutboundRequest.useMutation({
+    onSuccess: (data) => {
+      // Handle success
+    },
   });
 
+  const validOutboundQuery = api.outbound.isValidOutbound.useQuery(
+    { query },
+    { enabled: false },
+  );
+
   const handleSearch = () => {
-    outbound.mutate({ query, job, nearBrooklyn });
+    if (!query) {
+      setError("Search query cannot be empty.");
+      return;
+    }
+
+    setError("");
+    outboundMutation.mutate({ query, job, nearBrooklyn });
   };
 
   return (
@@ -66,6 +80,11 @@ export default function OutboundDialog() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </label>
+          {error && (
+            <Text as="div" size="2" color="red">
+              {error}
+            </Text>
+          )}
           <label>
             <Text as="div" mb="1" size="2" weight="bold">
               Near Brooklyn
@@ -164,11 +183,9 @@ export default function OutboundDialog() {
               Cancel
             </Button>
           </DialogClose>
-          <DialogClose>
-            <Button variant="classic" onClick={handleSearch}>
-              Search
-            </Button>
-          </DialogClose>
+          <Button variant="classic" onClick={handleSearch}>
+            Search
+          </Button>
         </Flex>
       </DialogContent>
     </DialogRoot>

@@ -13,5 +13,14 @@ export default $config({
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
     });
+
+    const hono = new sst.aws.Function("PoliticalBlogHono", {
+      url: true,
+      handler: "src/hono.handler",
+    });
+
+    return {
+      api: hono.url,
+    };
   },
 });
