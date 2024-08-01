@@ -1,5 +1,5 @@
 /// <reference path="./.sst/platform/config.d.ts" />
-import { NextEnv } from "./sst.env";
+import { HonoEnv, NextEnv } from "./sst.env";
 
 export default $config({
   app(input) {
@@ -15,6 +15,7 @@ export default $config({
     });
 
     const hono = new sst.aws.Function("PoliticalBlogHono", {
+      environment: HonoEnv,
       url: true,
       handler: "src/hono.handler",
     });

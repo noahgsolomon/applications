@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export const outboundRouter = createTRPCRouter({

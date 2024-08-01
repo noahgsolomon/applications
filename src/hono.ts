@@ -18,7 +18,7 @@ const app = new Hono();
 
 app.get("/", async (c) => {
   return c.json({
-    message: "hello world 2",
+    message: "hello world 99",
   });
 });
 
