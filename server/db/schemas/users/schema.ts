@@ -33,6 +33,9 @@ export const pendingOutbound = pgTable("pendingOutbound", {
   job: varchar("job", { length: 255 }).notNull(),
   nearBrooklyn: boolean("near_brooklyn").notNull(),
   status: varchar("status", { length: 255 }).notNull(),
+  company: varchar("company", { length: 255 }).notNull(),
+  booleanSearch: text("boolean_search").notNull(),
+  logs: text("logs").notNull(),
 });
 
 export const outbound = pgTable("outbound", {
@@ -47,6 +50,7 @@ export const outbound = pgTable("outbound", {
   job: varchar("job", { length: 255 }).notNull(),
   near_brooklyn: boolean("near_brooklyn").notNull(),
   matched: json("matched").$type<number[]>().default([]),
+  company: varchar("company", { length: 255 }).notNull(),
 });
 
 export const candidates = pgTable("candidates", {
