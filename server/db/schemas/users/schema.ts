@@ -50,7 +50,7 @@ export const outbound = pgTable("outbound", {
   query: text("query").notNull(),
   job: varchar("job", { length: 255 }).notNull(),
   near_brooklyn: boolean("near_brooklyn").notNull(),
-  matched: json("matched").$type<number[]>().default([]),
+  matched: json("matched").$type<string[]>().default([]),
   company: varchar("company", { length: 255 }).notNull(),
 });
 
