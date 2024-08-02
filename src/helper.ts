@@ -1,6 +1,5 @@
 import axios from "axios";
 import OpenAI from "openai";
-import dotenv from "dotenv";
 import { type db as dbType } from "@/server/db";
 import { InferSelectModel, eq } from "drizzle-orm";
 import {
@@ -8,10 +7,8 @@ import {
   outbound as outboundTable,
   candidates as candidatesTable,
 } from "@/server/db/schemas/users/schema";
-
-dotenv.config({
-  path: "../.env",
-});
+//@ts-ignore
+import { v4 as uuid } from "uuid";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -90,13 +87,18 @@ const googleSearch = async (
     await logUpdate(`Fetching results from ${start}...`, pendingOutbound, {
       db,
     });
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:linkedin.com/in ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
+    // www. to both because we only want US for rn.
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:${pendingOutbound.nearBrooklyn ? "www." : "www."}linkedin.com/in ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
     try {
       const response = await axios.get(url);
       const results = response.data.items;
       if (results) {
         results.forEach((result: any) => {
-          if (result.link.includes("linkedin.com/in")) {
+          if (
+            result.link.includes(
+              `${pendingOutbound.nearBrooklyn ? "www." : "www."}linkedin.com/in`,
+            )
+          ) {
             searchResults.push(result);
           }
         });
@@ -290,18 +292,10 @@ const processLinkedInProfile = async (
       { db },
     );
 
-    const userSummary = {
-      summary,
-      workedInBigTech,
-      workedAtRelevant,
-      livesNearBrooklyn,
-      workedInPosition,
-      url: linkedinUrl,
-      linkedinData: personData,
-    };
-
+    const userUuid = uuid();
     // Insert candidate into candidates table
     await db.insert(candidatesTable).values({
+      id: userUuid,
       summary,
       workedInBigTech,
       workedAtRelevant,
@@ -313,6 +307,17 @@ const processLinkedInProfile = async (
       outboundId: pendingOutbound.outboundId,
       linkedinData: personData,
     });
+
+    const userSummary = {
+      id: userUuid,
+      summary,
+      workedInBigTech,
+      workedAtRelevant,
+      livesNearBrooklyn,
+      workedInPosition,
+      url: linkedinUrl,
+      linkedinData: personData,
+    };
 
     // Update progress in the pendingOutbound table
 
