@@ -8,9 +8,10 @@ import {
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { eq, ne } from "drizzle-orm";
+import { eq, inArray, InferSelectModel, ne } from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { InferResultType } from "@/utils/infer";
 
 const client = new SQSClient();
 
@@ -20,12 +21,24 @@ const openai = new OpenAI({
 
 export const outboundRouter = createTRPCRouter({
   searches: protectedProcedure.query(async ({ ctx }) => {
+    const result: (InferResultType<"outbound", { candidates: true }> & {
+      matches: InferSelectModel<typeof candidates>[];
+    })[] = [];
     const outboundSearch = await ctx.db.query.outbound.findMany({
       with: {
         candidates: true,
       },
     });
-    return outboundSearch;
+    for (const outbound of outboundSearch) {
+      const matches = await ctx.db.query.candidates.findMany({
+        where: inArray(candidates.id, outbound.matched ?? []),
+      });
+      result.push({
+        ...outbound,
+        matches,
+      });
+    }
+    return result;
   }),
   pollPendingOutbound: protectedProcedure
     .input(z.object({ existingPendingOutboundId: z.string() }))
@@ -72,14 +85,16 @@ export const outboundRouter = createTRPCRouter({
           {
             role: "system",
             content: `
-        You are a boolean string builder optimized for generating search queries for Whop, a consumer tech platform. When given a job description or set of instructions, return a JSON object with three attributes: "isValid" (true or false), "booleanSearch" (a boolean string for search), and "company" (the company name or "Big Tech" if unclear).
+You generate search queries for Whop, a consumer tech platform. Given a job description or instructions, return a JSON object with three attributes: "isValid" (true or false), "booleanSearch" (a concise boolean string for search), and ;company" (the company name or "Big Tech" if unclear).
 
-        - If the query is understandable and clearly indicates a job title or company, set "isValid" to true. Otherwise, set it to false.
+- If the query clearly indicates a job title or company, set "isValid" to true. Otherwise, set it to false.
 
-        Remember, you should try to make the boolean expression as concise and small as possible and all boolean searches should include the company if it's expressed in the query as the first part and also covering things like any technical skills from the query, and other things in the query...
+Ensure the boolean search string includes:
+- The company name first
+- The job title
+- Key skills from the query
 
-        Ensure each bucket includes all common, uncommon, and rare keyword variations, and never have more than four separate buckets.
-        Return the answer as a valid JSON object with "isValid" (boolean), "booleanSearch" (string if isValid is true), and "company" (string).
+Return the answer as a JSON object with "isValid", "booleanSearch", and "company". Don't add backslashes in the query
       `,
           },
           {
