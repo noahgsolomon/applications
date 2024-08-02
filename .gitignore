@@ -37,6 +37,6 @@ next-env.d.ts
 
 # sst
 .sst
-
+.env
 # open-next
 .open-next

@@ -1,9 +1,11 @@
 export const NextEnv = {
   DB_URL: process.env.DB_URL!,
-  NEXTAUTH_URL: process.env.WEBSITE!,
+  // switch to process.env.WEBSITE! when running sst deploy
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
-  MODE: "PROD",
+  // switch to DEV when running sst deploy
+  MODE: "DEV",
 };
 
 export const SubscriberEnv = {

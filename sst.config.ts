@@ -21,7 +21,7 @@ export default $config({
     queue.subscribe({
       handler: "src/subscriber.handler",
       environment: SubscriberEnv,
-      timeout: "3 minutes",
+      timeout: "10 minutes",
     });
 
     new sst.aws.Nextjs("WhopApplications", {
