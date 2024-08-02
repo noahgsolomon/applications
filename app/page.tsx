@@ -15,9 +15,13 @@ import {
   ScrollArea,
   Button,
   Link,
+  Avatar,
 } from "frosted-ui";
 import { redirect } from "next/navigation";
 import OutboundDialog from "./outbound-dialog";
+import { candidates } from "@/server/db/schemas/users/schema";
+import { outbound } from "@/src/helper";
+import { Check, X } from "lucide-react";
 
 export default async function Home() {
   const user = await api.user.me();
@@ -68,8 +72,113 @@ export default async function Home() {
                             List of candidates sorted by weight.
                           </DialogDescription>
                           <ScrollArea>
-                            <Flex className="py-2" direction="column" gap="2">
+                            <Card>
+                              <Heading className="underline">Matches:</Heading>
+                              <Flex className="py-2" direction="column" gap="2">
+                                {prev.matches
+                                  .sort((a, b) => b.weight! - a.weight!)
+                                  .map((candidate) => (
+                                    <Card key={candidate.id}>
+                                      <div className="flex flex-row  gap-2 pb-4">
+                                        <Avatar
+                                          size={"5"}
+                                          color="blue"
+                                          fallback={candidate.linkedinData.firstName
+                                            .toUpperCase()
+                                            .charAt(0)}
+                                          src={
+                                            candidate.linkedinData.photoUrl ??
+                                            ""
+                                          }
+                                        />
+                                        <div className="flex flex-col ">
+                                          <Heading>
+                                            {candidate.linkedinData.firstName +
+                                              " " +
+                                              candidate.linkedinData.lastName}
+                                          </Heading>
+                                          <div className="flex flex-row gap-1">
+                                            <Text>
+                                              {
+                                                candidate.linkedinData.positions
+                                                  .positionHistory[0]
+                                                  .companyName
+                                              }
+                                            </Text>
+
+                                            <Text>
+                                              {
+                                                candidate.linkedinData.positions
+                                                  .positionHistory[0].title
+                                              }
+                                            </Text>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-col gap-2 pb-4">
+                                        <Text
+                                          size={"2"}
+                                          className="italic flex flex-row gap-1 items-center"
+                                        >
+                                          Lives near Brooklyn:{" "}
+                                          {candidate.livesNearBrooklyn ? (
+                                            <Check color="#00ff00" />
+                                          ) : (
+                                            <X color="#ff0000" />
+                                          )}
+                                        </Text>
+                                        <Text
+                                          size={"2"}
+                                          className="italic flex flex-row gap-1 items-center"
+                                        >
+                                          Has worked in Big Tech:{" "}
+                                          {candidate.livesNearBrooklyn ? (
+                                            <Check color="#00ff00" />
+                                          ) : (
+                                            <X color="#ff0000" />
+                                          )}
+                                        </Text>
+                                        <Text
+                                          size={"2"}
+                                          className="italic flex flex-row gap-1 items-center"
+                                        >
+                                          Worked at {prev.company}:{" "}
+                                          {candidate.workedAtRelevant ? (
+                                            <Check color="#00ff00" />
+                                          ) : (
+                                            <X color="#ff0000" />
+                                          )}
+                                        </Text>
+                                      </div>
+                                      <Link
+                                        href={candidate.url!}
+                                        target="_blank"
+                                        key={candidate.id}
+                                      >
+                                        {candidate.url}
+                                      </Link>
+                                    </Card>
+                                  ))}
+                              </Flex>
+                            </Card>
+                            <Flex
+                              className="py-4 pt-8"
+                              direction="column"
+                              gap="2"
+                            >
+                              <div>
+                                <Heading>Remaining</Heading>
+                                <Text className="italic text-sm opacity-80">
+                                  in sorted order
+                                </Text>
+                              </div>
                               {prev.candidates
+                                .filter(
+                                  (candidate) =>
+                                    !prev.matches
+                                      .map((match) => match.id)
+                                      .includes(candidate.id),
+                                )
                                 .sort((a, b) => b.weight! - a.weight!)
                                 .map((candidate) => (
                                   <Link
