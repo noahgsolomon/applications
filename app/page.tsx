@@ -132,7 +132,7 @@ export default async function Home() {
                                           className="italic flex flex-row gap-1 items-center"
                                         >
                                           Has worked in Big Tech:{" "}
-                                          {candidate.livesNearBrooklyn ? (
+                                          {candidate.workedInBigTech ? (
                                             <Check color="#00ff00" />
                                           ) : (
                                             <X color="#ff0000" />

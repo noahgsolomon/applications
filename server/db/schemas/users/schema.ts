@@ -64,7 +64,8 @@ export const candidates = pgTable("candidates", {
   workedAtRelevant: boolean("worked_at_relevant").default(false),
   livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
   workedInPosition: boolean("worked_in_position").default(false),
-  url: text("url").unique(),
+  // not unique until we make the matches (weight similarity and stuff json object)
+  url: text("url"),
   similarity: real("similarity"),
   weight: real("weight"),
   linkedinData: json("linkedin_data").$type<any>().default({}),
