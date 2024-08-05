@@ -1,11 +1,14 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  date,
   integer,
   json,
   pgTable,
   real,
   text,
+  timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -44,14 +47,14 @@ export const outbound = pgTable("outbound", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  user_id: varchar("user_id", { length: 255 })
+  userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id),
   query: text("query").notNull(),
   job: varchar("job", { length: 255 }).notNull(),
-  near_brooklyn: boolean("near_brooklyn").notNull(),
-  matched: json("matched").$type<string[]>().default([]),
+  nearBrooklyn: boolean("near_brooklyn").notNull(),
   company: varchar("company", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt"),
 });
 
 export const candidates = pgTable("candidates", {
@@ -60,25 +63,50 @@ export const candidates = pgTable("candidates", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   summary: text("summary"),
+  miniSummary: text("mini_summary"),
   workedInBigTech: boolean("worked_in_big_tech").default(false),
-  workedAtRelevant: boolean("worked_at_relevant").default(false),
   livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
-  workedInPosition: boolean("worked_in_position").default(false),
   // not unique until we make the matches (weight similarity and stuff json object)
-  url: text("url"),
-  similarity: real("similarity"),
-  weight: real("weight"),
+  url: text("url").notNull().unique(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
-  outboundId: varchar("outbound_id", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt"),
 });
 
-export const outboundRelations = relations(outbound, ({ many }) => ({
-  candidates: many(candidates),
-}));
-
-export const candidatesRelations = relations(candidates, ({ one }) => ({
-  outbound: one(outbound, {
-    fields: [candidates.outboundId],
-    references: [outbound.id],
+export const outboundCandidates = pgTable(
+  "outbound_candidates",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    candidateId: varchar("candidate_id", { length: 255 })
+      .notNull()
+      .references(() => candidates.id),
+    outboundId: varchar("outbound_id", { length: 255 }).notNull(),
+    workedInPosition: boolean("worked_in_position").notNull(),
+    workedAtRelevant: boolean("worked_at_relevant").notNull(),
+    similarity: real("similarity").notNull(),
+    weight: real("weight").notNull(),
+    matched: boolean("matched").default(false),
+  },
+  (t) => ({
+    outboundCandidateIdx: uniqueIndex("outbound_candidate_idx").on(
+      t.candidateId,
+      t.outboundId,
+    ),
   }),
-}));
+);
+
+export const outboundCandidatesRelations = relations(
+  outboundCandidates,
+  ({ one }) => ({
+    outbound: one(outbound, {
+      fields: [outboundCandidates.outboundId],
+      references: [outbound.id],
+    }),
+    candidate: one(candidates, {
+      fields: [outboundCandidates.candidateId],
+      references: [candidates.id],
+    }),
+  }),
+);
