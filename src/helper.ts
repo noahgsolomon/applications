@@ -1,11 +1,13 @@
 import axios from "axios";
 import OpenAI from "openai";
 import { type db as dbType } from "@/server/db";
-import { InferSelectModel, eq } from "drizzle-orm";
+import { InferSelectModel, and, eq, inArray } from "drizzle-orm";
 import {
   pendingOutbound as pendingOutboundTable,
   outbound as outboundTable,
   candidates as candidatesTable,
+  outboundCandidates as outboundCandidatesTable,
+  outboundCandidates,
 } from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
@@ -87,8 +89,7 @@ const googleSearch = async (
     await logUpdate(`Fetching results from ${start}...`, pendingOutbound, {
       db,
     });
-    // www. to both because we only want US for rn.
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:${pendingOutbound.nearBrooklyn ? "www." : "www."}linkedin.com/in ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(`site:${pendingOutbound.nearBrooklyn ? "www.linkedin.com/in" : "www.linkedin.com/in"} ${booleanSearch}`)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${encodeURIComponent(start)}`;
     try {
       const response = await axios.get(url);
       const results = response.data.items;
@@ -96,7 +97,7 @@ const googleSearch = async (
         results.forEach((result: any) => {
           if (
             result.link.includes(
-              `${pendingOutbound.nearBrooklyn ? "www." : "www."}linkedin.com/in`,
+              `${pendingOutbound.nearBrooklyn ? "www.linkedin.com/in" : "www.linkedin.com/in"}`,
             )
           ) {
             searchResults.push(result);
@@ -167,6 +168,34 @@ const scrapeLinkedInProfile = async (
     console.error(`Error fetching LinkedIn profile data: ${error}`);
     return null;
   }
+};
+
+const generateMiniSummary = async (
+  profileData: any,
+  pendingOutbound: InferSelectModel<typeof pendingOutboundTable>,
+  { db }: { db: typeof dbType },
+) => {
+  await logUpdate(`Generating summary for profile...`, pendingOutbound, { db });
+  const completion = await openai.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are to take in this person's LinkedIn profile data, and generate a 1-2 sentence summary of their experience",
+      },
+      {
+        role: "user",
+        content: JSON.stringify(profileData),
+      },
+    ],
+    response_format: { type: "text" },
+    model: "gpt-4o-mini",
+    temperature: 0,
+    max_tokens: 2048,
+  });
+
+  await logUpdate(`Summary generated.`, pendingOutbound, { db });
+  return completion.choices[0].message.content;
 };
 
 const generateSummary = async (
@@ -249,14 +278,17 @@ const processLinkedInProfile = async (
   if (profileData && profileData.success) {
     const personData = profileData.person;
     const summary = await generateSummary(personData, pendingOutbound, { db });
+    const miniSummary = await generateMiniSummary(personData, pendingOutbound, {
+      db,
+    });
     const workedInBigTech = await askCondition(
-      `Has this person worked in big tech? ${JSON.stringify(
+      `Has this person worked in big tech?  ${JSON.stringify(
         personData.positions.positionHistory.map(
-          (experience: any) => experience.companyName,
+          (experience: any) => experience,
         ),
         null,
         2,
-      )}`,
+      )} ${personData.summary} ${personData.headline}`,
       pendingOutbound,
       { db },
     );
@@ -265,29 +297,29 @@ const processLinkedInProfile = async (
     const workedAtRelevant = await askCondition(
       `Has this person worked at ${company}? ${JSON.stringify(
         personData.positions.positionHistory.map(
-          (experience: any) => experience.companyName,
+          (experience: any) => experience,
         ),
         null,
         2,
-      )}`,
-      pendingOutbound,
-      { db },
-    );
-
-    const livesNearBrooklyn = await askCondition(
-      `Does this person live within 50 miles of Brookyln? ${personData.location ?? "unknown location"}`,
+      )} ${personData.summary} ${personData.headline}`,
       pendingOutbound,
       { db },
     );
 
     const workedInPosition = await askCondition(
-      `Has this person have experience as ${position}? ${JSON.stringify(
+      `Does this person have experience as ${position} or something pretty similar? ${JSON.stringify(
         personData.positions.positionHistory.map(
           (experience: any) => experience,
         ),
         null,
         2,
-      )}`,
+      )} ${personData.summary} ${personData.headline}`,
+      pendingOutbound,
+      { db },
+    );
+
+    const livesNearBrooklyn = await askCondition(
+      `Does this person live within 50 miles of Brookyln New York USA? ${personData.location ?? "unknown location"}`,
       pendingOutbound,
       { db },
     );
@@ -297,20 +329,18 @@ const processLinkedInProfile = async (
     await db.insert(candidatesTable).values({
       id: userUuid,
       summary,
+      miniSummary,
       workedInBigTech,
-      workedAtRelevant,
       livesNearBrooklyn,
-      workedInPosition,
       url: linkedinUrl,
-      similarity: 0,
-      weight: 0,
-      outboundId: pendingOutbound.outboundId,
       linkedinData: personData,
+      createdAt: new Date(),
     });
 
     const userSummary = {
       id: userUuid,
       summary,
+      miniSummary,
       workedInBigTech,
       workedAtRelevant,
       livesNearBrooklyn,
@@ -318,6 +348,18 @@ const processLinkedInProfile = async (
       url: linkedinUrl,
       linkedinData: personData,
     };
+
+    // Insert into outboundCandidates table
+    await db.insert(outboundCandidatesTable).values({
+      id: uuid(),
+      candidateId: userUuid,
+      outboundId,
+      workedInPosition,
+      workedAtRelevant,
+      similarity: 0,
+      weight: 0,
+      matched: false,
+    });
 
     // Update progress in the pendingOutbound table
 
@@ -365,7 +407,9 @@ export const outbound = async (
     company,
     booleanSearch,
   } = pendingOutbound;
+
   await logUpdate(`Starting main function...`, pendingOutbound, { db });
+
   await db
     .update(pendingOutboundTable)
     .set({
@@ -373,6 +417,7 @@ export const outbound = async (
       status: `Parsed Queue Message`,
     })
     .where(eq(pendingOutboundTable.outboundId, outboundId));
+
   const apiKey = process.env.GOOGLE_API_KEY!;
   const cseId = process.env.GOOGLE_CSE_ID!;
 
@@ -393,10 +438,25 @@ export const outbound = async (
     pendingOutbound,
     { db },
   );
-  const linkedinUrls = googleResults.map((result) => result.link);
+
+  const linkedinUrls = googleResults.map((result) => result.link) as string[];
+  const existingCandidates = await db.query.candidates.findMany({
+    where: inArray(candidatesTable.url, linkedinUrls),
+  });
+  const existingLinkedinUrls = existingCandidates.map(
+    (candidate) => candidate.url,
+  );
+
+  console.log("existingLinkedinUrls", existingLinkedinUrls);
+  console.log(
+    "existingCandidates",
+    existingCandidates.map((c) => c.id),
+  );
+
   await logUpdate(`Google search completed.`, pendingOutbound, { db });
 
   await logUpdate(`Processing LinkedIn profiles...`, pendingOutbound, { db });
+
   await db
     .update(pendingOutboundTable)
     .set({
@@ -404,9 +464,15 @@ export const outbound = async (
       status: `Processing LinkedIn profiles...`,
     })
     .where(eq(pendingOutboundTable.outboundId, outboundId));
+
   let profiles: any[] = [];
-  for (let i = 0; i < linkedinUrls.length; i += 10) {
-    const batch = linkedinUrls
+  const nonExistentLinkedinUrls = linkedinUrls.filter(
+    (url) => !existingLinkedinUrls.includes(url),
+  );
+
+  // Process new profiles
+  for (let i = 0; i < nonExistentLinkedinUrls.length; i += 10) {
+    const batch = nonExistentLinkedinUrls
       .slice(i, i + 10)
       .map((url, index) =>
         processLinkedInProfile(
@@ -426,74 +492,139 @@ export const outbound = async (
     await logUpdate(`Waiting for 5 seconds...`, pendingOutbound, { db });
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
+
+  // Process existing candidates
+  for (let i = 0; i < existingCandidates.length; i++) {
+    const company = searchQuery.split(" ")[0];
+    const workedAtRelevant = await askCondition(
+      `Has this person worked at ${company}? ${JSON.stringify(
+        existingCandidates[i].linkedinData.positions.positionHistory.map(
+          (experience: any) => experience.companyName,
+        ),
+        null,
+        2,
+      )}`,
+      pendingOutbound,
+      { db },
+    );
+
+    const workedInPosition = await askCondition(
+      `Does this person have experience as ${position} or something pretty similar? ${JSON.stringify(
+        existingCandidates[i].linkedinData.positions.positionHistory.map(
+          (experience: any) => experience.companyName,
+        ),
+        null,
+        2,
+      )} ${existingCandidates[i].linkedinData.summary} ${existingCandidates[i].linkedinData.headline}`,
+      pendingOutbound,
+      { db },
+    );
+
+    await db.insert(outboundCandidatesTable).values({
+      id: uuid(),
+      candidateId: existingCandidates[i].id,
+      outboundId,
+      workedInPosition,
+      workedAtRelevant,
+      similarity: 0,
+      weight: 0,
+      matched: false,
+    });
+
+    profiles.push({
+      id: existingCandidates[i].id,
+      summary: existingCandidates[i].summary,
+      miniSummary: existingCandidates[i].miniSummary,
+      workedInBigTech: existingCandidates[i].workedInBigTech,
+      workedAtRelevant,
+      livesNearBrooklyn: existingCandidates[i].livesNearBrooklyn,
+      workedInPosition,
+      url: existingCandidates[i].url,
+      linkedinData: existingCandidates[i].linkedinData,
+    });
+  }
+
+  profiles = profiles.filter((profile) => profile !== null);
+
   await db.update(pendingOutboundTable).set({
     progress: 65,
     status: `Getting job description embedding...`,
   });
+
   await logUpdate(`LinkedIn profiles processed.`, pendingOutbound, { db });
 
   await logUpdate(`Getting job description embedding...`, pendingOutbound, {
     db,
   });
+
   const jobDescriptionEmbedding = await getEmbedding(
     JOB_DESCRIPTION,
     pendingOutbound,
     { db },
   );
+
   await db.update(pendingOutboundTable).set({
     progress: 85,
     status: `Evaluating and sorting profiles...`,
   });
+
   await logUpdate(`Evaluating and sorting profiles...`, pendingOutbound, {
     db,
   });
+
   const finalists = [];
-  const matched_engineers = [];
+  const matchedEngineers = [];
+
+  console.log("profiles", profiles.length);
 
   for (const profile of profiles) {
-    if (profile) {
-      const profileEmbedding = await getEmbedding(
-        profile.summary ?? "",
-        pendingOutbound,
-        { db },
+    const profileEmbedding = await getEmbedding(
+      profile.summary ?? "",
+      pendingOutbound,
+      { db },
+    );
+
+    const similarity = cosineSimilarity(
+      jobDescriptionEmbedding,
+      profileEmbedding,
+      pendingOutbound,
+      { db },
+    );
+
+    const weight =
+      0.35 * similarity +
+      0.15 * Number(profile.workedInPosition) +
+      0.35 * Number(profile.workedAtRelevant) +
+      0.15 * Number(profile.workedInBigTech) +
+      0.35 * Number(profile.livesNearBrooklyn);
+
+    // Update outboundCandidates with similarity and weight
+    await db
+      .update(outboundCandidatesTable)
+      .set({ similarity, weight })
+      .where(
+        and(
+          eq(outboundCandidatesTable.candidateId, profile.id),
+          eq(outboundCandidatesTable.outboundId, outboundId),
+        ),
       );
-      const similarity = cosineSimilarity(
-        jobDescriptionEmbedding,
-        profileEmbedding,
-        pendingOutbound,
-        { db },
-      );
 
-      const weight =
-        0.35 * similarity +
-        0.15 * Number(profile.workedInPosition) +
-        0.35 * Number(profile.workedAtRelevant) +
-        0.15 * Number(profile.workedInBigTech) +
-        0.35 * Number(profile.livesNearBrooklyn);
-
-      // Update candidate with similarity and weight
-      await db
-        .update(candidatesTable)
-        .set({ similarity, weight })
-        .where(eq(candidatesTable.url, profile.url));
-
-      if (profile.workedAtRelevant && profile.workedInPosition) {
-        if (nearBrooklyn) {
-          if (profile.nearBrooklyn) {
-            matched_engineers.push({ ...profile, similarity, weight });
-          }
-        } else {
-          matched_engineers.push({ ...profile, similarity, weight });
+    if (profile.workedAtRelevant && profile.workedInPosition) {
+      if (nearBrooklyn) {
+        if (profile.livesNearBrooklyn) {
+          matchedEngineers.push({ ...profile, similarity, weight });
         }
+      } else {
+        matchedEngineers.push({ ...profile, similarity, weight });
       }
-
-      finalists.push({ ...profile, similarity, weight });
     }
+
+    finalists.push({ ...profile, similarity, weight });
   }
 
   finalists.sort((a, b) => b.weight - a.weight);
 
-  matched_engineers.sort((a, b) => b.weight - a.weight);
+  matchedEngineers.sort((a, b) => b.weight - a.weight);
 
   await logUpdate(`Finalists evaluated and sorted.`, pendingOutbound, { db });
 
@@ -506,13 +637,25 @@ export const outbound = async (
   // Insert row in the outbound table
   await db.insert(outboundTable).values({
     id: pendingOutbound.outboundId,
-    user_id: pendingOutbound.userId,
+    userId: pendingOutbound.userId,
     query: searchQuery,
     job: position,
-    near_brooklyn: nearBrooklyn,
-    matched: matched_engineers.map((engineer) => engineer.id),
+    nearBrooklyn: nearBrooklyn,
     company: company,
+    createdAt: new Date(),
   });
+
+  for (const matchedEngineer of matchedEngineers) {
+    await db
+      .update(outboundCandidatesTable)
+      .set({ matched: true })
+      .where(
+        and(
+          eq(outboundCandidatesTable.candidateId, matchedEngineer.id),
+          eq(outboundCandidatesTable.outboundId, outboundId),
+        ),
+      );
+  }
 
   await logUpdate(`Finalists written to outbound table.`, pendingOutbound, {
     db,
