@@ -3,15 +3,15 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   candidates,
   outbound,
+  outboundCandidates,
   pendingOutbound,
 } from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { eq, inArray, InferSelectModel, ne } from "drizzle-orm";
+import { desc, eq, InferSelectModel, ne } from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-import { InferResultType } from "@/utils/infer";
 
 const client = new SQSClient();
 
@@ -20,24 +20,67 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  deletePendingOutbound: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(pendingOutbound)
+        .where(eq(pendingOutbound.id, input.id));
+    }),
   searches: protectedProcedure.query(async ({ ctx }) => {
-    const result: (InferResultType<"outbound", { candidates: true }> & {
-      matches: InferSelectModel<typeof candidates>[];
+    const result: (InferSelectModel<typeof outbound> & {
+      candidates: (InferSelectModel<typeof candidates> & {
+        workedInPosition: boolean;
+        workedAtRelevant: boolean;
+        similarity: number;
+        weight: number;
+        matched: boolean;
+      })[];
+      matches: (InferSelectModel<typeof candidates> & {
+        workedInPosition: boolean;
+        workedAtRelevant: boolean;
+        similarity: number;
+        weight: number;
+        matched: boolean;
+      })[];
     })[] = [];
-    const outboundSearch = await ctx.db.query.outbound.findMany({
-      with: {
-        candidates: true,
-      },
+
+    // Fetch all outbound entries
+    const outboundEntries = await ctx.db.query.outbound.findMany({
+      orderBy: [desc(outbound.createdAt)],
     });
-    for (const outbound of outboundSearch) {
-      const matches = await ctx.db.query.candidates.findMany({
-        where: inArray(candidates.id, outbound.matched ?? []),
-      });
+
+    for (const o of outboundEntries) {
+      // Fetch related candidates through the junction table
+      const outboundCandidatesEntries =
+        await ctx.db.query.outboundCandidates.findMany({
+          with: {
+            candidate: true,
+          },
+          where: eq(outboundCandidates.outboundId, o.id),
+        });
+
+      // Combine candidate details with outboundCandidates details
+      const candidates = outboundCandidatesEntries.map((entry) => ({
+        ...entry.candidate,
+        workedInPosition: entry.workedInPosition,
+        workedAtRelevant: entry.workedAtRelevant,
+        similarity: entry.similarity,
+        weight: entry.weight,
+        matched: entry.matched ?? false, // Default to false if null
+      }));
+
+      const matchedCandidates = candidates.filter(
+        (candidate) => candidate.matched,
+      );
+
       result.push({
-        ...outbound,
-        matches,
+        ...o,
+        candidates,
+        matches: matchedCandidates,
       });
     }
+
     return result;
   }),
   pollPendingOutbound: protectedProcedure
@@ -56,10 +99,7 @@ export const outboundRouter = createTRPCRouter({
       return pendingOutboundRecord;
     }),
   existingPendingOutbound: protectedProcedure.query(async ({ ctx }) => {
-    const existingPendingOutbound = await ctx.db
-      .select()
-      .from(pendingOutbound)
-      .where(ne(pendingOutbound.progress, 100));
+    const existingPendingOutbound = await ctx.db.select().from(pendingOutbound);
     return {
       existing: existingPendingOutbound.length > 0,
       id:
@@ -132,7 +172,8 @@ Return the answer as a JSON object with "isValid", "booleanSearch", and "company
         userId: ctx.user_id,
         outboundId: uuid(),
         nearBrooklyn: input.nearBrooklyn,
-        booleanSearch: response.booleanSearch,
+        booleanSearch:
+          response.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
         logs: "",
       });
 
