@@ -26,6 +26,7 @@ import {
   ScrollArea,
 } from "frosted-ui";
 import { Loader, ScanSearch } from "lucide-react";
+import { toast } from "sonner";
 
 export default function OutboundDialog() {
   const [query, setQuery] = useState("");
@@ -40,6 +41,10 @@ export default function OutboundDialog() {
   const [existing, setExisting] = useState(false);
   const existingPendingOutboundQuery =
     api.outbound.existingPendingOutbound.useQuery();
+
+  const outboundSearchesQuery = api.outbound.searches.useQuery(undefined, {
+    enabled: false,
+  });
 
   useEffect(() => {
     if (existingPendingOutboundQuery.data?.existing) {
@@ -58,6 +63,9 @@ export default function OutboundDialog() {
   const pollPendingOutboundQuery =
     api.outbound.pollPendingOutbound.useMutation();
 
+  const deletePendingOutboundMutation =
+    api.outbound.deletePendingOutbound.useMutation();
+
   useEffect(() => {
     const poll = async () => {
       const response = await pollPendingOutboundQuery.mutateAsync({
@@ -66,7 +74,14 @@ export default function OutboundDialog() {
       });
       setPollingData(response);
       if (response?.progress === 100 || response?.status === "COMPLETED") {
+        toast.success("Outbound search completed");
+        outboundSearchesQuery.refetch();
+
         setExisting(false);
+        setPollingData(undefined);
+        deletePendingOutboundMutation.mutate({
+          id: response.id,
+        });
       }
     };
 
@@ -132,7 +147,7 @@ export default function OutboundDialog() {
               </DialogTrigger>
               <DialogContent>
                 <ScrollArea>
-                  <div className="text-[10px]">
+                  <div className="text-sm">
                     {pollingData.logs ? pollingData.logs : "No logs found"}
                   </div>
                 </ScrollArea>

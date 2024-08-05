@@ -7,6 +7,7 @@ import "frosted-ui/styles.css";
 import "./globals.css";
 import { ThemeProvider } from "./providers";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
