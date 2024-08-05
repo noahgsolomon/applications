@@ -4,6 +4,7 @@
 import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
 import { Theme } from "frosted-ui";
 import { ReactNode, useEffect, useState } from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -24,6 +25,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
       dangerColor="red"
     >
       {children}
+
+      <Toaster richColors />
     </Theme>
   );
 }
