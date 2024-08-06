@@ -319,7 +319,7 @@ const processLinkedInProfile = async (
     );
 
     const livesNearBrooklyn = await askCondition(
-      `Does this person live within 50 miles of Brookyln New York USA? ${personData.location ?? "unknown location"}`,
+      `Does this person live within 50 miles of Brookyln New York USA? ${personData.location ?? "unknown location"} ${personData.positions.positionHistory.length > 0 ? `or ${personData.positions.positionHistory[0]}` : ""}`,
       pendingOutbound,
       { db },
     );
