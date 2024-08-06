@@ -66,7 +66,9 @@ export const candidates = pgTable("candidates", {
   miniSummary: text("mini_summary"),
   workedInBigTech: boolean("worked_in_big_tech").default(false),
   livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
-  // not unique until we make the matches (weight similarity and stuff json object)
+  companyId: varchar("company_id", { length: 255 }).references(
+    () => company.id,
+  ), // not unique until we make the matches (weight similarity and stuff json object)
   url: text("url").notNull().unique(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
   createdAt: timestamp("createdAt"),
@@ -110,3 +112,31 @@ export const outboundCandidatesRelations = relations(
     }),
   }),
 );
+
+export const company = pgTable("company", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  linkedinId: varchar("linkedin_id", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  universalName: varchar("universal_name", { length: 255 }),
+  linkedinUrl: text("linkedin_url").notNull(),
+  employeeCount: integer("employee_count"),
+  websiteUrl: text("website_url"),
+  tagline: text("tagline"),
+  description: text("description"),
+  industry: varchar("industry", { length: 255 }),
+  phone: varchar("phone", { length: 255 }),
+  specialities: json("specialities").$type<string[]>().default([]),
+  headquarter: json("headquarter").$type<{
+    city: string;
+    country: string;
+    postalCode: string;
+    geographicArea: string;
+    street1: string | null;
+    street2: string | null;
+  }>(),
+  logo: text("logo"),
+  foundedOn: json("founded_on").$type<{ year: number }>(),
+});
