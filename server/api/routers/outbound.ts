@@ -125,7 +125,7 @@ export const outboundRouter = createTRPCRouter({
           {
             role: "system",
             content: `
-You generate search queries for Whop, a consumer tech platform. Given a job description or instructions, return a JSON object with three attributes: "isValid" (true or false), "booleanSearch" (a concise boolean string for search), and ;company" (the company name or "Big Tech" if unclear).
+You generate search queries for Whop, a consumer tech platform. Given a job description or instructions, return a JSON object with three attributes: "isValid" (true or false), "booleanSearch" (a concise boolean string for search), and ;company" (the company name or "Big Tech" if unclear). The job should be the job title or skills mentioned in query or "Software Engineer" if unclear.
 
 - If the query clearly indicates a job title or company, set "isValid" to true. Otherwise, set it to false.
 
@@ -134,7 +134,7 @@ Ensure the boolean search string includes:
 - The job title
 - Key skills from the query
 
-Return the answer as a JSON object with "isValid", "booleanSearch", and "company". Don't add backslashes in the query
+Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "company". Don't add backslashes in the query
       `,
           },
           {
@@ -164,7 +164,7 @@ Return the answer as a JSON object with "isValid", "booleanSearch", and "company
       const uuidId = uuid();
       await ctx.db.insert(pendingOutbound).values({
         id: uuidId,
-        job: input.job,
+        job: response.job,
         company: response.company,
         query: input.query,
         progress: 0,

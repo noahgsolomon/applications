@@ -49,10 +49,10 @@ export default function PreviousOutboundSearches({
           <Heading className="pb-6 w-full text-center">
             Previous Outbound Searches
           </Heading>
-          <Flex wrap={"wrap"} gap={"4"}>
+          <div className="flex flex-col sm:flex-row flex-wrap max-w-[800px] gap-4 items-center justify-center mx-auto">
             {searches.map((prev, index) => (
-              <Card key={index} className="max-w-[95%] w-[300px]">
-                <div className="flex flex-col gap-2">
+              <Card key={index} className="max-w-[95%] h-[200px] w-[300px]">
+                <div className="flex flex-col h-full justify-between">
                   <Text className="max-w-[300px]" size="4" weight="bold">
                     {prev.query}
                   </Text>
@@ -130,7 +130,7 @@ export default function PreviousOutboundSearches({
                 </div>
               </Card>
             ))}
-          </Flex>
+          </div>
         </div>
       )}
     </>
