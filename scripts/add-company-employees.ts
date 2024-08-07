@@ -151,14 +151,14 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
     );
 
     const livesNearBrooklyn = await askCondition(
-      `Does this person live within 50 miles of Brookyln New York USA? ${personData.location ?? "unknown location"} ${personData.positions.positionHistory.length > 0 ? `or ${personData.positions.positionHistory[0]}` : ""}`,
+      `Does this person live within 50 miles of Brookyln New York USA? Their location: ${personData.location ?? "unknown location"} ${personData.positions.positionHistory.length > 0 ? `or ${JSON.stringify(personData.positions.positionHistory[0], null, 2)}` : ""}`,
     );
 
     console.log("Inserting candidate into database...");
     const userUuid = uuid();
     await db.insert(candidatesTable).values({
       id: userUuid,
-      companyId: "3c3a2b79-b098-45d9-8a86-345fab37e811",
+      companyId: "c799d4c1-78b5-4914-a76b-dbe03c595826",
       summary,
       miniSummary,
       workedInBigTech,
@@ -175,7 +175,7 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
 
 const main = async () => {
   console.log("Reading and parsing JSON file...");
-  const data = fs.readFileSync("./companies/vercel.json", "utf-8");
+  const data = fs.readFileSync("./companies/browser-company.json", "utf-8");
   const json = JSON.parse(data);
 
   console.log("Iterating over each employee...");
