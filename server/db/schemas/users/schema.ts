@@ -139,4 +139,5 @@ export const company = pgTable("company", {
   }>(),
   logo: text("logo"),
   foundedOn: json("founded_on").$type<{ year: number }>(),
+  linkedinData: json("linkedin_data").$type<any>().default({}),
 });
