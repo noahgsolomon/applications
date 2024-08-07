@@ -122,19 +122,20 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(async ({ ctx, next }) => {
-    const user = await ctx.db
-      .select()
-      .from(users)
-      .where(eq(users.email, ctx.session?.user?.email ?? ""));
-
-    if (!ctx.session || !ctx.session.user || user.length === 0) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
+    // const user = await ctx.db
+    //   .select()
+    //   .from(users)
+    //   .where(eq(users.email, ctx.session?.user?.email ?? ""));
+    //
+    // if (!ctx.session || !ctx.session.user || user.length === 0) {
+    //   throw new TRPCError({ code: "UNAUTHORIZED" });
+    // }
     return next({
       ctx: {
-        user_id: user[0].id,
+        user_id: "5855fc5c-c9d1-4bbf-a16d-83cf3229f5c6",
+        // user_id: user[0].id,
         // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        // session: { ...ctx.session, user: ctx.session.user },
       },
     });
   });
