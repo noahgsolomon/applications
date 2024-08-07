@@ -14,12 +14,6 @@ import {
   DialogClose,
   TextFieldInput,
   Switch,
-  SelectRoot,
-  SelectTrigger,
-  SelectContent,
-  SelectGroup,
-  SelectLabel,
-  SelectItem,
   DialogRoot,
   Card,
   Progress,
@@ -27,6 +21,13 @@ import {
 } from "frosted-ui";
 import { Loader, ScanSearch } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
 
 export default function OutboundDialog() {
   const [query, setQuery] = useState("");
@@ -41,6 +42,9 @@ export default function OutboundDialog() {
   const [existing, setExisting] = useState(false);
   const existingPendingOutboundQuery =
     api.outbound.existingPendingOutbound.useQuery();
+
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const outboundSearchesQuery = api.outbound.searches.useQuery(undefined, {
     enabled: false,
@@ -76,6 +80,7 @@ export default function OutboundDialog() {
       if (response?.progress === 100 || response?.status === "COMPLETED") {
         toast.success("Outbound search completed");
         outboundSearchesQuery.refetch();
+        router.push("/history");
 
         setExisting(false);
         setPollingData(undefined);
@@ -162,71 +167,83 @@ export default function OutboundDialog() {
           </div>
         </Card>
       ) : (
-        <DialogRoot>
-          <DialogTrigger>
-            <Button style={{ cursor: "pointer" }} size={"4"} variant="surface">
-              <div className="items-center flex flex-row gap-2">
-                <ScanSearch className="size-6" />
-              </div>
-            </Button>
-          </DialogTrigger>
-          <DialogContent
-            size="3"
-            style={{
-              maxWidth: 450,
-            }}
-          >
-            <DialogTitle>Outbound Search</DialogTitle>
-            <DialogDescription>
-              Enter the details for the outbound search.
-            </DialogDescription>
-            <Flex direction="column" gap="3">
-              <label>
-                <Text as="div" mb="1" size="2" weight="bold">
-                  Search Query
-                </Text>
-                <TextFieldInput
-                  placeholder="Enter search query"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </label>
-              {error && (
-                <Text as="div" size="2" color="red">
-                  {error}
-                </Text>
-              )}
-              <label>
-                <Text as="div" mb="1" size="2" weight="bold">
-                  Near Brooklyn
-                </Text>
-                <Switch
-                  size="2"
-                  checked={nearBrooklyn}
-                  onCheckedChange={setNearBrooklyn}
-                />
-              </label>
-            </Flex>
-            <Flex gap="3" justify="end" mt="4">
-              <DialogClose>
-                <Button color="gray" variant="soft">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                disabled={loading}
-                variant="classic"
-                onClick={handleSearch}
-              >
-                {loading ? (
-                  <Loader className="size-4 animate-spin" />
-                ) : (
-                  "Search"
+        <TooltipProvider delayDuration={500}>
+          <DialogRoot open={open} onOpenChange={setOpen}>
+            <DialogTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    style={{ cursor: "pointer", padding: "2rem" }}
+                    size={"4"}
+                    onClick={() => setOpen(true)}
+                    variant="surface"
+                  >
+                    <div className="items-center flex flex-row gap-2">
+                      <ScanSearch className="size-10" />
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Find Outbound</TooltipContent>
+              </Tooltip>
+            </DialogTrigger>
+            <DialogContent
+              size="3"
+              style={{
+                maxWidth: 450,
+              }}
+            >
+              <DialogTitle>Outbound Search</DialogTitle>
+              <DialogDescription>
+                Enter the details for the outbound search.
+              </DialogDescription>
+              <Flex direction="column" gap="3">
+                <label>
+                  <Text as="div" mb="1" size="2" weight="bold">
+                    Search Query
+                  </Text>
+                  <TextFieldInput
+                    placeholder="Enter search query"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </label>
+                {error && (
+                  <Text as="div" size="2" color="red">
+                    {error}
+                  </Text>
                 )}
-              </Button>
-            </Flex>
-          </DialogContent>
-        </DialogRoot>
+                <label>
+                  <Text as="div" mb="1" size="2" weight="bold">
+                    Near Brooklyn
+                  </Text>
+                  <Switch
+                    size="2"
+                    checked={nearBrooklyn}
+                    onCheckedChange={setNearBrooklyn}
+                  />
+                </label>
+              </Flex>
+              <Flex gap="3" justify="end" mt="4">
+                <DialogClose>
+                  <Button color="gray" variant="soft">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  disabled={loading}
+                  variant="classic"
+                  onClick={handleSearch}
+                >
+                  {loading ? (
+                    <Loader className="size-4 animate-spin" />
+                  ) : (
+                    "Search"
+                  )}
+                </Button>
+              </Flex>
+            </DialogContent>
+          </DialogRoot>
+        </TooltipProvider>
       )}
     </>
   );

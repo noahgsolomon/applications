@@ -7,7 +7,7 @@ import "frosted-ui/styles.css";
 import "./globals.css";
 import { ThemeProvider } from "./providers";
 import { TRPCReactProvider } from "@/trpc/react";
-import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps) {
         <TRPCReactProvider>
           <ThemeProvider>
             <Theme>
-              <Header />
+              {/* <Header /> */}
               {children}
             </Theme>
           </ThemeProvider>

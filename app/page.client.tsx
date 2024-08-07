@@ -13,7 +13,7 @@ export function ThemeSwitcherButton({
 
   const onClick = useCallback(
     () => onAccentColorChange(color),
-    [color, onAccentColorChange]
+    [color, onAccentColorChange],
   );
 
   return (
