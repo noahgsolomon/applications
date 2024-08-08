@@ -22,14 +22,28 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { api } from "@/trpc/react";
+import { api as ServerApi } from "@/trpc/server";
+
+type CompanyFilterReturnType = Awaited<
+  ReturnType<typeof ServerApi.outbound.companyFilter>
+>;
+
+const toPascalCase = (str: string) => {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 export default function CompanyDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
-  const [nearBrooklyn, setNearBrooklyn] = useState(false);
+  const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
+  const [filters, setFilters] = useState<CompanyFilterReturnType | null>(null);
 
   const handleToggle = (type: "nearBrooklyn" | "searchInternet") => {
     if (type === "nearBrooklyn") {
@@ -39,7 +53,21 @@ export default function CompanyDialog() {
     }
   };
 
-  const handleSearch = () => {
+  const companyFilterMutation = api.outbound.companyFilter.useMutation({
+    onSuccess: (data) => {
+      setLoading(false);
+      if (!data.valid) {
+        setError(data.message);
+      }
+      setFilters(data);
+    },
+    onError: () => {
+      setError("Something went wrong. Please try again later.");
+      setLoading(false);
+    },
+  });
+
+  const handleFilter = () => {
     if (!query) {
       setError("Search query cannot be empty.");
       return;
@@ -47,8 +75,13 @@ export default function CompanyDialog() {
     setLoading(true);
 
     setError("");
-    // outboundMutation.mutate({ query, job, nearBrooklyn });
+    companyFilterMutation.mutate({
+      query,
+      searchInternet,
+    });
   };
+
+  const handleSearch = () => {};
 
   return (
     <>
@@ -91,49 +124,72 @@ export default function CompanyDialog() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
+                {filters && filters.valid && filters.company && (
+                  <div className="pt-2 flex flex-wrap gap-1">
+                    <Avatar
+                      color="blue"
+                      size="2"
+                      fallback={filters.company.name.charAt(0).toUpperCase()}
+                      src={filters.company.logo ?? ""}
+                    />
 
-                <div className="pt-2 flex flex-wrap gap-1">
-                  <Avatar
-                    color="blue"
-                    size="2"
-                    fallback="N"
-                    src="https://media.licdn.com/dms/image/C4E0BAQEVb0ZISWk8vQ/company-logo_400_400/0/1631355051964?e=1730937600&v=beta&t=BePiAlZnY1phVclmSoD4TXS1Q5feMQQ5hC4iuA9Lbg0"
-                  />
-
-                  <Badge variant="surface" color="gray" className="h-[33px]">
-                    <Building2 className="size-4" />
-                    <Text>Software Engineer</Text>
-                  </Badge>
-                  <Button
-                    style={{ cursor: "pointer" }}
-                    disabled
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={searchInternet ? "green" : "red"}
-                    onClick={() => handleToggle("searchInternet")}
-                  >
-                    {searchInternet ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500/40" />
-                    )}
-                    <Text>Search Internet</Text>
-                  </Button>
-                  <Button
-                    style={{ cursor: "pointer" }}
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={nearBrooklyn ? "green" : "red"}
-                    onClick={() => handleToggle("nearBrooklyn")}
-                  >
-                    {nearBrooklyn ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500/40" />
-                    )}
-                    <Text>Near Brooklyn</Text>
-                  </Button>
-                </div>
+                    <Badge variant="surface" color="amber" className="h-[33px]">
+                      <Building2 className="size-4" />
+                      <Text>{toPascalCase(filters.job)}</Text>
+                    </Badge>
+                    <Badge
+                      variant="surface"
+                      color="orange"
+                      className="h-[33px]"
+                    >
+                      <Avatar
+                        color="orange"
+                        size="1"
+                        fallback={"W"}
+                        src={"/whop-logo.png"}
+                      />
+                      <Text>{filters.relevantRole}</Text>
+                    </Badge>
+                    {filters.skills.map((skill: string) => (
+                      <Badge
+                        key={skill}
+                        variant="surface"
+                        color="blue"
+                        className="h-[33px]"
+                      >
+                        <Text>{toPascalCase(skill)}</Text>
+                      </Badge>
+                    ))}
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      className={`h-[33px] `}
+                      variant="surface"
+                      color={searchInternet ? "green" : "red"}
+                      onClick={() => handleToggle("searchInternet")}
+                    >
+                      {searchInternet ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      <Text>Search Internet</Text>
+                    </Badge>
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      className={`h-[33px]`}
+                      variant="surface"
+                      color={nearBrooklyn ? "green" : "red"}
+                      onClick={() => handleToggle("nearBrooklyn")}
+                    >
+                      {nearBrooklyn ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500/40" />
+                      )}
+                      <Text>Near Brooklyn</Text>
+                    </Badge>
+                  </div>
+                )}
               </label>
 
               {error && (
@@ -151,10 +207,18 @@ export default function CompanyDialog() {
               <Button
                 disabled={loading}
                 variant="classic"
-                onClick={handleSearch}
+                onClick={() => {
+                  if (filters?.valid && filters.company) {
+                    handleSearch();
+                  } else {
+                    handleFilter();
+                  }
+                }}
               >
                 {loading ? (
                   <Loader className="size-4 animate-spin" />
+                ) : filters?.valid && filters.company ? (
+                  "Search"
                 ) : (
                   "Filter"
                 )}
