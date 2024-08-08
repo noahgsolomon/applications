@@ -15,6 +15,7 @@ import {
   DialogRoot,
   ScrollArea,
   Button,
+  Badge,
 } from "frosted-ui";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -46,30 +47,34 @@ export default function PreviousOutboundSearches({
         <div>
           <div className="flex flex-col sm:flex-row flex-wrap max-w-[800px] gap-4 items-center justify-center mx-auto">
             {searches.map((prev, index) => (
-              <Card key={index} className="max-w-[95%] h-[200px] w-[300px]">
-                <div className="flex flex-col h-full justify-between">
+              <Card key={index} className="max-w-[95%] w-[300px]">
+                <div className="flex flex-col gap-4">
                   <Text className="max-w-[300px]" size="4" weight="bold">
                     {prev.query}
                   </Text>
-                  <Text size="4">{prev.job}</Text>
-                  <Text className="flex flex-row gap-1" size="4">
-                    Near Brooklyn:{" "}
-                    {prev.nearBrooklyn ? (
-                      <Check color="#00ff00" />
-                    ) : (
-                      <X color="#ff0000" />
-                    )}
-                  </Text>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <Badge variant="surface" color="gray">
+                      {prev.job}
+                    </Badge>
+
+                    <Badge variant="surface" color="gray">
+                      {prev.company}
+                    </Badge>
+                    <Badge variant="surface" className="flex flex-row gap-1">
+                      Near Brooklyn:{" "}
+                      {prev.nearBrooklyn ? (
+                        <Check className="text-green-500/60 size-4" />
+                      ) : (
+                        <X className="text-red-500/60 size-4" />
+                      )}
+                    </Badge>
+                  </div>
 
                   <DialogRoot>
                     <DialogTrigger>
-                      <Text
-                        size="3"
-                        color="purple"
-                        className="underline cursor-pointer"
-                      >
+                      <Button style={{ cursor: "pointer" }}>
                         View Candidates
-                      </Text>
+                      </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogTitle>Candidates</DialogTitle>
