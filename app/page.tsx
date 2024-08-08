@@ -10,7 +10,7 @@ export default async function Home() {
   // if (!user.isLoggedIn) redirect("/login");
 
   return (
-    <div className="flex flex-col gap-2 items-center justify-center w-full h-[80vh]">
+    <div className="flex flex-col gap-12 items-center justify-center w-full h-[100vh]">
       <OutboundDialog />
       <CompanyDialog />
       <PreviousOutboundSearchesButton />

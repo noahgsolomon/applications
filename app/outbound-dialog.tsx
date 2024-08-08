@@ -19,7 +19,7 @@ import {
   Progress,
   ScrollArea,
 } from "frosted-ui";
-import { Loader, ScanSearch } from "lucide-react";
+import { Earth, Loader, ScanSearch } from "lucide-react";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -130,25 +130,18 @@ export default function OutboundDialog() {
   return (
     <>
       {existing && pollingData ? (
-        <Card size={"4"}>
-          <div className="relative flex flex-col gap-2">
+        <Card className="shadow-sm max-w-[95%] sm:min-w-[400px]" size={"4"}>
+          <div className="relative flex flex-col gap-4">
             <Loader className="size-4 animate-spin -top-6 -right-6 absolute " />
             <Text size="4" weight="bold">
               Status: {pollingData?.status || "Pending"}
             </Text>
-            <Text size="3">
-              Query: {pollingData?.query || "nothing for now"}
+            <Text className="italic" size="3">
+              {pollingData?.query || "nothing for now"}
             </Text>
-            <Text size="3">Progress: {pollingData?.progress}%</Text>
             <DialogRoot>
               <DialogTrigger>
-                <Text
-                  size="3"
-                  color="purple"
-                  className="underline cursor-pointer"
-                >
-                  View logs
-                </Text>
+                <Button style={{ cursor: "pointer" }}>View logs</Button>
               </DialogTrigger>
               <DialogContent>
                 <ScrollArea>
@@ -179,11 +172,11 @@ export default function OutboundDialog() {
                     variant="surface"
                   >
                     <div className="items-center flex flex-row gap-2">
-                      <ScanSearch className="size-10" />
+                      <Earth className="size-10" />
                     </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Find Outbound</TooltipContent>
+                <TooltipContent>Search the Internet</TooltipContent>
               </Tooltip>
             </DialogTrigger>
             <DialogContent
@@ -192,9 +185,9 @@ export default function OutboundDialog() {
                 maxWidth: 450,
               }}
             >
-              <DialogTitle>Outbound Search</DialogTitle>
+              <DialogTitle>Internet Search</DialogTitle>
               <DialogDescription>
-                Enter the details for the outbound search.
+                Enter the details for the internet search.
               </DialogDescription>
               <Flex direction="column" gap="3">
                 <label>
