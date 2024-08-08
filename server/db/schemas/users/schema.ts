@@ -90,7 +90,11 @@ export const outboundCandidates = pgTable(
     similarity: real("similarity").notNull(),
     weight: real("weight").notNull(),
     matched: boolean("matched").default(false),
+    relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
+      () => relevantRoles.id,
+    ),
   },
+
   (t) => ({
     outboundCandidateIdx: uniqueIndex("outbound_candidate_idx").on(
       t.candidateId,
@@ -98,6 +102,15 @@ export const outboundCandidates = pgTable(
     ),
   }),
 );
+
+export const relevantRoles = pgTable("relevantRoles", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  jobTitle: varchar("job_title", { length: 255 }).notNull(),
+  jobDescription: text("job_description").notNull(),
+});
 
 export const outboundCandidatesRelations = relations(
   outboundCandidates,
