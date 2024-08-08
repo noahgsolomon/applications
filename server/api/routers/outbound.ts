@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   candidates,
+  company,
   outbound,
   outboundCandidates,
   pendingOutbound,
@@ -20,6 +21,104 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  companyFilter: protectedProcedure
+    .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const companies = await ctx.db.query.company.findMany({
+        where: (company, { exists, eq }) =>
+          exists(
+            ctx.db
+              .select()
+              .from(candidates)
+              .where(eq(candidates.companyId, company.id)),
+          ),
+      });
+
+      const companyNames = companies.map((company) => company.name);
+
+      const completion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `
+      Given the search query, find the company from the following list: ${companyNames.join(", ")}. 
+      If no company in this list is in their query or if their query has no mention of a company return valid as false and all other fields an empty string except for skills which would be an empty array.
+      Return a job title and an array of skills that are mentioned in the query and whichever one of these jobs is the most valid match for which they inputted under the relevantRole field: Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement. 
+      Return the result as a JSON object with the following structure: 
+      { 
+        "companyName": string, 
+        "job": string, 
+        "skills": string[], 
+        "valid": boolean, 
+        "relevantRole": string,
+        "message": string 
+      }.
+      `,
+          },
+          {
+            role: "user",
+            content: input.query,
+          },
+        ],
+        response_format: { type: "json_object" },
+        model: "gpt-4o-mini",
+        temperature: 0,
+        max_tokens: 1024,
+      });
+
+      const response = JSON.parse(
+        completion.choices[0].message.content ??
+          '{ "valid": false, "relevantRole": "", "message": "No response", "companyName": "", "job": "", "skills": [] }',
+      );
+
+      if (!response.valid) {
+        return {
+          valid: false,
+          message: "No valid company found in the query.",
+          company: null,
+          job: "",
+          relevantRole: "",
+          skills: [],
+        };
+      }
+
+      const companyDB = await ctx.db.query.company.findFirst({
+        where: eq(company.name, response.companyName),
+      });
+
+      if (!companyDB) {
+        return {
+          valid: false,
+          message: "Internal server error. Please try again.",
+          company: null,
+          relevantRole: "",
+          job: "",
+          skills: [],
+        };
+      }
+
+      return {
+        valid: true,
+        message: "Company found.",
+        relevantRole: response.relevantRole,
+        company: companyDB,
+        job: response.job,
+        skills: response.skills,
+      };
+    }),
+  allActiveCompanies: protectedProcedure.query(async ({ ctx }) => {
+    const companies = await ctx.db.query.company.findMany({
+      where: (company, { exists, eq }) =>
+        exists(
+          ctx.db
+            .select()
+            .from(candidates)
+            .where(eq(candidates.companyId, company.id)),
+        ),
+    });
+
+    return companies;
+  }),
   deletePendingOutbound: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
