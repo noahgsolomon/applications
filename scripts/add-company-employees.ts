@@ -158,7 +158,7 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
     const userUuid = uuid();
     await db.insert(candidatesTable).values({
       id: userUuid,
-      companyId: "c799d4c1-78b5-4914-a76b-dbe03c595826",
+      companyId: "b7b1071c-6f80-4de1-8f0b-fb2000e9f25d",
       summary,
       miniSummary,
       workedInBigTech,
@@ -175,7 +175,7 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
 
 const main = async () => {
   console.log("Reading and parsing JSON file...");
-  const data = fs.readFileSync("./companies/browser-company.json", "utf-8");
+  const data = fs.readFileSync("./companies/rarible.json", "utf-8");
   const json = JSON.parse(data);
 
   console.log("Iterating over each employee...");

@@ -168,15 +168,19 @@ const companies = [
 ];
 
 async function main() {
-  for (let i = 0; i < companies.length; i += 10) {
-    const batch = companies
-      .slice(i, i + 10)
-      .map((company) => processCompanyProfile(company));
+  // for (let i = 0; i < companies.length; i += 10) {
+  //   const batch = companies
+  //     .slice(i, i + 10)
+  //     .map((company) => processCompanyProfile(company));
+  //
+  //   await Promise.all(batch);
+  //
+  //   await new Promise((resolve) => setTimeout(resolve, 10000));
+  // }
 
-    await Promise.all(batch);
-
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-  }
+  await processCompanyProfile(
+    "https://www.linkedin.com/company/saturntechnologies/",
+  );
 }
 
 main().catch((error) => console.error(error));
