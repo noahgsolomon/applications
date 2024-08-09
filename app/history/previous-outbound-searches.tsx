@@ -56,10 +56,11 @@ export default function PreviousOutboundSearches({
                     <Badge variant="surface" color="gray">
                       {prev.job}
                     </Badge>
-
-                    <Badge variant="surface" color="gray">
-                      {prev.company}
-                    </Badge>
+                    {prev.company !== "" && (
+                      <Badge variant="surface" color="gray">
+                        {prev.company}
+                      </Badge>
+                    )}
                     <Badge variant="surface" className="flex flex-row gap-1">
                       Near Brooklyn:{" "}
                       {prev.nearBrooklyn ? (
@@ -81,46 +82,46 @@ export default function PreviousOutboundSearches({
                       <DialogDescription className="font-bold text-2xl italic">
                         List of candidates sorted by weight.
                       </DialogDescription>
-                      <ScrollArea>
-                        <Card>
-                          <Heading className="underline">Matches:</Heading>
-                          <Flex className="py-2" direction="column" gap="2">
-                            {prev.matches.length === 0
-                              ? "No matches 😲"
-                              : prev.matches
-                                  .sort((a, b) => b.weight! - a.weight!)
-                                  .map((candidate) => (
-                                    <CandidateCard
-                                      key={candidate.id}
-                                      candidate={candidate}
-                                      outbound={prev}
-                                    />
-                                  ))}
-                          </Flex>
-                        </Card>
-                        <Flex className="py-4 pt-8" direction="column" gap="2">
-                          <div>
-                            <Heading>Remaining</Heading>
-                            <Text className="italic text-sm opacity-80">
-                              in sorted order
-                            </Text>
-                          </div>
-                          {prev.candidates
-                            .filter(
-                              (candidate) =>
-                                !prev.matches
-                                  .map((match) => match.id)
-                                  .includes(candidate.id),
-                            )
-                            .sort((a, b) => b.weight! - a.weight!)
-                            .map((candidate) => (
-                              <CandidateCard
-                                key={candidate.id}
-                                candidate={candidate}
-                                outbound={prev}
-                              />
-                            ))}
+                      <ScrollArea className="py-4">
+                        {/* <Card> */}
+                        {/* <Heading className="underline">Matches:</Heading> */}
+                        <Flex className="py-2" direction="column" gap="2">
+                          {prev.matches.length === 0
+                            ? "No matches 😲"
+                            : prev.matches
+                                .sort((a, b) => b.weight! - a.weight!)
+                                .map((candidate) => (
+                                  <CandidateCard
+                                    key={candidate.id}
+                                    candidate={candidate}
+                                    outbound={prev}
+                                  />
+                                ))}
                         </Flex>
+                        {/* </Card> */}
+                        {/* <Flex className="py-4 pt-8" direction="column" gap="2"> */}
+                        {/*   <div> */}
+                        {/*     <Heading>Remaining</Heading> */}
+                        {/*     <Text className="italic text-sm opacity-80"> */}
+                        {/*       in sorted order */}
+                        {/*     </Text> */}
+                        {/*   </div> */}
+                        {/*   {prev.candidates */}
+                        {/*     .filter( */}
+                        {/*       (candidate) => */}
+                        {/*         !prev.matches */}
+                        {/*           .map((match) => match.id) */}
+                        {/*           .includes(candidate.id), */}
+                        {/*     ) */}
+                        {/*     .sort((a, b) => b.weight! - a.weight!) */}
+                        {/*     .map((candidate) => ( */}
+                        {/*       <CandidateCard */}
+                        {/*         key={candidate.id} */}
+                        {/*         candidate={candidate} */}
+                        {/*         outbound={prev} */}
+                        {/*       /> */}
+                        {/*     ))} */}
+                        {/* </Flex> */}
                       </ScrollArea>
                       <DialogClose>
                         <Button variant="classic">Close</Button>
