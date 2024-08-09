@@ -45,6 +45,13 @@ export default function CompanyDialog() {
   const [searchInternet, setSearchInternet] = useState(false);
   const [filters, setFilters] = useState<CompanyFilterReturnType | null>(null);
 
+  const addCompanyRequestMutation = api.outbound.addCompanyRequest.useMutation({
+    onSuccess: (data) => {
+      setLoading(false);
+      setOpen(false);
+    },
+  });
+
   const handleToggle = (type: "nearBrooklyn" | "searchInternet") => {
     if (type === "nearBrooklyn") {
       setNearBrooklyn((prev) => !prev);
@@ -81,7 +88,23 @@ export default function CompanyDialog() {
     });
   };
 
-  const handleSearch = () => {};
+  const handleSearch = () => {
+    setLoading(true);
+
+    setError("");
+    addCompanyRequestMutation.mutate({
+      query,
+      searchInternet: false,
+      relevantRoleId:
+        // filters?.relevantRole?.id,
+        undefined,
+      companyIds: filters?.companies.map((company) => company.id) ?? [],
+      job: filters?.job,
+      skills: filters?.skills,
+      booleanSearch: "",
+      nearBrooklyn,
+    });
+  };
 
   return (
     <>
@@ -124,15 +147,17 @@ export default function CompanyDialog() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                {filters && filters.valid && filters.company && (
+                {filters && filters.valid && filters.companies.length > 0 && (
                   <div className="pt-2 flex flex-wrap gap-1">
-                    <Avatar
-                      color="blue"
-                      size="2"
-                      fallback={filters.company.name.charAt(0).toUpperCase()}
-                      src={filters.company.logo ?? ""}
-                    />
-
+                    {filters.companies.map((company) => (
+                      <Avatar
+                        key={company.id}
+                        color="blue"
+                        size="2"
+                        fallback={company.name.charAt(0).toUpperCase()}
+                        src={company.logo ?? ""}
+                      />
+                    ))}
                     <Badge variant="surface" color="amber" className="h-[33px]">
                       <Building2 className="size-4" />
                       <Text>{toPascalCase(filters.job)}</Text>
@@ -184,7 +209,7 @@ export default function CompanyDialog() {
                       {nearBrooklyn ? (
                         <Check className="size-4 text-green-500" />
                       ) : (
-                        <X className="size-4 text-red-500/40" />
+                        <X className="size-4 text-red-500" />
                       )}
                       <Text>Near Brooklyn</Text>
                     </Badge>
@@ -208,7 +233,11 @@ export default function CompanyDialog() {
                 disabled={loading}
                 variant="classic"
                 onClick={() => {
-                  if (filters?.valid && filters.company) {
+                  if (
+                    filters?.valid &&
+                    filters.companies.length > 0 &&
+                    query === filters.query
+                  ) {
                     handleSearch();
                   } else {
                     handleFilter();
@@ -217,7 +246,9 @@ export default function CompanyDialog() {
               >
                 {loading ? (
                   <Loader className="size-4 animate-spin" />
-                ) : filters?.valid && filters.company ? (
+                ) : filters?.valid &&
+                  filters.companies.length > 0 &&
+                  query === filters.query ? (
                   "Search"
                 ) : (
                   "Filter"
