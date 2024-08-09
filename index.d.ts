@@ -13,6 +13,8 @@ type Outbound = {
     similarity: number;
     weight: number;
     matched: boolean;
+    relevantSkills: string[];
+    notRelevantSkills: string[];
   })[];
   matches: (InferSelectModel<typeof candidates> & {
     workedInPosition: boolean;
@@ -20,6 +22,8 @@ type Outbound = {
     similarity: number;
     weight: number;
     matched: boolean;
+    relevantSkills: string[];
+    notRelevantSkills: string[];
   })[];
 };
 
@@ -32,6 +36,8 @@ type Candidate = {
   summary: string | null;
   createdAt: Date | null;
   miniSummary: string | null;
+  relevantSkills: string[];
+  notRelevantSkills: string[];
 } & {
   workedInPosition: boolean;
   workedAtRelevant: boolean;

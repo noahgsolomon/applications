@@ -5,12 +5,15 @@ import {
   company,
   outbound,
   outboundCandidates,
+  pendingCompanyOutbound,
   pendingOutbound,
+  relevantRoles,
 } from "@/server/db/schemas/users/schema";
+import { createSelectSchema } from "drizzle-zod";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { desc, eq, InferSelectModel, ne } from "drizzle-orm";
+import { desc, eq, inArray, InferSelectModel, ne } from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
@@ -21,6 +24,13 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  deletePendingCompanyOutbound: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(pendingCompanyOutbound)
+        .where(eq(pendingCompanyOutbound.id, input.id));
+    }),
   companyFilter: protectedProcedure
     .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
@@ -36,23 +46,22 @@ export const outboundRouter = createTRPCRouter({
 
       const companyNames = companies.map((company) => company.name);
 
-      const completion = await openai.chat.completions.create({
+      const firstCompletion = await openai.chat.completions.create({
         messages: [
           {
             role: "system",
             content: `
-      Given the search query, find the company from the following list: ${companyNames.join(", ")}. 
-      If no company in this list is in their query or if their query has no mention of a company return valid as false and all other fields an empty string except for skills which would be an empty array.
-      Return a job title and an array of skills that are mentioned in the query and whichever one of these jobs is the most valid match for which they inputted under the relevantRole field: Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement. 
-      Return the result as a JSON object with the following structure: 
-      { 
-        "companyName": string, 
-        "job": string, 
-        "skills": string[], 
-        "valid": boolean, 
-        "relevantRole": string,
-        "message": string 
-      }.
+        Given the search query, find the company names from the following list: ${companyNames.join(", ")}. 
+        If no company in this list is in their query or if their query has no mention of a company, return valid as false. 
+        Also, extract the job title and an array of skills mentioned in the query.
+        Return the result as a JSON object with the following structure: 
+        { 
+          "companyNames": string[], 
+          "job": string, 
+          "skills": string[], 
+          "valid": boolean, 
+          "message": string 
+        }.
       `,
           },
           {
@@ -63,47 +72,90 @@ export const outboundRouter = createTRPCRouter({
         response_format: { type: "json_object" },
         model: "gpt-4o-mini",
         temperature: 0,
-        max_tokens: 1024,
+        max_tokens: 512,
       });
 
-      const response = JSON.parse(
-        completion.choices[0].message.content ??
-          '{ "valid": false, "relevantRole": "", "message": "No response", "companyName": "", "job": "", "skills": [] }',
+      const secondCompletion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `
+        Given the relevant role from the user's input and the following list of possible roles: 
+        Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement.
+        Determine which role from this list best matches the user's relevantRole input.
+        Return the result as a JSON object with the following structure: 
+        { 
+          "relevantRole": string 
+        }.
+      `,
+          },
+          {
+            role: "user",
+            content: input.query,
+          },
+        ],
+        response_format: { type: "json_object" },
+        model: "gpt-4o-mini",
+        temperature: 0,
+        max_tokens: 512,
+      });
+
+      const firstResponse = JSON.parse(
+        firstCompletion.choices[0].message.content ??
+          '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [] }',
       );
 
-      if (!response.valid) {
-        return {
-          valid: false,
-          message: "No valid company found in the query.",
-          company: null,
-          job: "",
-          relevantRole: "",
-          skills: [],
-        };
-      }
+      const secondResponse = JSON.parse(
+        secondCompletion.choices[0].message.content ?? '{ "relevantRole": "" }',
+      );
 
-      const companyDB = await ctx.db.query.company.findFirst({
-        where: eq(company.name, response.companyName),
+      const response = {
+        ...firstResponse,
+        ...secondResponse,
+      };
+
+      const relevantRole = await ctx.db.query.relevantRoles.findFirst({
+        where: eq(relevantRoles.jobTitle, response.relevantRole),
       });
 
-      if (!companyDB) {
+      let responseCompanyNames = response.companyNames;
+
+      if (!response.valid) {
+        // return {
+        //   valid: false,
+        //   message: "No valid company found in the query.",
+        //   companies: [],
+        //   job: "",
+        //   relevantRole: "",
+        //   skills: [],
+        // };
+        responseCompanyNames = companyNames;
+      }
+
+      const companiesDB = await ctx.db.query.company.findMany({
+        where: inArray(company.name, responseCompanyNames),
+      });
+
+      if (!companiesDB || companiesDB.length === 0) {
         return {
           valid: false,
           message: "Internal server error. Please try again.",
-          company: null,
-          relevantRole: "",
+          companies: [],
+          relevantRole: undefined,
           job: "",
           skills: [],
         };
       }
 
+      //TODO add relevant roles in db so to make this not implicitly null
       return {
         valid: true,
         message: "Company found.",
-        relevantRole: response.relevantRole,
-        company: companyDB,
+        relevantRole: undefined,
+        companies: companiesDB,
         job: response.job,
         skills: response.skills,
+        query: input.query,
       };
     }),
   allActiveCompanies: protectedProcedure.query(async ({ ctx }) => {
@@ -134,6 +186,8 @@ export const outboundRouter = createTRPCRouter({
         similarity: number;
         weight: number;
         matched: boolean;
+        relevantSkills: string[];
+        notRelevantSkills: string[];
       })[];
       matches: (InferSelectModel<typeof candidates> & {
         workedInPosition: boolean;
@@ -141,6 +195,8 @@ export const outboundRouter = createTRPCRouter({
         similarity: number;
         weight: number;
         matched: boolean;
+        relevantSkills: string[];
+        notRelevantSkills: string[];
       })[];
     })[] = [];
 
@@ -167,6 +223,8 @@ export const outboundRouter = createTRPCRouter({
         similarity: entry.similarity,
         weight: entry.weight,
         matched: entry.matched ?? false, // Default to false if null
+        relevantSkills: entry.relevantSkills ?? [],
+        notRelevantSkills: entry.notRelevantSkills ?? [],
       }));
 
       const matchedCandidates = candidates.filter(
@@ -197,6 +255,37 @@ export const outboundRouter = createTRPCRouter({
 
       return pendingOutboundRecord;
     }),
+  pollPendingCompanyOutbound: protectedProcedure.mutation(
+    async ({ ctx, input }) => {
+      let pendingCompanyOutboundDB =
+        await ctx.db.query.pendingCompanyOutbound.findMany({
+          with: {
+            relevantRole: true,
+          },
+        });
+
+      if (!pendingCompanyOutboundDB) {
+        throw new Error("Pending company outbound not found.");
+      }
+
+      // Map over the pendingCompanyOutboundDB array to add the companies
+      const result = await Promise.all(
+        pendingCompanyOutboundDB.map(async (pendingCompanyOutbound) => {
+          const companies = await ctx.db.query.company.findMany({
+            where: inArray(company.id, pendingCompanyOutbound.companyIds),
+          });
+
+          // Attach the companies to the current pendingCompanyOutbound object
+          return {
+            ...pendingCompanyOutbound,
+            companies,
+          };
+        }),
+      );
+
+      return result;
+    },
+  ),
   existingPendingOutbound: protectedProcedure.query(async ({ ctx }) => {
     const existingPendingOutbound = await ctx.db.select().from(pendingOutbound);
     return {
@@ -205,11 +294,6 @@ export const outboundRouter = createTRPCRouter({
         existingPendingOutbound.length > 0 ? existingPendingOutbound[0].id : -1,
     };
   }),
-  isValidOutbound: protectedProcedure
-    .input(z.object({ query: z.string() }))
-    .query(async ({ ctx, input }) => {
-      console.log("");
-    }),
   addOutboundRequest: protectedProcedure
     .input(
       z.object({
@@ -281,10 +365,55 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
           QueueUrl: Resource.WhopQueue.url,
           MessageBody: JSON.stringify({
             pendingOutboundId: uuidId,
+            type: "OUTBOUND",
           }),
         }),
       );
 
       return { isValid };
+    }),
+
+  addCompanyRequest: protectedProcedure
+    .input(
+      z.object({
+        query: z.string(),
+        job: z.string(),
+        relevantRoleId: z.string().optional(),
+        nearBrooklyn: z.boolean(),
+        searchInternet: z.boolean(),
+        skills: z.array(z.string()),
+        booleanSearch: z.string().optional(),
+        companyIds: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const uuidId = uuid();
+      await ctx.db.insert(pendingCompanyOutbound).values({
+        id: uuidId,
+        job: input.job,
+        companyIds: input.companyIds,
+        query: input.query,
+        progress: 0,
+        status: "Starting scrape",
+        userId: ctx.user_id,
+        outboundId: uuid(),
+        skills: input.skills,
+        nearBrooklyn: input.nearBrooklyn,
+        searchInternet: input.searchInternet,
+        booleanSearch:
+          input.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
+        logs: "",
+        relevantRoleId: input.relevantRoleId ?? undefined,
+      });
+
+      await client.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.WhopQueue.url,
+          MessageBody: JSON.stringify({
+            pendingCompanyOutboundId: uuidId,
+            type: "COMPANY",
+          }),
+        }),
+      );
     }),
 });
