@@ -233,7 +233,8 @@ export const outboundRouter = createTRPCRouter({
 
       result.push({
         ...o,
-        candidates,
+        // no need for candidates and it literally exceeds lamdbas allowable return size LOL
+        candidates: [],
         matches: matchedCandidates,
       });
     }
