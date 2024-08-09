@@ -62,12 +62,22 @@ export default function CandidateCard({
         >
           Big Tech
         </Badge>
-        <Badge
-          variant="surface"
-          color={candidate.workedAtRelevant ? "green" : "red"}
-        >
-          {outbound.company}
-        </Badge>
+        {/* <Badge */}
+        {/*   variant="surface" */}
+        {/*   color={candidate.workedAtRelevant ? "green" : "red"} */}
+        {/* > */}
+        {/*   {outbound.company} */}
+        {/* </Badge> */}
+        {candidate.relevantSkills.map((skill) => (
+          <Badge key={skill} variant="surface" color={"green"}>
+            {skill}
+          </Badge>
+        ))}
+        {candidate.notRelevantSkills.map((skill) => (
+          <Badge key={skill} variant="surface" color={"red"}>
+            {skill}
+          </Badge>
+        ))}
         <Badge
           variant="surface"
           color={candidate.workedInPosition ? "green" : "red"}
