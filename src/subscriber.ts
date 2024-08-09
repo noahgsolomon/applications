@@ -46,13 +46,14 @@ export async function handler(event: any) {
         eq(userSchema.pendingCompanyOutbound.id, pendingCompanyOutboundId),
       );
 
-    if (pendingCompanyOutbound[0].progress !== 0) {
-      return;
+    let found = false;
+    for (const outbound of pendingCompanyOutbound) {
+      if (outbound.progress === 0 && !found) {
+        found = true;
+        console.log(pendingCompanyOutbound);
+        await company(pendingCompanyOutbound[0], { db });
+      }
     }
-
-    console.log(pendingCompanyOutbound);
-
-    await company(pendingCompanyOutbound[0], { db });
   } else {
     console.log(`invalid type field given: ${message}`);
   }

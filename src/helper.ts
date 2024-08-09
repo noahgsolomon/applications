@@ -10,6 +10,7 @@ import {
   outboundCandidates as outboundCandidatesTable,
   outboundCandidates,
   outboundCompanies,
+  candidates,
 } from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
@@ -706,11 +707,9 @@ export const company = async (
     relevantRoleId,
   } = pendingCompanyOutbound;
 
-  // Start process
-  await logUpdate(
-    `Starting the candidate search process...`,
-    pendingCompanyOutbound,
-    { db },
+  // Initial process log
+  console.log(
+    `Starting the candidate search process for outboundId: ${outboundId}`,
   );
 
   await db
@@ -718,30 +717,36 @@ export const company = async (
     .set({ progress: 2, status: `Initialized process` })
     .where(eq(pendingCompanyOutboundTable.outboundId, outboundId));
 
-  await logUpdate(`Parsing company candidate data...`, pendingCompanyOutbound, {
-    db,
-  });
+  console.log(`Parsed Queue Message for outboundId: ${outboundId}`);
 
-  const companyCandidates = await db.query.candidates.findMany({
-    where: inArray(candidatesTable.companyId, companyIds),
-  });
+  let companyCandidates: InferSelectModel<typeof candidates>[] = [];
+
+  for (const companyId of companyIds) {
+    const candidatesForCompany = await db.query.candidates.findMany({
+      where: eq(candidatesTable.companyId, companyId),
+    });
+
+    companyCandidates = companyCandidates.concat(candidatesForCompany);
+  }
+
+  console.log(`Parsed company candidates for companyIds: ${companyIds}`);
 
   await db
     .update(pendingCompanyOutboundTable)
     .set({ progress: 10, status: `Parsed company candidates` })
     .where(eq(pendingCompanyOutboundTable.outboundId, outboundId));
 
-  await logUpdate(
-    `Evaluating skills of candidates...`,
-    pendingCompanyOutbound,
-    { db },
-  );
-
   let profiles: any[] = [];
 
   const processCandidates = async () => {
+    console.log(
+      `Processing up to 250 company candidates for outboundId: ${outboundId}`,
+    );
+
     await Promise.all(
       companyCandidates.slice(0, 250).map(async (candidate) => {
+        console.log(`Evaluating candidate with id: ${candidate.id}`);
+
         const relevantSkills = [];
         const notRelevantSkills = [];
 
@@ -760,16 +765,16 @@ export const company = async (
 
           if (hasRelevantSkill) {
             relevantSkills.push(skill);
+            console.log(
+              `Candidate ${candidate.id} has relevant skill: ${skill}`,
+            );
           } else {
             notRelevantSkills.push(skill);
+            console.log(
+              `Candidate ${candidate.id} does NOT have relevant skill: ${skill}`,
+            );
           }
         }
-
-        await logUpdate(
-          `Evaluated skills for candidate ${candidate.id}...`,
-          pendingCompanyOutbound,
-          { db },
-        );
 
         const workedInPosition = await askCondition(
           `Does this person have experience as ${position}? ${JSON.stringify(
@@ -781,6 +786,10 @@ export const company = async (
           )} ${candidate.linkedinData.summary} ${candidate.linkedinData.headline}`,
           pendingCompanyOutbound,
           { db },
+        );
+
+        console.log(
+          `Candidate ${candidate.id} worked in position ${position}: ${workedInPosition}`,
         );
 
         await db.insert(outboundCandidatesTable).values({
@@ -809,7 +818,15 @@ export const company = async (
           url: candidate.url,
           linkedinData: candidate.linkedinData,
         });
+
+        console.log(
+          `Candidate ${candidate.id} processed and added to profiles`,
+        );
       }),
+    );
+
+    console.log(
+      `Completed processing candidates for outboundId: ${outboundId}`,
     );
 
     return profiles;
@@ -818,16 +835,12 @@ export const company = async (
   profiles = await processCandidates();
   profiles = profiles.filter((profile) => profile !== null);
 
+  console.log(`Filtered profiles, count: ${profiles.length}`);
+
   await db
     .update(pendingCompanyOutboundTable)
     .set({ progress: 30, status: `Skills evaluated for all candidates` })
     .where(eq(pendingCompanyOutboundTable.outboundId, outboundId));
-
-  await logUpdate(
-    `Processing job description embeddings...`,
-    pendingCompanyOutbound,
-    { db },
-  );
 
   const jobDescriptionEmbedding = await getEmbedding(
     JOB_DESCRIPTION,
@@ -835,19 +848,17 @@ export const company = async (
     { db },
   );
 
+  console.log(`Job description embedding processed`);
+
   await db
     .update(pendingCompanyOutboundTable)
     .set({ progress: 50, status: `Job description embedding processed` })
     .where(eq(pendingCompanyOutboundTable.outboundId, outboundId));
 
-  await logUpdate(
-    `Calculating similarity and weight for each profile...`,
-    pendingCompanyOutbound,
-    { db },
-  );
-
   const finalists = [];
   const matchedEngineers = [];
+
+  console.log(`Starting similarity and weight calculations for profiles`);
 
   for (const profile of profiles) {
     const profileEmbedding = await getEmbedding(
@@ -880,23 +891,27 @@ export const company = async (
         ),
       );
 
+    console.log(
+      `Calculated similarity and weight for candidate ${profile.id}: similarity = ${similarity}, weight = ${weight}`,
+    );
+
     if (profile.workedInPosition) {
       if (nearBrooklyn) {
         if (profile.livesNearBrooklyn) {
           matchedEngineers.push({ ...profile, similarity, weight });
+          console.log(
+            `Candidate ${profile.id} matched and added to matchedEngineers`,
+          );
         }
       } else {
         matchedEngineers.push({ ...profile, similarity, weight });
+        console.log(
+          `Candidate ${profile.id} matched and added to matchedEngineers`,
+        );
       }
     }
 
     finalists.push({ ...profile, similarity, weight });
-
-    await logUpdate(
-      `Calculated similarity and weight for candidate ${profile.id}...`,
-      pendingCompanyOutbound,
-      { db },
-    );
   }
 
   await db
@@ -904,12 +919,12 @@ export const company = async (
     .set({ progress: 70, status: `Similarity and weight calculated` })
     .where(eq(pendingCompanyOutboundTable.outboundId, outboundId));
 
+  console.log(`Similarity and weight calculations completed`);
+
   finalists.sort((a, b) => b.weight - a.weight);
   matchedEngineers.sort((a, b) => b.weight - a.weight);
 
-  await logUpdate(`Finalists evaluated and sorted.`, pendingCompanyOutbound, {
-    db,
-  });
+  console.log(`Finalists and matched engineers sorted`);
 
   await db
     .update(pendingCompanyOutboundTable)
@@ -934,11 +949,15 @@ export const company = async (
     type: "COMPANY",
   });
 
+  console.log(`Inserted outbound record for outboundId: ${outboundId}`);
+
   for (const companyId of companyIds) {
     await db.insert(outboundCompanies).values({
       companyId,
       outboundId,
     });
+
+    console.log(`Inserted outboundCompany record for companyId: ${companyId}`);
   }
 
   for (const matchedEngineer of matchedEngineers) {
@@ -951,11 +970,13 @@ export const company = async (
           eq(outboundCandidatesTable.outboundId, outboundId),
         ),
       );
+
+    console.log(
+      `Updated matched status for candidateId: ${matchedEngineer.id}`,
+    );
   }
 
-  await logUpdate(
-    `Finalists written to outbound table.`,
-    pendingCompanyOutbound,
-    { db },
+  console.log(
+    `Finalists written to outbound table for outboundId: ${outboundId}`,
   );
 };
