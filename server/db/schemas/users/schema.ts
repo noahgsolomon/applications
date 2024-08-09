@@ -4,6 +4,7 @@ import {
   date,
   integer,
   json,
+  pgEnum,
   pgTable,
   real,
   text,
@@ -42,6 +43,56 @@ export const pendingOutbound = pgTable("pendingOutbound", {
   logs: text("logs").notNull(),
 });
 
+export const pendingCompanyOutbound = pgTable("pending_company_outbound", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  progress: integer("progress").default(0),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  outboundId: varchar("outbound_id", { length: 255 }).notNull(),
+  query: text("query").notNull(),
+  job: varchar("job", { length: 255 }).notNull(),
+  relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
+    () => relevantRoles.id,
+  ),
+  skills: json("skills").$type<string[]>().notNull(),
+  nearBrooklyn: boolean("near_brooklyn").notNull(),
+  searchInternet: boolean("search_internet").notNull(),
+  status: varchar("status", { length: 255 }).notNull(),
+  companyIds: json("company_ids").$type<string[]>().notNull(),
+  booleanSearch: text("boolean_search").notNull(),
+  logs: text("logs").notNull(),
+});
+
+export const pendingCompanyOutboundRelations = relations(
+  pendingCompanyOutbound,
+  ({ one }) => ({
+    relevantRole: one(relevantRoles, {
+      fields: [pendingCompanyOutbound.relevantRoleId],
+      references: [relevantRoles.id],
+    }),
+  }),
+);
+
+// id: uuidId,
+// job: input.job,
+// companyIds: input.companyIds,
+// query: input.query,
+// progress: 0,
+// status: "Starting scrape",
+// userId: ctx.user_id,
+// outboundId: uuid(),
+// nearBrooklyn: input.nearBrooklyn,
+// searchInternet: input.searchInternet,
+// booleanSearch:
+//   input.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
+// logs: "",
+
+export const typeEnum = pgEnum("type", ["OUTBOUND", "COMPANY"]);
+
 export const outbound = pgTable("outbound", {
   id: varchar("id", { length: 255 })
     .notNull()
@@ -55,6 +106,11 @@ export const outbound = pgTable("outbound", {
   nearBrooklyn: boolean("near_brooklyn").notNull(),
   company: varchar("company", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt"),
+  type: typeEnum("type").default("OUTBOUND").notNull(),
+  relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
+    () => relevantRoles.id,
+  ),
+  searchInternet: boolean("search_internet").default(true),
 });
 
 export const candidates = pgTable("candidates", {
@@ -90,6 +146,10 @@ export const outboundCandidates = pgTable(
     similarity: real("similarity").notNull(),
     weight: real("weight").notNull(),
     matched: boolean("matched").default(false),
+    relevantSkills: json("relevant_skills").$type<string[]>().default([]),
+    notRelevantSkills: json("not_relevant_skills")
+      .$type<string[]>()
+      .default([]),
     relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
       () => relevantRoles.id,
     ),
@@ -98,6 +158,26 @@ export const outboundCandidates = pgTable(
   (t) => ({
     outboundCandidateIdx: uniqueIndex("outbound_candidate_idx").on(
       t.candidateId,
+      t.outboundId,
+    ),
+  }),
+);
+
+export const outboundCompanies = pgTable(
+  "outbound_company_candidates",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    outboundId: varchar("outbound_candidate_id", { length: 255 }).notNull(),
+    companyId: varchar("company_id", { length: 255 })
+      .notNull()
+      .references(() => company.id),
+  },
+  (t) => ({
+    outboundCompanyIdx: uniqueIndex("outbound_company_idx").on(
+      t.companyId,
       t.outboundId,
     ),
   }),
