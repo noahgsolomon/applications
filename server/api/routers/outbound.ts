@@ -2,20 +2,19 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   candidates,
-  company,
+  company as companyTable,
   outbound,
   outboundCandidates,
   pendingCompanyOutbound,
   pendingOutbound,
   relevantRoles,
 } from "@/server/db/schemas/users/schema";
-import { createSelectSchema } from "drizzle-zod";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
 import { desc, eq, inArray, InferSelectModel, ne } from "drizzle-orm";
-import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { InferResultType } from "@/utils/infer";
 
 const client = new SQSClient();
 
@@ -24,6 +23,109 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  findRelevantCompanies: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Use ChatGPT to standardize the input query into a proper tech name
+      const completion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `
+You will be provided with a technology term, and your task is to standardize it to its proper, full name.
+For example:
+- "js" should be converted to "JavaScript"
+- "rails" should be converted to "Ruby on Rails"
+- "nextjs" should be converted to "Next.js"
+
+If the input is already standardized, return it as is.
+
+Respond only with a JSON object that has a single field "standardizedTech" which is the standardized version of the input.
+          `,
+          },
+          {
+            role: "user",
+            content: input.query,
+          },
+        ],
+        response_format: { type: "json_object" },
+        model: "gpt-4o-mini",
+        temperature: 0,
+        max_tokens: 256,
+      });
+
+      const standardizedResponse = JSON.parse(
+        completion.choices[0].message.content ?? "{standardizedTech: ''}",
+      );
+      const standardizedTech =
+        standardizedResponse.standardizedTech.toLowerCase();
+
+      // Fetch all companies from the database without related candidates
+      const companiesList = await ctx.db.query.company.findMany();
+
+      const matchingCompanies: InferResultType<
+        "company",
+        { candidates: true }
+      >[] = [];
+
+      // Iterate over the companies list and fetch related candidates as needed
+      for (const company of companiesList) {
+        const companyDb = await ctx.db.query.company.findFirst({
+          with: {
+            candidates: {
+              where: eq(candidates.isEngineer, true),
+            },
+          },
+          where: eq(companyTable.id, company.id),
+        });
+
+        if (!companyDb) continue;
+
+        const techFrequencyMap: Record<string, number> = {};
+        const featuresFrequencyMap: Record<string, number> = {};
+
+        companyDb.candidates.forEach((candidate) => {
+          candidate.topTechnologies?.forEach((tech: string) => {
+            techFrequencyMap[tech] = (techFrequencyMap[tech] || 0) + 1;
+          });
+
+          candidate.topFeatures?.forEach((feature: string) => {
+            featuresFrequencyMap[feature] =
+              (featuresFrequencyMap[feature] || 0) + 1;
+          });
+        });
+
+        // Sort and extract the top 10 technologies and features
+        const topTechnologies = Object.entries(techFrequencyMap)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map((entry) => entry[0].toLowerCase());
+
+        const topFeatures = Object.entries(featuresFrequencyMap)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map((entry) => entry[0].toLowerCase());
+
+        // If the standardized tech matches any top technologies or features, add the company to the list
+        if (
+          topTechnologies.includes(standardizedTech) ||
+          topFeatures.includes(standardizedTech)
+        ) {
+          matchingCompanies.push(companyDb);
+        }
+      }
+
+      return {
+        valid: matchingCompanies.length > 0,
+        companies: matchingCompanies,
+        message:
+          matchingCompanies.length > 0
+            ? "Relevant companies found."
+            : "No relevant companies found.",
+        filters: [standardizedTech],
+      };
+    }),
+
   deletePendingCompanyOutbound: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -133,7 +235,7 @@ export const outboundRouter = createTRPCRouter({
       }
 
       const companiesDB = await ctx.db.query.company.findMany({
-        where: inArray(company.name, responseCompanyNames),
+        where: inArray(companyTable.name, responseCompanyNames),
       });
 
       if (!companiesDB || companiesDB.length === 0) {
@@ -273,7 +375,7 @@ export const outboundRouter = createTRPCRouter({
       const result = await Promise.all(
         pendingCompanyOutboundDB.map(async (pendingCompanyOutbound) => {
           const companies = await ctx.db.query.company.findMany({
-            where: inArray(company.id, pendingCompanyOutbound.companyIds),
+            where: inArray(companyTable.id, pendingCompanyOutbound.companyIds),
           });
 
           // Attach the companies to the current pendingCompanyOutbound object
@@ -361,15 +463,15 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         logs: "",
       });
 
-      await client.send(
-        new SendMessageCommand({
-          QueueUrl: Resource.WhopQueue.url,
-          MessageBody: JSON.stringify({
-            pendingOutboundId: uuidId,
-            type: "OUTBOUND",
-          }),
-        }),
-      );
+      // await client.send(
+      //   new SendMessageCommand({
+      //     QueueUrl: Resource.WhopQueue.url,
+      //     MessageBody: JSON.stringify({
+      //       pendingOutboundId: uuidId,
+      //       type: "OUTBOUND",
+      //     }),
+      //   }),
+      // );
 
       return { isValid };
     }),
@@ -407,14 +509,14 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         relevantRoleId: input.relevantRoleId ?? undefined,
       });
 
-      await client.send(
-        new SendMessageCommand({
-          QueueUrl: Resource.WhopQueue.url,
-          MessageBody: JSON.stringify({
-            pendingCompanyOutboundId: uuidId,
-            type: "COMPANY",
-          }),
-        }),
-      );
+      // await client.send(
+      //   new SendMessageCommand({
+      //     QueueUrl: Resource.WhopQueue.url,
+      //     MessageBody: JSON.stringify({
+      //       pendingCompanyOutboundId: uuidId,
+      //       type: "COMPANY",
+      //     }),
+      //   }),
+      // );
     }),
 });
