@@ -162,19 +162,19 @@ export default function CompanyDialog() {
                       <Building2 className="size-4" />
                       <Text>{toPascalCase(filters.job)}</Text>
                     </Badge>
-                    <Badge
-                      variant="surface"
-                      color="orange"
-                      className="h-[33px]"
-                    >
-                      <Avatar
-                        color="orange"
-                        size="1"
-                        fallback={"W"}
-                        src={"/whop-logo.png"}
-                      />
-                      <Text>{filters.relevantRole}</Text>
-                    </Badge>
+                    {/* <Badge */}
+                    {/*   variant="surface" */}
+                    {/*   color="orange" */}
+                    {/*   className="h-[33px]" */}
+                    {/* > */}
+                    {/*   <Avatar */}
+                    {/*     color="orange" */}
+                    {/*     size="1" */}
+                    {/*     fallback={"W"} */}
+                    {/*     src={"/whop-logo.png"} */}
+                    {/*   /> */}
+                    {/*   <Text>{filters.relevantRole}</Text> */}
+                    {/* </Badge> */}
                     {filters.skills.map((skill: string) => (
                       <Badge
                         key={skill}
