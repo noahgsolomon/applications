@@ -134,26 +134,34 @@ Respond only with a JSON object that has a single field "standardizedTech" which
         .delete(pendingCompanyOutbound)
         .where(eq(pendingCompanyOutbound.id, input.id));
     }),
+
   companyFilter: protectedProcedure
     .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      const companies = await ctx.db.query.company.findMany({
-        where: (company, { exists, eq }) =>
-          exists(
-            ctx.db
-              .select()
-              .from(candidates)
-              .where(eq(candidates.companyId, company.id)),
-          ),
-      });
+      console.log("Starting companyFilter mutation");
+      console.log("Input received:", input);
 
-      const companyNames = companies.map((company) => company.name);
+      try {
+        const companies = await ctx.db.query.company.findMany({
+          where: (company, { exists, eq }) =>
+            exists(
+              ctx.db
+                .select()
+                .from(candidates)
+                .where(eq(candidates.companyId, company.id)),
+            ),
+        });
 
-      const firstCompletion = await openai.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `
+        console.log("Companies found from DB:", companies);
+
+        const companyNames = companies.map((company) => company.name);
+        console.log("Company names extracted:", companyNames);
+
+        const firstCompletion = await openai.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: `
         Given the search query, find the company names from the following list: ${companyNames.join(", ")}. 
         If no company in this list is in their query or if their query has no mention of a company, return valid as false. 
         Also, extract the job title and an array of skills mentioned in the query.
@@ -166,23 +174,25 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           "message": string 
         }.
       `,
-          },
-          {
-            role: "user",
-            content: input.query,
-          },
-        ],
-        response_format: { type: "json_object" },
-        model: "gpt-4o-mini",
-        temperature: 0,
-        max_tokens: 512,
-      });
+            },
+            {
+              role: "user",
+              content: input.query,
+            },
+          ],
+          response_format: { type: "json_object" },
+          model: "gpt-4o-mini",
+          temperature: 0,
+          max_tokens: 512,
+        });
 
-      const secondCompletion = await openai.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `
+        console.log("First OpenAI completion response:", firstCompletion);
+
+        const secondCompletion = await openai.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: `
         Given the relevant role from the user's input and the following list of possible roles: 
         Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement.
         Determine which role from this list best matches the user's relevantRole input.
@@ -191,75 +201,90 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           "relevantRole": string 
         }.
       `,
-          },
-          {
-            role: "user",
-            content: input.query,
-          },
-        ],
-        response_format: { type: "json_object" },
-        model: "gpt-4o-mini",
-        temperature: 0,
-        max_tokens: 512,
-      });
+            },
+            {
+              role: "user",
+              content: input.query,
+            },
+          ],
+          response_format: { type: "json_object" },
+          model: "gpt-4o-mini",
+          temperature: 0,
+          max_tokens: 512,
+        });
 
-      const firstResponse = JSON.parse(
-        firstCompletion.choices[0].message.content ??
-          '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [] }',
-      );
+        console.log("Second OpenAI completion response:", secondCompletion);
 
-      const secondResponse = JSON.parse(
-        secondCompletion.choices[0].message.content ?? '{ "relevantRole": "" }',
-      );
+        const firstResponse = JSON.parse(
+          firstCompletion.choices[0].message.content ??
+            '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [] }',
+        );
 
-      const response = {
-        ...firstResponse,
-        ...secondResponse,
-      };
+        console.log("Parsed first response:", firstResponse);
 
-      const relevantRole = await ctx.db.query.relevantRoles.findFirst({
-        where: eq(relevantRoles.jobTitle, response.relevantRole),
-      });
+        const secondResponse = JSON.parse(
+          secondCompletion.choices[0].message.content ??
+            '{ "relevantRole": "" }',
+        );
 
-      let responseCompanyNames = response.companyNames;
+        console.log("Parsed second response:", secondResponse);
 
-      if (!response.valid) {
-        // return {
-        //   valid: false,
-        //   message: "No valid company found in the query.",
-        //   companies: [],
-        //   job: "",
-        //   relevantRole: "",
-        //   skills: [],
-        // };
-        responseCompanyNames = companyNames;
-      }
-
-      const companiesDB = await ctx.db.query.company.findMany({
-        where: inArray(companyTable.name, responseCompanyNames),
-      });
-
-      if (!companiesDB || companiesDB.length === 0) {
-        return {
-          valid: false,
-          message: "Internal server error. Please try again.",
-          companies: [],
-          relevantRole: undefined,
-          job: "",
-          skills: [],
+        const response = {
+          ...firstResponse,
+          ...secondResponse,
         };
-      }
 
-      //TODO add relevant roles in db so to make this not implicitly null
-      return {
-        valid: true,
-        message: "Company found.",
-        relevantRole: undefined,
-        companies: companiesDB,
-        job: response.job,
-        skills: response.skills,
-        query: input.query,
-      };
+        console.log("Combined response:", response);
+
+        const relevantRole = await ctx.db.query.relevantRoles.findFirst({
+          where: eq(relevantRoles.jobTitle, response.relevantRole),
+        });
+
+        console.log("Relevant role from DB:", relevantRole);
+
+        let responseCompanyNames = response.companyNames;
+
+        if (!response.valid) {
+          console.log(
+            "No valid company found in the query. Defaulting to all company names.",
+          );
+          responseCompanyNames = companyNames;
+        }
+
+        const companiesDB = await ctx.db.query.company.findMany({
+          where: inArray(companyTable.name, responseCompanyNames),
+        });
+
+        console.log("Companies found in second DB query:", companiesDB);
+
+        if (!companiesDB || companiesDB.length === 0) {
+          console.error(
+            "No companies found or an error occurred during the DB query.",
+          );
+          return {
+            valid: false,
+            message: "Internal server error. Please try again.",
+            companies: [],
+            relevantRole: undefined,
+            job: "",
+            skills: [],
+          };
+        }
+
+        console.log("Returning final response.");
+        return {
+          valid: true,
+          message: "Company found.",
+          relevantRole: relevantRole ?? undefined,
+          companies: companiesDB,
+          job: response.job,
+          skills: response.skills,
+          query: input.query,
+        };
+      } catch (error) {
+        console.error("Error during mutation:", error);
+        throw new Error("An error occurred during the mutation.");
+      }
     }),
   allActiveCompanies: protectedProcedure.query(async ({ ctx }) => {
     const companies = await ctx.db.query.company.findMany({
