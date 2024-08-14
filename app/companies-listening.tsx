@@ -14,14 +14,37 @@ import {
   DialogTrigger,
   Flex,
   ScrollArea,
+  TextFieldInput,
+  Text,
+  Badge,
 } from "frosted-ui";
-import { HeartHandshake } from "lucide-react";
+import { HeartHandshake, Loader, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function ListeningCompanies() {
   const [open, setOpen] = useState(false);
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
+  const [filters, setFilters] = useState<string[]>([]);
+  const [companies, setCompanies] = useState(allActiveCompanies);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const relevantCompaniesMutation =
+    api.outbound.findRelevantCompanies.useMutation({
+      onSuccess: (data) => {
+        setCompanies(data.companies);
+        setFilters(data.filters);
+        setSearchQuery("");
+      },
+    });
+
+  const search = async () => {
+    setLoading(true);
+    await relevantCompaniesMutation.mutateAsync({ query: searchQuery });
+    setLoading(false);
+  };
+
   return (
     <TooltipProvider delayDuration={500}>
       <DialogRoot open={open} onOpenChange={setOpen}>
@@ -43,26 +66,72 @@ export default function ListeningCompanies() {
           </Tooltip>
         </DialogTrigger>
         <DialogContent>
+          <div className="w-full pb-4 flex flex-col gap-2">
+            <Text as="div" mb="1" size="2" weight="bold">
+              Find Company by Tech Stack or Feature
+            </Text>
+            <div className="w-full flex items-center gap-2">
+              <TextFieldInput
+                placeholder="Enter search query"
+                value={searchQuery}
+                style={{ width: "300px" }}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button
+                disabled={loading}
+                variant="classic"
+                style={{ cursor: "pointer" }}
+                onClick={search}
+              >
+                {loading ? (
+                  <Loader className="size-4 animate-spin" />
+                ) : (
+                  "Search"
+                )}
+              </Button>
+            </div>{" "}
+            <div className="flex flex-wrap gap-1">
+              {filters.map((filter) => (
+                <Badge variant="surface" key={filter}>
+                  {filter}
+                </Badge>
+              ))}
+              {filters.length > 0 && (
+                <Badge
+                  variant="surface"
+                  color="gray"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setFilters([])}
+                >
+                  <X className="size-4" />
+                  Clear filters
+                </Badge>
+              )}
+            </div>
+          </div>
+
           <ScrollArea className="flex flex-row gap-2">
             <Flex direction={"row"} wrap={"wrap"} gap={"4"}>
-              {allActiveCompanies?.map((company) => (
-                <TooltipProvider key={company.id} delayDuration={500}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link target="_blank" href={company.linkedinUrl}>
-                        <Avatar
-                          className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all"
-                          color="blue"
-                          size="5"
-                          fallback={company.name.charAt(0).toUpperCase()}
-                          src={company.logo ?? ""}
-                        />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>{company.name}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
+              {(filters.length > 0 ? companies : allActiveCompanies)?.map(
+                (company) => (
+                  <TooltipProvider key={company.id} delayDuration={500}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link target="_blank" href={company.linkedinUrl}>
+                          <Avatar
+                            className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all"
+                            color="blue"
+                            size="5"
+                            fallback={company.name.charAt(0).toUpperCase()}
+                            src={company.logo ?? ""}
+                          />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>{company.name}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ),
+              )}
             </Flex>
           </ScrollArea>
         </DialogContent>
