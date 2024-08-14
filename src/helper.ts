@@ -723,7 +723,11 @@ export const company = async (
 
   for (const companyId of companyIds) {
     const candidatesForCompany = await db.query.candidates.findMany({
-      where: eq(candidatesTable.companyId, companyId),
+      where: and(
+        eq(candidatesTable.companyId, companyId),
+        eq(candidatesTable.isEngineer, true),
+      ),
+      limit: 500,
     });
 
     companyCandidates = companyCandidates.concat(candidatesForCompany);
@@ -797,7 +801,7 @@ export const company = async (
           candidateId: candidate.id,
           outboundId,
           workedInPosition,
-          workedAtRelevant: false, // Not applicable for this process
+          workedAtRelevant: false,
           relevantSkills,
           notRelevantSkills,
           similarity: 0,
@@ -810,7 +814,7 @@ export const company = async (
           summary: candidate.summary,
           miniSummary: candidate.miniSummary,
           workedInBigTech: candidate.workedInBigTech,
-          workedAtRelevant: false, // Not applicable for this process
+          workedAtRelevant: false,
           relevantSkills,
           notRelevantSkills,
           livesNearBrooklyn: candidate.livesNearBrooklyn,
@@ -875,11 +879,11 @@ export const company = async (
     );
 
     const weight =
-      0.0 * similarity +
+      0.1 * similarity +
       0.15 * Number(profile.workedInPosition) +
-      0.35 * Number(profile.relevantSkills.length / skills.length) +
+      0.3 * Number(profile.relevantSkills.length / skills.length) +
       0.15 * Number(profile.workedInBigTech) +
-      0.35 * Number(profile.livesNearBrooklyn);
+      0.3 * Number(profile.livesNearBrooklyn);
 
     await db
       .update(outboundCandidatesTable)
@@ -943,6 +947,7 @@ export const company = async (
     job: position,
     nearBrooklyn,
     company: "",
+    companyIds,
     createdAt: new Date(),
     searchInternet,
     relevantRoleId,
