@@ -5,7 +5,7 @@ export const NextEnv = {
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
   // switch to DEV when running sst deploy
-  MODE: "DEV",
+  MODE: process.env.MODE!,
 };
 
 export const SubscriberEnv = {

@@ -151,14 +151,24 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
     );
 
     const livesNearBrooklyn = await askCondition(
-      `Does this person live within 50 miles of Brookyln New York USA? Their location: ${personData.location ?? "unknown location"} ${personData.positions.positionHistory.length > 0 ? `or ${JSON.stringify(personData.positions.positionHistory[0], null, 2)}` : ""}`,
+      `Does this person live within 50 miles of Brookyln New York USA? Their location: ${
+        personData.location ?? "unknown location"
+      } ${
+        personData.positions.positionHistory.length > 0
+          ? `or ${JSON.stringify(
+              personData.positions.positionHistory[0],
+              null,
+              2,
+            )}`
+          : ""
+      }`,
     );
 
     console.log("Inserting candidate into database...");
     const userUuid = uuid();
     await db.insert(candidatesTable).values({
       id: userUuid,
-      companyId: "b7b1071c-6f80-4de1-8f0b-fb2000e9f25d",
+      companyId: "bc8baac9-cae6-4095-8aa2-f620bddae49c",
       summary,
       miniSummary,
       workedInBigTech,
@@ -175,7 +185,7 @@ const processLinkedInProfile = async (linkedinUrl: string) => {
 
 const main = async () => {
   console.log("Reading and parsing JSON file...");
-  const data = fs.readFileSync("./companies/rarible.json", "utf-8");
+  const data = fs.readFileSync("./companies/ramp.json", "utf-8");
   const json = JSON.parse(data);
 
   console.log("Iterating over each employee...");
