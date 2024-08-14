@@ -1,4 +1,4 @@
-nvim name: Deploy Website
+name: Deploy Website
 
 permissions:
   id-token: write
