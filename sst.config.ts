@@ -11,6 +11,7 @@ export default $config({
   },
   async run() {
     //
+    //
     // const hono = new sst.aws.Function("PoliticalBlogHono", {
     //   environment: HonoEnv,
     //   url: true,
