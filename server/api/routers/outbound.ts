@@ -12,7 +12,8 @@ import {
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { desc, eq, inArray, InferSelectModel, ne } from "drizzle-orm";
+import { desc, eq, inArray, InferSelectModel } from "drizzle-orm";
+import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { InferResultType } from "@/utils/infer";
 
@@ -463,15 +464,15 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         logs: "",
       });
 
-      // await client.send(
-      //   new SendMessageCommand({
-      //     QueueUrl: Resource.WhopQueue.url,
-      //     MessageBody: JSON.stringify({
-      //       pendingOutboundId: uuidId,
-      //       type: "OUTBOUND",
-      //     }),
-      //   }),
-      // );
+      await client.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.WhopQueue.url,
+          MessageBody: JSON.stringify({
+            pendingOutboundId: uuidId,
+            type: "OUTBOUND",
+          }),
+        }),
+      );
 
       return { isValid };
     }),
@@ -509,14 +510,14 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         relevantRoleId: input.relevantRoleId ?? undefined,
       });
 
-      // await client.send(
-      //   new SendMessageCommand({
-      //     QueueUrl: Resource.WhopQueue.url,
-      //     MessageBody: JSON.stringify({
-      //       pendingCompanyOutboundId: uuidId,
-      //       type: "COMPANY",
-      //     }),
-      //   }),
-      // );
+      await client.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.WhopQueue.url,
+          MessageBody: JSON.stringify({
+            pendingCompanyOutboundId: uuidId,
+            type: "COMPANY",
+          }),
+        }),
+      );
     }),
 });
