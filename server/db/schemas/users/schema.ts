@@ -111,6 +111,7 @@ export const outbound = pgTable("outbound", {
     () => relevantRoles.id,
   ),
   searchInternet: boolean("search_internet").default(true),
+  companyIds: json("company_ids").$type<string[]>().default([]),
 });
 
 export const candidates = pgTable("candidates", {
@@ -128,7 +129,18 @@ export const candidates = pgTable("candidates", {
   url: text("url").notNull().unique(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
   createdAt: timestamp("createdAt"),
+  // will be top 5 most present on their profile atm
+  topTechnologies: json("top_technologies").$type<string[]>().default([]),
+  topFeatures: json("top_features").$type<string[]>().default([]),
+  isEngineer: boolean("is_engineer").default(false),
 });
+
+export const candidatesRelations = relations(candidates, ({ one }) => ({
+  company: one(company, {
+    fields: [candidates.companyId],
+    references: [company.id],
+  }),
+}));
 
 export const outboundCandidates = pgTable(
   "outbound_candidates",
@@ -233,4 +245,11 @@ export const company = pgTable("company", {
   logo: text("logo"),
   foundedOn: json("founded_on").$type<{ year: number }>(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
+  // will be top 10 based on the employees most present technologies and features weighted by the employees ordering of these.
+  topTechnologies: json("top_technologies").$type<string[]>().default([]),
+  topFeatures: json("top_features").$type<string[]>().default([]),
 });
+
+export const companyRelations = relations(company, ({ many }) => ({
+  candidates: many(candidates),
+}));
