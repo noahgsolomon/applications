@@ -39,9 +39,9 @@ type Candidate = {
   relevantSkills: string[];
   notRelevantSkills: string[];
 } & {
-  workedInPosition: boolean;
-  workedAtRelevant: boolean;
-  similarity: number;
-  weight: number;
-  matched: boolean;
+  workedInPosition?: boolean;
+  workedAtRelevant?: boolean;
+  similarity?: number;
+  weight?: number;
+  matched?: boolean;
 };
