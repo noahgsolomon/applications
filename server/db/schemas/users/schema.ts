@@ -1,7 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
-  date,
   integer,
   json,
   pgEnum,
@@ -112,6 +111,7 @@ export const outbound = pgTable("outbound", {
   ),
   searchInternet: boolean("search_internet").default(true),
   companyIds: json("company_ids").$type<string[]>().default([]),
+  recommended: boolean("recommended").default(false),
 });
 
 export const candidates = pgTable("candidates", {
