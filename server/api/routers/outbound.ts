@@ -12,10 +12,19 @@ import {
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { desc, eq, inArray, InferSelectModel } from "drizzle-orm";
+import {
+  arrayOverlaps,
+  desc,
+  eq,
+  exists,
+  inArray,
+  InferSelectModel,
+  sql,
+} from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { InferResultType } from "@/utils/infer";
+import { jsonArrayContains, jsonArrayContainsAny } from "@/lib/utils";
 
 const client = new SQSClient();
 
@@ -24,6 +33,130 @@ const openai = new OpenAI({
 });
 
 export const outboundRouter = createTRPCRouter({
+  findFilteredCandidates: protectedProcedure
+    .input(
+      z.object({
+        query: z.string(),
+        job: z.string(),
+        relevantRoleId: z.string().optional(),
+        nearBrooklyn: z.boolean(),
+        searchInternet: z.boolean(),
+        skills: z.array(z.string()),
+        booleanSearch: z.string().optional(),
+        companyIds: z.array(z.string()),
+        Or: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log("Starting findFilteredCandidates mutation");
+      console.log(input.skills);
+
+      try {
+        let candidatesFiltered: InferSelectModel<typeof candidates>[];
+        if (input.nearBrooklyn) {
+          if (input.Or) {
+            candidatesFiltered = await ctx.db.query.candidates.findMany({
+              limit: 100,
+              where: (candidate, { and, eq, inArray }) =>
+                and(
+                  eq(candidate.livesNearBrooklyn, true),
+                  jsonArrayContainsAny(candidate.topTechnologies, input.skills),
+                  exists(
+                    ctx.db
+                      .select()
+                      .from(companyTable)
+                      .where(
+                        and(
+                          inArray(companyTable.id, input.companyIds),
+                          eq(candidate.companyId, companyTable.id),
+                        ),
+                      ),
+                  ),
+                ),
+            });
+          } else {
+            candidatesFiltered = await ctx.db.query.candidates.findMany({
+              limit: 100,
+              where: (candidate, { and, eq, inArray }) =>
+                and(
+                  eq(candidate.livesNearBrooklyn, true),
+                  jsonArrayContains(candidate.topTechnologies, input.skills),
+                  exists(
+                    ctx.db
+                      .select()
+                      .from(companyTable)
+                      .where(
+                        and(
+                          inArray(companyTable.id, input.companyIds),
+                          eq(candidate.companyId, companyTable.id),
+                        ),
+                      ),
+                  ),
+                ),
+            });
+          }
+        } else {
+          if (input.Or) {
+            candidatesFiltered = await ctx.db.query.candidates.findMany({
+              limit: 100,
+              where: (candidate, { and, eq, inArray }) =>
+                and(
+                  jsonArrayContainsAny(candidate.topTechnologies, input.skills),
+                  exists(
+                    ctx.db
+                      .select()
+                      .from(companyTable)
+                      .where(
+                        and(
+                          inArray(companyTable.id, input.companyIds),
+                          eq(candidate.companyId, companyTable.id),
+                        ),
+                      ),
+                  ),
+                ),
+            });
+          } else {
+            candidatesFiltered = await ctx.db.query.candidates.findMany({
+              limit: 100,
+              where: (candidate, { and, eq, inArray }) =>
+                and(
+                  jsonArrayContains(candidate.topTechnologies, input.skills),
+                  exists(
+                    ctx.db
+                      .select()
+                      .from(companyTable)
+                      .where(
+                        and(
+                          inArray(companyTable.id, input.companyIds),
+                          eq(candidate.companyId, companyTable.id),
+                        ),
+                      ),
+                  ),
+                ),
+            });
+          }
+        }
+
+        console.log("Candidates filtered:", candidatesFiltered);
+
+        return {
+          valid: candidatesFiltered.length > 0,
+          message:
+            candidatesFiltered.length > 0
+              ? "Relevant candidates found."
+              : "No relevant candidates found.",
+          candidates: candidatesFiltered,
+          query: input.query,
+          job: input.job,
+          skills: input.skills,
+          nearBrooklyn: input.nearBrooklyn,
+          relevantRoleId: input.relevantRoleId ?? undefined,
+        };
+      } catch (error) {
+        console.error("Error during findFilteredCandidates mutation:", error);
+        throw new Error("An error occurred during the mutation.");
+      }
+    }),
   findRelevantCompanies: protectedProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -163,8 +296,8 @@ Respond only with a JSON object that has a single field "standardizedTech" which
               role: "system",
               content: `
         Given the search query, find the company names from the following list: ${companyNames.join(", ")}. 
-        If no company in this list is in their query or if their query has no mention of a company, return valid as false. 
-        Also, extract the job title and an array of skills mentioned in the query.
+        If no company in this list is in their query or if their query has no mention of a company, return valid as false (note this doesnt mean the input is invalid, I just consider this valid false as a signal to do something else so fill our the rest of the fields). 
+        Also, extract the job title and an array of skills mentioned in the query. Any technology mentioned can be considered a skill. The Or field determines if the skills are all of just one of them. So if the query includes Next.js react or rails Or should be true. Otherwise make Or false.
         Return the result as a JSON object with the following structure: 
         { 
           "companyNames": string[], 
@@ -172,6 +305,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           "skills": string[], 
           "valid": boolean, 
           "message": string 
+          "Or": boolean
         }.
       `,
             },
@@ -217,7 +351,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
 
         const firstResponse = JSON.parse(
           firstCompletion.choices[0].message.content ??
-            '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [] }',
+            '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [], "Or": false }',
         );
 
         console.log("Parsed first response:", firstResponse);
@@ -268,6 +402,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
             relevantRole: undefined,
             job: "",
             skills: [],
+            Or: false,
           };
         }
 
@@ -280,6 +415,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           job: response.job,
           skills: response.skills,
           query: input.query,
+          Or: response.Or,
         };
       } catch (error) {
         console.error("Error during mutation:", error);
@@ -306,69 +442,80 @@ Respond only with a JSON object that has a single field "standardizedTech" which
         .delete(pendingOutbound)
         .where(eq(pendingOutbound.id, input.id));
     }),
-  searches: protectedProcedure.query(async ({ ctx }) => {
-    const result: (InferSelectModel<typeof outbound> & {
-      candidates: (InferSelectModel<typeof candidates> & {
-        workedInPosition: boolean;
-        workedAtRelevant: boolean;
-        similarity: number;
-        weight: number;
-        matched: boolean;
-        relevantSkills: string[];
-        notRelevantSkills: string[];
-      })[];
-      matches: (InferSelectModel<typeof candidates> & {
-        workedInPosition: boolean;
-        workedAtRelevant: boolean;
-        similarity: number;
-        weight: number;
-        matched: boolean;
-        relevantSkills: string[];
-        notRelevantSkills: string[];
-      })[];
-    })[] = [];
+  searches: protectedProcedure
+    .input(z.object({ recommended: z.boolean() }).optional())
+    .query(async ({ ctx, input }) => {
+      const result: (InferSelectModel<typeof outbound> & {
+        candidates: (InferSelectModel<typeof candidates> & {
+          workedInPosition: boolean;
+          workedAtRelevant: boolean;
+          similarity: number;
+          weight: number;
+          matched: boolean;
+          relevantSkills: string[];
+          notRelevantSkills: string[];
+        })[];
+        matches: (InferSelectModel<typeof candidates> & {
+          workedInPosition: boolean;
+          workedAtRelevant: boolean;
+          similarity: number;
+          weight: number;
+          matched: boolean;
+          relevantSkills: string[];
+          notRelevantSkills: string[];
+        })[];
+      })[] = [];
 
-    // Fetch all outbound entries
-    const outboundEntries = await ctx.db.query.outbound.findMany({
-      orderBy: [desc(outbound.createdAt)],
-    });
+      let outboundEntries: InferSelectModel<typeof outbound>[];
 
-    for (const o of outboundEntries) {
-      // Fetch related candidates through the junction table
-      const outboundCandidatesEntries =
-        await ctx.db.query.outboundCandidates.findMany({
-          with: {
-            candidate: true,
-          },
-          where: eq(outboundCandidates.outboundId, o.id),
+      if (input?.recommended) {
+        outboundEntries = await ctx.db.query.outbound.findMany({
+          orderBy: [desc(outbound.createdAt)],
+          where: eq(outbound.recommended, true),
         });
+      } else {
+        outboundEntries = await ctx.db.query.outbound.findMany({
+          orderBy: [desc(outbound.createdAt)],
+        });
+      }
+      // Fetch all outbound entries
 
-      // Combine candidate details with outboundCandidates details
-      const candidates = outboundCandidatesEntries.map((entry) => ({
-        ...entry.candidate,
-        workedInPosition: entry.workedInPosition,
-        workedAtRelevant: entry.workedAtRelevant,
-        similarity: entry.similarity,
-        weight: entry.weight,
-        matched: entry.matched ?? false, // Default to false if null
-        relevantSkills: entry.relevantSkills ?? [],
-        notRelevantSkills: entry.notRelevantSkills ?? [],
-      }));
+      for (const o of outboundEntries) {
+        // Fetch related candidates through the junction table
+        const outboundCandidatesEntries =
+          await ctx.db.query.outboundCandidates.findMany({
+            with: {
+              candidate: true,
+            },
+            where: eq(outboundCandidates.outboundId, o.id),
+          });
 
-      const matchedCandidates = candidates.filter(
-        (candidate) => candidate.matched,
-      );
+        // Combine candidate details with outboundCandidates details
+        const candidates = outboundCandidatesEntries.map((entry) => ({
+          ...entry.candidate,
+          workedInPosition: entry.workedInPosition,
+          workedAtRelevant: entry.workedAtRelevant,
+          similarity: entry.similarity,
+          weight: entry.weight,
+          matched: entry.matched ?? false, // Default to false if null
+          relevantSkills: entry.relevantSkills ?? [],
+          notRelevantSkills: entry.notRelevantSkills ?? [],
+        }));
 
-      result.push({
-        ...o,
-        // no need for candidates and it literally exceeds lamdbas allowable return size LOL
-        candidates: [],
-        matches: matchedCandidates,
-      });
-    }
+        const matchedCandidates = candidates.filter(
+          (candidate) => candidate.matched,
+        );
 
-    return result;
-  }),
+        result.push({
+          ...o,
+          // no need for candidates and it literally exceeds lamdbas allowable return size LOL
+          candidates: [],
+          matches: matchedCandidates,
+        });
+      }
+
+      return result;
+    }),
   pollPendingOutbound: protectedProcedure
     .input(z.object({ existingPendingOutboundId: z.string() }))
     .mutation(async ({ ctx, input }) => {
