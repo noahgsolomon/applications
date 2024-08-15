@@ -27,9 +27,7 @@ export async function gatherTopSkillsCompany() {
       limit: 1,
       offset,
       with: {
-        candidates: {
-          where: eq(userSchema.candidates.isEngineer, true),
-        },
+        candidates: true,
       },
     });
 
