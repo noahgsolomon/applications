@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Text,
   Button,
@@ -49,6 +49,7 @@ export default function ScrapedDialog() {
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
   const [filters, setFilters] = useState<CompanyFilterReturnType | null>(null);
+  const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
 
   const [candidateMatches, setCandidateMatches] = useState<
     InferSelectModel<typeof candidates>[] | null
@@ -59,6 +60,7 @@ export default function ScrapedDialog() {
       onSuccess: (data) => {
         console.log(data);
         setCandidateMatches(data.candidates);
+        setAllMatchingSkills(data.skills);
         setLoading(false);
         toast.success("outbound search completed");
       },
@@ -176,10 +178,16 @@ export default function ScrapedDialog() {
                         src={company.logo ?? ""}
                       />
                     ))}
-                    <Badge variant="surface" color="amber" className="h-[33px]">
-                      <Building2 className="size-4" />
-                      <Text>{toPascalCase(filters.job)}</Text>
-                    </Badge>
+                    {filters.job !== "" && (
+                      <Badge
+                        variant="surface"
+                        color="amber"
+                        className="h-[33px]"
+                      >
+                        <Building2 className="size-4" />
+                        <Text>{toPascalCase(filters.job)}</Text>
+                      </Badge>
+                    )}
                     {/* <Badge */}
                     {/*   variant="surface" */}
                     {/*   color="orange" */}
@@ -203,23 +211,35 @@ export default function ScrapedDialog() {
                         <Text>{toPascalCase(skill)}</Text>
                       </Badge>
                     ))}
-                    <Badge variant="surface" color="red" className="h-[33px]">
+                    <Badge
+                      onClick={() => {
+                        if (filters) {
+                          setFilters((prev) => {
+                            if (prev) {
+                              return { ...prev, Or: !prev.Or };
+                            } else {
+                              return {
+                                valid: false,
+                                message: "",
+                                companies: [],
+                                relevantRole: undefined,
+                                job: "",
+                                skills: [],
+                                Or: true,
+                                query: undefined,
+                              };
+                            }
+                          });
+                        }
+                      }}
+                      variant="surface"
+                      color={filters.Or ? "yellow" : "red"}
+                      style={{ cursor: "pointer" }}
+                      className="h-[33px]"
+                    >
                       <Text>{filters.Or ? "OR" : "AND"}</Text>
                     </Badge>
-                    <Badge
-                      style={{ cursor: "pointer" }}
-                      className={`h-[33px] `}
-                      variant="surface"
-                      color={searchInternet ? "green" : "red"}
-                      onClick={() => handleToggle("searchInternet")}
-                    >
-                      {searchInternet ? (
-                        <Check className="size-4 text-green-500" />
-                      ) : (
-                        <X className="size-4 text-red-500" />
-                      )}
-                      <Text>Search Internet</Text>
-                    </Badge>
+
                     <Badge
                       style={{ cursor: "pointer" }}
                       className={`h-[33px]`}
@@ -299,6 +319,7 @@ export default function ScrapedDialog() {
                             <CandidateCard
                               key={candidate.id}
                               candidate={candidate!}
+                              allMatchingSkills={allMatchingSkills}
                             />
                           ))}
                     </Flex>
