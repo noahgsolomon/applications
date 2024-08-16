@@ -131,6 +131,7 @@ export const candidates = pgTable("candidates", {
   createdAt: timestamp("createdAt"),
   // will be top 5 most present on their profile atm
   topTechnologies: json("top_technologies").$type<string[]>().default([]),
+  jobTitles: json("job_titles").$type<string[]>().default([]),
   topFeatures: json("top_features").$type<string[]>().default([]),
   isEngineer: boolean("is_engineer").default(false),
 });
