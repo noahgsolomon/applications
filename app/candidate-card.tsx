@@ -1,6 +1,10 @@
 "use client";
 
-import { candidates, company } from "@/server/db/schemas/users/schema";
+import {
+  candidates,
+  company as companyTable,
+} from "@/server/db/schemas/users/schema";
+import { InferResultType } from "@/utils/infer";
 import { InferSelectModel } from "drizzle-orm";
 import { Card, Heading, Text, Link, Avatar, Badge } from "frosted-ui";
 import { SquareArrowOutUpRight } from "lucide-react";
@@ -9,22 +13,40 @@ export default function CandidateCard({
   candidate,
   outbound,
   allMatchingSkills,
-  companies,
+  company,
 }: {
-  candidate: InferSelectModel<typeof candidates>;
+  candidate:
+    | InferResultType<"candidates", { company: true }>
+    | InferSelectModel<typeof candidates>;
   outbound?: Outbound;
   allMatchingSkills?: string[];
-  companies?: InferSelectModel<typeof company>[];
+  company?: InferSelectModel<typeof companyTable>;
 }) {
   return (
     <Card>
       <div className="flex flex-row  gap-2 pb-4">
-        <Avatar
-          size={"5"}
-          color="blue"
-          fallback={candidate.linkedinData.firstName.toUpperCase().charAt(0)}
-          src={candidate.linkedinData.photoUrl ?? ""}
-        />
+        <div>
+          <div className="relative">
+            {" "}
+            <Avatar
+              size={"5"}
+              color="blue"
+              fallback={candidate.linkedinData.firstName
+                .toUpperCase()
+                .charAt(0)}
+              src={candidate.linkedinData.photoUrl ?? ""}
+            />
+            {company && (
+              <Avatar
+                size={"2"}
+                className="absolute -bottom-3 -right-1"
+                color="blue"
+                fallback={company?.name.toUpperCase().charAt(0) ?? ""}
+                src={company?.logo ?? ""}
+              />
+            )}
+          </div>
+        </div>
         <div className="flex flex-col ">
           <div className="flex flex-row gap-2 items-center">
             <Heading>
@@ -42,9 +64,9 @@ export default function CandidateCard({
             </Link>
           </div>
           <div className="flex flex-row gap-1">
-            <Text>
-              {candidate.linkedinData.positions.positionHistory[0].companyName}
-            </Text>
+            {/* <Text> */}
+            {/*   {candidate.linkedinData.positions.positionHistory[0].companyName} */}
+            {/* </Text> */}
 
             <Text>
               {candidate.linkedinData.positions.positionHistory[0].title}

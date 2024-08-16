@@ -67,10 +67,10 @@ const processJobTitles = async (
   const sortedJobTitles = Array.from(jobTitles).sort();
   console.log("Processing job titles: " + sortedJobTitles.length);
 
-  const batchSize = 100;
+  const batchSize = 25;
   let i = 0;
 
-  for (let j = 32450; j < sortedJobTitles.length; j += batchSize) {
+  for (let j = 35000; j < sortedJobTitles.length; j += batchSize) {
     const batch = sortedJobTitles.slice(j, j + batchSize);
     const promises = batch.map(async (title) => {
       if (/^[\x00-\x7F]*$/.test(title)) {

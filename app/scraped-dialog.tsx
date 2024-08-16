@@ -28,7 +28,11 @@ import { api as ServerApi } from "@/trpc/server";
 import { toast } from "sonner";
 import CandidateCard from "./candidate-card";
 import { InferSelectModel } from "drizzle-orm";
-import { candidates } from "@/server/db/schemas/users/schema";
+import {
+  candidates,
+  company as companyTable,
+} from "@/server/db/schemas/users/schema";
+import { InferResultType } from "@/utils/infer";
 
 type CompanyFilterReturnType = Awaited<
   ReturnType<typeof ServerApi.outbound.companyFilter>
@@ -52,8 +56,17 @@ export default function ScrapedDialog() {
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
 
   const [candidateMatches, setCandidateMatches] = useState<
-    InferSelectModel<typeof candidates>[] | null
+    | (InferSelectModel<typeof candidates> & {
+        company?: InferSelectModel<typeof companyTable> | null;
+      })[]
+    | null
   >(null);
+
+  console.log(
+    candidateMatches
+      ? JSON.stringify(candidateMatches[0].company, null, 2)
+      : null,
+  );
 
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
@@ -320,6 +333,7 @@ export default function ScrapedDialog() {
                               key={candidate.id}
                               candidate={candidate!}
                               allMatchingSkills={allMatchingSkills}
+                              company={candidate.company!}
                             />
                           ))}
                     </Flex>

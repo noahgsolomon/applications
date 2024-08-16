@@ -106,6 +106,7 @@ export const outboundRouter = createTRPCRouter({
 
           const candidatesFiltered = await ctx.db.query.candidates.findMany({
             limit: 100,
+            with: { company: true },
             where: (candidate, { and, eq, inArray }) =>
               and(
                 eq(candidate.livesNearBrooklyn, input.nearBrooklyn),
@@ -144,6 +145,7 @@ export const outboundRouter = createTRPCRouter({
           // If input.Or is false, chain conditions for each group of similar technologies
           let candidatesFiltered = await ctx.db.query.candidates.findMany({
             limit: 100,
+            with: { company: true },
             where: (candidate, { and, eq }) => {
               const extraConditions: any[] = [];
 
