@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   candidates,
   company as companyTable,
 } from "@/server/db/schemas/users/schema";
@@ -37,13 +43,22 @@ export default function CandidateCard({
               src={candidate.linkedinData.photoUrl ?? ""}
             />
             {company && (
-              <Avatar
-                size={"2"}
-                className="absolute -bottom-3 -right-1"
-                color="blue"
-                fallback={company?.name.toUpperCase().charAt(0) ?? ""}
-                src={company?.logo ?? ""}
-              />
+              <TooltipProvider key={company.id} delayDuration={500}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link target="_blank" href={company.linkedinUrl}>
+                      <Avatar
+                        className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all absolute -right-0 -bottom-4 "
+                        color="blue"
+                        size="2"
+                        fallback={company.name.charAt(0).toUpperCase()}
+                        src={company.logo ?? ""}
+                      />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>{company.name}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         </div>
@@ -64,9 +79,13 @@ export default function CandidateCard({
             </Link>
           </div>
           <div className="flex flex-row gap-1">
-            {/* <Text> */}
-            {/*   {candidate.linkedinData.positions.positionHistory[0].companyName} */}
-            {/* </Text> */}
+            <Link
+              target="_blank"
+              href={company?.linkedinUrl!}
+              className="underline"
+            >
+              {candidate.linkedinData.positions.positionHistory[0].companyName}
+            </Link>
 
             <Text>
               {candidate.linkedinData.positions.positionHistory[0].title}
