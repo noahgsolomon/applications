@@ -44,3 +44,4 @@ jobs:
           SCRAPIN_API_KEY: ${{ secrets.SCRAPIN_API_KEY }}
           GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
