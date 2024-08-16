@@ -19,18 +19,57 @@ import {
   exists,
   inArray,
   InferSelectModel,
+  or,
   sql,
 } from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { InferResultType } from "@/utils/infer";
 import { jsonArrayContains, jsonArrayContainsAny } from "@/lib/utils";
+import { Pinecone } from "@pinecone-database/pinecone";
 
 const client = new SQSClient();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
+
+async function getEmbedding(text: string) {
+  const response = await openai.embeddings.create({
+    model: "text-embedding-3-large",
+    input: text,
+    encoding_format: "float",
+  });
+
+  return response.data[0].embedding;
+}
+
+const pinecone = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY || "",
+});
+
+const index = pinecone.Index("whop");
+
+async function querySimilarTechnologies(skill: string) {
+  try {
+    console.log(`Getting embedding for skill: ${skill}`);
+    const skillEmbedding = await getEmbedding(skill);
+
+    const queryResponse = await index.namespace("technologies").query({
+      topK: 10,
+      vector: skillEmbedding,
+      includeMetadata: true,
+    });
+
+    const similarTechnologies = queryResponse.matches.map(
+      (match) => match.metadata?.technology,
+    ) as string[];
+    return similarTechnologies;
+  } catch (error) {
+    console.error("Error querying similar technologies:", error);
+    return [];
+  }
+}
 
 export const outboundRouter = createTRPCRouter({
   findFilteredCandidates: protectedProcedure
@@ -49,118 +88,129 @@ export const outboundRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       console.log("Starting findFilteredCandidates mutation");
-      console.log(input.skills);
+      const similarTechnologiesArrays = await Promise.all(
+        input.skills.map((skill) => querySimilarTechnologies(skill)),
+      );
 
       try {
-        let candidatesFiltered: InferSelectModel<typeof candidates>[];
-        if (input.nearBrooklyn) {
-          if (input.Or) {
-            candidatesFiltered = await ctx.db.query.candidates.findMany({
-              limit: 100,
-              where: (candidate, { and, eq, inArray }) =>
-                and(
-                  eq(candidate.livesNearBrooklyn, true),
-                  jsonArrayContainsAny(candidate.topTechnologies, input.skills),
-                  exists(
-                    ctx.db
-                      .select()
-                      .from(companyTable)
-                      .where(
-                        and(
-                          inArray(companyTable.id, input.companyIds),
-                          eq(candidate.companyId, companyTable.id),
-                        ),
-                      ),
-                  ),
+        console.log(
+          "Similar technologies arrays:",
+          similarTechnologiesArrays.flat(),
+        );
+
+        if (input.Or) {
+          // If input.Or is true, flatten the arrays into a single array
+          const allSimilarTechnologies = similarTechnologiesArrays.flat();
+
+          console.log("Expanded skills (OR logic):", allSimilarTechnologies);
+
+          const candidatesFiltered = await ctx.db.query.candidates.findMany({
+            limit: 100,
+            where: (candidate, { and, eq, inArray }) =>
+              and(
+                eq(candidate.livesNearBrooklyn, input.nearBrooklyn),
+                jsonArrayContainsAny(
+                  candidate.topTechnologies,
+                  allSimilarTechnologies,
                 ),
-            });
-          } else {
-            candidatesFiltered = await ctx.db.query.candidates.findMany({
-              limit: 100,
-              where: (candidate, { and, eq, inArray }) =>
-                and(
-                  eq(candidate.livesNearBrooklyn, true),
-                  jsonArrayContains(candidate.topTechnologies, input.skills),
-                  exists(
-                    ctx.db
-                      .select()
-                      .from(companyTable)
-                      .where(
-                        and(
-                          inArray(companyTable.id, input.companyIds),
-                          eq(candidate.companyId, companyTable.id),
-                        ),
+                exists(
+                  ctx.db
+                    .select()
+                    .from(companyTable)
+                    .where(
+                      and(
+                        inArray(companyTable.id, input.companyIds),
+                        eq(candidate.companyId, companyTable.id),
                       ),
-                  ),
+                    ),
                 ),
-            });
-          }
+              ),
+          });
+
+          return {
+            valid: candidatesFiltered.length > 0,
+            message:
+              candidatesFiltered.length > 0
+                ? "Relevant candidates found."
+                : "No relevant candidates found.",
+            candidates: candidatesFiltered,
+            query: input.query,
+            job: input.job,
+            skills: similarTechnologiesArrays.flat(),
+            nearBrooklyn: input.nearBrooklyn,
+            relevantRoleId: input.relevantRoleId ?? undefined,
+          };
         } else {
-          if (input.Or) {
-            candidatesFiltered = await ctx.db.query.candidates.findMany({
-              limit: 100,
-              where: (candidate, { and, eq, inArray }) =>
-                and(
-                  jsonArrayContainsAny(candidate.topTechnologies, input.skills),
-                  exists(
-                    ctx.db
-                      .select()
-                      .from(companyTable)
-                      .where(
-                        and(
-                          inArray(companyTable.id, input.companyIds),
-                          eq(candidate.companyId, companyTable.id),
-                        ),
-                      ),
+          // If input.Or is false, chain conditions for each group of similar technologies
+          let candidatesFiltered = await ctx.db.query.candidates.findMany({
+            limit: 100,
+            where: (candidate, { and, eq }) => {
+              const extraConditions: any[] = [];
+
+              similarTechnologiesArrays.forEach((similarTechnologies) => {
+                const newCondition = jsonArrayContainsAny(
+                  candidate.topTechnologies,
+                  similarTechnologies,
+                )!;
+                extraConditions.push(newCondition);
+              });
+
+              let condition = and(
+                eq(candidate.livesNearBrooklyn, true),
+                and(...extraConditions),
+              )!;
+
+              if (!input.nearBrooklyn) {
+                condition = and(
+                  or(
+                    eq(candidate.livesNearBrooklyn, true),
+                    eq(candidate.livesNearBrooklyn, false),
                   ),
-                ),
-            });
-          } else {
-            candidatesFiltered = await ctx.db.query.candidates.findMany({
-              limit: 100,
-              where: (candidate, { and, eq, inArray }) =>
-                and(
-                  jsonArrayContains(candidate.topTechnologies, input.skills),
-                  exists(
-                    ctx.db
-                      .select()
-                      .from(companyTable)
-                      .where(
-                        and(
-                          inArray(companyTable.id, input.companyIds),
-                          eq(candidate.companyId, companyTable.id),
-                        ),
+                  and(...extraConditions),
+                )!;
+              }
+
+              return and(
+                condition,
+                exists(
+                  ctx.db
+                    .select()
+                    .from(companyTable)
+                    .where(
+                      and(
+                        inArray(companyTable.id, input.companyIds),
+                        eq(candidate.companyId, companyTable.id),
                       ),
-                  ),
+                    ),
                 ),
-            });
-          }
+              );
+            },
+          });
+
+          return {
+            valid: candidatesFiltered.length > 0,
+            message:
+              candidatesFiltered.length > 0
+                ? "Relevant candidates found."
+                : "No relevant candidates found.",
+            candidates: candidatesFiltered,
+            query: input.query,
+            job: input.job,
+            skills: similarTechnologiesArrays.flat(),
+            nearBrooklyn: input.nearBrooklyn,
+            relevantRoleId: input.relevantRoleId ?? undefined,
+          };
         }
-
-        console.log("Candidates filtered:", candidatesFiltered);
-
-        return {
-          valid: candidatesFiltered.length > 0,
-          message:
-            candidatesFiltered.length > 0
-              ? "Relevant candidates found."
-              : "No relevant candidates found.",
-          candidates: candidatesFiltered,
-          query: input.query,
-          job: input.job,
-          skills: input.skills,
-          nearBrooklyn: input.nearBrooklyn,
-          relevantRoleId: input.relevantRoleId ?? undefined,
-        };
       } catch (error) {
         console.error("Error during findFilteredCandidates mutation:", error);
         throw new Error("An error occurred during the mutation.");
       }
     }),
+
   findRelevantCompanies: protectedProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Use ChatGPT to standardize the input query into a proper tech name
+      // Step 1: Standardize the input query
       const completion = await openai.chat.completions.create({
         messages: [
           {
@@ -194,7 +244,15 @@ Respond only with a JSON object that has a single field "standardizedTech" which
       const standardizedTech =
         standardizedResponse.standardizedTech.toLowerCase();
 
-      // Fetch all companies from the database without related candidates
+      // Step 2: Query Pinecone to get the top 10 similar technologies
+      const similarTechnologies =
+        await querySimilarTechnologies(standardizedTech);
+      const allTechnologiesToSearch = [
+        standardizedTech,
+        ...similarTechnologies,
+      ];
+
+      // Step 3: Fetch all companies from the database without related candidates
       const companiesList = await ctx.db.query.company.findMany();
 
       const matchingCompanies: InferResultType<
@@ -202,7 +260,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
         { candidates: true }
       >[] = [];
 
-      // Iterate over the companies list and fetch related candidates as needed
+      // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
         const companyDb = await ctx.db.query.company.findFirst({
           with: {
@@ -240,10 +298,12 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           .slice(0, 10)
           .map((entry) => entry[0].toLowerCase());
 
-        // If the standardized tech matches any top technologies or features, add the company to the list
+        // Step 5: Match companies based on the standardized tech and its similar technologies
         if (
-          topTechnologies.includes(standardizedTech) ||
-          topFeatures.includes(standardizedTech)
+          allTechnologiesToSearch.some(
+            (tech) =>
+              topTechnologies.includes(tech) || topFeatures.includes(tech),
+          )
         ) {
           matchingCompanies.push(companyDb);
         }
@@ -285,10 +345,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
             ),
         });
 
-        console.log("Companies found from DB:", companies);
-
         const companyNames = companies.map((company) => company.name);
-        console.log("Company names extracted:", companyNames);
 
         const firstCompletion = await openai.chat.completions.create({
           messages: [
@@ -320,8 +377,6 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           max_tokens: 512,
         });
 
-        console.log("First OpenAI completion response:", firstCompletion);
-
         const secondCompletion = await openai.chat.completions.create({
           messages: [
             {
@@ -347,34 +402,24 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           max_tokens: 512,
         });
 
-        console.log("Second OpenAI completion response:", secondCompletion);
-
         const firstResponse = JSON.parse(
           firstCompletion.choices[0].message.content ??
             '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [], "Or": false }',
         );
-
-        console.log("Parsed first response:", firstResponse);
 
         const secondResponse = JSON.parse(
           secondCompletion.choices[0].message.content ??
             '{ "relevantRole": "" }',
         );
 
-        console.log("Parsed second response:", secondResponse);
-
         const response = {
           ...firstResponse,
           ...secondResponse,
         };
 
-        console.log("Combined response:", response);
-
         const relevantRole = await ctx.db.query.relevantRoles.findFirst({
           where: eq(relevantRoles.jobTitle, response.relevantRole),
         });
-
-        console.log("Relevant role from DB:", relevantRole);
 
         let responseCompanyNames = response.companyNames;
 
@@ -388,8 +433,6 @@ Respond only with a JSON object that has a single field "standardizedTech" which
         const companiesDB = await ctx.db.query.company.findMany({
           where: inArray(companyTable.name, responseCompanyNames),
         });
-
-        console.log("Companies found in second DB query:", companiesDB);
 
         if (!companiesDB || companiesDB.length === 0) {
           console.error(
@@ -617,8 +660,6 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
       if (!isValid) {
         return { isValid };
       }
-
-      console.log(JSON.stringify(response, null, 2));
 
       const uuidId = uuid();
       await ctx.db.insert(pendingOutbound).values({
