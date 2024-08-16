@@ -41,7 +41,6 @@ export async function gatherTopSkills(candidateId: string) {
   };
 
   if (
-    candidate.isEngineer !== null ||
     (candidate.topFeatures?.length ?? 0) > 0 ||
     (candidate.topTechnologies?.length ?? 0) > 0
   ) {

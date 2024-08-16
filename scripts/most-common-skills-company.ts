@@ -62,4 +62,4 @@ export async function mostCommonSkills(companyId: string) {
   };
 }
 
-mostCommonSkills("c2b538ff-49e0-43bb-907c-fd107c05a7ac");
+mostCommonSkills("afcd9bd7-cd6c-40c1-ac2a-2c0101571bb5");
