@@ -4,6 +4,7 @@ export const NextEnv = {
   NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
+  PINECONE_API_KEY: process.env.PINECONE_API_KEY!,
   // switch to DEV when running sst deploy
   MODE: process.env.MODE!,
 };
