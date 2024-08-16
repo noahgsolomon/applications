@@ -1,6 +1,6 @@
 "use client";
 
-import { candidates } from "@/server/db/schemas/users/schema";
+import { candidates, company } from "@/server/db/schemas/users/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { Card, Heading, Text, Link, Avatar, Badge } from "frosted-ui";
 import { SquareArrowOutUpRight } from "lucide-react";
@@ -8,9 +8,13 @@ import { SquareArrowOutUpRight } from "lucide-react";
 export default function CandidateCard({
   candidate,
   outbound,
+  allMatchingSkills,
+  companies,
 }: {
   candidate: InferSelectModel<typeof candidates>;
   outbound?: Outbound;
+  allMatchingSkills?: string[];
+  companies?: InferSelectModel<typeof company>[];
 }) {
   return (
     <Card>
@@ -71,7 +75,15 @@ export default function CandidateCard({
         {/*   {outbound.company} */}
         {/* </Badge> */}
         {candidate.topTechnologies?.map((skill) => (
-          <Badge key={skill} variant="surface" color={"sky"}>
+          <Badge
+            key={skill}
+            variant="surface"
+            color={
+              allMatchingSkills && allMatchingSkills.includes(skill)
+                ? "pink"
+                : "gray"
+            }
+          >
             {skill}
           </Badge>
         ))}
