@@ -12,20 +12,11 @@ import {
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import {
-  arrayOverlaps,
-  desc,
-  eq,
-  exists,
-  inArray,
-  InferSelectModel,
-  or,
-  sql,
-} from "drizzle-orm";
+import { desc, eq, exists, inArray, InferSelectModel, or } from "drizzle-orm";
 import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { InferResultType } from "@/utils/infer";
-import { jsonArrayContains, jsonArrayContainsAny } from "@/lib/utils";
+import { jsonArrayContainsAny } from "@/lib/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
 
 const client = new SQSClient();
@@ -56,14 +47,14 @@ async function querySimilarTechnologies(skill: string) {
     const skillEmbedding = await getEmbedding(skill);
 
     const queryResponse = await index.namespace("technologies").query({
-      topK: 10,
+      topK: 100,
       vector: skillEmbedding,
       includeMetadata: true,
     });
 
-    const similarTechnologies = queryResponse.matches.map(
-      (match) => match.metadata?.technology,
-    ) as string[];
+    const similarTechnologies = queryResponse.matches
+      .filter((match) => (match.score ?? 0) > 0.75)
+      .map((match) => match.metadata?.technology) as string[];
     return similarTechnologies;
   } catch (error) {
     console.error("Error querying similar technologies:", error);
@@ -77,14 +68,16 @@ async function querySimilarJobTitles(job: string) {
     const jobEmbedding = await getEmbedding(job);
 
     const queryResponse = await index.namespace("job-titles").query({
-      topK: 100,
+      topK: 500,
       vector: jobEmbedding,
       includeMetadata: true,
     });
 
-    const similarJobTitles = queryResponse.matches.map(
-      (match) => match.metadata?.jobTitle,
-    ) as string[];
+    const similarJobTitles = queryResponse.matches
+      .filter((match) => (match.score ?? 0) > 0.7)
+      .map((match) => match.metadata?.jobTitle) as string[];
+
+    console.log(`SIMILAR JOB TITLES LENGTH: ${similarJobTitles.length}`);
     return similarJobTitles;
   } catch (error) {
     console.error("Error querying similar job titles:", error);
@@ -112,6 +105,11 @@ export const outboundRouter = createTRPCRouter({
       const similarTechnologiesArrays = await Promise.all(
         input.skills.map((skill) => querySimilarTechnologies(skill)),
       );
+
+      let similarJobTitlesArray: string[] = [];
+      if (input.job && input.job !== "") {
+        similarJobTitlesArray = await querySimilarJobTitles(input.job);
+      }
 
       try {
         console.log(
@@ -145,6 +143,10 @@ export const outboundRouter = createTRPCRouter({
                         eq(candidate.companyId, companyTable.id),
                       ),
                     ),
+                ),
+                jsonArrayContainsAny(
+                  candidate.jobTitles,
+                  similarJobTitlesArray,
                 ),
               ),
           });
@@ -206,6 +208,10 @@ export const outboundRouter = createTRPCRouter({
                       ),
                     ),
                 ),
+                jsonArrayContainsAny(
+                  candidate.jobTitles,
+                  similarJobTitlesArray,
+                ),
               );
             },
           });
@@ -233,7 +239,7 @@ export const outboundRouter = createTRPCRouter({
   findRelevantCompanies: protectedProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Step 1: Standardize the input query
+      // Step 1: Standardize the input query to an array of technologies
       const completion = await openai.chat.completions.create({
         messages: [
           {
@@ -247,7 +253,7 @@ For example:
 
 If the input is already standardized, return it as is.
 
-Respond only with a JSON object that has a single field "standardizedTech" which is the standardized version of the input.
+Respond only with a JSON object that has a single field "standardizedTechs" which is an array of standardized versions of the input.
           `,
           },
           {
@@ -256,24 +262,24 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           },
         ],
         response_format: { type: "json_object" },
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         temperature: 0,
         max_tokens: 256,
       });
 
       const standardizedResponse = JSON.parse(
-        completion.choices[0].message.content ?? "{standardizedTech: ''}",
+        completion.choices[0].message.content ?? "{standardizedTechs: []}",
       );
-      const standardizedTech =
-        standardizedResponse.standardizedTech.toLowerCase();
+      const standardizedTechs = standardizedResponse.standardizedTechs.map(
+        (tech: string) => tech.toLowerCase(),
+      );
 
-      // Step 2: Query Pinecone to get the top 10 similar technologies
-      const similarTechnologies =
-        await querySimilarTechnologies(standardizedTech);
-      const allTechnologiesToSearch = [
-        standardizedTech,
-        ...similarTechnologies,
-      ];
+      // Step 2: Query Pinecone to get the top 10 similar technologies for each standardized tech
+      const allTechnologiesToSearch: string[] = [];
+      for (const tech of standardizedTechs) {
+        const similarTechnologies = await querySimilarTechnologies(tech);
+        allTechnologiesToSearch.push(tech, ...similarTechnologies);
+      }
 
       // Step 3: Fetch all companies from the database without related candidates
       const companiesList = await ctx.db.query.company.findMany();
@@ -321,7 +327,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           .slice(0, 10)
           .map((entry) => entry[0].toLowerCase());
 
-        // Step 5: Match companies based on the standardized tech and its similar technologies
+        // Step 5: Match companies based on the union of standardized techs and their similar technologies
         if (
           allTechnologiesToSearch.some(
             (tech) =>
@@ -339,7 +345,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
           matchingCompanies.length > 0
             ? "Relevant companies found."
             : "No relevant companies found.",
-        filters: [standardizedTech],
+        filters: standardizedTechs,
       };
     }),
 
@@ -377,7 +383,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
               content: `
         Given the search query, find the company names from the following list: ${companyNames.join(", ")}. 
         If no company in this list is in their query or if their query has no mention of a company, return valid as false (note this doesnt mean the input is invalid, I just consider this valid false as a signal to do something else so fill our the rest of the fields). 
-        Also, extract the job title and an array of skills mentioned in the query. Any technology mentioned can be considered a skill. The Or field determines if the skills are all of just one of them. So if the query includes Next.js react or rails Or should be true. Otherwise make Or false.
+        Also, extract the job title and an array of skills mentioned in the query. for the skills, you should normalize them because they might come in as slang (e.g. rails should be Ruby on Rails). Any technology mentioned can be considered a skill. The Or field determines if the skills are all of just one of them. So if the query includes Next.js react or rails Or should be true. Otherwise make Or false.
         Return the result as a JSON object with the following structure: 
         { 
           "companyNames": string[], 
@@ -395,7 +401,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
             },
           ],
           response_format: { type: "json_object" },
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
           temperature: 0,
           max_tokens: 512,
         });
@@ -420,7 +426,7 @@ Respond only with a JSON object that has a single field "standardizedTech" which
             },
           ],
           response_format: { type: "json_object" },
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
           temperature: 0,
           max_tokens: 512,
         });
@@ -668,7 +674,7 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
           },
         ],
         response_format: { type: "json_object" },
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         temperature: 0,
         max_tokens: 256,
       });
