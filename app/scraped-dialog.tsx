@@ -61,13 +61,6 @@ export default function ScrapedDialog() {
       })[]
     | null
   >(null);
-
-  console.log(
-    candidateMatches
-      ? JSON.stringify(candidateMatches[0].company, null, 2)
-      : null,
-  );
-
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
       onSuccess: (data) => {

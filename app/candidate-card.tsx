@@ -79,14 +79,9 @@ export default function CandidateCard({
             </Link>
           </div>
           <div className="flex flex-row gap-1">
-            <Link
-              target="_blank"
-              href={company?.linkedinUrl!}
-              className="underline"
-            >
-              {candidate.linkedinData.positions.positionHistory[0].companyName}
-            </Link>
-
+            <Text>
+              {candidate.linkedinData.positions.positionHistory[0].companyName}{" "}
+            </Text>
             <Text>
               {candidate.linkedinData.positions.positionHistory[0].title}
             </Text>
