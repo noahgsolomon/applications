@@ -50,10 +50,11 @@ async function querySimilarTechnologies(skill: string) {
       topK: 100,
       vector: skillEmbedding,
       includeMetadata: true,
+      includeValues: false,
     });
 
     const similarTechnologies = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.75)
+      .filter((match) => (match.score ?? 0) > 0.6)
       .map((match) => match.metadata?.technology) as string[];
     return similarTechnologies;
   } catch (error) {
@@ -71,6 +72,7 @@ async function querySimilarJobTitles(job: string) {
       topK: 500,
       vector: jobEmbedding,
       includeMetadata: true,
+      includeValues: false,
     });
 
     const similarJobTitles = queryResponse.matches
@@ -319,12 +321,12 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
         // Sort and extract the top 10 technologies and features
         const topTechnologies = Object.entries(techFrequencyMap)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 10)
+          .slice(0, 20)
           .map((entry) => entry[0].toLowerCase());
 
         const topFeatures = Object.entries(featuresFrequencyMap)
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 10)
+          .slice(0, 20)
           .map((entry) => entry[0].toLowerCase());
 
         // Step 5: Match companies based on the union of standardized techs and their similar technologies
