@@ -71,6 +71,27 @@ async function querySimilarTechnologies(skill: string) {
   }
 }
 
+async function querySimilarJobTitles(job: string) {
+  try {
+    console.log(`Getting embedding for job: ${job}`);
+    const jobEmbedding = await getEmbedding(job);
+
+    const queryResponse = await index.namespace("job-titles").query({
+      topK: 100,
+      vector: jobEmbedding,
+      includeMetadata: true,
+    });
+
+    const similarJobTitles = queryResponse.matches.map(
+      (match) => match.metadata?.jobTitle,
+    ) as string[];
+    return similarJobTitles;
+  } catch (error) {
+    console.error("Error querying similar job titles:", error);
+    return [];
+  }
+}
+
 export const outboundRouter = createTRPCRouter({
   findFilteredCandidates: protectedProcedure
     .input(
