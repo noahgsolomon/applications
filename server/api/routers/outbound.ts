@@ -55,9 +55,32 @@ async function querySimilarTechnologies(skill: string) {
     });
 
     const similarTechnologies = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.6)
+      .filter((match) => (match.score ?? 0) > 0.75)
       .map((match) => match.metadata?.technology) as string[];
     return similarTechnologies;
+  } catch (error) {
+    console.error("Error querying similar technologies:", error);
+    return [];
+  }
+}
+
+async function querySimilarFeatures(feature: string) {
+  try {
+    console.log(`Getting embedding for skill: ${feature}`);
+    const featureEmbedding = await getEmbedding(feature);
+    console.log(`Got embedding for skill: ${feature}`);
+
+    const queryResponse = await index.namespace("technologies").query({
+      topK: 100,
+      vector: featureEmbedding,
+      includeMetadata: true,
+      includeValues: false,
+    });
+
+    const similarFeatures = queryResponse.matches
+      .filter((match) => (match.score ?? 0) > 0.75)
+      .map((match) => match.metadata?.feature) as string[];
+    return similarFeatures;
   } catch (error) {
     console.error("Error querying similar technologies:", error);
     return [];
@@ -129,9 +152,23 @@ export const outboundRouter = createTRPCRouter({
           const candidatesFiltered = await ctx.db.query.candidates.findMany({
             limit: 100,
             with: { company: true },
-            where: (candidate, { and, eq, inArray }) =>
-              and(
-                eq(candidate.livesNearBrooklyn, input.nearBrooklyn),
+            where: (candidate, { and, eq, inArray }) => {
+              let condition = or(
+                eq(candidate.livesNearBrooklyn, true),
+                eq(candidate.livesNearBrooklyn, false),
+              );
+              if (input.nearBrooklyn) {
+                condition = eq(candidate.livesNearBrooklyn, true);
+              }
+              let jobTitleCondition = undefined;
+              if (similarJobTitlesArray.length > 0) {
+                jobTitleCondition = jsonArrayContainsAny(
+                  candidate.jobTitles,
+                  similarJobTitlesArray,
+                );
+              }
+              return and(
+                condition,
                 jsonArrayContainsAny(
                   candidate.topTechnologies,
                   allSimilarTechnologies,
@@ -147,11 +184,9 @@ export const outboundRouter = createTRPCRouter({
                       ),
                     ),
                 ),
-                jsonArrayContainsAny(
-                  candidate.jobTitles,
-                  similarJobTitlesArray,
-                ),
-              ),
+                jobTitleCondition,
+              );
+            },
           });
 
           return {
@@ -198,6 +233,14 @@ export const outboundRouter = createTRPCRouter({
                 )!;
               }
 
+              let jobTitleCondition = undefined;
+              if (similarJobTitlesArray.length > 0) {
+                jobTitleCondition = jsonArrayContainsAny(
+                  candidate.jobTitles,
+                  similarJobTitlesArray,
+                );
+              }
+
               return and(
                 condition,
                 exists(
@@ -211,10 +254,7 @@ export const outboundRouter = createTRPCRouter({
                       ),
                     ),
                 ),
-                jsonArrayContainsAny(
-                  candidate.jobTitles,
-                  similarJobTitlesArray,
-                ),
+                jobTitleCondition,
               );
             },
           });
@@ -267,7 +307,7 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
         response_format: { type: "json_object" },
         model: "gpt-4o",
         temperature: 0,
-        max_tokens: 256,
+        max_tokens: 1024,
       });
 
       const standardizedResponse = JSON.parse(
@@ -277,7 +317,9 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
         (tech: string) => tech.toLowerCase(),
       );
 
-      // Step 2: Query Pinecone to get the top 10 similar technologies for each standardized tech
+      console.log("Standardized technologies:", standardizedTechs);
+
+      // Step 2: Query Pinecone to get the most similar technologies for each standardized tech
       const allTechnologiesToSearch: string[] = [];
       for (const tech of standardizedTechs) {
         const similarTechnologies = await querySimilarTechnologies(tech);
@@ -319,7 +361,7 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
           });
         });
 
-        // Sort and extract the top 10 technologies and features
+        // Sort and extract the top technologies and features
         const topTechnologies = Object.entries(techFrequencyMap)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 20)
@@ -330,11 +372,45 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
           .slice(0, 20)
           .map((entry) => entry[0].toLowerCase());
 
-        // Step 5: Match companies based on the union of standardized techs and their similar technologies
+        // Step 5: Expand top technologies with similar technologies
+        const expandedTechnologies: string[] = [];
+
+        const similarTechnologiesPromises = topTechnologies.map(
+          async (tech) => {
+            const similarTechnologies = await querySimilarTechnologies(tech);
+            return similarTechnologies;
+          },
+        );
+
+        const similarTechnologiesResults = await Promise.all(
+          similarTechnologiesPromises,
+        );
+
+        similarTechnologiesResults.forEach((similarTechs) => {
+          expandedTechnologies.push(...similarTechs);
+        });
+
+        const expandedFeatures: string[] = [];
+
+        const similarFeaturesPromises = topFeatures.map(async (feature) => {
+          const similarFeatures = await querySimilarFeatures(feature);
+          return similarFeatures;
+        });
+
+        const similarFeaturesResults = await Promise.all(
+          similarFeaturesPromises,
+        );
+
+        similarFeaturesResults.forEach((similarFeatures) => {
+          expandedFeatures.push(...similarFeatures);
+        });
+
+        // Step 6: Match companies based on the expanded technologies list
         if (
           allTechnologiesToSearch.some(
             (tech) =>
-              topTechnologies.includes(tech) || topFeatures.includes(tech),
+              expandedTechnologies.includes(tech) ||
+              expandedFeatures.includes(tech),
           )
         ) {
           matchingCompanies.push(companyDb);

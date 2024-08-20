@@ -249,6 +249,7 @@ export const company = pgTable("company", {
   // will be top 10 based on the employees most present technologies and features weighted by the employees ordering of these.
   topTechnologies: json("top_technologies").$type<string[]>().default([]),
   topFeatures: json("top_features").$type<string[]>().default([]),
+  specialties: json("specialties").$type<string[]>().default([]),
 });
 
 export const companyRelations = relations(company, ({ many }) => ({
