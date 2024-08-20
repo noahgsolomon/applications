@@ -17,7 +17,6 @@ import { SquareArrowOutUpRight } from "lucide-react";
 
 export default function CandidateCard({
   candidate,
-  outbound,
   allMatchingSkills,
   company,
 }: {

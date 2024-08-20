@@ -32,7 +32,6 @@ import {
   candidates,
   company as companyTable,
 } from "@/server/db/schemas/users/schema";
-import { InferResultType } from "@/utils/infer";
 
 type CompanyFilterReturnType = Awaited<
   ReturnType<typeof ServerApi.outbound.companyFilter>

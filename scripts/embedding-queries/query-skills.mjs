@@ -33,6 +33,7 @@ async function querySimilarTechnologies(skill) {
       topK: 20,
       vector: skillEmbedding,
       includeMetadata: true,
+      includeValues: false,
     });
 
     console.log("Top 10 similar technologies:");
