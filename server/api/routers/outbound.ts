@@ -45,6 +45,7 @@ async function querySimilarTechnologies(skill: string) {
   try {
     console.log(`Getting embedding for skill: ${skill}`);
     const skillEmbedding = await getEmbedding(skill);
+    console.log(`Got embedding for skill: ${skill}`);
 
     const queryResponse = await index.namespace("technologies").query({
       topK: 100,
