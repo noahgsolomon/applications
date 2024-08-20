@@ -419,158 +419,158 @@ const main = async () => {
     // `site:www.linkedin.com/in Looks Rare frontend engineer AND next.js`,
     // `site:www.linkedin.com/in Consensys frontend engineer AND new york`,
     //
-    // Figma
-    "site:www.linkedin.com/in Figma frontend engineer AND next.js",
-    "site:www.linkedin.com/in Figma designer AND swift",
-    "site:www.linkedin.com/in Figma backend engineer AND ruby on rails",
-
-    // Airtable
-    "site:www.linkedin.com/in Airtable backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Airtable frontend engineer AND next.js",
-    "site:www.linkedin.com/in Airtable designer AND new york",
-
-    // Miro
-    "site:www.linkedin.com/in Miro frontend engineer AND new york",
-    "site:www.linkedin.com/in Miro product manager",
-    "site:www.linkedin.com/in Miro backend engineer AND rails",
-
-    // monday.com
-    "site:www.linkedin.com/in monday.com backend engineer AND swift",
-    "site:www.linkedin.com/in monday.com designer",
-    "site:www.linkedin.com/in monday.com frontend engineer AND next.js",
-
-    // GitLab
-    "site:www.linkedin.com/in GitLab backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in GitLab frontend engineer AND swift",
-    "site:www.linkedin.com/in GitLab designer AND new york",
-
-    // Typeform
-    "site:www.linkedin.com/in Typeform designer AND swift",
-    "site:www.linkedin.com/in Typeform backend engineer AND rails",
-    "site:www.linkedin.com/in Typeform frontend engineer",
-
-    // Zapier
-    "site:www.linkedin.com/in Zapier backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Zapier frontend engineer AND next.js",
-    "site:www.linkedin.com/in Zapier designer",
-
-    // InVision
-    "site:www.linkedin.com/in InVision frontend engineer AND swift",
-    "site:www.linkedin.com/in InVision designer AND new york",
-    "site:www.linkedin.com/in InVision product manager",
-
-    // Datadog
-    "site:www.linkedin.com/in Datadog backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Datadog frontend engineer AND next.js",
-    "site:www.linkedin.com/in Datadog software engineer",
-
-    // Zendesk
-    "site:www.linkedin.com/in Zendesk frontend engineer AND swift",
-    "site:www.linkedin.com/in Zendesk designer",
-    "site:www.linkedin.com/in Zendesk backend engineer AND rails",
-
-    // Salesforce
-    "site:www.linkedin.com/in Salesforce backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Salesforce frontend engineer",
-    "site:www.linkedin.com/in Salesforce product manager AND new york",
-
-    // HubSpot
-    "site:www.linkedin.com/in HubSpot frontend engineer AND next.js",
-    "site:www.linkedin.com/in HubSpot designer",
-    "site:www.linkedin.com/in HubSpot backend engineer AND swift",
-
-    // New Relic
-    "site:www.linkedin.com/in New Relic software engineer AND ruby on rails",
-    "site:www.linkedin.com/in New Relic frontend engineer AND swift",
-    "site:www.linkedin.com/in New Relic designer AND new york",
-
-    // Pipedrive
-    "site:www.linkedin.com/in Pipedrive backend engineer",
-    "site:www.linkedin.com/in Pipedrive frontend engineer AND next.js",
-    "site:www.linkedin.com/in Pipedrive product manager",
-
-    // Amplitude
-    "site:www.linkedin.com/in Amplitude frontend engineer",
-    "site:www.linkedin.com/in Amplitude backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Amplitude designer AND swift",
-
-    // Mixpanel
-    "site:www.linkedin.com/in Mixpanel software engineer AND ruby on rails",
-    "site:www.linkedin.com/in Mixpanel frontend engineer AND next.js",
-    "site:www.linkedin.com/in Mixpanel product manager AND new york",
-
-    // Intuit
-    "site:www.linkedin.com/in Intuit designer AND swift",
-    "site:www.linkedin.com/in Intuit backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Intuit frontend engineer",
-
-    // Heap | by Contentsquare
-    "site:www.linkedin.com/in Heap designer AND new york",
-    "site:www.linkedin.com/in Heap frontend engineer AND next.js",
-    "site:www.linkedin.com/in Heap backend engineer AND swift",
-
-    // AngelList
-    "site:www.linkedin.com/in AngelList software engineer AND ruby on rails",
-    "site:www.linkedin.com/in AngelList frontend engineer",
-    "site:www.linkedin.com/in AngelList designer",
-
-    // Square
-    "site:www.linkedin.com/in Square backend engineer AND rails",
-    "site:www.linkedin.com/in Square frontend engineer AND swift",
-    "site:www.linkedin.com/in Square designer AND new york",
-
-    // Plaid
-    "site:www.linkedin.com/in Plaid software engineer AND ruby on rails",
-    "site:www.linkedin.com/in Plaid frontend engineer",
-    "site:www.linkedin.com/in Plaid backend engineer AND next.js",
-
-    // Crunchbase
-    "site:www.linkedin.com/in Crunchbase designer AND new york",
-    "site:www.linkedin.com/in Crunchbase frontend engineer AND swift",
-    "site:www.linkedin.com/in Crunchbase backend engineer",
-
-    // Intercom
-    "site:www.linkedin.com/in Intercom frontend engineer AND next.js",
-    "site:www.linkedin.com/in Intercom backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Intercom product manager",
-
-    // Replit
-    "site:www.linkedin.com/in Replit frontend engineer AND swift",
-    "site:www.linkedin.com/in Replit backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Replit designer",
-
-    // Dribbble
-    "site:www.linkedin.com/in Dribbble designer",
-    "site:www.linkedin.com/in Dribbble frontend engineer AND next.js",
-    "site:www.linkedin.com/in Dribbble product manager",
-
-    // Behance
-    "site:www.linkedin.com/in Behance designer AND new york",
-    "site:www.linkedin.com/in Behance frontend engineer",
-    "site:www.linkedin.com/in Behance backend engineer AND swift",
-
-    // Product Hunt
-    "site:www.linkedin.com/in Product Hunt product manager AND new york",
-    "site:www.linkedin.com/in Product Hunt frontend engineer AND next.js",
-    "site:www.linkedin.com/in Product Hunt designer AND swift",
-
-    // TikTok
-    "site:www.linkedin.com/in TikTok designer",
-    "site:www.linkedin.com/in TikTok backend engineer AND swift",
-    "site:www.linkedin.com/in TikTok software engineer AND ruby on rails",
-
-    // Airbnb
-    "site:www.linkedin.com/in Airbnb frontend engineer AND next.js",
-    "site:www.linkedin.com/in Airbnb designer AND new york",
-    "site:www.linkedin.com/in Airbnb backend engineer AND swift",
-
-    // Lyft
-    "site:www.linkedin.com/in Lyft backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Lyft frontend engineer AND swift",
-    "site:www.linkedin.com/in Lyft designer",
-
-    // Uber
-    "site:www.linkedin.com/in Uber frontend engineer AND next.js",
+    // // Figma
+    // "site:www.linkedin.com/in Figma frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Figma designer AND swift",
+    // "site:www.linkedin.com/in Figma backend engineer AND ruby on rails",
+    //
+    // // Airtable
+    // "site:www.linkedin.com/in Airtable backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Airtable frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Airtable designer AND new york",
+    //
+    // // Miro
+    // "site:www.linkedin.com/in Miro frontend engineer AND new york",
+    // "site:www.linkedin.com/in Miro product manager",
+    // "site:www.linkedin.com/in Miro backend engineer AND rails",
+    //
+    // // monday.com
+    // "site:www.linkedin.com/in monday.com backend engineer AND swift",
+    // "site:www.linkedin.com/in monday.com designer",
+    // "site:www.linkedin.com/in monday.com frontend engineer AND next.js",
+    //
+    // // GitLab
+    // "site:www.linkedin.com/in GitLab backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in GitLab frontend engineer AND swift",
+    // "site:www.linkedin.com/in GitLab designer AND new york",
+    //
+    // // Typeform
+    // "site:www.linkedin.com/in Typeform designer AND swift",
+    // "site:www.linkedin.com/in Typeform backend engineer AND rails",
+    // "site:www.linkedin.com/in Typeform frontend engineer",
+    //
+    // // Zapier
+    // "site:www.linkedin.com/in Zapier backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Zapier frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Zapier designer",
+    //
+    // // InVision
+    // "site:www.linkedin.com/in InVision frontend engineer AND swift",
+    // "site:www.linkedin.com/in InVision designer AND new york",
+    // "site:www.linkedin.com/in InVision product manager",
+    //
+    // // Datadog
+    // "site:www.linkedin.com/in Datadog backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Datadog frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Datadog software engineer",
+    //
+    // // Zendesk
+    // "site:www.linkedin.com/in Zendesk frontend engineer AND swift",
+    // "site:www.linkedin.com/in Zendesk designer",
+    // "site:www.linkedin.com/in Zendesk backend engineer AND rails",
+    //
+    // // Salesforce
+    // "site:www.linkedin.com/in Salesforce backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Salesforce frontend engineer",
+    // "site:www.linkedin.com/in Salesforce product manager AND new york",
+    //
+    // // HubSpot
+    // "site:www.linkedin.com/in HubSpot frontend engineer AND next.js",
+    // "site:www.linkedin.com/in HubSpot designer",
+    // "site:www.linkedin.com/in HubSpot backend engineer AND swift",
+    //
+    // // New Relic
+    // "site:www.linkedin.com/in New Relic software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in New Relic frontend engineer AND swift",
+    // "site:www.linkedin.com/in New Relic designer AND new york",
+    //
+    // // Pipedrive
+    // "site:www.linkedin.com/in Pipedrive backend engineer",
+    // "site:www.linkedin.com/in Pipedrive frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Pipedrive product manager",
+    //
+    // // Amplitude
+    // "site:www.linkedin.com/in Amplitude frontend engineer",
+    // "site:www.linkedin.com/in Amplitude backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Amplitude designer AND swift",
+    //
+    // // Mixpanel
+    // "site:www.linkedin.com/in Mixpanel software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Mixpanel frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Mixpanel product manager AND new york",
+    //
+    // // Intuit
+    // "site:www.linkedin.com/in Intuit designer AND swift",
+    // "site:www.linkedin.com/in Intuit backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Intuit frontend engineer",
+    //
+    // // Heap | by Contentsquare
+    // "site:www.linkedin.com/in Heap designer AND new york",
+    // "site:www.linkedin.com/in Heap frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Heap backend engineer AND swift",
+    //
+    // // AngelList
+    // "site:www.linkedin.com/in AngelList software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in AngelList frontend engineer",
+    // "site:www.linkedin.com/in AngelList designer",
+    //
+    // // Square
+    // "site:www.linkedin.com/in Square backend engineer AND rails",
+    // "site:www.linkedin.com/in Square frontend engineer AND swift",
+    // "site:www.linkedin.com/in Square designer AND new york",
+    //
+    // // Plaid
+    // "site:www.linkedin.com/in Plaid software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Plaid frontend engineer",
+    // "site:www.linkedin.com/in Plaid backend engineer AND next.js",
+    //
+    // // Crunchbase
+    // "site:www.linkedin.com/in Crunchbase designer AND new york",
+    // "site:www.linkedin.com/in Crunchbase frontend engineer AND swift",
+    // "site:www.linkedin.com/in Crunchbase backend engineer",
+    //
+    // // Intercom
+    // "site:www.linkedin.com/in Intercom frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Intercom backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Intercom product manager",
+    //
+    // // Replit
+    // "site:www.linkedin.com/in Replit frontend engineer AND swift",
+    // "site:www.linkedin.com/in Replit backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Replit designer",
+    //
+    // // Dribbble
+    // "site:www.linkedin.com/in Dribbble designer",
+    // "site:www.linkedin.com/in Dribbble frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Dribbble product manager",
+    //
+    // // Behance
+    // "site:www.linkedin.com/in Behance designer AND new york",
+    // "site:www.linkedin.com/in Behance frontend engineer",
+    // "site:www.linkedin.com/in Behance backend engineer AND swift",
+    //
+    // // Product Hunt
+    // "site:www.linkedin.com/in Product Hunt product manager AND new york",
+    // "site:www.linkedin.com/in Product Hunt frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Product Hunt designer AND swift",
+    //
+    // // TikTok
+    // "site:www.linkedin.com/in TikTok designer",
+    // "site:www.linkedin.com/in TikTok backend engineer AND swift",
+    // "site:www.linkedin.com/in TikTok software engineer AND ruby on rails",
+    //
+    // // Airbnb
+    // "site:www.linkedin.com/in Airbnb frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Airbnb designer AND new york",
+    // "site:www.linkedin.com/in Airbnb backend engineer AND swift",
+    //
+    // // Lyft
+    // "site:www.linkedin.com/in Lyft backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Lyft frontend engineer AND swift",
+    // "site:www.linkedin.com/in Lyft designer",
+    //
+    // // Uber
+    // "site:www.linkedin.com/in Uber frontend engineer AND next.js",
     "site:www.linkedin.com/in Uber backend engineer AND ruby on rails",
     "site:www.linkedin.com/in Uber designer AND new york",
 
