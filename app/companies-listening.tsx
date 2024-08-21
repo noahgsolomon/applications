@@ -18,7 +18,7 @@ import {
   Text,
   Badge,
 } from "frosted-ui";
-import { HeartHandshake, Loader, X } from "lucide-react";
+import { Building, HeartHandshake, Loader, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -29,6 +29,7 @@ export default function ListeningCompanies() {
   const [companies, setCompanies] = useState(allActiveCompanies);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const relevantCompaniesMutation =
     api.outbound.findRelevantCompanies.useMutation({
@@ -40,6 +41,11 @@ export default function ListeningCompanies() {
     });
 
   const search = async () => {
+    if (!searchQuery) {
+      setError("Search query cannot be empty.");
+      return;
+    }
+    setError(null);
     setLoading(true);
     await relevantCompaniesMutation.mutateAsync({ query: searchQuery });
     setLoading(false);
@@ -58,11 +64,11 @@ export default function ListeningCompanies() {
                 variant="surface"
               >
                 <div className="items-center flex flex-row gap-2">
-                  <HeartHandshake className="size-10" />
+                  <Building className="size-10" />
                 </div>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>List of Scraped Companies</TooltipContent>
+            <TooltipContent>Search for Companies</TooltipContent>
           </Tooltip>
         </DialogTrigger>
         <DialogContent>
@@ -76,6 +82,11 @@ export default function ListeningCompanies() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              {error && (
+                <Text as="div" size="2" color="red">
+                  {error}
+                </Text>
+              )}
               <Button
                 disabled={loading}
                 variant="classic"

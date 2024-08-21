@@ -17,7 +17,7 @@ export default async function Home() {
       {/* <CompanyDialog /> */}
       <ScrapedDialog />
       <ListeningCompanies />
-      <PreviousOutboundSearchesButton />
+      {/* <PreviousOutboundSearchesButton /> */}
       {/* <RecommendedOutboundResults /> */}
     </div>
   );

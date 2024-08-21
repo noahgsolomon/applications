@@ -16,7 +16,15 @@ import {
   Avatar,
   ScrollArea,
 } from "frosted-ui";
-import { Building, Building2, Check, Loader, Pickaxe, X } from "lucide-react";
+import {
+  Building,
+  Building2,
+  Check,
+  Loader,
+  Pickaxe,
+  UserRoundSearch,
+  X,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -145,7 +153,7 @@ export default function ScrapedDialog() {
                   variant="surface"
                 >
                   <div className="items-center flex flex-row gap-2">
-                    <Pickaxe className="size-10" />
+                    <UserRoundSearch className="size-10" />
                   </div>
                 </Button>
               </TooltipTrigger>
