@@ -48,15 +48,18 @@ async function querySimilarTechnologies(skill: string) {
     console.log(`Got embedding for skill: ${skill}`);
 
     const queryResponse = await index.namespace("technologies").query({
-      topK: 100,
+      topK: 200,
       vector: skillEmbedding,
       includeMetadata: true,
       includeValues: false,
     });
 
     const similarTechnologies = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.75)
-      .map((match) => match.metadata?.technology) as string[];
+      .filter((match) => (match.score ?? 0) > 0.7)
+      .map((match) => ({
+        technology: match.metadata?.technology as string,
+        score: match.score ?? 0,
+      }));
     return similarTechnologies;
   } catch (error) {
     console.error("Error querying similar technologies:", error);
@@ -66,27 +69,59 @@ async function querySimilarTechnologies(skill: string) {
 
 async function querySimilarFeatures(feature: string) {
   try {
-    console.log(`Getting embedding for skill: ${feature}`);
+    console.log(`Getting embedding for feature: ${feature}`);
     const featureEmbedding = await getEmbedding(feature);
-    console.log(`Got embedding for skill: ${feature}`);
+    console.log(`Got embedding for feature: ${feature}`);
 
-    const queryResponse = await index.namespace("technologies").query({
-      topK: 100,
+    const queryResponse = await index.namespace("company-features").query({
+      topK: 400,
       vector: featureEmbedding,
       includeMetadata: true,
       includeValues: false,
     });
 
     const similarFeatures = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.75)
-      .map((match) => match.metadata?.feature) as string[];
+      .filter((match) => (match.score ?? 0) > 0.6)
+      .map((match) => ({
+        feature: match.metadata?.feature as string,
+        score: match.score ?? 0,
+        companyId: match.metadata?.companyId as string,
+      }));
+
     return similarFeatures;
   } catch (error) {
-    console.error("Error querying similar technologies:", error);
+    console.error("Error querying similar features:", error);
     return [];
   }
 }
 
+async function querySimilarSpecialties(specialty: string) {
+  try {
+    console.log(`Getting embedding for specialty: ${specialty}`);
+    const specialtyEmbedding = await getEmbedding(specialty);
+    console.log(`Got embedding for specialty: ${specialty}`);
+
+    const queryResponse = await index.namespace("company-specialties").query({
+      topK: 400,
+      vector: specialtyEmbedding,
+      includeMetadata: true,
+      includeValues: false,
+    });
+
+    const similarSpecialties = queryResponse.matches
+      .filter((match) => (match.score ?? 0) > 0.6)
+      .map((match) => ({
+        specialty: match.metadata?.specialty as string,
+        score: match.score ?? 0,
+        companyId: match.metadata?.companyId as string,
+      }));
+
+    return similarSpecialties;
+  } catch (error) {
+    console.error("Error querying similar specialties:", error);
+    return [];
+  }
+}
 async function querySimilarJobTitles(job: string) {
   try {
     console.log(`Getting embedding for job: ${job}`);
@@ -171,7 +206,7 @@ export const outboundRouter = createTRPCRouter({
                 condition,
                 jsonArrayContainsAny(
                   candidate.topTechnologies,
-                  allSimilarTechnologies,
+                  allSimilarTechnologies.map((tech) => tech.technology),
                 ),
                 exists(
                   ctx.db
@@ -213,7 +248,7 @@ export const outboundRouter = createTRPCRouter({
               similarTechnologiesArrays.forEach((similarTechnologies) => {
                 const newCondition = jsonArrayContainsAny(
                   candidate.topTechnologies,
-                  similarTechnologies,
+                  similarTechnologies.map((tech) => tech.technology),
                 )!;
                 extraConditions.push(newCondition);
               });
@@ -278,26 +313,24 @@ export const outboundRouter = createTRPCRouter({
         throw new Error("An error occurred during the mutation.");
       }
     }),
-
   findRelevantCompanies: protectedProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Step 1: Standardize the input query to an array of technologies
+      // Step 1: Standardize the input query to technologies, specialties, and features
       const completion = await openai.chat.completions.create({
         messages: [
           {
             role: "system",
             content: `
-You will be provided with a technology term, and your task is to standardize it to its proper, full name.
-For example:
-- "js" should be converted to "JavaScript"
-- "rails" should be converted to "Ruby on Rails"
-- "nextjs" should be converted to "Next.js"
+You will be provided with a technology term. Your task is to standardize it into three categories: technologies, specialties, and features.
+- Technologies are specific programming languages, frameworks, or tools (e.g., "JavaScript", "Ruby on Rails", "Next.js").
+- Specialties describe the type of company or domain (e.g., "Version control", "Web browser", "Open source project hosting").
+- Features are technical features being queried, such as "live messaging", "notifications", or "tab management".
 
 If the input is already standardized, return it as is.
 
-Respond only with a JSON object that has a single field "standardizedTechs" which is an array of standardized versions of the input.
-          `,
+Respond only with a JSON object that has three fields: "standardizedTechs", "standardizedSpecialties", and "standardizedFeatures". Each should be an array of standardized terms.
+        `,
           },
           {
             role: "user",
@@ -311,20 +344,68 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
       });
 
       const standardizedResponse = JSON.parse(
-        completion.choices[0].message.content ?? "{standardizedTechs: []}",
+        completion.choices[0].message.content ?? "{}",
       );
-      const standardizedTechs = standardizedResponse.standardizedTechs.map(
-        (tech: string) => tech.toLowerCase(),
+      console.log(
+        "Standardized response:",
+        JSON.stringify(standardizedResponse, null, 2),
       );
+      const standardizedTechs: string[] =
+        standardizedResponse.standardizedTechs?.map((tech: string) =>
+          tech.toLowerCase(),
+        ) ?? [];
+      const standardizedSpecialties: string[] =
+        [
+          ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
+            feature.toLowerCase(),
+          ),
+          ...standardizedResponse.standardizedSpecialties?.map(
+            (specialty: string) => specialty.toLowerCase(),
+          ),
+        ] ?? [];
+      const standardizedFeatures: string[] =
+        [
+          ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
+            feature.toLowerCase(),
+          ),
+          ...standardizedResponse.standardizedSpecialties?.map(
+            (specialty: string) => specialty.toLowerCase(),
+          ),
+        ] ?? [];
 
       console.log("Standardized technologies:", standardizedTechs);
 
-      // Step 2: Query Pinecone to get the most similar technologies for each standardized tech
-      const allTechnologiesToSearch: string[] = [];
-      for (const tech of standardizedTechs) {
-        const similarTechnologies = await querySimilarTechnologies(tech);
-        allTechnologiesToSearch.push(tech, ...similarTechnologies);
-      }
+      // Step 2: Query Pinecone to get the most similar technologies, specialties, and features for each standardized term
+      const allTechnologiesToSearch: {
+        score: number;
+        technology: string;
+      }[][] = await Promise.all(
+        standardizedTechs.map(
+          async (tech) => await querySimilarTechnologies(tech),
+        ),
+      );
+
+      console.log(
+        allTechnologiesToSearch.map((s) => s.map((t) => t.technology)),
+      );
+
+      const allFeaturesToSearch: {
+        score: number;
+        feature: string;
+      }[][] = await Promise.all(
+        standardizedFeatures.map(
+          async (feature) => await querySimilarFeatures(feature),
+        ),
+      );
+
+      const allSpecialtiesToSearch: {
+        score: number;
+        specialty: string;
+      }[][] = await Promise.all(
+        standardizedSpecialties.map(
+          async (specialty) => await querySimilarSpecialties(specialty),
+        ),
+      );
 
       // Step 3: Fetch all companies from the database without related candidates
       const companiesList = await ctx.db.query.company.findMany();
@@ -333,6 +414,16 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
         "company",
         { candidates: true }
       >[] = [];
+
+      const companyScores: Record<string, number> = {};
+
+      console.log(
+        `allTechnologiesToSearch: ${allTechnologiesToSearch.map((s) =>
+          s.map((t) => t.technology),
+        )}`,
+      );
+      console.log(`allFeaturesToSearch: ${allFeaturesToSearch}`);
+      console.log(`allSpecialtiesToSearch: ${allSpecialtiesToSearch}`);
 
       // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
@@ -347,75 +438,90 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
 
         if (!companyDb) continue;
 
-        const techFrequencyMap: Record<string, number> = {};
-        const featuresFrequencyMap: Record<string, number> = {};
+        let score = 0;
+        let matchesAllTechs = true;
 
-        companyDb.candidates.forEach((candidate) => {
-          candidate.topTechnologies?.forEach((tech: string) => {
-            techFrequencyMap[tech] = (techFrequencyMap[tech] || 0) + 1;
-          });
+        // Ensure each technology has a match in the company
+        for (const similarTechnologies of allTechnologiesToSearch) {
+          const hasMatchingTechnology = similarTechnologies.some(
+            ({ technology, score: techScore }) =>
+              companyDb.topTechnologies?.includes(technology),
+          );
 
-          candidate.topFeatures?.forEach((feature: string) => {
-            featuresFrequencyMap[feature] =
-              (featuresFrequencyMap[feature] || 0) + 1;
-          });
-        });
+          if (!hasMatchingTechnology) {
+            matchesAllTechs = false;
+            break;
+          } else {
+            similarTechnologies
+              .filter(({ technology }) =>
+                companyDb.topTechnologies?.includes(technology),
+              )
+              .map((res) => (score += res.score)) ?? 0;
+          }
+        }
 
-        // Sort and extract the top technologies and features
-        const topTechnologies = Object.entries(techFrequencyMap)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 20)
-          .map((entry) => entry[0].toLowerCase());
+        // Ensure all specified features have a match if features are not empty
+        let matchesAllFeatures = true;
+        if (standardizedFeatures.length > 0) {
+          let hasHadMatchingFeature = false;
+          for (const similarFeatures of allFeaturesToSearch) {
+            const hasMatchingFeature = similarFeatures.some(({ feature }) =>
+              companyDb.topFeatures?.includes(feature),
+            );
 
-        const topFeatures = Object.entries(featuresFrequencyMap)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 20)
-          .map((entry) => entry[0].toLowerCase());
+            if (hasMatchingFeature) {
+              hasHadMatchingFeature = true;
+              similarFeatures
+                .filter(({ feature }) =>
+                  companyDb.topFeatures?.includes(feature),
+                )
+                .map((res) => (score += res.score)) ?? 0;
+            }
+          }
+          if (!hasHadMatchingFeature) {
+            matchesAllFeatures = false;
+          }
+        }
 
-        // Step 5: Expand top technologies with similar technologies
-        const expandedTechnologies: string[] = [];
+        // Ensure all specified specialties have a match if specialties are not empty
+        let matchesAllSpecialties = true;
+        if (standardizedSpecialties.length > 0) {
+          let hasHadMatchingSpecialty = false;
+          for (const similarSpecialties of allSpecialtiesToSearch) {
+            const hasMatchingSpecialty = similarSpecialties.some(
+              ({ specialty }) => companyDb.specialties?.includes(specialty),
+            );
 
-        const similarTechnologiesPromises = topTechnologies.map(
-          async (tech) => {
-            const similarTechnologies = await querySimilarTechnologies(tech);
-            return similarTechnologies;
-          },
-        );
+            if (hasMatchingSpecialty) {
+              hasHadMatchingSpecialty = true;
+              similarSpecialties
+                .filter(({ specialty }) =>
+                  companyDb.specialties?.includes(specialty),
+                )
+                .map((res) => (score += res.score)) ?? 0;
+            }
+          }
+          if (!hasHadMatchingSpecialty) {
+            matchesAllSpecialties = false;
+          }
+        }
 
-        const similarTechnologiesResults = await Promise.all(
-          similarTechnologiesPromises,
-        );
-
-        similarTechnologiesResults.forEach((similarTechs) => {
-          expandedTechnologies.push(...similarTechs);
-        });
-
-        const expandedFeatures: string[] = [];
-
-        const similarFeaturesPromises = topFeatures.map(async (feature) => {
-          const similarFeatures = await querySimilarFeatures(feature);
-          return similarFeatures;
-        });
-
-        const similarFeaturesResults = await Promise.all(
-          similarFeaturesPromises,
-        );
-
-        similarFeaturesResults.forEach((similarFeatures) => {
-          expandedFeatures.push(...similarFeatures);
-        });
-
-        // Step 6: Match companies based on the expanded technologies list
-        if (
-          allTechnologiesToSearch.some(
-            (tech) =>
-              expandedTechnologies.includes(tech) ||
-              expandedFeatures.includes(tech),
-          )
-        ) {
+        // Add company only if it matches all criteria
+        if (matchesAllTechs && (matchesAllFeatures || matchesAllSpecialties)) {
           matchingCompanies.push(companyDb);
+          companyScores[companyDb.id] = score;
         }
       }
+
+      // Sort matching companies by score
+      matchingCompanies.sort(
+        (a, b) => companyScores[b.id] - companyScores[a.id],
+      );
+
+      console.log(
+        "Matching companies:",
+        matchingCompanies.map((c) => c.name + ` ${companyScores[c.id]}`),
+      );
 
       return {
         valid: matchingCompanies.length > 0,
@@ -424,10 +530,14 @@ Respond only with a JSON object that has a single field "standardizedTechs" whic
           matchingCompanies.length > 0
             ? "Relevant companies found."
             : "No relevant companies found.",
-        filters: standardizedTechs,
+        filters: [
+          ...standardizedTechs,
+          ...Array.from(
+            new Set([...standardizedFeatures, ...standardizedSpecialties]),
+          ),
+        ],
       };
     }),
-
   deletePendingCompanyOutbound: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
