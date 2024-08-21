@@ -18,7 +18,7 @@ import {
   Text,
   Badge,
 } from "frosted-ui";
-import { Building, HeartHandshake, Loader, X } from "lucide-react";
+import { Building, Loader, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 

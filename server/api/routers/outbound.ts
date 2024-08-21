@@ -525,7 +525,9 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
       return {
         valid: matchingCompanies.length > 0,
-        companies: matchingCompanies,
+        companies: matchingCompanies.map(({ linkedinData, ...company }) => ({
+          ...company,
+        })),
         message:
           matchingCompanies.length > 0
             ? "Relevant companies found."
@@ -694,7 +696,9 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         ),
     });
 
-    return companies;
+    return companies.map(({ linkedinData, ...company }) => ({
+      ...company,
+    }));
   }),
   deletePendingOutbound: protectedProcedure
     .input(z.object({ id: z.string() }))
