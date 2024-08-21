@@ -525,13 +525,12 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
       return {
         valid: matchingCompanies.length > 0,
-        companies: matchingCompanies.map(({ linkedinData, ...company }) => ({
-          ...company,
+        companies: matchingCompanies.map((company) => ({
+          id: company.id,
+          name: company.name,
+          linkedinUrl: company.linkedinUrl,
+          logo: company.logo,
         })),
-        message:
-          matchingCompanies.length > 0
-            ? "Relevant companies found."
-            : "No relevant companies found.",
         filters: [
           ...standardizedTechs,
           ...Array.from(
@@ -696,8 +695,11 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         ),
     });
 
-    return companies.map(({ linkedinData, ...company }) => ({
-      ...company,
+    return companies.map((company) => ({
+      id: company.id,
+      name: company.name,
+      linkedinUrl: company.linkedinUrl,
+      logo: company.logo,
     }));
   }),
   deletePendingOutbound: protectedProcedure
