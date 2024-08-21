@@ -73,7 +73,7 @@ export default function ScrapedDialog() {
       onSuccess: (data) => {
         console.log(data);
         setCandidateMatches(data.candidates);
-        setAllMatchingSkills(data.skills);
+        setAllMatchingSkills(data.skills.map((s) => s.technology));
         setLoading(false);
         toast.success("outbound search completed");
       },
