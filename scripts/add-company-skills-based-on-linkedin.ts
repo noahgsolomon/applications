@@ -20,7 +20,7 @@ const db = drizzle(connection, {
   },
 });
 
-const getTopFeatures = async (query: string) => {
+export const getTopFeatures = async (query: string) => {
   const completion = await openai.chat.completions.create({
     messages: [
       {

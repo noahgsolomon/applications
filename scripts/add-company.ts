@@ -3,6 +3,9 @@ import * as userSchema from "../server/db/schemas/users/schema";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import dotenv from "dotenv";
+import { getTopFeatures } from "./add-company-skills-based-on-linkedin";
+import { eq } from "drizzle-orm";
+import { googleSearch, processUrls } from "./google-search";
 
 dotenv.config({
   path: "../.env",
@@ -40,6 +43,11 @@ const processCompanyProfile = async (linkedinUrl: string) => {
 
   if (companyData && companyData.success) {
     const { company } = companyData;
+
+    const specialtiesObj = await getTopFeatures(
+      `company: ${company.name}, specialties: ${company.specialities?.join(", ")}. tagline: ${company.tagline}. description: ${company.description}`,
+    );
+
     await db.insert(userSchema.company).values({
       linkedinId: company.linkedInId,
       name: company.name,
@@ -51,12 +59,55 @@ const processCompanyProfile = async (linkedinUrl: string) => {
       description: company.description,
       industry: company.industry,
       phone: company.phone,
-      specialities: company.specialities,
+      specialities: specialtiesObj.specialties,
+      topFeatures: specialtiesObj.technicalFeatures,
       headquarter: company.headquarter,
       logo: company.logo,
       foundedOn: company.foundedOn,
       linkedinData: company,
     });
+
+    const queries = [
+      `site:www.linkedin.com/in ${company.name} designer${Math.random() > 0.5 ? " " : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+      `site:www.linkedin.com/in ${company.name} backend engineer${Math.random() > 0.5 ? " AND Ruby on Rails" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+      `site:www.linkedin.com/in Apple software engineer${Math.random() > 0.5 ? " AND Swift" : ""}${Math.random() > 0.5 ? " AND Next.js" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+    ];
+    for (const query of queries) {
+      const urls = await googleSearch(query);
+      console.log(
+        `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
+      );
+
+      for (let i = 0; i < urls.length; i += 10) {
+        const batch = urls.slice(i, i + 10);
+        await processUrls(batch);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
+    const candidates = await db.query.candidates.findMany({
+      where: eq(userSchema.candidates.companyId, company.id),
+    });
+
+    const techFrequencyMap: Record<string, number> = {};
+    candidates.forEach((candidate) => {
+      candidate.topTechnologies?.forEach((tech: string) => {
+        techFrequencyMap[tech] = (techFrequencyMap[tech] || 0) + 1;
+      });
+    });
+
+    const topTechnologies = Object.entries(techFrequencyMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map((entry) => entry[0].toLowerCase());
+
+    await db
+      .update(userSchema.company)
+      .set({
+        topTechnologies,
+      })
+      .where(eq(userSchema.company.id, company.id));
+
     console.log(`Company profile for ${company.name} inserted successfully.`);
   } else {
     console.error(`Failed to process company profile for URL: ${linkedinUrl}`);
@@ -165,36 +216,53 @@ const companies = [
   // "https://www.linkedin.com/company/binance",
   // "https://www.linkedin.com/company/magic-eden",
   // "https://www.linkedin.com/company/consensys-software-inc/",
-  "https://www.linkedin.com/company/gitlab-com/",
-  "https://www.linkedin.com/products/atlassian-bitbucket/",
-  "https://www.linkedin.com/company/figma/",
-  "https://www.linkedin.com/company/mirohq/",
-  "https://www.linkedin.com/company/airtable/",
-  "https://www.linkedin.com/company/mondaydotcom/",
-  "https://www.linkedin.com/products/atlassian-jira/",
-  "https://www.linkedin.com/company/zapier/",
-  "https://www.linkedin.com/company/invisionapp/",
-  "https://www.linkedin.com/company/typeform-/",
-  "https://www.linkedin.com/company/mixpanel-inc-/",
-  "https://www.linkedin.com/company/amplitude-analytics/",
-  "https://www.linkedin.com/company/heap-inc-/",
-  "https://www.linkedin.com/company/datadog/",
-  "https://www.linkedin.com/company/new-relic-inc-/",
-  "https://www.linkedin.com/company/intuit/",
-  "https://www.linkedin.com/company/hubspot/",
-  "https://www.linkedin.com/company/pipedrive/",
-  "https://www.linkedin.com/company/salesforce/",
-  "https://www.linkedin.com/company/zendesk/",
-  "https://www.linkedin.com/company/intercom/",
-  "https://www.linkedin.com/company/tiny-spec-inc/",
-  "https://www.linkedin.com/company/repl-it/",
-  "https://www.linkedin.com/company/dribbble/",
-  "https://www.linkedin.com/company/behance-inc-/",
-  "https://www.linkedin.com/company/producthunt/",
-  "https://www.linkedin.com/company/angellist/",
-  "https://www.linkedin.com/company/crunchbase/",
-  "https://www.linkedin.com/company/joinsquare/",
-  "https://www.linkedin.com/company/plaid-/",
+  // "https://www.linkedin.com/company/gitlab-com/",
+  // "https://www.linkedin.com/products/atlassian-bitbucket/",
+  // "https://www.linkedin.com/company/figma/",
+  // "https://www.linkedin.com/company/mirohq/",
+  // "https://www.linkedin.com/company/airtable/",
+  // "https://www.linkedin.com/company/mondaydotcom/",
+  // "https://www.linkedin.com/products/atlassian-jira/",
+  // "https://www.linkedin.com/company/zapier/",
+  // "https://www.linkedin.com/company/invisionapp/",
+  // "https://www.linkedin.com/company/typeform-/",
+  // "https://www.linkedin.com/company/mixpanel-inc-/",
+  // "https://www.linkedin.com/company/amplitude-analytics/",
+  // "https://www.linkedin.com/company/heap-inc-/",
+  // "https://www.linkedin.com/company/datadog/",
+  // "https://www.linkedin.com/company/new-relic-inc-/",
+  // "https://www.linkedin.com/company/intuit/",
+  // "https://www.linkedin.com/company/hubspot/",
+  // "https://www.linkedin.com/company/pipedrive/",
+  // "https://www.linkedin.com/company/salesforce/",
+  // "https://www.linkedin.com/company/zendesk/",
+  // "https://www.linkedin.com/company/intercom/",
+  // "https://www.linkedin.com/company/tiny-spec-inc/",
+  // "https://www.linkedin.com/company/repl-it/",
+  // "https://www.linkedin.com/company/dribbble/",
+  // "https://www.linkedin.com/company/behance-inc-/",
+  // "https://www.linkedin.com/company/producthunt/",
+  // "https://www.linkedin.com/company/angellist/",
+  // "https://www.linkedin.com/company/crunchbase/",
+  // "https://www.linkedin.com/company/joinsquare/",
+  // "https://www.linkedin.com/company/plaid-/",
+  // "https://www.linkedin.com/company/wiseaccount/",
+  // "https://www.linkedin.com/company/payoneer/",
+  // "https://www.linkedin.com/company/coinbase/",
+  // "https://www.linkedin.com/company/geminitrust/",
+  // "https://www.linkedin.com/company/krakenfx/",
+  // "https://www.linkedin.com/company/okta-inc-/",
+  // "https://www.linkedin.com/company/lucidsoftware/",
+  // "https://www.linkedin.com/company/google/",
+  // "https://www.linkedin.com/showcase/google-cloud/",
+  // "https://www.linkedin.com/company/microsoft/",
+  // "https://www.linkedin.com/company/epic-games/",
+  // "https://www.linkedin.com/company/canva/",
+  // "https://www.linkedin.com/company/dropbox/",
+  // "https://www.linkedin.com/company/cloudflare/",
+  "https://www.linkedin.com/company/gumroad/",
+  "https://www.linkedin.com/company/teachable/",
+  "https://www.linkedin.com/company/patreon/",
 ];
 
 async function main() {
@@ -207,10 +275,6 @@ async function main() {
 
     await new Promise((resolve) => setTimeout(resolve, 10000));
   }
-
-  // await processCompanyProfile(
-  //   "https://www.linkedin.com/company/saturntechnologies/",
-  // );
 }
 
 main().catch((error) => console.error(error));

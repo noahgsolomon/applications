@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import * as userSchema from "../server/db/schemas/users/schema";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, or } from "drizzle-orm";
 import OpenAI from "openai";
 
 dotenv.config({
@@ -23,7 +23,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const generateSummary = async (profileData: any) => {
+export const generateSummary = async (profileData: any) => {
   console.log("Generating summary for profile data...");
   const completion = await openai.chat.completions.create({
     messages: [
@@ -46,12 +46,12 @@ const generateSummary = async (profileData: any) => {
   return completion.choices[0].message.content;
 };
 
-const googleSearch = async (query: string) => {
+export const googleSearch = async (query: string) => {
   console.log(`Starting Google search with query: ${query}`);
   const apiKey = process.env.GOOGLE_API_KEY!;
   const cseId = process.env.GOOGLE_CSE_ID!;
   const resultsPerPage = 10;
-  const maxResults = 100;
+  const maxResults = 200;
   let allLinkedinUrls: string[] = [];
 
   for (let start = 1; start < maxResults; start += resultsPerPage) {
@@ -79,7 +79,7 @@ const googleSearch = async (query: string) => {
   console.log(
     `Google search completed. Found ${allLinkedinUrls.length} LinkedIn URLs.`,
   );
-  return allLinkedinUrls.slice(0, maxResults);
+  return allLinkedinUrls;
 };
 
 const scrapeLinkedInProfile = async (linkedinUrl: string) => {
@@ -269,13 +269,22 @@ const insertCandidate = async (profileData: any, companyId?: string) => {
   return candidateId;
 };
 
-const processUrls = async (urls: string[]) => {
+export const processUrls = async (urls: string[]) => {
   console.log(`Processing batch of ${urls.length} URLs...`);
+
+  const normalizeUrl = (url: string) => {
+    return url.endsWith("/") ? url.slice(0, -1) : url;
+  };
 
   const promises = urls.map(async (url) => {
     console.log(`Processing URL: ${url}`);
+    const normalizedUrl = normalizeUrl(url);
+
     const existingCandidate = await db.query.candidates.findFirst({
-      where: eq(userSchema.candidates.url, url),
+      where: or(
+        eq(userSchema.candidates.url, normalizedUrl),
+        eq(userSchema.candidates.url, `${normalizedUrl}/`),
+      ),
     });
     if (existingCandidate) {
       console.log(`Candidate already exists in the database: ${url}`);
@@ -571,109 +580,109 @@ const main = async () => {
     //
     // // Uber
     // "site:www.linkedin.com/in Uber frontend engineer AND next.js",
-    "site:www.linkedin.com/in Uber backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Uber designer AND new york",
+    // "site:www.linkedin.com/in Uber backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Uber designer AND new york",
+    //
+    // // Saturn
+    // "site:www.linkedin.com/in Saturn swift engineer",
+    // "site:www.linkedin.com/in Saturn frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Saturn backend engineer",
+    //
+    // // Vercel
+    // "site:www.linkedin.com/in Vercel software engineer AND swift",
+    // "site:www.linkedin.com/in Vercel designer AND new york",
+    // "site:www.linkedin.com/in Vercel backend engineer AND ruby on rails",
+    //
+    // // Linear
+    // "site:www.linkedin.com/in Linear frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Linear designer",
+    // "site:www.linkedin.com/in Linear backend engineer AND swift",
+    //
+    // // Cash App
+    // "site:www.linkedin.com/in Cash App frontend engineer AND swift",
+    // "site:www.linkedin.com/in Cash App software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Cash App designer",
 
-    // Saturn
-    "site:www.linkedin.com/in Saturn swift engineer",
-    "site:www.linkedin.com/in Saturn frontend engineer AND next.js",
-    "site:www.linkedin.com/in Saturn backend engineer",
+    // // Match Group
+    // "site:www.linkedin.com/in Match Group backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Match Group frontend engineer AND swift",
+    // "site:www.linkedin.com/in Match Group software engineer",
+    //
+    // // Apple
+    // "site:www.linkedin.com/in Apple designer AND new york",
+    // "site:www.linkedin.com/in Apple backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Apple frontend engineer AND swift",
+    //
+    // // Discord
+    // "site:www.linkedin.com/in Discord frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Discord designer AND new york",
+    // "site:www.linkedin.com/in Discord backend engineer AND ruby on rails",
+    //
+    // // Twitter
+    // "site:www.linkedin.com/in Twitter backend engineer AND swift",
+    // "site:www.linkedin.com/in Twitter designer",
+    // "site:www.linkedin.com/in Twitter frontend engineer AND next.js",
+    //
+    // // Calendly
+    // "site:www.linkedin.com/in Calendly designer AND swift",
+    // "site:www.linkedin.com/in Calendly backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Calendly frontend engineer",
+    //
+    // // AddGlow
+    // "site:www.linkedin.com/in AddGlow software engineer AND ruby on rails",
+    // "site:www.linkedin.com/in AddGlow frontend engineer AND next.js",
+    // "site:www.linkedin.com/in AddGlow designer",
+    //
+    // // Circle
+    // "site:www.linkedin.com/in Circle backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Circle frontend engineer AND swift",
+    // "site:www.linkedin.com/in Circle designer AND new york",
+    //
+    // // Locals.com
+    // "site:www.linkedin.com/in Locals.com frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Locals.com designer",
+    // "site:www.linkedin.com/in Locals.com backend engineer AND swift",
+    //
+    // // Hivebrite
+    // "site:www.linkedin.com/in Hivebrite backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Hivebrite frontend engineer AND swift",
+    // "site:www.linkedin.com/in Hivebrite designer AND new york",
+    //
+    // // Frond
+    // "site:www.linkedin.com/in Frond backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Frond designer",
+    // "site:www.linkedin.com/in Frond frontend engineer AND swift",
 
-    // Vercel
-    "site:www.linkedin.com/in Vercel software engineer AND swift",
-    "site:www.linkedin.com/in Vercel designer AND new york",
-    "site:www.linkedin.com/in Vercel backend engineer AND ruby on rails",
-
-    // Linear
-    "site:www.linkedin.com/in Linear frontend engineer AND next.js",
-    "site:www.linkedin.com/in Linear designer",
-    "site:www.linkedin.com/in Linear backend engineer AND swift",
-
-    // Cash App
-    "site:www.linkedin.com/in Cash App frontend engineer AND swift",
-    "site:www.linkedin.com/in Cash App software engineer AND ruby on rails",
-    "site:www.linkedin.com/in Cash App designer",
-
-    // Match Group
-    "site:www.linkedin.com/in Match Group backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Match Group frontend engineer AND swift",
-    "site:www.linkedin.com/in Match Group software engineer",
-
-    // Apple
-    "site:www.linkedin.com/in Apple designer AND new york",
-    "site:www.linkedin.com/in Apple backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Apple frontend engineer AND swift",
-
-    // Discord
-    "site:www.linkedin.com/in Discord frontend engineer AND next.js",
-    "site:www.linkedin.com/in Discord designer AND new york",
-    "site:www.linkedin.com/in Discord backend engineer AND ruby on rails",
-
-    // Twitter
-    "site:www.linkedin.com/in Twitter backend engineer AND swift",
-    "site:www.linkedin.com/in Twitter designer",
-    "site:www.linkedin.com/in Twitter frontend engineer AND next.js",
-
-    // Calendly
-    "site:www.linkedin.com/in Calendly designer AND swift",
-    "site:www.linkedin.com/in Calendly backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Calendly frontend engineer",
-
-    // AddGlow
-    "site:www.linkedin.com/in AddGlow software engineer AND ruby on rails",
-    "site:www.linkedin.com/in AddGlow frontend engineer AND next.js",
-    "site:www.linkedin.com/in AddGlow designer",
-
-    // Circle
-    "site:www.linkedin.com/in Circle backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Circle frontend engineer AND swift",
-    "site:www.linkedin.com/in Circle designer AND new york",
-
-    // Locals.com
-    "site:www.linkedin.com/in Locals.com frontend engineer AND next.js",
-    "site:www.linkedin.com/in Locals.com designer",
-    "site:www.linkedin.com/in Locals.com backend engineer AND swift",
-
-    // Hivebrite
-    "site:www.linkedin.com/in Hivebrite backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Hivebrite frontend engineer AND swift",
-    "site:www.linkedin.com/in Hivebrite designer AND new york",
-
-    // Frond
-    "site:www.linkedin.com/in Frond backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Frond designer",
-    "site:www.linkedin.com/in Frond frontend engineer AND swift",
-
-    // Skillshare
-    "site:www.linkedin.com/in Skillshare designer AND new york",
-    "site:www.linkedin.com/in Skillshare backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Skillshare frontend engineer",
-
-    // DISCO
-    "site:www.linkedin.com/in DISCO software engineer AND swift",
-    "site:www.linkedin.com/in DISCO designer AND new york",
-    "site:www.linkedin.com/in DISCO backend engineer AND ruby on rails",
-
-    // Sellfy
-    "site:www.linkedin.com/in Sellfy backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Sellfy frontend engineer AND swift",
-    "site:www.linkedin.com/in Sellfy designer AND new york",
-
-    // Payhip
-    "site:www.linkedin.com/in Payhip frontend engineer AND next.js",
-    "site:www.linkedin.com/in Payhip designer",
-    "site:www.linkedin.com/in Payhip backend engineer AND swift",
-
-    // SamCart
-    "site:www.linkedin.com/in SamCart backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in SamCart frontend engineer AND swift",
-    "site:www.linkedin.com/in SamCart designer",
-
-    // Shopify
-    "site:www.linkedin.com/in Shopify frontend engineer AND swift",
-    "site:www.linkedin.com/in Shopify backend engineer AND ruby on rails",
-    "site:www.linkedin.com/in Shopify designer",
-
+    // // Skillshare
+    // "site:www.linkedin.com/in Skillshare designer AND new york",
+    // "site:www.linkedin.com/in Skillshare backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Skillshare frontend engineer",
+    //
+    // // DISCO
+    // "site:www.linkedin.com/in DISCO software engineer AND swift",
+    // "site:www.linkedin.com/in DISCO designer AND new york",
+    // "site:www.linkedin.com/in DISCO backend engineer AND ruby on rails",
+    //
+    // // Sellfy
+    // "site:www.linkedin.com/in Sellfy backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Sellfy frontend engineer AND swift",
+    // "site:www.linkedin.com/in Sellfy designer AND new york",
+    //
+    // // Payhip
+    // "site:www.linkedin.com/in Payhip frontend engineer AND next.js",
+    // "site:www.linkedin.com/in Payhip designer",
+    // "site:www.linkedin.com/in Payhip backend engineer AND swift",
+    //
+    // // SamCart
+    // "site:www.linkedin.com/in SamCart backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in SamCart frontend engineer AND swift",
+    // "site:www.linkedin.com/in SamCart designer",
+    //
+    // // Shopify
+    // "site:www.linkedin.com/in Shopify frontend engineer AND swift",
+    // "site:www.linkedin.com/in Shopify backend engineer AND ruby on rails",
+    // "site:www.linkedin.com/in Shopify designer",
+    //
     // Etsy
     "site:www.linkedin.com/in Etsy frontend engineer AND next.js",
     "site:www.linkedin.com/in Etsy designer AND new york",
@@ -1080,7 +1089,7 @@ const main = async () => {
     "site:www.linkedin.com/in Consensys backend engineer AND ruby on rails",
   ];
 
-  for (const query of queries.slice(0, 50)) {
+  for (const query of queries.slice(0, 200)) {
     const urls = await googleSearch(query);
     console.log(
       `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
@@ -1095,5 +1104,3 @@ const main = async () => {
 
   console.log("Main process completed.");
 };
-
-main();
