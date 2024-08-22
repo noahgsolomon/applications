@@ -195,6 +195,13 @@ export const outboundRouter = createTRPCRouter({
               if (input.nearBrooklyn) {
                 condition = eq(candidate.livesNearBrooklyn, true);
               }
+              let skillCondition = undefined;
+              if (input.skills.length > 0) {
+                skillCondition = jsonArrayContainsAny(
+                  candidate.topTechnologies,
+                  allSimilarTechnologies.map((tech) => tech.technology),
+                );
+              }
               let jobTitleCondition = undefined;
               if (similarJobTitlesArray.length > 0) {
                 jobTitleCondition = jsonArrayContainsAny(
@@ -204,10 +211,7 @@ export const outboundRouter = createTRPCRouter({
               }
               return and(
                 condition,
-                jsonArrayContainsAny(
-                  candidate.topTechnologies,
-                  allSimilarTechnologies.map((tech) => tech.technology),
-                ),
+                skillCondition,
                 exists(
                   ctx.db
                     .select()
@@ -239,6 +243,7 @@ export const outboundRouter = createTRPCRouter({
           };
         } else {
           // If input.Or is false, chain conditions for each group of similar technologies
+
           let candidatesFiltered = await ctx.db.query.candidates.findMany({
             limit: 100,
             with: { company: true },
@@ -246,11 +251,13 @@ export const outboundRouter = createTRPCRouter({
               const extraConditions: any[] = [];
 
               similarTechnologiesArrays.forEach((similarTechnologies) => {
-                const newCondition = jsonArrayContainsAny(
-                  candidate.topTechnologies,
-                  similarTechnologies.map((tech) => tech.technology),
-                )!;
-                extraConditions.push(newCondition);
+                if (input.skills.length > 0) {
+                  const newCondition = jsonArrayContainsAny(
+                    candidate.topTechnologies,
+                    similarTechnologies.map((tech) => tech.technology),
+                  )!;
+                  extraConditions.push(newCondition);
+                }
               });
 
               let condition = and(
@@ -264,7 +271,7 @@ export const outboundRouter = createTRPCRouter({
                     eq(candidate.livesNearBrooklyn, true),
                     eq(candidate.livesNearBrooklyn, false),
                   ),
-                  and(...extraConditions),
+                  ...extraConditions,
                 )!;
               }
 
