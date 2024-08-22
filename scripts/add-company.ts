@@ -48,24 +48,32 @@ const processCompanyProfile = async (linkedinUrl: string) => {
       `company: ${company.name}, specialties: ${company.specialities?.join(", ")}. tagline: ${company.tagline}. description: ${company.description}`,
     );
 
-    await db.insert(userSchema.company).values({
-      linkedinId: company.linkedInId,
-      name: company.name,
-      universalName: company.universalName,
-      linkedinUrl: company.linkedInUrl,
-      employeeCount: company.employeeCount,
-      websiteUrl: company.websiteUrl,
-      tagline: company.tagline,
-      description: company.description,
-      industry: company.industry,
-      phone: company.phone,
-      specialities: specialtiesObj.specialties,
-      topFeatures: specialtiesObj.technicalFeatures,
-      headquarter: company.headquarter,
-      logo: company.logo,
-      foundedOn: company.foundedOn,
-      linkedinData: company,
-    });
+    try {
+      await db.insert(userSchema.company).values({
+        linkedinId: company.linkedInId,
+        name: company.name,
+        universalName: company.universalName,
+        linkedinUrl: company.linkedInUrl,
+        employeeCount: company.employeeCount,
+        websiteUrl: company.websiteUrl,
+        tagline: company.tagline,
+        description: company.description,
+        industry: company.industry,
+        phone: company.phone,
+        specialities: specialtiesObj.specialties,
+        topFeatures: specialtiesObj.technicalFeatures,
+        headquarter: company.headquarter,
+        logo: company.logo,
+        foundedOn: company.foundedOn,
+        linkedinData: company,
+      });
+
+      console.log(`Company profile for ${company.name} inserted successfully.`);
+    } catch (error) {
+      console.log(
+        `Company ${company.name} already exists. Skipping insertion.`,
+      );
+    }
 
     const queries = [
       `site:www.linkedin.com/in ${company.name} designer${Math.random() > 0.5 ? " " : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
@@ -81,7 +89,7 @@ const processCompanyProfile = async (linkedinUrl: string) => {
       for (let i = 0; i < urls.length; i += 10) {
         const batch = urls.slice(i, i + 10);
         await processUrls(batch);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
 
@@ -260,13 +268,56 @@ const companies = [
   // "https://www.linkedin.com/company/canva/",
   // "https://www.linkedin.com/company/dropbox/",
   // "https://www.linkedin.com/company/cloudflare/",
-  "https://www.linkedin.com/company/gumroad/",
-  "https://www.linkedin.com/company/teachable/",
-  "https://www.linkedin.com/company/patreon/",
+  // "https://www.linkedin.com/company/gumroad/",
+  // "https://www.linkedin.com/company/teachable/",
+  // "https://www.linkedin.com/company/patreon/",
+  "https://www.linkedin.com/company/digital-design-nyc/",
+  "https://www.linkedin.com/company/l-r/",
+  "https://www.linkedin.com/company/work-&-co/",
+  "https://www.linkedin.com/company/utility-agency/",
+  "https://www.linkedin.com/company/lucid-design-agency/",
+  "https://www.linkedin.com/company/great-believer/",
+  "https://www.linkedin.com/company/thelab/",
+  "https://www.linkedin.com/company/harper-scott/",
+  "https://www.linkedin.com/company/jdo-ltd_2/",
+  "https://www.linkedin.com/company/paper-tiger-agency/",
+  "https://www.linkedin.com/company/mekanism/",
+  "https://www.linkedin.com/company/bulletproof/",
+  "https://www.linkedin.com/company/coley-porter-bell/",
+  "https://www.linkedin.com/company/stranger-&-stranger/",
+  "https://www.linkedin.com/company/thecharlesgrp/",
+  "https://www.linkedin.com/company/small-planet-digital/",
+  "https://www.linkedin.com/company/lounge-lizard-worldwide-inc./",
+  "https://www.linkedin.com/company/blenderbox/",
+  "https://www.linkedin.com/company/a-b-partners/",
+  "https://www.linkedin.com/company/perpetual/",
+  "https://www.linkedin.com/company/weichie/",
+  "https://www.linkedin.com/company/smart-design/",
+  "https://www.linkedin.com/company/runyon/",
+  "https://www.linkedin.com/company/hugeinc/",
+  "https://www.linkedin.com/company/r-ga/",
+  "https://www.linkedin.com/company/akqa/",
+  "https://www.linkedin.com/company/red-antler/",
+  "https://www.linkedin.com/company/area-17/",
+  "https://www.linkedin.com/company/barrel/",
+  "https://www.linkedin.com/company/c42d-creative-inc/",
+  "https://www.linkedin.com/company/studio-rodrigo/",
+  "https://www.linkedin.com/company/redpaperheart/",
+  "https://www.linkedin.com/company/trollback/",
+  "https://www.linkedin.com/company/kettle/",
+  "https://www.linkedin.com/company/franklyn/",
+  "https://www.linkedin.com/company/code-and-theory/",
+  "https://www.linkedin.com/company/madeo/",
+  "https://www.linkedin.com/company/orange-you-glad/",
+  "https://www.linkedin.com/company/the-working-assembly/",
+  "https://www.linkedin.com/company/stinkstudios/",
+  "https://www.linkedin.com/company/spcshp/",
+  "https://www.linkedin.com/company/trinetix-inc/",
+  "https://www.linkedin.com/company/designit/",
 ];
 
 async function main() {
-  for (let i = 0; i < companies.length; i += 10) {
+  for (let i = 0; i < companies.length; i += 2) {
     const batch = companies
       .slice(i, i + 10)
       .map((company) => processCompanyProfile(company));
