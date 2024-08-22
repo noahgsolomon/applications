@@ -265,6 +265,16 @@ export default function ScrapedDialog() {
                       )}
                       <Text>Near Brooklyn</Text>
                     </Badge>
+
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      className={`h-[33px]`}
+                      variant="surface"
+                      color={"gray"}
+                      onClick={() => setFilters(null)}
+                    >
+                      <Text>Clear Filters</Text>
+                    </Badge>
                   </div>
                 )}
               </label>
