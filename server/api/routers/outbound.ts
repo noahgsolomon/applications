@@ -380,7 +380,10 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           ),
         ] ?? [];
 
-      console.log("Standardized technologies:", standardizedTechs);
+      console.log(
+        "Standardized technologies:",
+        JSON.stringify(standardizedTechs, null, 2),
+      );
 
       // Step 2: Query Pinecone to get the most similar technologies, specialties, and features for each standardized term
       const allTechnologiesToSearch: {
@@ -429,8 +432,12 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           s.map((t) => t.technology),
         )}`,
       );
-      console.log(`allFeaturesToSearch: ${allFeaturesToSearch}`);
-      console.log(`allSpecialtiesToSearch: ${allSpecialtiesToSearch}`);
+      console.log(
+        `allFeaturesToSearch: ${JSON.stringify(allFeaturesToSearch, null, 2)}`,
+      );
+      console.log(
+        `allSpecialtiesToSearch: ${JSON.stringify(allSpecialtiesToSearch, null, 2)}`,
+      );
 
       // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
