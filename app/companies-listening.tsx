@@ -21,8 +21,11 @@ import {
 import { Building, Loader, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useScrapedDialogStore } from "./store/filter-store";
 
 export default function ListeningCompanies() {
+  const { setOpen: setScrapedOpen, setFilters: setScrapedFilters } =
+    useScrapedDialogStore();
   const [open, setOpen] = useState(false);
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
   const [filters, setFilters] = useState<string[]>([]);
@@ -49,6 +52,22 @@ export default function ListeningCompanies() {
     setLoading(true);
     await relevantCompaniesMutation.mutateAsync({ query: searchQuery });
     setLoading(false);
+  };
+
+  const searchForCandidates = () => {
+    setScrapedFilters({
+      valid: true,
+      message: "Filters applied",
+      //@ts-ignore
+      companies: companies,
+      relevantRole: undefined,
+      job: "",
+      skills: [],
+      Or: false,
+      query: searchQuery,
+    });
+    setOpen(false);
+    setScrapedOpen(true);
   };
 
   return (
@@ -99,6 +118,15 @@ export default function ListeningCompanies() {
                   "Search"
                 )}
               </Button>
+              {filters.length > 0 && (
+                <Button
+                  variant="classic"
+                  style={{ cursor: "pointer", width: "fit-content" }}
+                  onClick={searchForCandidates}
+                >
+                  Search for Candidates
+                </Button>
+              )}
             </div>{" "}
             <div className="flex flex-wrap gap-1">
               {filters.map((filter) => (

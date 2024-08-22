@@ -40,10 +40,10 @@ import {
   candidates,
   company as companyTable,
 } from "@/server/db/schemas/users/schema";
-
-type CompanyFilterReturnType = Awaited<
-  ReturnType<typeof ServerApi.outbound.companyFilter>
->;
+import {
+  CompanyFilterReturnType,
+  useScrapedDialogStore,
+} from "./store/filter-store";
 
 const toPascalCase = (str: string) => {
   return str
@@ -53,21 +53,20 @@ const toPascalCase = (str: string) => {
 };
 
 export default function ScrapedDialog() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
-  const [filters, setFilters] = useState<CompanyFilterReturnType | null>(null);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
-
   const [candidateMatches, setCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
         company?: InferSelectModel<typeof companyTable> | null;
       })[]
     | null
   >(null);
+
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
       onSuccess: (data) => {
@@ -93,16 +92,20 @@ export default function ScrapedDialog() {
   };
 
   const companyFilterMutation = api.outbound.companyFilter.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: CompanyFilterReturnType) => {
       setLoading(false);
       if (!data.valid) {
         setError(data.message);
       }
-      setFilters(data);
-    },
-    onError: () => {
-      setError("Something went wrong. Please try again later.");
-      setLoading(false);
+      if ((filters?.companies.length ?? 0) > 0) {
+        setFilters({
+          ...data,
+          //@ts-ignore
+          companies: filters?.companies,
+        });
+      } else {
+        setFilters(data);
+      }
     },
   });
 
@@ -201,19 +204,6 @@ export default function ScrapedDialog() {
                         <Text>{toPascalCase(filters.job)}</Text>
                       </Badge>
                     )}
-                    {/* <Badge */}
-                    {/*   variant="surface" */}
-                    {/*   color="orange" */}
-                    {/*   className="h-[33px]" */}
-                    {/* > */}
-                    {/*   <Avatar */}
-                    {/*     color="orange" */}
-                    {/*     size="1" */}
-                    {/*     fallback={"W"} */}
-                    {/*     src={"/whop-logo.png"} */}
-                    {/*   /> */}
-                    {/*   <Text>{filters.relevantRole}</Text> */}
-                    {/* </Badge> */}
                     {filters.skills.map((skill: string) => (
                       <Badge
                         key={skill}
@@ -224,34 +214,42 @@ export default function ScrapedDialog() {
                         <Text>{toPascalCase(skill)}</Text>
                       </Badge>
                     ))}
-                    <Badge
-                      onClick={() => {
-                        if (filters) {
-                          setFilters((prev) => {
-                            if (prev) {
-                              return { ...prev, Or: !prev.Or };
-                            } else {
-                              return {
-                                valid: false,
-                                message: "",
-                                companies: [],
-                                relevantRole: undefined,
-                                job: "",
-                                skills: [],
-                                Or: true,
-                                query: undefined,
-                              };
-                            }
-                          });
-                        }
-                      }}
-                      variant="surface"
-                      color={filters.Or ? "yellow" : "red"}
-                      style={{ cursor: "pointer" }}
-                      className="h-[33px]"
-                    >
-                      <Text>{filters.Or ? "OR" : "AND"}</Text>
-                    </Badge>
+                    {filters.skills.length > 0 && (
+                      <Badge
+                        onClick={() => {
+                          if (filters) {
+                            setFilters(
+                              //@ts-ignore
+                              (prev: CompanyFilterReturnType | null) => {
+                                if (prev) {
+                                  return {
+                                    ...prev,
+                                    Or: !prev.Or,
+                                  };
+                                } else {
+                                  return {
+                                    valid: false,
+                                    message: "",
+                                    companies: [],
+                                    relevantRole: undefined,
+                                    job: "",
+                                    skills: [],
+                                    Or: true,
+                                    query: undefined,
+                                  };
+                                }
+                              },
+                            );
+                          }
+                        }}
+                        variant="surface"
+                        color={filters.Or ? "yellow" : "red"}
+                        style={{ cursor: "pointer" }}
+                        className="h-[33px]"
+                      >
+                        <Text>{filters.Or ? "OR" : "AND"}</Text>
+                      </Badge>
+                    )}
 
                     <Badge
                       style={{ cursor: "pointer" }}
