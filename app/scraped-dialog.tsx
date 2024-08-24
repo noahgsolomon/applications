@@ -216,35 +216,35 @@ export default function ScrapedDialog() {
                     ))}
                     {filters.skills.length > 0 && (
                       <Badge
-                        onClick={() => {
-                          if (filters) {
-                            setFilters(
-                              //@ts-ignore
-                              (prev: CompanyFilterReturnType | null) => {
-                                if (prev) {
-                                  return {
-                                    ...prev,
-                                    Or: !prev.Or,
-                                  };
-                                } else {
-                                  return {
-                                    valid: false,
-                                    message: "",
-                                    companies: [],
-                                    relevantRole: undefined,
-                                    job: "",
-                                    skills: [],
-                                    Or: true,
-                                    query: undefined,
-                                  };
-                                }
-                              },
-                            );
-                          }
-                        }}
+                        // onClick={() => {
+                        //   if (filters) {
+                        //     setFilters(
+                        //       //@ts-ignore
+                        //       (prev: CompanyFilterReturnType | null) => {
+                        //         if (prev) {
+                        //           return {
+                        //             ...prev,
+                        //             Or: !prev.Or,
+                        //           };
+                        //         } else {
+                        //           return {
+                        //             valid: false,
+                        //             message: "",
+                        //             companies: [],
+                        //             relevantRole: undefined,
+                        //             job: "",
+                        //             skills: [],
+                        //             Or: true,
+                        //             query: undefined,
+                        //           };
+                        //         }
+                        //       },
+                        //     );
+                        //   }
+                        // }}
                         variant="surface"
                         color={filters.Or ? "yellow" : "red"}
-                        style={{ cursor: "pointer" }}
+                        // style={{ cursor: "pointer" }}
                         className="h-[33px]"
                       >
                         <Text>{filters.Or ? "OR" : "AND"}</Text>
