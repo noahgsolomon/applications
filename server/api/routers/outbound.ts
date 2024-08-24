@@ -420,10 +420,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
       // Step 3: Fetch all companies from the database without related candidates
       const companiesList = await ctx.db.query.company.findMany();
 
-      const matchingCompanies: InferResultType<
-        "company",
-        { candidates: true }
-      >[] = [];
+      const matchingCompanies: InferResultType<"company">[] = [];
 
       const companyScores: Record<string, number> = {};
 
@@ -442,11 +439,6 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
       // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
         const companyDb = await ctx.db.query.company.findFirst({
-          with: {
-            candidates: {
-              where: eq(candidates.isEngineer, true),
-            },
-          },
           where: eq(companyTable.id, company.id),
         });
 
