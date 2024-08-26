@@ -20,7 +20,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const companyIdToSearch = "8fdbfb95-fe21-481e-b7e5-fea48a371ad3";
+const companyIdToSearch = "175e4a3e-c89e-4b46-ae47-776c4989cbbb";
 const limit = 100;
 
 async function fetchCandidatesWithCursor(cursor?: {
@@ -72,11 +72,12 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
   const metaPositions = positionHistory
     .filter(
       (position: any) =>
-        position.companyName.toLowerCase() === "meta" &&
+        (position.companyName.toLowerCase() === "facebook" ||
+          position.companyName.toLowerCase() === "meta") &&
         position.startEndDate &&
         position.startEndDate.start &&
         position.startEndDate.start.year &&
-        position.startEndDate.start.year < 2016,
+        position.startEndDate.start.year < 2015,
     )
     .map((position: any) => ({
       title: position.title,
@@ -98,7 +99,7 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
       },
       {
         role: "user",
-        content: `Did any of these roles involve data engineering tasks at Meta? ${condition}`,
+        content: `Did any of these roles have something to do with engineering specifically related to product (customer facing related) Meta/Facebook? If it is ambiguous, no description and says just like Software Engineer then side with false ${condition}`,
       },
     ],
     response_format: { type: "json_object" },

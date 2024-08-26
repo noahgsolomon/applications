@@ -51,7 +51,7 @@ export const googleSearch = async (query: string) => {
   const apiKey = process.env.GOOGLE_API_KEY!;
   const cseId = process.env.GOOGLE_CSE_ID!;
   const resultsPerPage = 10;
-  const maxResults = 200;
+  const maxResults = 100;
   let allLinkedinUrls: string[] = [];
 
   for (let start = 1; start < maxResults; start += resultsPerPage) {
@@ -319,788 +319,588 @@ export const processUrls = async (urls: string[]) => {
   );
 };
 
-// const main = async () => {
-//   console.log("Main process started.");
-//   const queries = [
-//     // `site:www.linkedin.com/in TikTok staff frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Airbnb rails engineer`,
-//     // `site:www.linkedin.com/in Lyft senior frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Uber swift engineer`,
-//     // `site:www.linkedin.com/in Saturn fullstack engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Vercel frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Linear staff engineer AND new york`,
-//     // `site:www.linkedin.com/in Cash App backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Match Group frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Apple swift engineer AND new york`,
-//     // `site:www.linkedin.com/in Discord staff engineer AND new york`,
-//     // `site:www.linkedin.com/in Twitter senior frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Calendly fullstack engineer AND next.js`,
-//     // `site:www.linkedin.com/in AddGlow rails engineer`,
-//     // `site:www.linkedin.com/in Circle frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Locals.com backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Hivebrite fullstack engineer AND new york`,
-//     // `site:www.linkedin.com/in Frond staff frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Skillshare rails engineer`,
-//     // `site:www.linkedin.com/in DISCO frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Sellfy senior frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Payhip backend engineer AND rails`,
-//     // `site:www.linkedin.com/in SamCart staff frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Shopify senior frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Etsy next.js developer AND new york`,
-//     // `site:www.linkedin.com/in Beacons rails engineer`,
-//     // `site:www.linkedin.com/in Outseta fullstack engineer AND next.js`,
-//     // `site:www.linkedin.com/in Uscreen frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Fourthwall senior software engineer`,
-//     // `site:www.linkedin.com/in Substack backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Stripe frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Webflow senior frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Squarespace fullstack engineer AND new york`,
-//     // `site:www.linkedin.com/in Wix backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Instagram frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Snap Inc. next.js engineer`,
-//     // `site:www.linkedin.com/in Twitch frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in WhatsApp backend engineer AND swift`,
-//     // `site:www.linkedin.com/in Dropbox frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Meta staff frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Ramp rails engineer AND new york`,
-//     // `site:www.linkedin.com/in Spline frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Deel backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Tumblr senior frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Pinterest frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Zoom swift engineer`,
-//     // `site:www.linkedin.com/in Quora frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Clubhouse backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Roblox frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Valve Corporation swift engineer`,
-//     // `site:www.linkedin.com/in Duolingo frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Solana Labs backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Robinhood frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in DoorDash rails engineer AND new york`,
-//     // `site:www.linkedin.com/in Instacart backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Block swift engineer`,
-//     // `site:www.linkedin.com/in Tinder frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in LinkedIn frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in TikTok Shop backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Carta frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Brex rails engineer AND new york`,
-//     // `site:www.linkedin.com/in Gusto frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Tailwind backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Slack frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in GitHub swift engineer`,
-//     // `site:www.linkedin.com/in Notion frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Asana backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Twilio frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Craft Docs swift engineer`,
-//     // `site:www.linkedin.com/in Weixin/WeChat frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Trello backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Texts frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Netlify frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Netflix backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Riot Games swift engineer`,
-//     // `site:www.linkedin.com/in Farcaster frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Supabase backend engineer AND rails`,
-//     // `site:www.linkedin.com/in lichess.org frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Chess.com frontend engineer AND next.js AND new york`,
-//     // `site:www.linkedin.com/in Opal swift engineer`,
-//     // `site:www.linkedin.com/in Sunlitt backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Moonly — Moon Calendar frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Atoms frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Copilot swift engineer`,
-//     // `site:www.linkedin.com/in W1D1 frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Amie frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Luma AI swift engineer`,
-//     // `site:www.linkedin.com/in Partiful frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Shazam backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Splice frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Captions swift engineer`,
-//     // `site:www.linkedin.com/in Lightning AI frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in ClickUp frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in Paper backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Fastly swift engineer`,
-//     // `site:www.linkedin.com/in YouTube frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Candy Digital frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Dapper Labs frontend engineer AND new york`,
-//     // `site:www.linkedin.com/in OpenSea frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Rarible frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Binance backend engineer AND rails`,
-//     // `site:www.linkedin.com/in Magic Eden frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Axie Infinity frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Looks Rare frontend engineer AND next.js`,
-//     // `site:www.linkedin.com/in Consensys frontend engineer AND new york`,
-//     //
-//     // // Figma
-//     // "site:www.linkedin.com/in Figma frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Figma designer AND swift",
-//     // "site:www.linkedin.com/in Figma backend engineer AND ruby on rails",
-//     //
-//     // // Airtable
-//     // "site:www.linkedin.com/in Airtable backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Airtable frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Airtable designer AND new york",
-//     //
-//     // // Miro
-//     // "site:www.linkedin.com/in Miro frontend engineer AND new york",
-//     // "site:www.linkedin.com/in Miro product manager",
-//     // "site:www.linkedin.com/in Miro backend engineer AND rails",
-//     //
-//     // // monday.com
-//     // "site:www.linkedin.com/in monday.com backend engineer AND swift",
-//     // "site:www.linkedin.com/in monday.com designer",
-//     // "site:www.linkedin.com/in monday.com frontend engineer AND next.js",
-//     //
-//     // // GitLab
-//     // "site:www.linkedin.com/in GitLab backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in GitLab frontend engineer AND swift",
-//     // "site:www.linkedin.com/in GitLab designer AND new york",
-//     //
-//     // // Typeform
-//     // "site:www.linkedin.com/in Typeform designer AND swift",
-//     // "site:www.linkedin.com/in Typeform backend engineer AND rails",
-//     // "site:www.linkedin.com/in Typeform frontend engineer",
-//     //
-//     // // Zapier
-//     // "site:www.linkedin.com/in Zapier backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Zapier frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Zapier designer",
-//     //
-//     // // InVision
-//     // "site:www.linkedin.com/in InVision frontend engineer AND swift",
-//     // "site:www.linkedin.com/in InVision designer AND new york",
-//     // "site:www.linkedin.com/in InVision product manager",
-//     //
-//     // // Datadog
-//     // "site:www.linkedin.com/in Datadog backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Datadog frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Datadog software engineer",
-//     //
-//     // // Zendesk
-//     // "site:www.linkedin.com/in Zendesk frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Zendesk designer",
-//     // "site:www.linkedin.com/in Zendesk backend engineer AND rails",
-//     //
-//     // // Salesforce
-//     // "site:www.linkedin.com/in Salesforce backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Salesforce frontend engineer",
-//     // "site:www.linkedin.com/in Salesforce product manager AND new york",
-//     //
-//     // // HubSpot
-//     // "site:www.linkedin.com/in HubSpot frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in HubSpot designer",
-//     // "site:www.linkedin.com/in HubSpot backend engineer AND swift",
-//     //
-//     // // New Relic
-//     // "site:www.linkedin.com/in New Relic software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in New Relic frontend engineer AND swift",
-//     // "site:www.linkedin.com/in New Relic designer AND new york",
-//     //
-//     // // Pipedrive
-//     // "site:www.linkedin.com/in Pipedrive backend engineer",
-//     // "site:www.linkedin.com/in Pipedrive frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Pipedrive product manager",
-//     //
-//     // // Amplitude
-//     // "site:www.linkedin.com/in Amplitude frontend engineer",
-//     // "site:www.linkedin.com/in Amplitude backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Amplitude designer AND swift",
-//     //
-//     // // Mixpanel
-//     // "site:www.linkedin.com/in Mixpanel software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Mixpanel frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Mixpanel product manager AND new york",
-//     //
-//     // // Intuit
-//     // "site:www.linkedin.com/in Intuit designer AND swift",
-//     // "site:www.linkedin.com/in Intuit backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Intuit frontend engineer",
-//     //
-//     // // Heap | by Contentsquare
-//     // "site:www.linkedin.com/in Heap designer AND new york",
-//     // "site:www.linkedin.com/in Heap frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Heap backend engineer AND swift",
-//     //
-//     // // AngelList
-//     // "site:www.linkedin.com/in AngelList software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in AngelList frontend engineer",
-//     // "site:www.linkedin.com/in AngelList designer",
-//     //
-//     // // Square
-//     // "site:www.linkedin.com/in Square backend engineer AND rails",
-//     // "site:www.linkedin.com/in Square frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Square designer AND new york",
-//     //
-//     // // Plaid
-//     // "site:www.linkedin.com/in Plaid software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Plaid frontend engineer",
-//     // "site:www.linkedin.com/in Plaid backend engineer AND next.js",
-//     //
-//     // // Crunchbase
-//     // "site:www.linkedin.com/in Crunchbase designer AND new york",
-//     // "site:www.linkedin.com/in Crunchbase frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Crunchbase backend engineer",
-//     //
-//     // // Intercom
-//     // "site:www.linkedin.com/in Intercom frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Intercom backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Intercom product manager",
-//     //
-//     // // Replit
-//     // "site:www.linkedin.com/in Replit frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Replit backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Replit designer",
-//     //
-//     // // Dribbble
-//     // "site:www.linkedin.com/in Dribbble designer",
-//     // "site:www.linkedin.com/in Dribbble frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Dribbble product manager",
-//     //
-//     // // Behance
-//     // "site:www.linkedin.com/in Behance designer AND new york",
-//     // "site:www.linkedin.com/in Behance frontend engineer",
-//     // "site:www.linkedin.com/in Behance backend engineer AND swift",
-//     //
-//     // // Product Hunt
-//     // "site:www.linkedin.com/in Product Hunt product manager AND new york",
-//     // "site:www.linkedin.com/in Product Hunt frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Product Hunt designer AND swift",
-//     //
-//     // // TikTok
-//     // "site:www.linkedin.com/in TikTok designer",
-//     // "site:www.linkedin.com/in TikTok backend engineer AND swift",
-//     // "site:www.linkedin.com/in TikTok software engineer AND ruby on rails",
-//     //
-//     // // Airbnb
-//     // "site:www.linkedin.com/in Airbnb frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Airbnb designer AND new york",
-//     // "site:www.linkedin.com/in Airbnb backend engineer AND swift",
-//     //
-//     // // Lyft
-//     // "site:www.linkedin.com/in Lyft backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Lyft frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Lyft designer",
-//     //
-//     // // Uber
-//     // "site:www.linkedin.com/in Uber frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Uber backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Uber designer AND new york",
-//     //
-//     // // Saturn
-//     // "site:www.linkedin.com/in Saturn swift engineer",
-//     // "site:www.linkedin.com/in Saturn frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Saturn backend engineer",
-//     //
-//     // // Vercel
-//     // "site:www.linkedin.com/in Vercel software engineer AND swift",
-//     // "site:www.linkedin.com/in Vercel designer AND new york",
-//     // "site:www.linkedin.com/in Vercel backend engineer AND ruby on rails",
-//     //
-//     // // Linear
-//     // "site:www.linkedin.com/in Linear frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Linear designer",
-//     // "site:www.linkedin.com/in Linear backend engineer AND swift",
-//     //
-//     // // Cash App
-//     // "site:www.linkedin.com/in Cash App frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Cash App software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Cash App designer",
-//
-//     // // Match Group
-//     // "site:www.linkedin.com/in Match Group backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Match Group frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Match Group software engineer",
-//     //
-//     // // Apple
-//     // "site:www.linkedin.com/in Apple designer AND new york",
-//     // "site:www.linkedin.com/in Apple backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Apple frontend engineer AND swift",
-//     //
-//     // // Discord
-//     // "site:www.linkedin.com/in Discord frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Discord designer AND new york",
-//     // "site:www.linkedin.com/in Discord backend engineer AND ruby on rails",
-//     //
-//     // // Twitter
-//     // "site:www.linkedin.com/in Twitter backend engineer AND swift",
-//     // "site:www.linkedin.com/in Twitter designer",
-//     // "site:www.linkedin.com/in Twitter frontend engineer AND next.js",
-//     //
-//     // // Calendly
-//     // "site:www.linkedin.com/in Calendly designer AND swift",
-//     // "site:www.linkedin.com/in Calendly backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Calendly frontend engineer",
-//     //
-//     // // AddGlow
-//     // "site:www.linkedin.com/in AddGlow software engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in AddGlow frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in AddGlow designer",
-//     //
-//     // // Circle
-//     // "site:www.linkedin.com/in Circle backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Circle frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Circle designer AND new york",
-//     //
-//     // // Locals.com
-//     // "site:www.linkedin.com/in Locals.com frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Locals.com designer",
-//     // "site:www.linkedin.com/in Locals.com backend engineer AND swift",
-//     //
-//     // // Hivebrite
-//     // "site:www.linkedin.com/in Hivebrite backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Hivebrite frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Hivebrite designer AND new york",
-//     //
-//     // // Frond
-//     // "site:www.linkedin.com/in Frond backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Frond designer",
-//     // "site:www.linkedin.com/in Frond frontend engineer AND swift",
-//
-//     // // Skillshare
-//     // "site:www.linkedin.com/in Skillshare designer AND new york",
-//     // "site:www.linkedin.com/in Skillshare backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Skillshare frontend engineer",
-//     //
-//     // // DISCO
-//     // "site:www.linkedin.com/in DISCO software engineer AND swift",
-//     // "site:www.linkedin.com/in DISCO designer AND new york",
-//     // "site:www.linkedin.com/in DISCO backend engineer AND ruby on rails",
-//     //
-//     // // Sellfy
-//     // "site:www.linkedin.com/in Sellfy backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Sellfy frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Sellfy designer AND new york",
-//     //
-//     // // Payhip
-//     // "site:www.linkedin.com/in Payhip frontend engineer AND next.js",
-//     // "site:www.linkedin.com/in Payhip designer",
-//     // "site:www.linkedin.com/in Payhip backend engineer AND swift",
-//     //
-//     // // SamCart
-//     // "site:www.linkedin.com/in SamCart backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in SamCart frontend engineer AND swift",
-//     // "site:www.linkedin.com/in SamCart designer",
-//     //
-//     // // Shopify
-//     // "site:www.linkedin.com/in Shopify frontend engineer AND swift",
-//     // "site:www.linkedin.com/in Shopify backend engineer AND ruby on rails",
-//     // "site:www.linkedin.com/in Shopify designer",
-//     //
-//     // Etsy
-//     "site:www.linkedin.com/in Etsy frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Etsy designer AND new york",
-//     "site:www.linkedin.com/in Etsy backend engineer AND swift",
-//
-//     // Beacons
-//     "site:www.linkedin.com/in Beacons backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Beacons frontend engineer AND swift",
-//     "site:www.linkedin.com/in Beacons designer AND new york",
-//
-//     // Outseta
-//     "site:www.linkedin.com/in Outseta frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Outseta backend engineer",
-//     "site:www.linkedin.com/in Outseta designer",
-//
-//     // Uscreen
-//     "site:www.linkedin.com/in Uscreen backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Uscreen designer",
-//     "site:www.linkedin.com/in Uscreen frontend engineer AND swift",
-//
-//     // Fourthwall
-//     "site:www.linkedin.com/in Fourthwall frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Fourthwall backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Fourthwall designer",
-//
-//     // Substack
-//     "site:www.linkedin.com/in Substack designer AND new york",
-//     "site:www.linkedin.com/in Substack frontend engineer AND swift",
-//     "site:www.linkedin.com/in Substack backend engineer AND ruby on rails",
-//
-//     // Stripe
-//     "site:www.linkedin.com/in Stripe frontend engineer AND swift",
-//     "site:www.linkedin.com/in Stripe backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Stripe designer",
-//
-//     // Webflow
-//     "site:www.linkedin.com/in Webflow designer AND new york",
-//     "site:www.linkedin.com/in Webflow frontend engineer AND swift",
-//     "site:www.linkedin.com/in Webflow backend engineer AND ruby on rails",
-//
-//     // Squarespace
-//     "site:www.linkedin.com/in Squarespace designer",
-//     "site:www.linkedin.com/in Squarespace frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Squarespace backend engineer AND ruby on rails",
-//
-//     // Wix
-//     "site:www.linkedin.com/in Wix backend engineer AND swift",
-//     "site:www.linkedin.com/in Wix frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Wix designer",
-//
-//     // Instagram
-//     "site:www.linkedin.com/in Instagram designer AND new york",
-//     "site:www.linkedin.com/in Instagram backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Instagram frontend engineer AND swift",
-//
-//     // Snap Inc.
-//     "site:www.linkedin.com/in Snap Inc. frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Snap Inc. backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Snap Inc. designer",
-//
-//     // Twitch
-//     "site:www.linkedin.com/in Twitch designer AND swift",
-//     "site:www.linkedin.com/in Twitch backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Twitch frontend engineer AND next.js",
-//
-//     // WhatsApp
-//     "site:www.linkedin.com/in WhatsApp frontend engineer AND next.js",
-//     "site:www.linkedin.com/in WhatsApp designer",
-//     "site:www.linkedin.com/in WhatsApp backend engineer AND swift",
-//
-//     // Dropbox
-//     "site:www.linkedin.com/in Dropbox backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Dropbox frontend engineer AND swift",
-//     "site:www.linkedin.com/in Dropbox designer",
-//
-//     // Meta
-//     "site:www.linkedin.com/in Meta designer AND new york",
-//     "site:www.linkedin.com/in Meta frontend engineer AND swift",
-//     "site:www.linkedin.com/in Meta backend engineer AND ruby on rails",
-//
-//     // Ramp
-//     "site:www.linkedin.com/in Ramp frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Ramp designer",
-//     "site:www.linkedin.com/in Ramp backend engineer AND ruby on rails",
-//
-//     // Spline
-//     "site:www.linkedin.com/in Spline backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Spline designer",
-//     "site:www.linkedin.com/in Spline frontend engineer AND swift",
-//
-//     // Deel
-//     "site:www.linkedin.com/in Deel frontend engineer AND swift",
-//     "site:www.linkedin.com/in Deel backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Deel designer",
-//
-//     // Tumblr
-//     "site:www.linkedin.com/in Tumblr designer AND new york",
-//     "site:www.linkedin.com/in Tumblr backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Tumblr frontend engineer AND swift",
-//
-//     // Pinterest
-//     "site:www.linkedin.com/in Pinterest frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Pinterest backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Pinterest designer",
-//
-//     // Zoom
-//     "site:www.linkedin.com/in Zoom designer AND swift",
-//     "site:www.linkedin.com/in Zoom frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Zoom backend engineer AND ruby on rails",
-//
-//     // Quora
-//     "site:www.linkedin.com/in Quora frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Quora backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Quora designer",
-//
-//     // Clubhouse
-//     "site:www.linkedin.com/in Clubhouse designer AND new york",
-//     "site:www.linkedin.com/in Clubhouse frontend engineer AND swift",
-//     "site:www.linkedin.com/in Clubhouse backend engineer AND ruby on rails",
-//
-//     // Roblox
-//     "site:www.linkedin.com/in Roblox backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Roblox frontend engineer AND swift",
-//     "site:www.linkedin.com/in Roblox designer",
-//
-//     // Valve Corporation
-//     "site:www.linkedin.com/in Valve Corporation frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Valve Corporation backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Valve Corporation designer",
-//
-//     // Duolingo
-//     "site:www.linkedin.com/in Duolingo designer AND new york",
-//     "site:www.linkedin.com/in Duolingo frontend engineer AND swift",
-//     "site:www.linkedin.com/in Duolingo backend engineer AND ruby on rails",
-//
-//     // Solana Labs
-//     "site:www.linkedin.com/in Solana Labs backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Solana Labs frontend engineer AND swift",
-//     "site:www.linkedin.com/in Solana Labs designer",
-//
-//     // Robinhood
-//     "site:www.linkedin.com/in Robinhood frontend engineer AND swift",
-//     "site:www.linkedin.com/in Robinhood designer AND new york",
-//     "site:www.linkedin.com/in Robinhood backend engineer AND ruby on rails",
-//
-//     // DoorDash
-//     "site:www.linkedin.com/in DoorDash backend engineer AND swift",
-//     "site:www.linkedin.com/in DoorDash frontend engineer AND next.js",
-//     "site:www.linkedin.com/in DoorDash designer",
-//
-//     // Instacart
-//     "site:www.linkedin.com/in Instacart frontend engineer AND swift",
-//     "site:www.linkedin.com/in Instacart backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Instacart designer AND new york",
-//
-//     // Block
-//     "site:www.linkedin.com/in Block frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Block designer",
-//     "site:www.linkedin.com/in Block backend engineer AND ruby on rails",
-//
-//     // Tinder
-//     "site:www.linkedin.com/in Tinder designer AND new york",
-//     "site:www.linkedin.com/in Tinder frontend engineer AND swift",
-//     "site:www.linkedin.com/in Tinder backend engineer AND ruby on rails",
-//
-//     // LinkedIn
-//     "site:www.linkedin.com/in LinkedIn frontend engineer AND swift",
-//     "site:www.linkedin.com/in LinkedIn designer AND new york",
-//     "site:www.linkedin.com/in LinkedIn backend engineer AND ruby on rails",
-//
-//     // TikTok Shop
-//     "site:www.linkedin.com/in TikTok Shop backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in TikTok Shop frontend engineer AND swift",
-//     "site:www.linkedin.com/in TikTok Shop designer",
-//
-//     // Carta
-//     "site:www.linkedin.com/in Carta backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Carta frontend engineer AND swift",
-//     "site:www.linkedin.com/in Carta designer AND new york",
-//
-//     // Brex
-//     "site:www.linkedin.com/in Brex frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Brex designer",
-//     "site:www.linkedin.com/in Brex backend engineer AND ruby on rails",
-//
-//     // Gusto
-//     "site:www.linkedin.com/in Gusto designer AND swift",
-//     "site:www.linkedin.com/in Gusto frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Gusto backend engineer AND ruby on rails",
-//
-//     // Tailwind
-//     "site:www.linkedin.com/in Tailwind frontend engineer AND swift",
-//     "site:www.linkedin.com/in Tailwind backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Tailwind designer AND new york",
-//
-//     // Slack
-//     "site:www.linkedin.com/in Slack backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Slack designer AND swift",
-//     "site:www.linkedin.com/in Slack frontend engineer AND next.js",
-//
-//     // GitHub
-//     "site:www.linkedin.com/in GitHub frontend engineer AND swift",
-//     "site:www.linkedin.com/in GitHub designer",
-//     "site:www.linkedin.com/in GitHub backend engineer AND ruby on rails",
-//
-//     // Notion
-//     "site:www.linkedin.com/in Notion backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Notion frontend engineer AND swift",
-//     "site:www.linkedin.com/in Notion designer AND new york",
-//
-//     // Asana
-//     "site:www.linkedin.com/in Asana frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Asana backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Asana designer",
-//
-//     // Twilio
-//     "site:www.linkedin.com/in Twilio designer AND new york",
-//     "site:www.linkedin.com/in Twilio frontend engineer AND swift",
-//     "site:www.linkedin.com/in Twilio backend engineer AND ruby on rails",
-//
-//     // Craft Docs
-//     "site:www.linkedin.com/in Craft Docs backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Craft Docs frontend engineer AND swift",
-//     "site:www.linkedin.com/in Craft Docs designer",
-//
-//     // Weixin/WeChat
-//     "site:www.linkedin.com/in Weixin/WeChat frontend engineer AND swift",
-//     "site:www.linkedin.com/in Weixin/WeChat backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Weixin/WeChat designer AND new york",
-//
-//     // Trello
-//     "site:www.linkedin.com/in Trello designer AND swift",
-//     "site:www.linkedin.com/in Trello frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Trello backend engineer AND ruby on rails",
-//
-//     // Texts
-//     "site:www.linkedin.com/in Texts backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Texts designer",
-//     "site:www.linkedin.com/in Texts frontend engineer AND swift",
-//
-//     // Netlify
-//     "site:www.linkedin.com/in Netlify designer AND new york",
-//     "site:www.linkedin.com/in Netlify frontend engineer AND swift",
-//     "site:www.linkedin.com/in Netlify backend engineer AND ruby on rails",
-//
-//     // Netflix
-//     "site:www.linkedin.com/in Netflix frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Netflix backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Netflix designer AND swift",
-//
-//     // Riot Games
-//     "site:www.linkedin.com/in Riot Games frontend engineer AND swift",
-//     "site:www.linkedin.com/in Riot Games designer",
-//     "site:www.linkedin.com/in Riot Games backend engineer AND ruby on rails",
-//
-//     // Farcaster
-//     "site:www.linkedin.com/in Farcaster designer AND new york",
-//     "site:www.linkedin.com/in Farcaster frontend engineer AND swift",
-//     "site:www.linkedin.com/in Farcaster backend engineer AND ruby on rails",
-//
-//     // Supabase
-//     "site:www.linkedin.com/in Supabase designer",
-//     "site:www.linkedin.com/in Supabase frontend engineer AND swift",
-//     "site:www.linkedin.com/in Supabase backend engineer AND ruby on rails",
-//
-//     // lichess.org
-//     "site:www.linkedin.com/in lichess.org backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in lichess.org frontend engineer AND swift",
-//     "site:www.linkedin.com/in lichess.org designer",
-//
-//     // Chess.com
-//     "site:www.linkedin.com/in Chess.com backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Chess.com frontend engineer AND swift",
-//     "site:www.linkedin.com/in Chess.com designer AND new york",
-//
-//     // Opal
-//     "site:www.linkedin.com/in Opal frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Opal designer",
-//     "site:www.linkedin.com/in Opal backend engineer AND ruby on rails",
-//
-//     // Sunlitt
-//     "site:www.linkedin.com/in Sunlitt backend engineer AND swift",
-//     "site:www.linkedin.com/in Sunlitt designer",
-//     "site:www.linkedin.com/in Sunlitt frontend engineer AND next.js",
-//
-//     // Moonly — Moon Calendar
-//     "site:www.linkedin.com/in Moonly — Moon Calendar designer AND new york",
-//     "site:www.linkedin.com/in Moonly — Moon Calendar frontend engineer AND swift",
-//     "site:www.linkedin.com/in Moonly — Moon Calendar backend engineer AND ruby on rails",
-//
-//     // Atoms
-//     "site:www.linkedin.com/in Atoms frontend engineer AND swift",
-//     "site:www.linkedin.com/in Atoms designer AND new york",
-//     "site:www.linkedin.com/in Atoms backend engineer AND ruby on rails",
-//
-//     // Copilot
-//     "site:www.linkedin.com/in Copilot backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Copilot frontend engineer AND swift",
-//     "site:www.linkedin.com/in Copilot designer",
-//
-//     // W1D1
-//     "site:www.linkedin.com/in W1D1 frontend engineer AND swift",
-//     "site:www.linkedin.com/in W1D1 designer AND new york",
-//     "site:www.linkedin.com/in W1D1 backend engineer AND ruby on rails",
-//
-//     // Amie
-//     "site:www.linkedin.com/in Amie frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Amie designer",
-//     "site:www.linkedin.com/in Amie backend engineer AND ruby on rails",
-//
-//     // Luma AI
-//     "site:www.linkedin.com/in Luma AI designer AND new york",
-//     "site:www.linkedin.com/in Luma AI frontend engineer AND swift",
-//     "site:www.linkedin.com/in Luma AI backend engineer AND ruby on rails",
-//
-//     // Partiful
-//     "site:www.linkedin.com/in Partiful backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Partiful frontend engineer AND swift",
-//     "site:www.linkedin.com/in Partiful designer",
-//
-//     // Shazam
-//     "site:www.linkedin.com/in Shazam designer",
-//     "site:www.linkedin.com/in Shazam frontend engineer AND swift",
-//     "site:www.linkedin.com/in Shazam backend engineer AND ruby on rails",
-//
-//     // Splice
-//     "site:www.linkedin.com/in Splice frontend engineer AND swift",
-//     "site:www.linkedin.com/in Splice designer",
-//     "site:www.linkedin.com/in Splice backend engineer AND ruby on rails",
-//
-//     // Captions
-//     "site:www.linkedin.com/in Captions designer AND new york",
-//     "site:www.linkedin.com/in Captions frontend engineer AND swift",
-//     "site:www.linkedin.com/in Captions backend engineer AND ruby on rails",
-//
-//     // Lightning AI
-//     "site:www.linkedin.com/in Lightning AI backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Lightning AI designer",
-//     "site:www.linkedin.com/in Lightning AI frontend engineer AND swift",
-//
-//     // ClickUp
-//     "site:www.linkedin.com/in ClickUp frontend engineer AND swift",
-//     "site:www.linkedin.com/in ClickUp designer AND new york",
-//     "site:www.linkedin.com/in ClickUp backend engineer AND ruby on rails",
-//
-//     // Paper
-//     "site:www.linkedin.com/in Paper frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Paper designer",
-//     "site:www.linkedin.com/in Paper backend engineer AND ruby on rails",
-//
-//     // Fastly
-//     "site:www.linkedin.com/in Fastly frontend engineer AND swift",
-//     "site:www.linkedin.com/in Fastly designer",
-//     "site:www.linkedin.com/in Fastly backend engineer AND ruby on rails",
-//
-//     // YouTube
-//     "site:www.linkedin.com/in YouTube backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in YouTube designer AND new york",
-//     "site:www.linkedin.com/in YouTube frontend engineer AND swift",
-//
-//     // Candy Digital
-//     "site:www.linkedin.com/in Candy Digital designer AND swift",
-//     "site:www.linkedin.com/in Candy Digital frontend engineer AND next.js",
-//     "site:www.linkedin.com/in Candy Digital backend engineer AND ruby on rails",
-//
-//     // Dapper Labs
-//     "site:www.linkedin.com/in Dapper Labs frontend engineer AND swift",
-//     "site:www.linkedin.com/in Dapper Labs designer AND new york",
-//     "site:www.linkedin.com/in Dapper Labs backend engineer AND ruby on rails",
-//
-//     // OpenSea
-//     "site:www.linkedin.com/in OpenSea designer",
-//     "site:www.linkedin.com/in OpenSea frontend engineer AND swift",
-//     "site:www.linkedin.com/in OpenSea backend engineer AND ruby on rails",
-//
-//     // Rarible
-//     "site:www.linkedin.com/in Rarible frontend engineer AND swift",
-//     "site:www.linkedin.com/in Rarible designer",
-//     "site:www.linkedin.com/in Rarible backend engineer AND ruby on rails",
-//
-//     // Binance
-//     "site:www.linkedin.com/in Binance designer AND new york",
-//     "site:www.linkedin.com/in Binance frontend engineer AND swift",
-//     "site:www.linkedin.com/in Binance backend engineer AND ruby on rails",
-//
-//     // Magic Eden
-//     "site:www.linkedin.com/in Magic Eden backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Magic Eden designer",
-//     "site:www.linkedin.com/in Magic Eden frontend engineer AND swift",
-//
-//     // Axie Infinity
-//     "site:www.linkedin.com/in Axie Infinity frontend engineer AND swift",
-//     "site:www.linkedin.com/in Axie Infinity designer",
-//     "site:www.linkedin.com/in Axie Infinity backend engineer AND ruby on rails",
-//
-//     // Looks Rare
-//     "site:www.linkedin.com/in Looks Rare backend engineer AND ruby on rails",
-//     "site:www.linkedin.com/in Looks Rare designer",
-//     "site:www.linkedin.com/in Looks Rare frontend engineer AND swift",
-//
-//     // Consensys
-//     "site:www.linkedin.com/in Consensys designer",
-//     "site:www.linkedin.com/in Consensys frontend engineer AND swift",
-//     "site:www.linkedin.com/in Consensys backend engineer AND ruby on rails",
-//   ];
-//
-//   for (const query of queries.slice(0, 200)) {
-//     const urls = await googleSearch(query);
-//     console.log(
-//       `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
-//     );
-//
-//     for (let i = 0; i < urls.length; i += 10) {
-//       const batch = urls.slice(i, i + 10);
-//       await processUrls(batch);
-//       await new Promise((resolve) => setTimeout(resolve, 2000));
-//     }
-//   }
-//
-//   console.log("Main process completed.");
-// };
+const generateSearchQueries = (roles: string[], cities: string[]): string[] => {
+  const queries: string[] = [];
+  roles.forEach((role) => {
+    cities.forEach((city) => {
+      queries.push(`site:linkedin.com/in Stripe ${role} AND ${city}`);
+    });
+  });
+  return queries;
+};
+
+const main = async () => {
+  console.log("Main process started.");
+
+  // Generate the queries
+  const queries = [
+    // Uber
+    // "site:linkedin.com/in Uber Frontend Engineer AND Chicago",
+    // "site:linkedin.com/in Uber Backend Engineer AND Boston",
+    // "site:linkedin.com/in Uber Software Developer AND Los Angeles",
+    // "site:linkedin.com/in Uber Mobile Engineer AND Miami",
+    // "site:linkedin.com/in Uber Data Scientist AND Denver",
+    // "site:linkedin.com/in Uber Full Stack Engineer AND Houston",
+    // "site:linkedin.com/in Uber Machine Learning Engineer AND Toronto",
+    // "site:linkedin.com/in Uber AI Engineer AND Vancouver",
+    // "site:linkedin.com/in Uber QA Automation Engineer AND Seattle",
+    // "site:linkedin.com/in Uber Software Engineer AND Berlin",
+    // "site:linkedin.com/in Uber Platform Engineer AND Paris",
+    // "site:linkedin.com/in Uber Data Engineer AND Madrid",
+    // "site:linkedin.com/in Uber Product Engineer AND Milan",
+    // "site:linkedin.com/in Uber Tech Lead AND Barcelona",
+    // "site:linkedin.com/in Uber Engineering Manager AND Sydney",
+    // "site:linkedin.com/in Uber Infrastructure Specialist AND Los Angeles",
+    // "site:linkedin.com/in Uber DevOps Specialist AND Atlanta",
+    // "site:linkedin.com/in Uber Cloud Engineer AND Boston",
+    // "site:linkedin.com/in Uber Network Security Engineer AND New York",
+    // "site:linkedin.com/in Uber Database Specialist AND Toronto",
+    // "site:linkedin.com/in Uber IT Security Engineer AND Dublin",
+    // "site:linkedin.com/in Uber Systems Engineer AND Zurich",
+    // "site:linkedin.com/in Uber Cloud Infrastructure Engineer AND Dubai",
+    // "site:linkedin.com/in Uber SRE Specialist AND Hong Kong",
+    // "site:linkedin.com/in Uber IT Manager AND Berlin",
+    // "site:linkedin.com/in Uber Network Administrator AND Tokyo",
+    // "site:linkedin.com/in Uber Systems Administrator AND Amsterdam",
+    // "site:linkedin.com/in Uber Security Analyst AND San Francisco",
+    // "site:linkedin.com/in Uber IT Consultant AND London",
+    // "site:linkedin.com/in Uber Systems Architect AND Melbourne",
+    // "site:linkedin.com/in Uber Python Developer",
+    // "site:linkedin.com/in Uber Java Developer",
+    // "site:linkedin.com/in Uber JavaScript Developer",
+    // "site:linkedin.com/in Uber TypeScript Developer",
+    // "site:linkedin.com/in Uber Ruby on Rails Developer",
+    // "site:linkedin.com/in Uber Go Developer",
+    // "site:linkedin.com/in Uber C++ Developer",
+    // "site:linkedin.com/in Uber C# Developer",
+    // "site:linkedin.com/in Uber iOS Developer",
+    // "site:linkedin.com/in Uber Android Developer",
+    // "site:linkedin.com/in Uber UX Designer",
+    // "site:linkedin.com/in Uber UI Developer",
+    // "site:linkedin.com/in Uber Frontend Architect",
+    // "site:linkedin.com/in Uber Backend Architect",
+    // "site:linkedin.com/in Uber Technical Program Manager",
+    // "site:linkedin.com/in Uber Cybersecurity",
+    // "site:linkedin.com/in Uber Cloud Security",
+    // "site:linkedin.com/in Uber Network Design",
+    // "site:linkedin.com/in Uber DevOps Automation",
+    // "site:linkedin.com/in Uber Infrastructure Monitoring",
+    // "site:linkedin.com/in Uber Cloud Native Infrastructure",
+    // "site:linkedin.com/in Uber Kubernetes Expert",
+    // "site:linkedin.com/in Uber AWS Cloud Specialist",
+    // "site:linkedin.com/in Uber Google Cloud Engineer",
+    // "site:linkedin.com/in Uber Azure Cloud Engineer",
+    // "site:linkedin.com/in Uber IT Systems Management",
+    // "site:linkedin.com/in Uber IT Infrastructure Development",
+    // "site:linkedin.com/in Uber Cloud Operations",
+    // "site:linkedin.com/in Uber Cloud Migration Specialist",
+    // "site:linkedin.com/in Uber IT Compliance",
+    // "site:linkedin.com/in Uber Software Architect AND Paris",
+    // "site:linkedin.com/in Uber Cloud Consultant AND Sydney",
+    // "site:linkedin.com/in Uber IT Director AND Munich",
+    // "site:linkedin.com/in Uber Data Analyst AND Singapore",
+    // "site:linkedin.com/in Uber Site Reliability Engineer AND Seattle",
+    // "site:linkedin.com/in Uber DevOps Manager AND Boston",
+    // "site:linkedin.com/in Uber Infrastructure Developer AND London",
+    // "site:linkedin.com/in Uber Cloud Engineer AND San Francisco",
+    // "site:linkedin.com/in Uber Security Specialist AND New York",
+    // "site:linkedin.com/in Uber Infrastructure Technician AND Chicago",
+    // "site:linkedin.com/in Uber Operations Manager AND Tokyo",
+    // "site:linkedin.com/in Uber Systems Support AND Los Angeles",
+    // "site:linkedin.com/in Uber Network Specialist AND Dubai",
+    // "site:linkedin.com/in Uber Infrastructure Manager AND Madrid",
+    // "site:linkedin.com/in Uber Cloud Specialist AND Amsterdam",
+    // "site:linkedin.com/in Uber Software Engineering",
+    // "site:linkedin.com/in Uber IT Operations",
+    // "site:linkedin.com/in Uber Cloud Development",
+    // "site:linkedin.com/in Uber Security Operations",
+    // "site:linkedin.com/in Uber Infrastructure Development",
+    // "site:linkedin.com/in Uber Network Operations",
+    // "site:linkedin.com/in Uber IT Infrastructure",
+    // "site:linkedin.com/in Uber Data Center Operations",
+    // "site:linkedin.com/in Uber Server Management",
+    // "site:linkedin.com/in Uber Virtualization Expert",
+    // "site:linkedin.com/in Uber Disaster Recovery Specialist",
+    // "site:linkedin.com/in Uber System Backup Expert",
+    // "site:linkedin.com/in Uber Automation Specialist",
+    // "site:linkedin.com/in Uber Cloud Optimization",
+    // "site:linkedin.com/in Uber High Performance Computing",
+    //
+    // // DoorDash
+    // "site:linkedin.com/in DoorDash Frontend Engineer AND Chicago",
+    // "site:linkedin.com/in DoorDash Backend Engineer AND Boston",
+    // "site:linkedin.com/in DoorDash Software Developer AND Los Angeles",
+    // "site:linkedin.com/in DoorDash Mobile Engineer AND Miami",
+    // "site:linkedin.com/in DoorDash Data Scientist AND Denver",
+    // "site:linkedin.com/in DoorDash Full Stack Engineer AND Houston",
+    // "site:linkedin.com/in DoorDash Machine Learning Engineer AND Toronto",
+    // "site:linkedin.com/in DoorDash AI Engineer AND Vancouver",
+    // "site:linkedin.com/in DoorDash QA Automation Engineer AND Seattle",
+    // "site:linkedin.com/in DoorDash Software Engineer AND Berlin",
+    // "site:linkedin.com/in DoorDash Platform Engineer AND Paris",
+    // "site:linkedin.com/in DoorDash Data Engineer AND Madrid",
+    // "site:linkedin.com/in DoorDash Product Engineer AND Milan",
+    // "site:linkedin.com/in DoorDash Tech Lead AND Barcelona",
+    // "site:linkedin.com/in DoorDash Engineering Manager AND Sydney",
+    // "site:linkedin.com/in DoorDash Infrastructure Specialist AND Los Angeles",
+    // "site:linkedin.com/in DoorDash DevOps Specialist AND Atlanta",
+    // "site:linkedin.com/in DoorDash Cloud Engineer AND Boston",
+    // "site:linkedin.com/in DoorDash Network Security Engineer AND New York",
+    // "site:linkedin.com/in DoorDash Database Specialist AND Toronto",
+    // "site:linkedin.com/in DoorDash IT Security Engineer AND Dublin",
+    // "site:linkedin.com/in DoorDash Systems Engineer AND Zurich",
+    // "site:linkedin.com/in DoorDash Cloud Infrastructure Engineer AND Dubai",
+    // "site:linkedin.com/in DoorDash SRE Specialist AND Hong Kong",
+    // "site:linkedin.com/in DoorDash IT Manager AND Berlin",
+    // "site:linkedin.com/in DoorDash Network Administrator AND Tokyo",
+    // "site:linkedin.com/in DoorDash Systems Administrator AND Amsterdam",
+    // "site:linkedin.com/in DoorDash Security Analyst AND San Francisco",
+    // "site:linkedin.com/in DoorDash IT Consultant AND London",
+    // "site:linkedin.com/in DoorDash Systems Architect AND Melbourne",
+    // "site:linkedin.com/in DoorDash Python Developer",
+    // "site:linkedin.com/in DoorDash Java Developer",
+    // "site:linkedin.com/in DoorDash JavaScript Developer",
+    // "site:linkedin.com/in DoorDash TypeScript Developer",
+    // "site:linkedin.com/in DoorDash Ruby on Rails Developer",
+    // "site:linkedin.com/in DoorDash Go Developer",
+    // "site:linkedin.com/in DoorDash C++ Developer",
+    // "site:linkedin.com/in DoorDash C# Developer",
+    // "site:linkedin.com/in DoorDash iOS Developer",
+    // "site:linkedin.com/in DoorDash Android Developer",
+    // "site:linkedin.com/in DoorDash UX Designer",
+    // "site:linkedin.com/in DoorDash UI Developer",
+    // "site:linkedin.com/in DoorDash Frontend Architect",
+    // "site:linkedin.com/in DoorDash Backend Architect",
+    // "site:linkedin.com/in DoorDash Technical Program Manager",
+    // "site:linkedin.com/in DoorDash Cybersecurity",
+    // "site:linkedin.com/in DoorDash Cloud Security",
+    // "site:linkedin.com/in DoorDash Network Design",
+    // "site:linkedin.com/in DoorDash DevOps Automation",
+    // "site:linkedin.com/in DoorDash Infrastructure Monitoring",
+    // "site:linkedin.com/in DoorDash Cloud Native Infrastructure",
+    // "site:linkedin.com/in DoorDash Kubernetes Expert",
+    // "site:linkedin.com/in DoorDash AWS Cloud Specialist",
+    // "site:linkedin.com/in DoorDash Google Cloud Engineer",
+    // "site:linkedin.com/in DoorDash Azure Cloud Engineer",
+    // "site:linkedin.com/in DoorDash IT Systems Management",
+    // "site:linkedin.com/in DoorDash IT Infrastructure Development",
+    // "site:linkedin.com/in DoorDash Cloud Operations",
+    // "site:linkedin.com/in DoorDash Cloud Migration Specialist",
+    // "site:linkedin.com/in DoorDash IT Compliance",
+    // "site:linkedin.com/in DoorDash Software Architect AND Paris",
+    // "site:linkedin.com/in DoorDash Cloud Consultant AND Sydney",
+    // "site:linkedin.com/in DoorDash IT Director AND Munich",
+    // "site:linkedin.com/in DoorDash Data Analyst AND Singapore",
+    // "site:linkedin.com/in DoorDash Site Reliability Engineer AND Seattle",
+    // "site:linkedin.com/in DoorDash DevOps Manager AND Boston",
+    // "site:linkedin.com/in DoorDash Infrastructure Developer AND London",
+    // "site:linkedin.com/in DoorDash Cloud Engineer AND San Francisco",
+    // "site:linkedin.com/in DoorDash Security Specialist AND New York",
+    // "site:linkedin.com/in DoorDash Infrastructure Technician AND Chicago",
+    // "site:linkedin.com/in DoorDash Operations Manager AND Tokyo",
+    // "site:linkedin.com/in DoorDash Systems Support AND Los Angeles",
+    // "site:linkedin.com/in DoorDash Network Specialist AND Dubai",
+    // "site:linkedin.com/in DoorDash Infrastructure Manager AND Madrid",
+    // "site:linkedin.com/in DoorDash Cloud Specialist AND Amsterdam",
+    // "site:linkedin.com/in DoorDash Software Engineering",
+    // "site:linkedin.com/in DoorDash IT Operations",
+    // "site:linkedin.com/in DoorDash Cloud Development",
+    // "site:linkedin.com/in DoorDash Security Operations",
+    // "site:linkedin.com/in DoorDash Infrastructure Development",
+    // "site:linkedin.com/in DoorDash Network Operations",
+    // "site:linkedin.com/in DoorDash IT Infrastructure",
+    // "site:linkedin.com/in DoorDash Data Center Operations",
+    // "site:linkedin.com/in DoorDash Server Management",
+    // "site:linkedin.com/in DoorDash Virtualization Expert",
+    // "site:linkedin.com/in DoorDash Disaster Recovery Specialist",
+    // "site:linkedin.com/in DoorDash System Backup Expert",
+    // "site:linkedin.com/in DoorDash Automation Specialist",
+    // "site:linkedin.com/in DoorDash Cloud Optimization",
+    // "site:linkedin.com/in DoorDash High Performance Computing",
+    //
+    // // Facebook
+    // "site:linkedin.com/in Facebook Frontend Engineer AND Chicago",
+    // "site:linkedin.com/in Facebook Backend Engineer AND Boston",
+    // "site:linkedin.com/in Facebook Software Developer AND Los Angeles",
+    // "site:linkedin.com/in Facebook Mobile Engineer AND Miami",
+    // "site:linkedin.com/in Facebook Data Scientist AND Denver",
+    // "site:linkedin.com/in Facebook Full Stack Engineer AND Houston",
+    // "site:linkedin.com/in Facebook Machine Learning Engineer AND Toronto",
+    // "site:linkedin.com/in Facebook AI Engineer AND Vancouver",
+    // "site:linkedin.com/in Facebook QA Automation Engineer AND Seattle",
+    // "site:linkedin.com/in Facebook Software Engineer AND Berlin",
+    // "site:linkedin.com/in Facebook Platform Engineer AND Paris",
+    // "site:linkedin.com/in Facebook Data Engineer AND Madrid",
+    // "site:linkedin.com/in Facebook Product Engineer AND Milan",
+    // "site:linkedin.com/in Facebook Tech Lead AND Barcelona",
+    // "site:linkedin.com/in Facebook Engineering Manager AND Sydney",
+    // "site:linkedin.com/in Facebook Infrastructure Specialist AND Los Angeles",
+    // "site:linkedin.com/in Facebook DevOps Specialist AND Atlanta",
+    // "site:linkedin.com/in Facebook Cloud Engineer AND Boston",
+    // "site:linkedin.com/in Facebook Network Security Engineer AND New York",
+    // "site:linkedin.com/in Facebook Database Specialist AND Toronto",
+    // "site:linkedin.com/in Facebook IT Security Engineer AND Dublin",
+    // "site:linkedin.com/in Facebook Systems Engineer AND Zurich",
+    // "site:linkedin.com/in Facebook Cloud Infrastructure Engineer AND Dubai",
+    // "site:linkedin.com/in Facebook SRE Specialist AND Hong Kong",
+    // "site:linkedin.com/in Facebook IT Manager AND Berlin",
+    // "site:linkedin.com/in Facebook Network Administrator AND Tokyo",
+    // "site:linkedin.com/in Facebook Systems Administrator AND Amsterdam",
+    // "site:linkedin.com/in Facebook Security Analyst AND San Francisco",
+    // "site:linkedin.com/in Facebook IT Consultant AND London",
+    // "site:linkedin.com/in Facebook Systems Architect AND Melbourne",
+    // "site:linkedin.com/in Facebook Python Developer",
+    // "site:linkedin.com/in Facebook Java Developer",
+    // "site:linkedin.com/in Facebook JavaScript Developer",
+    // "site:linkedin.com/in Facebook TypeScript Developer",
+    // "site:linkedin.com/in Facebook Ruby on Rails Developer",
+    // "site:linkedin.com/in Facebook Go Developer",
+    // "site:linkedin.com/in Facebook C++ Developer",
+    // "site:linkedin.com/in Facebook C# Developer",
+    // "site:linkedin.com/in Facebook iOS Developer",
+    // "site:linkedin.com/in Facebook Android Developer",
+    // "site:linkedin.com/in Facebook UX Designer",
+    // "site:linkedin.com/in Facebook UI Developer",
+    // "site:linkedin.com/in Facebook Frontend Architect",
+    // "site:linkedin.com/in Facebook Backend Architect",
+    // "site:linkedin.com/in Facebook Technical Program Manager",
+    // "site:linkedin.com/in Facebook Cybersecurity",
+    // "site:linkedin.com/in Facebook Cloud Security",
+    // "site:linkedin.com/in Facebook Network Design",
+    // "site:linkedin.com/in Facebook DevOps Automation",
+    // "site:linkedin.com/in Facebook Infrastructure Monitoring",
+    // "site:linkedin.com/in Facebook Cloud Native Infrastructure",
+    // "site:linkedin.com/in Facebook Kubernetes Expert",
+    // "site:linkedin.com/in Facebook AWS Cloud Specialist",
+    // "site:linkedin.com/in Facebook Google Cloud Engineer",
+    // "site:linkedin.com/in Facebook Azure Cloud Engineer",
+    // "site:linkedin.com/in Facebook IT Systems Management",
+    // "site:linkedin.com/in Facebook IT Infrastructure Development",
+    // "site:linkedin.com/in Facebook Cloud Operations",
+    // "site:linkedin.com/in Facebook Cloud Migration Specialist",
+    // "site:linkedin.com/in Facebook IT Compliance",
+    // "site:linkedin.com/in Facebook Software Architect AND Paris",
+    // "site:linkedin.com/in Facebook Cloud Consultant AND Sydney",
+    // "site:linkedin.com/in Facebook IT Director AND Munich",
+    // "site:linkedin.com/in Facebook Data Analyst AND Singapore",
+    // "site:linkedin.com/in Facebook Site Reliability Engineer AND Seattle",
+    // "site:linkedin.com/in Facebook DevOps Manager AND Boston",
+    // "site:linkedin.com/in Facebook Infrastructure Developer AND London",
+    // "site:linkedin.com/in Facebook Cloud Engineer AND San Francisco",
+    // "site:linkedin.com/in Facebook Security Specialist AND New York",
+    // "site:linkedin.com/in Facebook Infrastructure Technician AND Chicago",
+    // "site:linkedin.com/in Facebook Operations Manager AND Tokyo",
+    // "site:linkedin.com/in Facebook Systems Support AND Los Angeles",
+    // "site:linkedin.com/in Facebook Network Specialist AND Dubai",
+    // "site:linkedin.com/in Facebook Infrastructure Manager AND Madrid",
+    // "site:linkedin.com/in Facebook Cloud Specialist AND Amsterdam",
+    // "site:linkedin.com/in Facebook Software Engineering",
+    // "site:linkedin.com/in Facebook IT Operations",
+    // "site:linkedin.com/in Facebook Cloud Development",
+    // "site:linkedin.com/in Facebook Security Operations",
+    // "site:linkedin.com/in Facebook Infrastructure Development",
+    // "site:linkedin.com/in Facebook Network Operations",
+    // "site:linkedin.com/in Facebook IT Infrastructure",
+    // "site:linkedin.com/in Facebook Data Center Operations",
+    // "site:linkedin.com/in Facebook Server Management",
+    // "site:linkedin.com/in Facebook Virtualization Expert",
+    // "site:linkedin.com/in Facebook Disaster Recovery Specialist",
+    // "site:linkedin.com/in Facebook System Backup Expert",
+    // "site:linkedin.com/in Facebook Automation Specialist",
+    // "site:linkedin.com/in Facebook Cloud Optimization",
+    // "site:linkedin.com/in Facebook High Performance Computing",
+    //
+    // // Instagram
+    // "site:linkedin.com/in Instagram Frontend Engineer AND Chicago",
+    // "site:linkedin.com/in Instagram Backend Engineer AND Boston",
+    // "site:linkedin.com/in Instagram Software Developer AND Los Angeles",
+    // "site:linkedin.com/in Instagram Mobile Engineer AND Miami",
+    // "site:linkedin.com/in Instagram Data Scientist AND Denver",
+    // "site:linkedin.com/in Instagram Full Stack Engineer AND Houston",
+    // "site:linkedin.com/in Instagram Machine Learning Engineer AND Toronto",
+    // "site:linkedin.com/in Instagram AI Engineer AND Vancouver",
+    // "site:linkedin.com/in Instagram QA Automation Engineer AND Seattle",
+    // "site:linkedin.com/in Instagram Software Engineer AND Berlin",
+    // "site:linkedin.com/in Instagram Platform Engineer AND Paris",
+    // "site:linkedin.com/in Instagram Data Engineer AND Madrid",
+    // "site:linkedin.com/in Instagram Product Engineer AND Milan",
+    // "site:linkedin.com/in Instagram Tech Lead AND Barcelona",
+    // "site:linkedin.com/in Instagram Engineering Manager AND Sydney",
+    // "site:linkedin.com/in Instagram Infrastructure Specialist AND Los Angeles",
+    // "site:linkedin.com/in Instagram DevOps Specialist AND Atlanta",
+    // "site:linkedin.com/in Instagram Cloud Engineer AND Boston",
+    // "site:linkedin.com/in Instagram Network Security Engineer AND New York",
+    // "site:linkedin.com/in Instagram Database Specialist AND Toronto",
+    // "site:linkedin.com/in Instagram IT Security Engineer AND Dublin",
+    // "site:linkedin.com/in Instagram Systems Engineer AND Zurich",
+    // "site:linkedin.com/in Instagram Cloud Infrastructure Engineer AND Dubai",
+    // "site:linkedin.com/in Instagram SRE Specialist AND Hong Kong",
+    // "site:linkedin.com/in Instagram IT Manager AND Berlin",
+    // "site:linkedin.com/in Instagram Network Administrator AND Tokyo",
+    // "site:linkedin.com/in Instagram Systems Administrator AND Amsterdam",
+    // "site:linkedin.com/in Instagram Security Analyst AND San Francisco",
+    // "site:linkedin.com/in Instagram IT Consultant AND London",
+    // "site:linkedin.com/in Instagram Systems Architect AND Melbourne",
+    // "site:linkedin.com/in Instagram Python Developer",
+    // "site:linkedin.com/in Instagram Java Developer",
+    // "site:linkedin.com/in Instagram JavaScript Developer",
+    // "site:linkedin.com/in Instagram TypeScript Developer",
+    // "site:linkedin.com/in Instagram Ruby on Rails Developer",
+    // "site:linkedin.com/in Instagram Go Developer",
+    // "site:linkedin.com/in Instagram C++ Developer",
+    // "site:linkedin.com/in Instagram C# Developer",
+    // "site:linkedin.com/in Instagram iOS Developer",
+    // "site:linkedin.com/in Instagram Android Developer",
+    // "site:linkedin.com/in Instagram UX Designer",
+    // "site:linkedin.com/in Instagram UI Developer",
+    // "site:linkedin.com/in Instagram Frontend Architect",
+    // "site:linkedin.com/in Instagram Backend Architect",
+    // "site:linkedin.com/in Instagram Technical Program Manager",
+    // "site:linkedin.com/in Instagram Cybersecurity",
+    // "site:linkedin.com/in Instagram Cloud Security",
+    // "site:linkedin.com/in Instagram Network Design",
+    // "site:linkedin.com/in Instagram DevOps Automation",
+    // "site:linkedin.com/in Instagram Infrastructure Monitoring",
+    // "site:linkedin.com/in Instagram Cloud Native Infrastructure",
+    // "site:linkedin.com/in Instagram Kubernetes Expert",
+    // "site:linkedin.com/in Instagram AWS Cloud Specialist",
+    // "site:linkedin.com/in Instagram Google Cloud Engineer",
+    // "site:linkedin.com/in Instagram Azure Cloud Engineer",
+    // "site:linkedin.com/in Instagram IT Systems Management",
+    // "site:linkedin.com/in Instagram IT Infrastructure Development",
+    // "site:linkedin.com/in Instagram Cloud Operations",
+    // "site:linkedin.com/in Instagram Cloud Migration Specialist",
+    // "site:linkedin.com/in Instagram IT Compliance",
+    // "site:linkedin.com/in Instagram Software Architect AND Paris",
+    // "site:linkedin.com/in Instagram Cloud Consultant AND Sydney",
+    // "site:linkedin.com/in Instagram IT Director AND Munich",
+    // "site:linkedin.com/in Instagram Data Analyst AND Singapore",
+    // "site:linkedin.com/in Instagram Site Reliability Engineer AND Seattle",
+    // "site:linkedin.com/in Instagram DevOps Manager AND Boston",
+    // "site:linkedin.com/in Instagram Infrastructure Developer AND London",
+    // "site:linkedin.com/in Instagram Cloud Engineer AND San Francisco",
+    // "site:linkedin.com/in Instagram Security Specialist AND New York",
+    // "site:linkedin.com/in Instagram Infrastructure Technician AND Chicago",
+    // "site:linkedin.com/in Instagram Operations Manager AND Tokyo",
+    // "site:linkedin.com/in Instagram Systems Support AND Los Angeles",
+    // "site:linkedin.com/in Instagram Network Specialist AND Dubai",
+    // "site:linkedin.com/in Instagram Infrastructure Manager AND Madrid",
+    // "site:linkedin.com/in Instagram Cloud Specialist AND Amsterdam",
+    // "site:linkedin.com/in Instagram Software Engineering",
+    // "site:linkedin.com/in Instagram IT Operations",
+    // "site:linkedin.com/in Instagram Cloud Development",
+    // "site:linkedin.com/in Instagram Security Operations",
+    // "site:linkedin.com/in Instagram Infrastructure Development",
+    // "site:linkedin.com/in Instagram Network Operations",
+    // "site:linkedin.com/in Instagram IT Infrastructure",
+    // "site:linkedin.com/in Instagram Data Center Operations",
+    // "site:linkedin.com/in Instagram Server Management",
+    // "site:linkedin.com/in Instagram Virtualization Expert",
+    // "site:linkedin.com/in Instagram Disaster Recovery Specialist",
+    // "site:linkedin.com/in Instagram System Backup Expert",
+    // "site:linkedin.com/in Instagram Automation Specialist",
+    // "site:linkedin.com/in Instagram Cloud Optimization",
+    // "site:linkedin.com/in Instagram High Performance Computing",
+    //
+    // // Dropbox
+    // "site:linkedin.com/in Dropbox Frontend Engineer AND Chicago",
+    // "site:linkedin.com/in Dropbox Backend Engineer AND Boston",
+    // "site:linkedin.com/in Dropbox Software Developer AND Los Angeles",
+    // "site:linkedin.com/in Dropbox Mobile Engineer AND Miami",
+    // "site:linkedin.com/in Dropbox Data Scientist AND Denver",
+    // "site:linkedin.com/in Dropbox Full Stack Engineer AND Houston",
+    // "site:linkedin.com/in Dropbox Machine Learning Engineer AND Toronto",
+    // "site:linkedin.com/in Dropbox AI Engineer AND Vancouver",
+    // "site:linkedin.com/in Dropbox QA Automation Engineer AND Seattle",
+    // "site:linkedin.com/in Dropbox Software Engineer AND Berlin",
+    // "site:linkedin.com/in Dropbox Platform Engineer AND Paris",
+    // "site:linkedin.com/in Dropbox Data Engineer AND Madrid",
+    // "site:linkedin.com/in Dropbox Product Engineer AND Milan",
+    // "site:linkedin.com/in Dropbox Tech Lead AND Barcelona",
+    // "site:linkedin.com/in Dropbox Engineering Manager AND Sydney",
+    // "site:linkedin.com/in Dropbox Infrastructure Specialist AND Los Angeles",
+    // "site:linkedin.com/in Dropbox DevOps Specialist AND Atlanta",
+    // "site:linkedin.com/in Dropbox Cloud Engineer AND Boston",
+    // "site:linkedin.com/in Dropbox Network Security Engineer AND New York",
+    // "site:linkedin.com/in Dropbox Database Specialist AND Toronto",
+    // "site:linkedin.com/in Dropbox IT Security Engineer AND Dublin",
+    // "site:linkedin.com/in Dropbox Systems Engineer AND Zurich",
+    // "site:linkedin.com/in Dropbox Cloud Infrastructure Engineer AND Dubai",
+    // "site:linkedin.com/in Dropbox SRE Specialist AND Hong Kong",
+    // "site:linkedin.com/in Dropbox IT Manager AND Berlin",
+    // "site:linkedin.com/in Dropbox Network Administrator AND Tokyo",
+    // "site:linkedin.com/in Dropbox Systems Administrator AND Amsterdam",
+    // "site:linkedin.com/in Dropbox Security Analyst AND San Francisco",
+    // "site:linkedin.com/in Dropbox IT Consultant AND London",
+    // "site:linkedin.com/in Dropbox Systems Architect AND Melbourne",
+    // "site:linkedin.com/in Dropbox Python Developer",
+    // "site:linkedin.com/in Dropbox Java Developer",
+    // "site:linkedin.com/in Dropbox JavaScript Developer",
+    // "site:linkedin.com/in Dropbox TypeScript Developer",
+    // "site:linkedin.com/in Dropbox Ruby on Rails Developer",
+    // "site:linkedin.com/in Dropbox Go Developer",
+    // "site:linkedin.com/in Dropbox C++ Developer",
+    // "site:linkedin.com/in Dropbox C# Developer",
+    // "site:linkedin.com/in Dropbox iOS Developer",
+    // "site:linkedin.com/in Dropbox Android Developer",
+    "site:linkedin.com/in Dropbox UX Designer",
+    "site:linkedin.com/in Dropbox UI Developer",
+    "site:linkedin.com/in Dropbox Frontend Architect",
+    "site:linkedin.com/in Dropbox Backend Architect",
+    "site:linkedin.com/in Dropbox Technical Program Manager",
+    "site:linkedin.com/in Dropbox Cybersecurity",
+    "site:linkedin.com/in Dropbox Cloud Security",
+    "site:linkedin.com/in Dropbox Network Design",
+    "site:linkedin.com/in Dropbox DevOps Automation",
+    "site:linkedin.com/in Dropbox Infrastructure Monitoring",
+    "site:linkedin.com/in Dropbox Cloud Native Infrastructure",
+    "site:linkedin.com/in Dropbox Kubernetes Expert",
+    "site:linkedin.com/in Dropbox AWS Cloud Specialist",
+    "site:linkedin.com/in Dropbox Google Cloud Engineer",
+    "site:linkedin.com/in Dropbox Azure Cloud Engineer",
+    "site:linkedin.com/in Dropbox IT Systems Management",
+    "site:linkedin.com/in Dropbox IT Infrastructure Development",
+    "site:linkedin.com/in Dropbox Cloud Operations",
+    "site:linkedin.com/in Dropbox Cloud Migration Specialist",
+    "site:linkedin.com/in Dropbox IT Compliance",
+    "site:linkedin.com/in Dropbox Software Architect AND Paris",
+    "site:linkedin.com/in Dropbox Cloud Consultant AND Sydney",
+    "site:linkedin.com/in Dropbox IT Director AND Munich",
+    "site:linkedin.com/in Dropbox Data Analyst AND Singapore",
+    "site:linkedin.com/in Dropbox Site Reliability Engineer AND Seattle",
+    "site:linkedin.com/in Dropbox DevOps Manager AND Boston",
+    "site:linkedin.com/in Dropbox Infrastructure Developer AND London",
+    "site:linkedin.com/in Dropbox Cloud Engineer AND San Francisco",
+    "site:linkedin.com/in Dropbox Security Specialist AND New York",
+    "site:linkedin.com/in Dropbox Infrastructure Technician AND Chicago",
+    "site:linkedin.com/in Dropbox Operations Manager AND Tokyo",
+    "site:linkedin.com/in Dropbox Systems Support AND Los Angeles",
+    "site:linkedin.com/in Dropbox Network Specialist AND Dubai",
+    "site:linkedin.com/in Dropbox Infrastructure Manager AND Madrid",
+    "site:linkedin.com/in Dropbox Cloud Specialist AND Amsterdam",
+    "site:linkedin.com/in Dropbox Software Engineering",
+    "site:linkedin.com/in Dropbox IT Operations",
+    "site:linkedin.com/in Dropbox Cloud Development",
+    "site:linkedin.com/in Dropbox Security Operations",
+    "site:linkedin.com/in Dropbox Infrastructure Development",
+    "site:linkedin.com/in Dropbox Network Operations",
+    "site:linkedin.com/in Dropbox IT Infrastructure",
+    "site:linkedin.com/in Dropbox Data Center Operations",
+    "site:linkedin.com/in Dropbox Server Management",
+    "site:linkedin.com/in Dropbox Virtualization Expert",
+    "site:linkedin.com/in Dropbox Disaster Recovery Specialist",
+    "site:linkedin.com/in Dropbox System Backup Expert",
+    "site:linkedin.com/in Dropbox Automation Specialist",
+    "site:linkedin.com/in Dropbox Cloud Optimization",
+    "site:linkedin.com/in Dropbox High Performance Computing",
+
+    // TikTok
+    "site:linkedin.com/in TikTok Frontend Engineer AND Chicago",
+    "site:linkedin.com/in TikTok Backend Engineer AND Boston",
+    "site:linkedin.com/in TikTok Software Developer AND Los Angeles",
+    "site:linkedin.com/in TikTok Mobile Engineer AND Miami",
+    "site:linkedin.com/in TikTok Data Scientist AND Denver",
+    "site:linkedin.com/in TikTok Full Stack Engineer AND Houston",
+    "site:linkedin.com/in TikTok Machine Learning Engineer AND Toronto",
+    "site:linkedin.com/in TikTok AI Engineer AND Vancouver",
+    "site:linkedin.com/in TikTok QA Automation Engineer AND Seattle",
+    "site:linkedin.com/in TikTok Software Engineer AND Berlin",
+    "site:linkedin.com/in TikTok Platform Engineer AND Paris",
+    "site:linkedin.com/in TikTok Data Engineer AND Madrid",
+    "site:linkedin.com/in TikTok Product Engineer AND Milan",
+    "site:linkedin.com/in TikTok Tech Lead AND Barcelona",
+    "site:linkedin.com/in TikTok Engineering Manager AND Sydney",
+    "site:linkedin.com/in TikTok Infrastructure Specialist AND Los Angeles",
+    "site:linkedin.com/in TikTok DevOps Specialist AND Atlanta",
+    "site:linkedin.com/in TikTok Cloud Engineer AND Boston",
+    "site:linkedin.com/in TikTok Network Security Engineer AND New York",
+    "site:linkedin.com/in TikTok Database Specialist AND Toronto",
+    "site:linkedin.com/in TikTok IT Security Engineer AND Dublin",
+    "site:linkedin.com/in TikTok Systems Engineer AND Zurich",
+    "site:linkedin.com/in TikTok Cloud Infrastructure Engineer AND Dubai",
+    "site:linkedin.com/in TikTok SRE Specialist AND Hong Kong",
+    "site:linkedin.com/in TikTok IT Manager AND Berlin",
+    "site:linkedin.com/in TikTok Network Administrator AND Tokyo",
+    "site:linkedin.com/in TikTok Systems Administrator AND Amsterdam",
+    "site:linkedin.com/in TikTok Security Analyst AND San Francisco",
+    "site:linkedin.com/in TikTok IT Consultant AND London",
+    "site:linkedin.com/in TikTok Systems Architect AND Melbourne",
+    "site:linkedin.com/in TikTok Python Developer",
+    "site:linkedin.com/in TikTok Java Developer",
+    "site:linkedin.com/in TikTok JavaScript Developer",
+    "site:linkedin.com/in TikTok TypeScript Developer",
+    "site:linkedin.com/in TikTok Ruby on Rails Developer",
+    "site:linkedin.com/in TikTok Go Developer",
+    "site:linkedin.com/in TikTok C++ Developer",
+    "site:linkedin.com/in TikTok C# Developer",
+    "site:linkedin.com/in TikTok iOS Developer",
+    "site:linkedin.com/in TikTok Android Developer",
+    "site:linkedin.com/in TikTok UX Designer",
+    "site:linkedin.com/in TikTok UI Developer",
+    "site:linkedin.com/in TikTok Frontend Architect",
+    "site:linkedin.com/in TikTok Backend Architect",
+    "site:linkedin.com/in TikTok Technical Program Manager",
+    "site:linkedin.com/in TikTok Cybersecurity",
+    "site:linkedin.com/in TikTok Cloud Security",
+    "site:linkedin.com/in TikTok Network Design",
+    "site:linkedin.com/in TikTok DevOps Automation",
+    "site:linkedin.com/in TikTok Infrastructure Monitoring",
+    "site:linkedin.com/in TikTok Cloud Native Infrastructure",
+    "site:linkedin.com/in TikTok Kubernetes Expert",
+    "site:linkedin.com/in TikTok AWS Cloud Specialist",
+    "site:linkedin.com/in TikTok Google Cloud Engineer",
+    "site:linkedin.com/in TikTok Azure Cloud Engineer",
+    "site:linkedin.com/in TikTok IT Systems Management",
+    "site:linkedin.com/in TikTok IT Infrastructure Development",
+    "site:linkedin.com/in TikTok Cloud Operations",
+    "site:linkedin.com/in TikTok Cloud Migration Specialist",
+    "site:linkedin.com/in TikTok IT Compliance",
+    "site:linkedin.com/in TikTok Software Architect AND Paris",
+    "site:linkedin.com/in TikTok Cloud Consultant AND Sydney",
+    "site:linkedin.com/in TikTok IT Director AND Munich",
+    "site:linkedin.com/in TikTok Data Analyst AND Singapore",
+    "site:linkedin.com/in TikTok Site Reliability Engineer AND Seattle",
+    "site:linkedin.com/in TikTok DevOps Manager AND Boston",
+    "site:linkedin.com/in TikTok Infrastructure Developer AND London",
+    "site:linkedin.com/in TikTok Cloud Engineer AND San Francisco",
+    "site:linkedin.com/in TikTok Security Specialist AND New York",
+    "site:linkedin.com/in TikTok Infrastructure Technician AND Chicago",
+    "site:linkedin.com/in TikTok Operations Manager AND Tokyo",
+    "site:linkedin.com/in TikTok Systems Support AND Los Angeles",
+    "site:linkedin.com/in TikTok Network Specialist AND Dubai",
+    "site:linkedin.com/in TikTok Infrastructure Manager AND Madrid",
+    "site:linkedin.com/in TikTok Cloud Specialist AND Amsterdam",
+    "site:linkedin.com/in TikTok Software Engineering",
+    "site:linkedin.com/in TikTok IT Operations",
+    "site:linkedin.com/in TikTok Cloud Development",
+    "site:linkedin.com/in TikTok Security Operations",
+    "site:linkedin.com/in TikTok Infrastructure Development",
+    "site:linkedin.com/in TikTok Network Operations",
+    "site:linkedin.com/in TikTok IT Infrastructure",
+    "site:linkedin.com/in TikTok Data Center Operations",
+    "site:linkedin.com/in TikTok Server Management",
+    "site:linkedin.com/in TikTok Virtualization Expert",
+    "site:linkedin.com/in TikTok Disaster Recovery Specialist",
+    "site:linkedin.com/in TikTok System Backup Expert",
+    "site:linkedin.com/in TikTok Automation Specialist",
+    "site:linkedin.com/in TikTok Cloud Optimization",
+    "site:linkedin.com/in TikTok High Performance Computing",
+  ];
+
+  for (const query of queries.slice(0, 200)) {
+    const urls = await googleSearch(query);
+    console.log(
+      `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
+    );
+
+    for (let i = 0; i < urls.length; i += 10) {
+      const batch = urls.slice(i, i + 10);
+      await processUrls(batch);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+
+  console.log("Main process completed.");
+};
+
+main();
