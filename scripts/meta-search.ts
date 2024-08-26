@@ -20,7 +20,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const companyIdToSearch = "175e4a3e-c89e-4b46-ae47-776c4989cbbb";
+const companyIdToSearch = "b244f9e3-85c9-460e-8a7d-16c70b74c19d";
 const limit = 100;
 
 async function fetchCandidatesWithCursor(cursor?: {
@@ -72,12 +72,17 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
   const metaPositions = positionHistory
     .filter(
       (position: any) =>
-        (position.companyName.toLowerCase() === "facebook" ||
-          position.companyName.toLowerCase() === "meta") &&
-        position.startEndDate &&
-        position.startEndDate.start &&
-        position.startEndDate.start.year &&
-        position.startEndDate.start.year < 2015,
+        position.companyName.toLowerCase() === "doordash" &&
+        ((position.startEndDate &&
+          position.startEndDate.start &&
+          position.startEndDate.start.year &&
+          position.startEndDate.start.year >= 2018 &&
+          position.startEndDate.start.year <= 2021) ||
+          (position.startEndDate &&
+            position.startEndDate.end &&
+            position.startEndDate.end.year &&
+            position.startEndDate.end.year >= 2018 &&
+            position.startEndDate.end.year <= 2021)),
     )
     .map((position: any) => ({
       title: position.title,
@@ -99,7 +104,7 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
       },
       {
         role: "user",
-        content: `Did any of these roles have something to do with engineering specifically related to product (customer facing related) Meta/Facebook? If it is ambiguous, no description and says just like Software Engineer then side with false ${condition}`,
+        content: `Did any of these roles have something to do with engineering specifically related to Infrastructure like the cloud or managing servers or scaling or networking at Doordash? If it is ambiguous, like no description and says just like Software Engineer then side with false ${condition}`,
       },
     ],
     response_format: { type: "json_object" },
@@ -115,9 +120,7 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
 
 async function main() {
   const allCandidates = await fetchAllCandidates();
-  let results: { linkedInUrl: string; id: string; data: boolean }[] = [];
-
-  for (const candidate of allCandidates) {
+  const checkPromises = allCandidates.map(async (candidate) => {
     const linkedinData = candidate.linkedinData;
     if (
       linkedinData &&
@@ -130,14 +133,20 @@ async function main() {
         await checkIfDataEngineeringAtMeta(positionHistory);
 
       if (dataEngineeringAtMeta) {
-        results.push({
+        return {
           linkedInUrl: linkedinData.linkedInUrl,
           id: candidate.id,
           data: true,
-        });
+        };
       }
     }
-  }
+    return null;
+  });
+
+  const results = (await Promise.all(checkPromises)).filter(
+    (result): result is { linkedInUrl: string; id: string; data: boolean } =>
+      result !== null,
+  );
 
   console.log(results);
   console.log("Total results:", results.length);

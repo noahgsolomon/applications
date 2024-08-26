@@ -1,0 +1,1482 @@
+{
+  "employees": [
+    {
+      "profileUrl": "https://www.linkedin.com/in/dylancdiamond/",
+      "name": "Dylan Diamond",
+      "firstName": "Dylan",
+      "lastName": "Diamond",
+      "job": "Co-Founder & CEO at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/guiscaranse/",
+      "name": "Guilherme Scaranse",
+      "firstName": "Guilherme",
+      "lastName": "Scaranse",
+      "job": "Senior Software Engineer @ Saturn",
+      "location": "São Paulo, Brazil",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/andreste/",
+      "name": "Andres Trevino",
+      "firstName": "Andres",
+      "lastName": "Trevino",
+      "job": "Engineering Manager @ Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/amy-p-aab6625/",
+      "name": "Amy P.",
+      "firstName": "Amy",
+      "lastName": "P.",
+      "job": "Human Resources I Onboarding I Sourcing I Recruiting",
+      "location": "San Francisco Bay Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/robert-glover-8474b520/",
+      "name": "Robert Glover",
+      "firstName": "Robert",
+      "lastName": "Glover",
+      "job": "Senior Android Engineer",
+      "location": "Kingston, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/natalierosetaylor/",
+      "name": "Natalie Rose Taylor",
+      "firstName": "Natalie",
+      "lastName": "Rose Taylor",
+      "job": "0-1 Startup Product Design Lead | Saturn",
+      "location": "Brooklyn, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/anton-udovychenko-a751446a/",
+      "name": "Anton Udovychenko",
+      "firstName": "Anton",
+      "lastName": "Udovychenko",
+      "job": "Lead iOS Software Engineer",
+      "location": "Los Angeles Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/sarahmshanfield/",
+      "name": "Sarah Shanfield",
+      "firstName": "Sarah",
+      "lastName": "Shanfield",
+      "job": "Saturn 🪐",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/cornelle-janse-van-rensburg-985ab15/",
+      "name": "Cornelle Janse van Rensburg",
+      "firstName": "Cornelle",
+      "lastName": "Janse van Rensburg",
+      "job": "Software Engineer at Saturn",
+      "location": "Seattle, WA",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/jack-schaefer-7b2384207/",
+      "name": "Jack Schaefer",
+      "firstName": "Jack",
+      "lastName": "Schaefer",
+      "job": "Jack",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:46.424Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/steven-guo-ios-mobile/",
+      "name": "Steven Guo",
+      "firstName": "Steven",
+      "lastName": "Guo",
+      "job": "Software Engineer at Saturn",
+      "location": "Exeter, NH",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/mark-tanner-88623123/",
+      "name": "Mark Tanner",
+      "firstName": "Mark",
+      "lastName": "Tanner",
+      "job": "Strategy at Saturn",
+      "location": "New York City Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/denali-tietjen-5363a447/",
+      "name": "Denali Tietjen",
+      "firstName": "Denali",
+      "lastName": "Tietjen",
+      "job": "Leading Product at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/gabelupin/",
+      "name": "Gabe Lupin",
+      "firstName": "Gabe",
+      "lastName": "Lupin",
+      "job": "VP, Product at Saturn",
+      "location": "Los Angeles Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/pwisner/",
+      "name": "Paul Wisner",
+      "firstName": "Paul",
+      "lastName": "Wisner",
+      "job": "Mobile App Developer with broad prior experience.",
+      "location": "Arlington, MA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/stephan-adams-aa033667/",
+      "name": "Stephan Adams",
+      "firstName": "Stephan",
+      "lastName": "Adams",
+      "job": "Senior Software Engineer",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/bj-miller-ltd/",
+      "name": "BJ Miller",
+      "firstName": "BJ",
+      "lastName": "Miller",
+      "job": "Senior iOS Engineer at Saturn",
+      "location": "Avon Lake, OH",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/djtarazona/",
+      "name": "DJ Tarazona",
+      "firstName": "DJ",
+      "lastName": "Tarazona",
+      "job": "Engineering Leader at Saturn - We're Hiring!",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/sophia-chun/",
+      "name": "Sophia Chun",
+      "firstName": "Sophia",
+      "lastName": "Chun",
+      "job": "Data Science + Education @ Stanford",
+      "location": "Fullerton, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/cameron-edwards-25a81033/",
+      "name": "Cameron Edwards",
+      "firstName": "Cameron",
+      "lastName": "Edwards",
+      "job": "Full Stack Engineer at Saturn",
+      "location": "Salt Lake City, UT",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:50.437Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/max-baron-saturn/",
+      "name": "Max Baron",
+      "firstName": "Max",
+      "lastName": "Baron",
+      "job": "Co-Founder & COO/CSO at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/ayan-khanna/",
+      "name": "Ayan Khanna",
+      "firstName": "Ayan",
+      "lastName": "Khanna",
+      "job": "Saturn 🪐",
+      "location": "Princeton, NJ",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/danielsmith04/",
+      "name": "Daniel Smith",
+      "firstName": "Daniel",
+      "lastName": "Smith",
+      "job": "Finance at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/ben-fitzgearl-2a5b77184/",
+      "name": "Ben Fitzgearl",
+      "firstName": "Ben",
+      "lastName": "Fitzgearl",
+      "job": "iOS Developer",
+      "location": "Portland, Oregon Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/rfdearborn/",
+      "name": "Rob Dearborn",
+      "firstName": "Rob",
+      "lastName": "Dearborn",
+      "job": "Growth @ 🪐",
+      "location": "New York, NY",
+      "connectionDegree": "1st",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Freshman Business Administration Major at North Carolina A&T State University.",
+      "location": "Homewood, IL",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "M at Saturn",
+      "location": "Utica, NY",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/joshkowarsky/",
+      "name": "Josh Kowarsky",
+      "firstName": "Josh",
+      "lastName": "Kowarsky",
+      "job": "Senior Software Engineer at Saturn",
+      "location": "San Francisco, CA",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/yanagloria-lopetey-gayle-a7b3002a8/",
+      "name": "Yanagloria Lopetey Gayle",
+      "firstName": "Yanagloria",
+      "lastName": "Lopetey Gayle",
+      "job": "Senior at Salem HS | Honor Roll | Girl State | ACLU | Student Ambassador | Afro-Latino Advocate | Aspiring IR & BUS Professional | Future Human Rights Attorney | Bilingual Tutor |",
+      "location": "Canton, MI",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/rajesh-domadiya-5916a33b/",
+      "name": "Rajesh Domadiya",
+      "firstName": "Rajesh",
+      "lastName": "Domadiya",
+      "job": "MS SQL Server Developer",
+      "location": "Canton, MI",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:54.222Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/nathan-ulrich/",
+      "name": "Nathan Ulrich",
+      "firstName": "Nathan",
+      "lastName": "Ulrich",
+      "job": "Design at Saturn 🪐",
+      "location": "New York, NY",
+      "connectionDegree": "1st",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.953Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/changsublime/",
+      "name": "Changseob Lim",
+      "firstName": "Changseob",
+      "lastName": "Lim",
+      "job": "doing things™",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/nadia-reddin-5235322b1/",
+      "name": "Nadia Reddin",
+      "firstName": "Nadia",
+      "lastName": "Reddin",
+      "job": "Student at the University of Michigan",
+      "location": "Englewood, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/christopher-brasino/",
+      "name": "Christopher Brasino",
+      "firstName": "Christopher",
+      "lastName": "Brasino",
+      "job": "Software Engineer | Xcode, Swift",
+      "location": "Seattle, WA",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/laila-k-a26823126/",
+      "name": "Laila K.",
+      "firstName": "Laila",
+      "lastName": "K.",
+      "job": "",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/rudraa07/",
+      "name": "Rudra G.",
+      "firstName": "Rudra",
+      "lastName": "G.",
+      "job": "Senior At Piscataway High | Interested in Tech Start Ups,Business and Software Engineering Opportunities",
+      "location": "Piscataway, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/robert-lis-93818b48/",
+      "name": "Robert Lis",
+      "firstName": "Robert",
+      "lastName": "Lis",
+      "job": "Software Engineer",
+      "location": "San Francisco, CA",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/spencer-wright-52094b2a1/",
+      "name": "Spencer Wright",
+      "firstName": "Spencer",
+      "lastName": "Wright",
+      "job": "Student at Penn State University",
+      "location": "Fairfield, CT",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Student at Lenape High School",
+      "location": "Mount Laurel, NJ",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Web Developer",
+      "location": "Pune",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:28:57.954Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/emran-nasseri-9920b11a7/",
+      "name": "Emran Nasseri",
+      "firstName": "Emran",
+      "lastName": "Nasseri",
+      "job": "Incoming CS Freshman at Stevens Institute of Technology",
+      "location": "Ridgewood, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/azmeri-hassan-27919a240/",
+      "name": "Azmeri Hassan",
+      "firstName": "Azmeri",
+      "lastName": "Hassan",
+      "job": "Pre-Optometry Student at Rutgers University New Brunswick",
+      "location": "New York City Metropolitan Area",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/vincent-sung/",
+      "name": "Vincent Sung",
+      "firstName": "Vincent",
+      "lastName": "Sung",
+      "job": "Head of Revenue Product at Saturn | Ex-Snap",
+      "location": "Los Angeles Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/lara-mukundan-b87aa32aa/",
+      "name": "Lara Mukundan",
+      "firstName": "Lara",
+      "lastName": "Mukundan",
+      "job": "Student at Ashland High School",
+      "location": "Ashland, MA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/catherine-o-connor-b41370183/",
+      "name": "Catherine O'Connor",
+      "firstName": "Catherine",
+      "lastName": "O'Connor",
+      "job": "Product Launch Strategist at Saturn",
+      "location": "New York City Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Student at Le Wagon",
+      "location": "Ontario, CA",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/-sabrinalee-/",
+      "name": "Sabrina Lee",
+      "firstName": "Sabrina",
+      "lastName": "Lee",
+      "job": "Undergraduate Business Student - Lehigh University",
+      "location": "Bethlehem, PA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/zahara-shekarri-91931b2b0/",
+      "name": "Zahara Shekarri",
+      "firstName": "Zahara",
+      "lastName": "Shekarri",
+      "job": "Senior at Desert Mountain High School",
+      "location": "Cave Creek, AZ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/junhyoung-park/",
+      "name": "Junhyoung Park",
+      "firstName": "Junhyoung",
+      "lastName": "Park",
+      "job": "Aerospace Engineering @ Berkeley | Seeking Winter 2024 & Summer 2025 Internship Positions",
+      "location": "San Jose, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/anikamelkote/",
+      "name": "Anika Melkote",
+      "firstName": "Anika",
+      "lastName": "Melkote",
+      "job": "Computer Science & Business @ Rutgers Honors College",
+      "location": "Edison, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:01.734Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/joe-parry-8582b45a/",
+      "name": "Joe Parry",
+      "firstName": "Joe",
+      "lastName": "Parry",
+      "job": "Data at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/mia-leshne-a70504275/",
+      "name": "Mia Leshne",
+      "firstName": "Mia",
+      "lastName": "Leshne",
+      "job": "Student at University of Michigan",
+      "location": "New York, NY",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/kirsten-ortiz-newkirk/",
+      "name": "Kirsten Newkirk",
+      "firstName": "Kirsten",
+      "lastName": "Newkirk",
+      "job": "Architectural Engineering Student @ Cal Poly, San Luis Obispo",
+      "location": "Escondido, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Selling Manager at Saturn",
+      "location": "Dhaka",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/navya-venkat-2271ba284/",
+      "name": "Navya Venkat",
+      "firstName": "Navya",
+      "lastName": "Venkat",
+      "job": "Student at James Madison University",
+      "location": "Ashburn, VA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/camrynkirk/",
+      "name": "Camryn Kirk",
+      "firstName": "Camryn",
+      "lastName": "Kirk",
+      "job": "Growth & Operations at Saturn",
+      "location": "New York City Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Engineering at Saturn",
+      "location": "San Francisco, CA",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/lydia-tu-80985b2a2/",
+      "name": "Lydia Tu",
+      "firstName": "Lydia",
+      "lastName": "Tu",
+      "job": "Interest in Chemical Engineering | Student at Tomball Memorial High School",
+      "location": "Greater Houston",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/evan-levitan-85b690206/",
+      "name": "Evan Levitan",
+      "firstName": "Evan",
+      "lastName": "Levitan",
+      "job": "Incoming First Year Student at The University of Maryland - Major: History (Pre-law track)",
+      "location": "Port Chester, NY",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/colindarretta/",
+      "name": "Colin Darretta",
+      "firstName": "Colin",
+      "lastName": "Darretta",
+      "job": "Writer, Entrepreneur, Investor, Advisor",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:05.510Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Charlotte, NC",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Phoenix, AZ",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/milan-naropanth-b143a1223/",
+      "name": "Milan Naropanth",
+      "firstName": "Milan",
+      "lastName": "Naropanth",
+      "job": "Sophomore at Harvard",
+      "location": "New York City Metropolitan Area",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Garment Technologist at Saturn",
+      "location": "Dhaka, Bangladesh",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/sarah-chan-873972216/",
+      "name": "Sarah Chan",
+      "firstName": "Sarah",
+      "lastName": "Chan",
+      "job": "Student at American High School",
+      "location": "United States",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/kaylin-platt-356b59286/",
+      "name": "Kaylin Platt",
+      "firstName": "Kaylin",
+      "lastName": "Platt",
+      "job": "Student at Franklin High School",
+      "location": "Princeton, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/gayatri-budaraju-529429267/",
+      "name": "Gayatri Budaraju",
+      "firstName": "Gayatri",
+      "lastName": "Budaraju",
+      "job": "--",
+      "location": "Dublin, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/ariadna-sanchez-51658222b/",
+      "name": "Ariadna Sanchez",
+      "firstName": "Ariadna",
+      "lastName": "Sanchez",
+      "job": "B.A. Candidate in Economics at Barnard College of Columbia University",
+      "location": "New York, NY",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Director of Operations at Saturn",
+      "location": "New York, NY",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/patriciacartes/",
+      "name": "Patricia Cartes Andrés",
+      "firstName": "Patricia",
+      "lastName": "Cartes Andrés",
+      "job": "Trust & Safety | Public Policy | Ethical AI | Marketplace Safety | Insurance Operations",
+      "location": "Newport Beach, CA",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:09.269Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/avonlea-berard-24ab99218/",
+      "name": "Avonlea Berard",
+      "firstName": "Avonlea",
+      "lastName": "Berard",
+      "job": "Marketing Major at Emmanuel College",
+      "location": "Andover, MA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Chief Sales Officer (CSO) at Saturn",
+      "location": "Gurugram",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/violet-stearn-3782821b5/",
+      "name": "Violet Stearn",
+      "firstName": "Violet",
+      "lastName": "Stearn",
+      "job": "Business-Psychology student at UC San Diego.",
+      "location": "San Diego, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/rex-ward/",
+      "name": "Rex Ward",
+      "firstName": "Rex",
+      "lastName": "Ward",
+      "job": "Student at Santa Clara University",
+      "location": "Santa Clara, CA",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/miaschiff/",
+      "name": "Mia Schiff",
+      "firstName": "Mia",
+      "lastName": "Schiff",
+      "job": "Student at the University of Michigan",
+      "location": "Denver Metropolitan Area",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/advika-srinath-451364228/",
+      "name": "Advika Srinath",
+      "firstName": "Advika",
+      "lastName": "Srinath",
+      "job": "Research Intern @ Baylor University | Epilepsy Awareness Ambassador | Interest in Neurology and Infectious Disease",
+      "location": "Cypress, TX",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/paul-fortino-iii-/",
+      "name": "Paul Fortino III",
+      "firstName": "Paul",
+      "lastName": "Fortino III",
+      "job": "Student-Athlete at University of Pennsylvania",
+      "location": "Detroit Metropolitan Area",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Administrative Assistant",
+      "location": "Perth, WA",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/lauren-palmer-9623a1234/",
+      "name": "Lauren Palmer",
+      "firstName": "Lauren",
+      "lastName": "Palmer",
+      "job": "Media Design student at University of Colorado Boulder",
+      "location": "Boulder, CO",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/liannefrick/",
+      "name": "Lianne F.",
+      "firstName": "Lianne",
+      "lastName": "F.",
+      "job": "UX Researcher and Photographer",
+      "location": "New York, NY",
+      "connectionDegree": "2nd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:13.056Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Verkäuferin bei Saturn",
+      "location": "Augsburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/shivani-deoghare-658b0228b/",
+      "name": "Shivani Deoghare",
+      "firstName": "Shivani",
+      "lastName": "Deoghare",
+      "job": "System Analyst at Saturn",
+      "location": "Pune",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Desempleado en Saturn",
+      "location": "Buenos Aires",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Beraterin bei Saturn",
+      "location": "Vienna",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Sales Assistant at Saturn",
+      "location": "Leeds",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Praktikant bei Saturn",
+      "location": "Berlin",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Manager at Saturn",
+      "location": "Baku City",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "lilly-braun str bei Saturn",
+      "location": "Berlin",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Designer bei Saturn",
+      "location": "Offenbach",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Schüler bei Saturn",
+      "location": "Mainz",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:16.601Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/alex-mironescu/",
+      "name": "Alexandra Mironescu",
+      "firstName": "Alexandra",
+      "lastName": "Mironescu",
+      "job": "Student at Tufts University",
+      "location": "Old Bridge, NJ",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.163Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/%D0%B0%D0%BB%D0%B8%D0%BD%D0%B0-%D0%BF%D0%BE%D0%BB%D1%83%D1%8D%D0%BA%D1%82%D0%BE%D0%B2%D0%B0-8861201a0/",
+      "name": "Алина Полуэктова",
+      "firstName": "Алина",
+      "lastName": "Полуэктова",
+      "job": "HR",
+      "location": "Moscow",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.163Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "student at Karlsruhe University of Applied Sciences",
+      "location": "Karlsruhe",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.163Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/r-wirote-46787225b/",
+      "name": "R. Wirote",
+      "firstName": "R.",
+      "lastName": "Wirote",
+      "job": "Engineer at Saturn",
+      "location": "Nakhon Pathom",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.163Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/arjun-parikh-4737b497/",
+      "name": "Arjun Parikh",
+      "firstName": "Arjun",
+      "lastName": "Parikh",
+      "job": "Biological Engineering @ Cornell University",
+      "location": "Severna Park, MD",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Project Manager at Saturn",
+      "location": "Bankura",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Softwareingenieur bei Saturn",
+      "location": "Duisburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Vehicle Mechanic at Saturn",
+      "location": "Akwa Ibom State, Nigeria",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Saturn şirketinde Data Analyst",
+      "location": "Istanbul, Türkiye",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Saturn Technischer Bereich (Neue Medien,GSM) sowie Vertragsverfasser und Promoter für O2 und Vodafone Deutschland.",
+      "location": "Greater Hamburg Area",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:20.164Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Sioux Falls, SD",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Saturn of Sioux Falls at Saturn",
+      "location": "Sioux Falls, SD",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Tracker",
+      "location": "Calabar",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Lageristin bei Saturn",
+      "location": "Bochum",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Retired at Saturn",
+      "location": "Clarence Creek, ON",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Computer Aided Design Engineer at Saturn",
+      "location": "Ahmedabad",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Assistente de atendimento ao cliente na Saturn",
+      "location": "Itabuna, BA",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Hannover",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Data Manager at Saturn",
+      "location": "Sangli",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Servicetechniker bei Saturn",
+      "location": "Düsseldorf",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:23.930Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Kingston, Jamaica",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Merchandiser at RSP",
+      "location": "Netherlands",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/addison-stout-62ab88232/",
+      "name": "Addison Stout",
+      "firstName": "Addison",
+      "lastName": "Stout",
+      "job": "Student at Blue Valley North High School (Class of 2025)",
+      "location": "Leawood, KS",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Chauffeur routier chez Saturn",
+      "location": "Behren-lès-Forbach",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "profileUrl": "https://www.linkedin.com/in/vladimir-patin-858020249/",
+      "name": "Vladimir Patin",
+      "firstName": "Vladimir",
+      "lastName": "Patin",
+      "job": "Geschäftsführer bei Saturn",
+      "location": "Walsrode",
+      "connectionDegree": "3rd",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Personalreferent /Personalentwicklung",
+      "location": "Germany",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Angestellte bei Saturn",
+      "location": "Vienna",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Affiliate Marketing Specialist bei Saturn",
+      "location": "Welkenraedt",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Kassel",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Praktikant bei Saturn",
+      "location": "Schlangen",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:27.495Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Disponent bei Saturn",
+      "location": "Berlin, Germany",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Actor bei Saturn",
+      "location": "Pančevo",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Technik-Azubi bei Saturn",
+      "location": "Hamburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Lager – Saturn",
+      "location": "Hamburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Saturn at Saturn",
+      "location": "Tastrup",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "In haubschule bei Saturn",
+      "location": "Bocholt",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Attended Northern University, Bangladesh",
+      "location": "Dhaka, Bangladesh",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Étudiant à Lycée Robert Schuman",
+      "location": "Metz",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Kierownik produkcji w Saturn",
+      "location": "Wroclaw Metropolitan Area",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Angestellter bei Saturn",
+      "location": "Yalova",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:31.067Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Balamban",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Verantwortlich bei Saturn",
+      "location": "Herne",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Официант – Saturn",
+      "location": "Bockenheim an der Weinstraße",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Goch",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Leitung bei Saturn",
+      "location": "Frankfurt",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Verkaufsberater bei Saturn",
+      "location": "Hamburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Logistik bei Saturn",
+      "location": "Frankfurt",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Keine bei Saturn",
+      "location": "Berlin",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Behren-lès-Forbach",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Einzelhandel bei Saturn",
+      "location": "Neuss",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:34.623Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Fachkraft Logistik bei Saturn",
+      "location": "Duisburg",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Chandigarh, India",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Verkäuferin bei Saturn",
+      "location": "Göttingen",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "İzmir",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Chennai",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Kaufmann für Büromanagement bei Saturn",
+      "location": "Seligenstadt",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Istanbul",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Cebu",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Partner bei Saturn",
+      "location": "Berlin",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Nideggen",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:38.031Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Frankfurt am Main",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "--",
+      "location": "Berlin",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Assistent bei Saturn",
+      "location": "Saarland",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Koordinator Verkauf bei Saturn",
+      "location": "Hückelhoven",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Verkäufer bei Saturn",
+      "location": "Bad Bellingen",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Sicherheit bei Saturn",
+      "location": "Saarbrücken",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    },
+    {
+      "error": "Out of network",
+      "job": "Einzelhandelskaufmann bei Saturn",
+      "location": "Greater Koblenz Area",
+      "connectionDegree": "Out of Network",
+      "query": "https://www.linkedin.com/company/69194943",
+      "timestamp": "2024-08-10T23:29:41.429Z"
+    }
+  ]
+}
