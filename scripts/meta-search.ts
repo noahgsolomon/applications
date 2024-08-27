@@ -20,7 +20,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const companyIdToSearch = "b244f9e3-85c9-460e-8a7d-16c70b74c19d";
+const companyIdToSearch = "e0db0e46-458a-4f4b-86ff-707793d5a8b7";
 const limit = 100;
 
 async function fetchCandidatesWithCursor(cursor?: {
@@ -68,31 +68,31 @@ async function fetchAllCandidates() {
   return allCandidates;
 }
 
-async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
-  const metaPositions = positionHistory
+async function checkIfMobileAppDevelopmentAtUber(positionHistory: any[]) {
+  const uberPositions = positionHistory
     .filter(
       (position: any) =>
-        position.companyName.toLowerCase() === "doordash" &&
+        position.companyName.toLowerCase() === "uber" &&
         ((position.startEndDate &&
           position.startEndDate.start &&
           position.startEndDate.start.year &&
-          position.startEndDate.start.year >= 2018 &&
-          position.startEndDate.start.year <= 2021) ||
+          position.startEndDate.start.year >= 2010 &&
+          position.startEndDate.start.year <= 2016) ||
           (position.startEndDate &&
             position.startEndDate.end &&
             position.startEndDate.end.year &&
-            position.startEndDate.end.year >= 2018 &&
-            position.startEndDate.end.year <= 2021)),
+            position.startEndDate.end.year >= 2010 &&
+            position.startEndDate.end.year <= 2016)),
     )
     .map((position: any) => ({
       title: position.title,
       description: position.description,
     }));
 
-  if (metaPositions.length === 0) return false;
+  if (uberPositions.length === 0) return false;
 
   const condition = JSON.stringify({
-    metaPositions,
+    uberPositions,
   });
 
   const completion = await openai.chat.completions.create({
@@ -104,7 +104,7 @@ async function checkIfDataEngineeringAtMeta(positionHistory: any[]) {
       },
       {
         role: "user",
-        content: `Did any of these roles have something to do with engineering specifically related to Infrastructure like the cloud or managing servers or scaling or networking at Doordash? If it is ambiguous, like no description and says just like Software Engineer then side with false ${condition}`,
+        content: `Did any of these roles involve working on mobile application development at Uber? If it is ambiguous, like no description and says just like Software Engineer then side with false ${condition}`,
       },
     ],
     response_format: { type: "json_object" },
@@ -129,10 +129,10 @@ async function main() {
     ) {
       const positionHistory = linkedinData.positions.positionHistory;
 
-      const dataEngineeringAtMeta =
-        await checkIfDataEngineeringAtMeta(positionHistory);
+      const mobileAppDevelopmentAtUber =
+        await checkIfMobileAppDevelopmentAtUber(positionHistory);
 
-      if (dataEngineeringAtMeta) {
+      if (mobileAppDevelopmentAtUber) {
         return {
           linkedInUrl: linkedinData.linkedInUrl,
           id: candidate.id,
