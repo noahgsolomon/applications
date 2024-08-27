@@ -108,7 +108,7 @@ async function checkIfMobileAppDevelopmentAtUber(positionHistory: any[]) {
       },
     ],
     response_format: { type: "json_object" },
-    model: "gpt-4o-mini",
+    model: "gpt-4-0613",
     temperature: 0,
     max_tokens: 256,
   });
