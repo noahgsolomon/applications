@@ -18,21 +18,21 @@ export default $config({
     //   handler: "src/hono.handler",
     // });
 
-    const queue = new sst.aws.Queue("WhopQueue");
+    // const queue = new sst.aws.Queue("WhopQueue");
 
-    queue.subscribe({
-      handler: "src/subscriber.handler",
-      environment: SubscriberEnv,
-      timeout: "10 minutes",
-    });
+    // queue.subscribe({
+    //   handler: "src/subscriber.handler",
+    //   environment: SubscriberEnv,
+    //   timeout: "10 minutes",
+    // });
 
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
-      link: [queue],
+      // link: [queue],
     });
 
-    return {
-      queue: queue.url,
-    };
+    // return {
+    //   queue: queue.url,
+    // };
   },
 });

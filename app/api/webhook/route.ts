@@ -1,38 +1,34 @@
-// pages/api/webhook.js
+// app/api/webhook/route.ts
 
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  if (req.method === "POST") {
-    try {
-      const webhookData = req.body;
+export async function POST(req: NextRequest) {
+  try {
+    const webhookData = await req.json();
 
-      console.log("Received webhook data:", webhookData);
+    console.log("Received webhook data:", webhookData);
 
-      const { score, result, resumeScreenerId, candidateJson } = webhookData;
+    const { score, result, resumeScreenerId, candidateJson } = webhookData;
 
-      console.log(`Candidate score: ${score.numericScore}`);
-      console.log(`Result: ${result}`);
+    console.log(`Candidate score: ${score.numericScore}`);
+    console.log(`Result: ${result}`);
 
-      if (
-        score.experienceMatch === "strong yes" &&
-        score.locationMatch === "strong yes"
-      ) {
-        console.log("This candidate is a strong match!");
-      }
-
-      res
-        .status(200)
-        .json({ message: "Webhook received and processed successfully" });
-    } catch (error) {
-      console.error("Error processing webhook:", error);
-      res.status(500).json({ error: "Internal server error" });
+    if (
+      score.experienceMatch === "strong yes" &&
+      score.locationMatch === "strong yes"
+    ) {
+      console.log("This candidate is a strong match!");
     }
-  } else {
-    res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    return NextResponse.json(
+      { message: "Webhook received and processed successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
