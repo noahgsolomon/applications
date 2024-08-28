@@ -2,30 +2,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const webhookData = await req.json();
-
-    console.log("Received webhook data:", webhookData);
-
-    const { score, result, resumeScreenerId, candidateJson } = webhookData;
-
-    console.log(`Candidate score: ${score.numericScore}`);
-    console.log(`Result: ${result}`);
-
-    if (
-      score.experienceMatch === "strong yes" &&
-      score.locationMatch === "strong yes"
-    ) {
-      console.log("This candidate is a strong match!");
-    }
+    console.log("Received GET request");
+    console.log(req.body);
 
     return NextResponse.json(
-      { message: "Webhook received and processed successfully" },
+      { message: "GET request processed successfully" },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error processing webhook:", error);
+    console.error("Error processing GET request:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
