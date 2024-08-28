@@ -2,7 +2,7 @@ import { Box, Container, Separator, Button } from "frosted-ui";
 import WhopLogo from "./WhopLogo";
 import Link from "next/link";
 import { api } from "@/trpc/server";
-import { signOut } from "next-auth/react";
+// import { signOut } from "next-auth/react";
 import ThemeButton from "./theme-button";
 import LogoutButton from "./logout-button";
 

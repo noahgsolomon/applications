@@ -14,7 +14,7 @@ import { ZodError } from "zod";
 import { db } from "@/server/db";
 import { users } from "../db/schemas/users/schema";
 import { eq } from "drizzle-orm";
-import { getServerAuthSession } from "../auth";
+// import { getServerAuthSession } from "../auth";
 
 /**
  * 1. CONTEXT
@@ -29,11 +29,11 @@ import { getServerAuthSession } from "../auth";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await getServerAuthSession();
+  // const session = await getServerAuthSession();
 
   return {
     db,
-    session,
+    // session,
     ...opts,
   };
 };
