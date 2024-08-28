@@ -75,23 +75,23 @@ const processCompanyProfile = async (linkedinUrl: string) => {
       );
     }
 
-    const queries = [
-      `site:www.linkedin.com/in ${company.name} designer${Math.random() > 0.5 ? " " : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
-      `site:www.linkedin.com/in ${company.name} backend engineer${Math.random() > 0.5 ? " AND Ruby on Rails" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
-      `site:www.linkedin.com/in Apple software engineer${Math.random() > 0.5 ? " AND Swift" : ""}${Math.random() > 0.5 ? " AND Next.js" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
-    ];
-    for (const query of queries) {
-      const urls = await googleSearch(query);
-      console.log(
-        `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
-      );
-
-      for (let i = 0; i < urls.length; i += 10) {
-        const batch = urls.slice(i, i + 10);
-        await processUrls(batch);
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      }
-    }
+    // const queries = [
+    //   `site:www.linkedin.com/in ${company.name} designer${Math.random() > 0.5 ? " " : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+    //   `site:www.linkedin.com/in ${company.name} backend engineer${Math.random() > 0.5 ? " AND Ruby on Rails" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+    //   `site:www.linkedin.com/in Apple software engineer${Math.random() > 0.5 ? " AND Swift" : ""}${Math.random() > 0.5 ? " AND Next.js" : ""}${Math.random() > 0.5 ? " AND new york" : ""}`,
+    // ];
+    // for (const query of queries) {
+    //   const urls = await googleSearch(query);
+    //   console.log(
+    //     `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
+    //   );
+    //
+    //   for (let i = 0; i < urls.length; i += 10) {
+    //     const batch = urls.slice(i, i + 10);
+    //     await processUrls(batch);
+    //     await new Promise((resolve) => setTimeout(resolve, 3000));
+    //   }
+    // }
 
     const candidates = await db.query.candidates.findMany({
       where: eq(userSchema.candidates.companyId, company.id),
@@ -314,7 +314,8 @@ const companies = [
   // "https://www.linkedin.com/company/spcshp/",
   // "https://www.linkedin.com/company/trinetix-inc/",
   // "https://www.linkedin.com/company/designit/",
-  "https://www.linkedin.com/company/uber-com/",
+  // "https://www.linkedin.com/company/uber-com/",
+  "https://www.linkedin.com/company/ueno/",
 ];
 
 async function main() {

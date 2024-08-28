@@ -290,14 +290,15 @@ const main = async () => {
   console.log("Main process started.");
 
   const companyFiles = [
-    "youtube.json",
-    "uber.json",
-    "tiktok.json",
-    "stripe.json",
-    "facebook.json",
-    "dropbox.json",
-    "instagram.json",
-    "netflix.json",
+    // "youtube.json",
+    // "uber.json",
+    // "tiktok.json",
+    // "stripe.json",
+    // "facebook.json",
+    // "dropbox.json",
+    // "instagram.json",
+    // "netflix.json",
+    "ueno.json",
   ];
   let linkedInUrls: string[] = [];
 
@@ -314,8 +315,8 @@ const main = async () => {
     linkedInUrls = linkedInUrls.concat(urls);
   }
 
-  for (let i = 0; i < linkedInUrls.length; i += 10) {
-    const batch = linkedInUrls.slice(i, i + 10);
+  for (let i = 0; i < linkedInUrls.length; i += 20) {
+    const batch = linkedInUrls.slice(i, i + 20);
     await processUrls(batch);
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
