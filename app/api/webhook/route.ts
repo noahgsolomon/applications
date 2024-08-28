@@ -2,17 +2,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    console.log("Received GET request");
+    console.log("Received POST request");
     console.log(req.body);
 
     return NextResponse.json(
-      { message: "GET request processed successfully" },
+      { message: "POST request processed successfully" },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error processing GET request:", error);
+    console.error("Error processing POST request:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
