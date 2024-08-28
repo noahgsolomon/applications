@@ -7,7 +7,7 @@ import ThemeButton from "./theme-button";
 import LogoutButton from "./logout-button";
 
 export default async function Header() {
-  const user = await api.user.me();
+  // const user = await api.user.me();
 
   return (
     <header className="sticky top-0 backdrop-blur-lg z-10 backdrop-saturate-150">
@@ -21,21 +21,21 @@ export default async function Header() {
             <div className="flex items-center gap-4">
               <ThemeButton />
 
-              {!user?.isLoggedIn ? (
-                <>
-                  <Link href="/login">
-                    <Button
-                      className="hover:cursor-pointer"
-                      variant="classic"
-                      color="orange"
-                    >
-                      Log in
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <LogoutButton />
-              )}
+              {/* {!user?.isLoggedIn ? ( */}
+              {/*   <> */}
+              {/*     <Link href="/login"> */}
+              {/*       <Button */}
+              {/*         className="hover:cursor-pointer" */}
+              {/*         variant="classic" */}
+              {/*         color="orange" */}
+              {/*       > */}
+              {/*         Log in */}
+              {/*       </Button> */}
+              {/*     </Link> */}
+              {/*   </> */}
+              {/* ) : ( */}
+              {/*   <LogoutButton /> */}
+              {/* )} */}
             </div>
           </div>
         </Box>

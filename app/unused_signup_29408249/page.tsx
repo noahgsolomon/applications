@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { api } from "@/trpc/server";
 
 export default async function Page() {
-  const user = await api.user.me();
-  if (user.isLoggedIn) {
-    redirect("/");
-  }
+  // const user = await api.user.me();
+  // if (user.isLoggedIn) {
+  //   redirect("/");
+  // }
   return (
     <Container className="pt-36">
       <Card variant="classic" className="max-w-[95%] w-[400px] mx-auto p-4">
