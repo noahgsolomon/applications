@@ -1,18 +1,11 @@
 export const NextEnv = {
   DB_URL: process.env.DB_URL!,
-  // switch to process.env.WEBSITE! when running sst deploy
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
-  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
+  // NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
+  // NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
   PINECONE_API_KEY: process.env.PINECONE_API_KEY!,
-  // switch to DEV when running sst deploy
   MODE: process.env.MODE!,
-};
-
-export const SubscriberEnv = {
-  DB_URL: process.env.DB_URL!,
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
-  SCRAPIN_API_KEY: process.env.SCRAPIN_API_KEY!,
-  GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID!,
-  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
+  COOKD_API_KEY: process.env.COOKD_API_KEY!,
+  COOKD_RESUME_SCREENER_ID: process.env.COOKD_RESUME_SCREENER_ID!,
+  COOKD_SLUG_ID: process.env.COOKD_SLUG_ID!,
 };

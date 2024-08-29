@@ -242,10 +242,9 @@ export const outboundRouter = createTRPCRouter({
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      resumeScreenerId: "35bfc2a2-3b0b-49e4-a9c0-b441efbd328d",
-                      slugId: "fbd8b76c-b6ed-4ab4-ba20-d236d28c8df2",
-                      apiKey:
-                        "hhXj5TuFWhiLviyhESUQPHixEteSaRyJuTZjsujZVwqAlGVZgstjwtvomJV3Ghyc",
+                      resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
+                      slugId: process.env.COOKD_SLUG_ID,
+                      apiKey: process.env.COOKD_API_KEY,
                       webhookUrl:
                         "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
                       candidateJson: {
@@ -355,10 +354,9 @@ export const outboundRouter = createTRPCRouter({
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      resumeScreenerId: "35bfc2a2-3b0b-49e4-a9c0-b441efbd328d",
-                      slugId: "fbd8b76c-b6ed-4ab4-ba20-d236d28c8df2",
-                      apiKey:
-                        "hhXj5TuFWhiLviyhESUQPHixEteSaRyJuTZjsujZVwqAlGVZgstjwtvomJV3Ghyc",
+                      resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
+                      slugId: process.env.COOKD_SLUG_ID,
+                      apiKey: process.env.COOKD_API_KEY,
                       webhookUrl:
                         "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
                       candidateJson: {

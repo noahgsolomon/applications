@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: ":3",
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);

@@ -1,5 +1,5 @@
 /// <reference path="./.sst/platform/config.d.ts" />
-import { SubscriberEnv, NextEnv } from "./sst.env";
+import { NextEnv } from "./sst.env";
 
 export default $config({
   app(input) {
