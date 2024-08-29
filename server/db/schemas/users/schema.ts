@@ -128,6 +128,9 @@ export const candidates = pgTable("candidates", {
   ), // not unique until we make the matches (weight similarity and stuff json object)
   url: text("url").notNull().unique(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
+  cookdData: json("cookd_data").$type<any>().default({}),
+  cookdScore: integer("cookd_score").default(0),
+  cookdReviewed: boolean("cookd_reviewed").default(false),
   createdAt: timestamp("createdAt"),
   // will be top 5 most present on their profile atm
   topTechnologies: json("top_technologies").$type<string[]>().default([]),
