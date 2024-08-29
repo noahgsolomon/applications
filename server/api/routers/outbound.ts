@@ -236,7 +236,7 @@ export const outboundRouter = createTRPCRouter({
                   where: eq(candidates.id, candidate.id),
                 });
                 if (!candidateDB?.cookdReviewed) {
-                  await fetch("https://cookd.dev/api/score", {
+                  const response = await fetch("https://cookd.dev/api/score", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -256,6 +256,8 @@ export const outboundRouter = createTRPCRouter({
                       },
                     }),
                   });
+                  const responseBody = await response.text();
+                  console.log(responseBody);
                 }
               } catch (error) {
                 console.error(
