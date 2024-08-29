@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Text,
   Button,
@@ -16,15 +16,7 @@ import {
   Avatar,
   ScrollArea,
 } from "frosted-ui";
-import {
-  Building,
-  Building2,
-  Check,
-  Loader,
-  Pickaxe,
-  UserRoundSearch,
-  X,
-} from "lucide-react";
+import { Building2, Check, Loader, UserRoundSearch, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -32,7 +24,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
-import { api as ServerApi } from "@/trpc/server";
 import { toast } from "sonner";
 import CandidateCard from "./candidate-card";
 import { InferSelectModel } from "drizzle-orm";
