@@ -341,6 +341,46 @@ export const outboundRouter = createTRPCRouter({
             },
           });
 
+          // Make fetch request for each candidate
+          await Promise.all(
+            candidatesFiltered.map(async (candidate) => {
+              try {
+                const candidateDB = await ctx.db.query.candidates.findFirst({
+                  where: eq(candidates.id, candidate.id),
+                });
+                if (!candidateDB?.cookdReviewed) {
+                  const response = await fetch("https://cookd.dev/api/score", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      resumeScreenerId: "35bfc2a2-3b0b-49e4-a9c0-b441efbd328d",
+                      slugId: "fbd8b76c-b6ed-4ab4-ba20-d236d28c8df2",
+                      apiKey:
+                        "hhXj5TuFWhiLviyhESUQPHixEteSaRyJuTZjsujZVwqAlGVZgstjwtvomJV3Ghyc",
+                      webhookUrl:
+                        "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
+                      candidateJson: {
+                        id: candidate.id,
+                        first_name: candidate.linkedinData.firstName,
+                        last_name: candidate.linkedinData.lastName,
+                        ...candidate.linkedinData,
+                      },
+                    }),
+                  });
+                  const responseBody = await response.text();
+                  console.log(responseBody);
+                }
+              } catch (error) {
+                console.error(
+                  `Error scoring candidate ${candidate.id}:`,
+                  error,
+                );
+              }
+            }),
+          );
+
           return {
             valid: candidatesFiltered.length > 0,
             message:
