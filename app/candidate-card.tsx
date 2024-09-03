@@ -101,65 +101,11 @@ export default function CandidateCard({
               </Link>
             </div>
             {(candidate.cookdScore ?? 0) > 0 && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Badge
-                      style={{ cursor: "pointer" }}
-                      color={
-                        candidate.cookdData.result === "PASS" ? "green" : "red"
-                      }
-                    >
-                      {candidate.cookdScore ?? 0}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    className="font-normal max-w-[250px]"
-                    style={{
-                      borderColor:
-                        candidate.cookdData.result === "PASS"
-                          ? "#22c55e"
-                          : "#ef4444",
-                      borderWidth: "1px",
-                      borderStyle: "solid",
-                    }}
-                  >
-                    <div className="flex flex-col gap-2">
-                      <Badge
-                        variant="surface"
-                        color={
-                          candidate.cookdData.score?.dreamCompany === "yes"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        Dream Company
-                      </Badge>
-                      <Badge
-                        variant="surface"
-                        color={
-                          candidate.cookdData.score?.locationMatch === "yes"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        Location Match
-                      </Badge>
-                      <Badge
-                        variant="surface"
-                        color={
-                          candidate.cookdData.score?.experienceMatch === "yes"
-                            ? "green"
-                            : "red"
-                        }
-                      >
-                        Experience Match
-                      </Badge>
-                      {candidate.cookdData.score?.reasoning ?? ""}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge
+                color={candidate.cookdData.result === "PASS" ? "green" : "red"}
+              >
+                {candidate.cookdScore ?? 0}
+              </Badge>
             )}
           </div>
           <div className="flex flex-row gap-1">

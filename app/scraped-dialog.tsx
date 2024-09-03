@@ -187,9 +187,9 @@ export default function ScrapedDialog() {
 
   return (
     <>
-      <TooltipProvider delayDuration={500}>
-        <DialogRoot open={open} onOpenChange={setOpen}>
-          <DialogTrigger>
+      <DialogRoot open={open} onOpenChange={setOpen}>
+        <DialogTrigger>
+          <TooltipProvider delayDuration={500}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -205,207 +205,202 @@ export default function ScrapedDialog() {
               </TooltipTrigger>
               <TooltipContent>Search for Candidates</TooltipContent>
             </Tooltip>
-          </DialogTrigger>
-          <DialogContent
-            size="3"
-            style={{
-              maxWidth: 450,
-            }}
-          >
-            <DialogTitle>Candidate search</DialogTitle>
-            <DialogDescription>
-              Enter the details for the candidate search.
-            </DialogDescription>
-            <Flex direction="column" gap="3">
-              <label>
-                <Text as="div" mb="1" size="2" weight="bold">
-                  Search Query
-                </Text>
-                <TextFieldInput
-                  placeholder="Enter search query"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                {filters && filters.valid && filters.companies.length > 0 && (
-                  <div className="pt-2 flex flex-wrap gap-1">
-                    {filters.companies.map((company) => (
-                      <Avatar
-                        key={company.id}
-                        color="blue"
-                        size="2"
-                        fallback={company.name.charAt(0).toUpperCase()}
-                        src={company.logo ?? ""}
-                      />
-                    ))}
-                    {filters.job !== "" && (
-                      <Badge
-                        variant="surface"
-                        color="amber"
-                        className="h-[33px]"
-                      >
-                        <Building2 className="size-4" />
-                        <Text>{toPascalCase(filters.job)}</Text>
-                      </Badge>
-                    )}
-                    {filters.skills.map((skill: string) => (
-                      <Badge
-                        key={skill}
-                        variant="surface"
-                        color="blue"
-                        className="h-[33px]"
-                      >
-                        <Text>{toPascalCase(skill)}</Text>
-                      </Badge>
-                    ))}
-                    {filters.skills.length > 0 && (
-                      <Badge
-                        variant="surface"
-                        color={filters.Or ? "yellow" : "red"}
-                        className="h-[33px]"
-                      >
-                        <Text>{filters.Or ? "OR" : "AND"}</Text>
-                      </Badge>
-                    )}
-
-                    <Badge
-                      style={{ cursor: "pointer" }}
-                      className={`h-[33px]`}
-                      variant="surface"
-                      color={nearBrooklyn ? "green" : "red"}
-                      onClick={() => handleToggle("nearBrooklyn")}
-                    >
-                      {nearBrooklyn ? (
-                        <Check className="size-4 text-green-500" />
-                      ) : (
-                        <X className="size-4 text-red-500" />
-                      )}
-                      <Text>Near Brooklyn</Text>
-                    </Badge>
-
-                    <Badge
-                      style={{ cursor: "pointer" }}
-                      className={`h-[33px]`}
-                      variant="surface"
-                      color={"gray"}
-                      onClick={() => setFilters(null)}
-                    >
-                      <Text>Clear Filters</Text>
-                    </Badge>
-                  </div>
-                )}
-              </label>
-
-              {error && (
-                <Text as="div" size="2" color="red">
-                  {error}
-                </Text>
-              )}
-            </Flex>
-            <Flex gap="3" justify="end" mt="4">
-              <DialogClose>
-                <Button color="gray" variant="soft">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                disabled={loading}
-                variant="classic"
-                onClick={() => {
-                  if (
-                    filters?.valid &&
-                    filters.companies.length > 0 &&
-                    query === filters.query
-                  ) {
-                    handleSearch();
-                  } else {
-                    handleFilter();
-                  }
-                }}
-              >
-                {loading ? (
-                  <Loader className="size-4 animate-spin" />
-                ) : filters?.valid &&
-                  filters.companies.length > 0 &&
-                  query === filters.query ? (
-                  "Search"
-                ) : (
-                  "Filter"
-                )}
-              </Button>
-            </Flex>
-            {(candidateMatches || sorting) && (
-              <DialogRoot>
-                <DialogTrigger>
-                  <Button
-                    style={{ margin: "1rem 0", cursor: "pointer" }}
-                    variant="classic"
-                  >
-                    View Candidates
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle>Candidates</DialogTitle>
-                  <DialogDescription className="font-bold text-2xl italic">
-                    List of candidates sorted by weight.
-                  </DialogDescription>
-                  {candidateMatches &&
-                    candidateMatches.filter((c) => c.cookdReviewed).length <
-                      candidateMatches.length - 1 && (
-                      <Button
-                        onClick={handleSort}
-                        disabled={sorting}
-                        variant="classic"
-                        style={{ cursor: "pointer" }}
-                      >
-                        {sorting ? (
-                          <Loader className="size-4 animate-spin" />
-                        ) : (
-                          "Sort"
-                        )}
-                      </Button>
-                    )}
-                  {sorting && (
-                    <Text
-                      as="div"
-                      size="2"
+          </TooltipProvider>
+        </DialogTrigger>
+        <DialogContent
+          size="3"
+          style={{
+            maxWidth: 450,
+          }}
+        >
+          <DialogTitle>Candidate search</DialogTitle>
+          <DialogDescription>
+            Enter the details for the candidate search.
+          </DialogDescription>
+          <Flex direction="column" gap="3">
+            <label>
+              <Text as="div" mb="1" size="2" weight="bold">
+                Search Query
+              </Text>
+              <TextFieldInput
+                placeholder="Enter search query"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {filters && filters.valid && filters.companies.length > 0 && (
+                <div className="pt-2 flex flex-wrap gap-1">
+                  {filters.companies.map((company) => (
+                    <Avatar
+                      key={company.id}
                       color="blue"
-                      style={{ marginTop: "0.5rem" }}
-                    >
-                      Sorting candidates based on relevance. this will take a
-                      couple minutes...
-                    </Text>
+                      size="2"
+                      fallback={company.name.charAt(0).toUpperCase()}
+                      src={company.logo ?? ""}
+                    />
+                  ))}
+                  {filters.job !== "" && (
+                    <Badge variant="surface" color="amber" className="h-[33px]">
+                      <Building2 className="size-4" />
+                      <Text>{toPascalCase(filters.job)}</Text>
+                    </Badge>
                   )}
-                  <ScrollArea className="py-4">
-                    <Flex className="py-2" direction="column" gap="2">
-                      {candidateMatches?.length === 0
-                        ? "No matches 😲"
-                        : (sorting
-                            ? (sortedCandidateMatches ?? [])
-                            : candidateMatches
-                          )
-                            ?.sort(
-                              (a, b) =>
-                                (b.cookdScore ?? 0) - (a.cookdScore ?? 0),
-                            )
-                            .map((candidate) => (
-                              <CandidateCard
-                                key={candidate.id}
-                                candidate={candidate!}
-                                allMatchingSkills={allMatchingSkills}
-                                company={candidate.company!}
-                              />
-                            ))}
-                    </Flex>
-                  </ScrollArea>
-                  <DialogClose>
-                    <Button variant="classic">Close</Button>
-                  </DialogClose>
-                </DialogContent>
-              </DialogRoot>
+                  {filters.skills.map((skill: string) => (
+                    <Badge
+                      key={skill}
+                      variant="surface"
+                      color="blue"
+                      className="h-[33px]"
+                    >
+                      <Text>{toPascalCase(skill)}</Text>
+                    </Badge>
+                  ))}
+                  {filters.skills.length > 0 && (
+                    <Badge
+                      variant="surface"
+                      color={filters.Or ? "yellow" : "red"}
+                      className="h-[33px]"
+                    >
+                      <Text>{filters.Or ? "OR" : "AND"}</Text>
+                    </Badge>
+                  )}
+
+                  <Badge
+                    style={{ cursor: "pointer" }}
+                    className={`h-[33px]`}
+                    variant="surface"
+                    color={nearBrooklyn ? "green" : "red"}
+                    onClick={() => handleToggle("nearBrooklyn")}
+                  >
+                    {nearBrooklyn ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : (
+                      <X className="size-4 text-red-500" />
+                    )}
+                    <Text>Near Brooklyn</Text>
+                  </Badge>
+
+                  <Badge
+                    style={{ cursor: "pointer" }}
+                    className={`h-[33px]`}
+                    variant="surface"
+                    color={"gray"}
+                    onClick={() => setFilters(null)}
+                  >
+                    <Text>Clear Filters</Text>
+                  </Badge>
+                </div>
+              )}
+            </label>
+
+            {error && (
+              <Text as="div" size="2" color="red">
+                {error}
+              </Text>
             )}
-          </DialogContent>
-        </DialogRoot>
-      </TooltipProvider>
+          </Flex>
+          <Flex gap="3" justify="end" mt="4">
+            <DialogClose>
+              <Button color="gray" variant="soft">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={loading}
+              variant="classic"
+              onClick={() => {
+                if (
+                  filters?.valid &&
+                  filters.companies.length > 0 &&
+                  query === filters.query
+                ) {
+                  handleSearch();
+                } else {
+                  handleFilter();
+                }
+              }}
+            >
+              {loading ? (
+                <Loader className="size-4 animate-spin" />
+              ) : filters?.valid &&
+                filters.companies.length > 0 &&
+                query === filters.query ? (
+                "Search"
+              ) : (
+                "Filter"
+              )}
+            </Button>
+          </Flex>
+          {(candidateMatches || sorting) && (
+            <DialogRoot>
+              <DialogTrigger>
+                <Button
+                  style={{ margin: "1rem 0", cursor: "pointer" }}
+                  variant="classic"
+                >
+                  View Candidates
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Candidates</DialogTitle>
+                <DialogDescription className="font-bold text-2xl italic">
+                  List of candidates sorted by weight.
+                </DialogDescription>
+                {candidateMatches &&
+                  candidateMatches.filter((c) => c.cookdReviewed).length <
+                    candidateMatches.length - 1 && (
+                    <Button
+                      onClick={handleSort}
+                      disabled={sorting}
+                      variant="classic"
+                      style={{ cursor: "pointer" }}
+                    >
+                      {sorting ? (
+                        <Loader className="size-4 animate-spin" />
+                      ) : (
+                        "Sort"
+                      )}
+                    </Button>
+                  )}
+                {sorting && (
+                  <Text
+                    as="div"
+                    size="2"
+                    color="blue"
+                    style={{ marginTop: "0.5rem" }}
+                  >
+                    Sorting candidates based on relevance. this will take a
+                    couple minutes...
+                  </Text>
+                )}
+                <ScrollArea className="py-4">
+                  <Flex className="py-2" direction="column" gap="2">
+                    {candidateMatches?.length === 0
+                      ? "No matches 😲"
+                      : (sorting
+                          ? (sortedCandidateMatches ?? [])
+                          : candidateMatches
+                        )
+                          ?.sort(
+                            (a, b) => (b.cookdScore ?? 0) - (a.cookdScore ?? 0),
+                          )
+                          .map((candidate) => (
+                            <CandidateCard
+                              key={candidate.id}
+                              candidate={candidate!}
+                              allMatchingSkills={allMatchingSkills}
+                              company={candidate.company!}
+                            />
+                          ))}
+                  </Flex>
+                </ScrollArea>
+                <DialogClose>
+                  <Button variant="classic">Close</Button>
+                </DialogClose>
+              </DialogContent>
+            </DialogRoot>
+          )}
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 }
