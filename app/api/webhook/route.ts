@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
   try {
     console.log("Received POST request");
     const bodyText = await req.text();
+    console.log(`bodyText: ${bodyText}`);
 
     let id: string;
     let cookdData: { score: any; result: string; resumeScreenerId: string };
