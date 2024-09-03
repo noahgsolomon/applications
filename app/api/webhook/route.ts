@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         result: bodyJson.result,
         resumeScreenerId: bodyJson.resumeScreenerId,
       };
-      cookdScore = Number(bodyJson.score.numericScore);
+      cookdScore = Number(bodyJson.score.numericScore.score);
 
       await db
         .update(userSchema.candidates)
