@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Text,
   Button,
@@ -46,12 +46,20 @@ const toPascalCase = (str: string) => {
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
+  const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
   const [candidateMatches, setCandidateMatches] = useState<
+    | (InferSelectModel<typeof candidates> & {
+        company?: InferSelectModel<typeof companyTable> | null;
+      })[]
+    | null
+  >(null);
+
+  const [sortedCandidateMatches, setSortedCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
         company?: InferSelectModel<typeof companyTable> | null;
       })[]
@@ -73,6 +81,31 @@ export default function ScrapedDialog() {
         toast.error("Internal server error");
       },
     });
+
+  // const sendCookdScoringRequestMutation =
+  //   api.outbound.sendCookdScoringRequest.useMutation({});
+
+  const pollCookdScoringRequestQuery =
+    api.outbound.pollCookdScoringRequest.useQuery(
+      { ids: candidateMatches?.map((c) => c.id) ?? [] },
+      {
+        enabled: sorting,
+        refetchInterval: 10000,
+      },
+    );
+
+  useEffect(() => {
+    if (pollCookdScoringRequestQuery.data) {
+      console.log("poll query", pollCookdScoringRequestQuery.data.length);
+      const data = pollCookdScoringRequestQuery.data;
+      setSortedCandidateMatches(data);
+      if (data.length >= (candidateMatches?.length ?? 0) - 1) {
+        setSorting(false);
+        setCandidateMatches(data);
+        setSortedCandidateMatches(null);
+      }
+    }
+  }, [pollCookdScoringRequestQuery.data, candidateMatches]);
 
   const handleToggle = (type: "nearBrooklyn" | "searchInternet") => {
     if (type === "nearBrooklyn") {
@@ -131,6 +164,25 @@ export default function ScrapedDialog() {
       nearBrooklyn,
       Or: filters?.Or,
     });
+  };
+
+  const handleSort = () => {
+    const unreviewedCandidates =
+      candidateMatches?.filter((c) => !c.cookdReviewed) ?? [];
+    if (
+      candidateMatches &&
+      candidateMatches.length > unreviewedCandidates.length &&
+      !sorting
+    ) {
+      setSorting(true);
+      setSortedCandidateMatches(
+        candidateMatches?.filter((c) => c.cookdReviewed),
+      );
+      // actually wait we optimistically do this in the filtered candidates endpoint
+      // sendCookdScoringRequestMutation.mutate({
+      //   ids: unreviewedCandidates.map((c) => c.id),
+      // });
+    }
   };
 
   return (
@@ -207,35 +259,8 @@ export default function ScrapedDialog() {
                     ))}
                     {filters.skills.length > 0 && (
                       <Badge
-                        // onClick={() => {
-                        //   if (filters) {
-                        //     setFilters(
-                        //       //@ts-ignore
-                        //       (prev: CompanyFilterReturnType | null) => {
-                        //         if (prev) {
-                        //           return {
-                        //             ...prev,
-                        //             Or: !prev.Or,
-                        //           };
-                        //         } else {
-                        //           return {
-                        //             valid: false,
-                        //             message: "",
-                        //             companies: [],
-                        //             relevantRole: undefined,
-                        //             job: "",
-                        //             skills: [],
-                        //             Or: true,
-                        //             query: undefined,
-                        //           };
-                        //         }
-                        //       },
-                        //     );
-                        //   }
-                        // }}
                         variant="surface"
                         color={filters.Or ? "yellow" : "red"}
-                        // style={{ cursor: "pointer" }}
                         className="h-[33px]"
                       >
                         <Text>{filters.Or ? "OR" : "AND"}</Text>
@@ -308,7 +333,7 @@ export default function ScrapedDialog() {
                 )}
               </Button>
             </Flex>
-            {candidateMatches && (
+            {(candidateMatches || sorting) && (
               <DialogRoot>
                 <DialogTrigger>
                   <Button
@@ -323,18 +348,53 @@ export default function ScrapedDialog() {
                   <DialogDescription className="font-bold text-2xl italic">
                     List of candidates sorted by weight.
                   </DialogDescription>
+                  {candidateMatches &&
+                    candidateMatches.filter((c) => c.cookdReviewed).length <
+                      candidateMatches.length - 1 && (
+                      <Button
+                        onClick={handleSort}
+                        disabled={sorting}
+                        variant="classic"
+                        style={{ cursor: "pointer" }}
+                      >
+                        {sorting ? (
+                          <Loader className="size-4 animate-spin" />
+                        ) : (
+                          "Sort"
+                        )}
+                      </Button>
+                    )}
+                  {sorting && (
+                    <Text
+                      as="div"
+                      size="2"
+                      color="blue"
+                      style={{ marginTop: "0.5rem" }}
+                    >
+                      Sorting candidates based on relevance. this will take a
+                      couple minutes...
+                    </Text>
+                  )}
                   <ScrollArea className="py-4">
                     <Flex className="py-2" direction="column" gap="2">
-                      {candidateMatches.length === 0
+                      {candidateMatches?.length === 0
                         ? "No matches 😲"
-                        : candidateMatches.map((candidate) => (
-                            <CandidateCard
-                              key={candidate.id}
-                              candidate={candidate!}
-                              allMatchingSkills={allMatchingSkills}
-                              company={candidate.company!}
-                            />
-                          ))}
+                        : (sorting
+                            ? (sortedCandidateMatches ?? [])
+                            : candidateMatches
+                          )
+                            ?.sort(
+                              (a, b) =>
+                                (b.cookdScore ?? 0) - (a.cookdScore ?? 0),
+                            )
+                            .map((candidate) => (
+                              <CandidateCard
+                                key={candidate.id}
+                                candidate={candidate!}
+                                allMatchingSkills={allMatchingSkills}
+                                company={candidate.company!}
+                              />
+                            ))}
                     </Flex>
                   </ScrollArea>
                   <DialogClose>

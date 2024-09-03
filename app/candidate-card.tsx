@@ -28,11 +28,33 @@ export default function CandidateCard({
   company?: InferSelectModel<typeof companyTable>;
 }) {
   return (
-    <Card>
-      <div className="flex flex-row  gap-2 pb-4">
+    <Card
+      style={{
+        borderColor: candidate.cookdReviewed
+          ? candidate.cookdData.result === "PASS"
+            ? "#22c55e"
+            : "#ef4444"
+          : undefined,
+        borderWidth: candidate.cookdReviewed
+          ? candidate.cookdData.result === "PASS"
+            ? "1px"
+            : "1px"
+          : undefined,
+        borderStyle: candidate.cookdReviewed
+          ? candidate.cookdData.result === "PASS"
+            ? "solid"
+            : "solid"
+          : undefined,
+        backgroundColor: candidate.cookdReviewed
+          ? candidate.cookdData.result === "PASS"
+            ? "rgba(34, 197, 94, 0.1)"
+            : "rgba(239, 68, 68, 0.1)"
+          : undefined,
+      }}
+    >
+      <div className="flex flex-row gap-2 pb-4">
         <div>
           <div className="relative">
-            {" "}
             <Avatar
               size={"5"}
               color="blue"
@@ -62,20 +84,83 @@ export default function CandidateCard({
           </div>
         </div>
         <div className="flex flex-col ">
-          <div className="flex flex-row gap-2 items-center">
-            <Heading>
-              {candidate.linkedinData.firstName +
-                " " +
-                candidate.linkedinData.lastName}
-            </Heading>
-            <Link
-              href={candidate.url!}
-              target="_blank"
-              className="cursor-pointer"
-              key={candidate.id}
-            >
-              <SquareArrowOutUpRight className="size-4" />
-            </Link>
+          <div className="flex flex-row gap-2 items-center justify-between">
+            <div className="flex flex-row gap-2 items-center">
+              <Heading>
+                {candidate.linkedinData.firstName +
+                  " " +
+                  candidate.linkedinData.lastName}
+              </Heading>
+              <Link
+                href={candidate.url!}
+                target="_blank"
+                className="cursor-pointer"
+                key={candidate.id}
+              >
+                <SquareArrowOutUpRight className="size-4" />
+              </Link>
+            </div>
+            {(candidate.cookdScore ?? 0) > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      color={
+                        candidate.cookdData.result === "PASS" ? "green" : "red"
+                      }
+                    >
+                      {candidate.cookdScore ?? 0}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="font-normal max-w-[250px]"
+                    style={{
+                      borderColor:
+                        candidate.cookdData.result === "PASS"
+                          ? "#22c55e"
+                          : "#ef4444",
+                      borderWidth: "1px",
+                      borderStyle: "solid",
+                    }}
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Badge
+                        variant="surface"
+                        color={
+                          candidate.cookdData.score?.dreamCompany === "yes"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        Dream Company
+                      </Badge>
+                      <Badge
+                        variant="surface"
+                        color={
+                          candidate.cookdData.score?.locationMatch === "yes"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        Location Match
+                      </Badge>
+                      <Badge
+                        variant="surface"
+                        color={
+                          candidate.cookdData.score?.experienceMatch === "yes"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        Experience Match
+                      </Badge>
+                      {candidate.cookdData.score?.reasoning ?? ""}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
           <div className="flex flex-row gap-1">
             <Text>
