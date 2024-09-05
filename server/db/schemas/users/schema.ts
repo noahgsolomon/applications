@@ -3,6 +3,7 @@ import {
   boolean,
   integer,
   json,
+  jsonb,
   pgEnum,
   pgTable,
   real,
@@ -258,3 +259,36 @@ export const company = pgTable("company", {
 export const companyRelations = relations(company, ({ many }) => ({
   candidates: many(candidates),
 }));
+
+export const githubUsers = pgTable("github_users", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  name: varchar("name", { length: 255 }),
+  login: varchar("login", { length: 255 }).notNull().unique(),
+  followers: integer("followers").notNull(),
+  following: integer("following").notNull(),
+  followerToFollowingRatio: real("follower_to_following_ratio"),
+  contributionYears: jsonb("contribution_years").$type<number[]>(),
+  totalCommits: integer("total_commit_contributions").notNull(),
+  restrictedContributions: integer("restricted_contributions").notNull(),
+  totalRepositories: integer("total_repositories").notNull(),
+  totalStars: integer("total_stars").notNull(),
+  totalForks: integer("total_forks").notNull(),
+  languages:
+    jsonb("languages").$type<
+      Record<string, { repoCount: number; stars: number }>
+    >(),
+  uniqueTopics: jsonb("unique_topics").$type<string[]>(),
+  externalContributions: integer("external_contributions").notNull(),
+  totalExternalCommits: integer("total_external_commits").notNull(),
+  sponsorsCount: integer("sponsors_count").notNull(),
+  sponsoredProjects: jsonb("sponsored_projects").$type<string[]>(),
+  organizations: jsonb("organizations").$type<
+    Array<{
+      name: string;
+      login: string;
+      description: string;
+      membersCount: number;
+    }>
+  >(),
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -1,0 +1,1388 @@
+[
+  {
+    "name": "Søren Bramer Schmidt",
+    "login": "sorenbs",
+    "followers": 265,
+    "following": 10,
+    "followerToFollowingRatio": "26.50",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012,
+      2011,
+      2010
+    ],
+    "totalCommits": 85,
+    "restrictedContributions": 28,
+    "totalRepositories": 17,
+    "totalStars": 93,
+    "totalForks": 35,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 11,
+          "stars": 54
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 4,
+          "stars": 35
+        }
+      ],
+      [
+        "Shell",
+        {
+          "repoCount": 1,
+          "stars": 2
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 2,
+    "totalExternalCommits": 13,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "craftyjs",
+        "login": "craftyjs",
+        "description": null,
+        "membersCount": 5
+      },
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      },
+      {
+        "name": "GraphQL Boilerplates (UNMAINTAINED)",
+        "login": "graphql-boilerplates",
+        "description": "Collection of production-ready GraphQL boilerplate projects",
+        "membersCount": 5
+      }
+    ]
+  },
+  {
+    "name": "Serhii Tatarintsev",
+    "login": "SevInf",
+    "followers": 76,
+    "following": 8,
+    "followerToFollowingRatio": "9.50",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012,
+      2011
+    ],
+    "totalCommits": 887,
+    "restrictedContributions": 0,
+    "totalRepositories": 40,
+    "totalStars": 73,
+    "totalForks": 10,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 23,
+          "stars": 15
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 5,
+          "stars": 34
+        }
+      ],
+      [
+        "Vim Script",
+        {
+          "repoCount": 3,
+          "stars": 3
+        }
+      ],
+      [
+        "Rust",
+        {
+          "repoCount": 2,
+          "stars": 4
+        }
+      ],
+      [
+        "ActionScript",
+        {
+          "repoCount": 1,
+          "stars": 8
+        }
+      ],
+      [
+        "Objective-C",
+        {
+          "repoCount": 1,
+          "stars": 6
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 1,
+          "stars": 3
+        }
+      ],
+      [
+        "Nix",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "modules",
+      "hmr",
+      "hot-module-replacement",
+      "es6",
+      "es2015"
+    ],
+    "externalContributions": 11,
+    "totalExternalCommits": 308,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "GoodNamesAreTaken",
+        "login": "GoodNamesAreTaken",
+        "description": null,
+        "membersCount": 2
+      },
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Johannes Schickling",
+    "login": "schickling",
+    "followers": 2010,
+    "following": 68,
+    "followerToFollowingRatio": "29.56",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012
+    ],
+    "totalCommits": 2138,
+    "restrictedContributions": 1979,
+    "totalRepositories": 69,
+    "totalStars": 16340,
+    "totalForks": 1390,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 22,
+          "stars": 596
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 14,
+          "stars": 13427
+        }
+      ],
+      [
+        "PHP",
+        {
+          "repoCount": 5,
+          "stars": 647
+        }
+      ],
+      [
+        "Swift",
+        {
+          "repoCount": 4,
+          "stars": 248
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 4,
+          "stars": 0
+        }
+      ],
+      [
+        "Rust",
+        {
+          "repoCount": 3,
+          "stars": 128
+        }
+      ],
+      [
+        "Shell",
+        {
+          "repoCount": 2,
+          "stars": 837
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 2,
+          "stars": 260
+        }
+      ],
+      [
+        "Nix",
+        {
+          "repoCount": 1,
+          "stars": 64
+        }
+      ],
+      [
+        "Vim Script",
+        {
+          "repoCount": 1,
+          "stars": 40
+        }
+      ],
+      [
+        "Go",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "TeX",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "Ruby",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "serverless",
+      "integration-testing",
+      "headless-chrome",
+      "headless",
+      "graphcool",
+      "nightmarejs",
+      "selenium",
+      "chrome",
+      "swift",
+      "device-detection",
+      "ios",
+      "ui-device",
+      "dotfiles",
+      "nix",
+      "zipcode",
+      "maps",
+      "location",
+      "google-maps",
+      "geocoding",
+      "country",
+      "city"
+    ],
+    "externalContributions": 11,
+    "totalExternalCommits": 72,
+    "sponsorsCount": 46,
+    "sponsoredProjects": [
+      "awesomekling",
+      "Borewit"
+    ],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      },
+      {
+        "name": "TS Plus",
+        "login": "ts-plus",
+        "description": "A set of extensions for the TypeScript language to enhance DX by leveraging the type-system to its full power",
+        "membersCount": 2
+      }
+    ]
+  },
+  {
+    "name": "Marcus Böhm",
+    "login": "mavilein",
+    "followers": 84,
+    "following": 0,
+    "followerToFollowingRatio": 84,
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012
+    ],
+    "totalCommits": 425,
+    "restrictedContributions": 419,
+    "totalRepositories": 9,
+    "totalStars": 4,
+    "totalForks": 5,
+    "languages": [
+      [
+        "Scala",
+        {
+          "repoCount": 5,
+          "stars": 0
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 1,
+          "stars": 3
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "Rust",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 2,
+    "totalExternalCommits": 3,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Nikolas",
+    "login": "nikolasburk",
+    "followers": 764,
+    "following": 0,
+    "followerToFollowingRatio": 764,
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013
+    ],
+    "totalCommits": 663,
+    "restrictedContributions": 0,
+    "totalRepositories": 103,
+    "totalStars": 469,
+    "totalForks": 162,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 39,
+          "stars": 278
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 36,
+          "stars": 125
+        }
+      ],
+      [
+        "Swift",
+        {
+          "repoCount": 7,
+          "stars": 7
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 3,
+          "stars": 1
+        }
+      ],
+      [
+        "TSQL",
+        {
+          "repoCount": 1,
+          "stars": 7
+        }
+      ],
+      [
+        "Haskell",
+        {
+          "repoCount": 1,
+          "stars": 4
+        }
+      ],
+      [
+        "C",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "relay",
+      "react",
+      "graphql",
+      "todomvc"
+    ],
+    "externalContributions": 13,
+    "totalExternalCommits": 318,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Jon Harrell",
+    "login": "jharrell",
+    "followers": 24,
+    "following": 8,
+    "followerToFollowingRatio": "3.00",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013
+    ],
+    "totalCommits": 795,
+    "restrictedContributions": 56,
+    "totalRepositories": 21,
+    "totalStars": 6,
+    "totalForks": 4,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 11,
+          "stars": 3
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 3,
+          "stars": 0
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "PHP",
+        {
+          "repoCount": 1,
+          "stars": 2
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "Elixir",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 13,
+    "totalExternalCommits": 230,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Alexey Orlenko",
+    "login": "aqrln",
+    "followers": 320,
+    "following": 254,
+    "followerToFollowingRatio": "1.26",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013
+    ],
+    "totalCommits": 1842,
+    "restrictedContributions": 929,
+    "totalRepositories": 46,
+    "totalStars": 39,
+    "totalForks": 9,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 14,
+          "stars": 8
+        }
+      ],
+      [
+        "Rust",
+        {
+          "repoCount": 9,
+          "stars": 3
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 5,
+          "stars": 1
+        }
+      ],
+      [
+        "Ruby",
+        {
+          "repoCount": 3,
+          "stars": 1
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 3,
+          "stars": 0
+        }
+      ],
+      [
+        "C",
+        {
+          "repoCount": 2,
+          "stars": 18
+        }
+      ],
+      [
+        "Haskell",
+        {
+          "repoCount": 2,
+          "stars": 2
+        }
+      ],
+      [
+        "Shell",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "Nix",
+        {
+          "repoCount": 1,
+          "stars": 4
+        }
+      ],
+      [
+        "Java",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "Jupyter Notebook",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "dotfiles",
+      "config",
+      "vimrc",
+      "tmux-conf",
+      "2048",
+      "haskell",
+      "gitbook",
+      "documentation",
+      "documentation-tool",
+      "cli"
+    ],
+    "externalContributions": 11,
+    "totalExternalCommits": 195,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Nix/Nixpkgs/NixOS",
+        "login": "NixOS",
+        "description": "",
+        "membersCount": 1027
+      },
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      },
+      {
+        "name": "Metarhia",
+        "login": "metarhia",
+        "description": "Enterprise technology stack for Node.js private clouds",
+        "membersCount": 63
+      },
+      {
+        "name": "Node-API (N-API) for Rust",
+        "login": "napi-rs",
+        "description": "High-level and typesafe Node.js Node-API (N-API) bindings for Rust",
+        "membersCount": 3
+      }
+    ]
+  },
+  {
+    "name": "Luan van der Westhuizen",
+    "login": "luanvdw",
+    "followers": 31,
+    "following": 69,
+    "followerToFollowingRatio": "0.45",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014
+    ],
+    "totalCommits": 260,
+    "restrictedContributions": 191,
+    "totalRepositories": 20,
+    "totalStars": 6,
+    "totalForks": 3,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 19,
+          "stars": 5
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 5,
+    "totalExternalCommits": 25,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Alexander Polanco",
+    "login": "apolanc",
+    "followers": 18,
+    "following": 19,
+    "followerToFollowingRatio": "0.95",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014
+    ],
+    "totalCommits": 357,
+    "restrictedContributions": 333,
+    "totalRepositories": 3,
+    "totalStars": 2,
+    "totalForks": 0,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 2,
+          "stars": 2
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 3,
+    "totalExternalCommits": 8,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Tatiana Inama",
+    "login": "tatianainama",
+    "followers": 22,
+    "following": 1,
+    "followerToFollowingRatio": "22.00",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014
+    ],
+    "totalCommits": 1091,
+    "restrictedContributions": 1040,
+    "totalRepositories": 16,
+    "totalStars": 7,
+    "totalForks": 0,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 9,
+          "stars": 3
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 2,
+          "stars": 2
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 2,
+          "stars": 2
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "C++",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 2,
+    "totalExternalCommits": 8,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Nurul Sundarani",
+    "login": "nurul3101",
+    "followers": 91,
+    "following": 261,
+    "followerToFollowingRatio": "0.35",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015
+    ],
+    "totalCommits": 86,
+    "restrictedContributions": 2,
+    "totalRepositories": 49,
+    "totalStars": 19,
+    "totalForks": 2,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 23,
+          "stars": 7
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 13,
+          "stars": 6
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "Java",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "Objective-C",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 5,
+    "totalExternalCommits": 15,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Igal Klebanov",
+    "login": "igalklebanov",
+    "followers": 100,
+    "following": 296,
+    "followerToFollowingRatio": "0.34",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015
+    ],
+    "totalCommits": 2406,
+    "restrictedContributions": 1546,
+    "totalRepositories": 5,
+    "totalStars": 88,
+    "totalForks": 3,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 3,
+          "stars": 87
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "kysely",
+      "kysely-dialect",
+      "query-builder",
+      "sql",
+      "surrealdb",
+      "surrealdb-driver",
+      "type-safe",
+      "typescript",
+      "angular2",
+      "nodejs",
+      "node-js",
+      "expressjs",
+      "express-js",
+      "mongodb",
+      "mongoosejs",
+      "mongoose-js",
+      "javascript"
+    ],
+    "externalContributions": 13,
+    "totalExternalCommits": 690,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      },
+      {
+        "name": "Kysely",
+        "login": "kysely-org",
+        "description": "Makers of the type-safe sql query builder of the same name.",
+        "membersCount": 2
+      },
+      {
+        "name": "Qwik Dev",
+        "login": "QwikDev",
+        "description": "Home of Qwik Projects",
+        "membersCount": 7
+      }
+    ]
+  },
+  {
+    "name": "Matthias Oertel",
+    "login": "do4gr",
+    "followers": 73,
+    "following": 0,
+    "followerToFollowingRatio": 73,
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015
+    ],
+    "totalCommits": 374,
+    "restrictedContributions": 368,
+    "totalRepositories": 16,
+    "totalStars": 5,
+    "totalForks": 3,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 5,
+          "stars": 2
+        }
+      ],
+      [
+        "Rust",
+        {
+          "repoCount": 3,
+          "stars": 0
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 2,
+          "stars": 1
+        }
+      ],
+      [
+        "Java",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "Shell",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 2,
+    "totalExternalCommits": 2,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "pierre",
+    "login": "millsp",
+    "followers": 501,
+    "following": 417,
+    "followerToFollowingRatio": "1.20",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016
+    ],
+    "totalCommits": 1673,
+    "restrictedContributions": 1207,
+    "totalRepositories": 24,
+    "totalStars": 6897,
+    "totalForks": 176,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 11,
+          "stars": 6811
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 10,
+          "stars": 59
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "typescript",
+      "types",
+      "typescript-library",
+      "type-checking",
+      "dynamic-types",
+      "type-utilities",
+      "type-safety",
+      "utility",
+      "safety",
+      "medium",
+      "javascript",
+      "educational",
+      "theme",
+      "typedoc"
+    ],
+    "externalContributions": 8,
+    "totalExternalCommits": 144,
+    "sponsorsCount": 2,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      }
+    ]
+  },
+  {
+    "name": "Flavian Desverne",
+    "login": "Weakky",
+    "followers": 132,
+    "following": 0,
+    "followerToFollowingRatio": 132,
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017
+    ],
+    "totalCommits": 355,
+    "restrictedContributions": 89,
+    "totalRepositories": 30,
+    "totalStars": 456,
+    "totalForks": 111,
+    "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 13,
+          "stars": 444
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 5,
+          "stars": 3
+        }
+      ],
+      [
+        "Visual Basic",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "C++",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "Makefile",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ],
+      [
+        "PHP",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "Java",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "prisma",
+      "ecommerce",
+      "react",
+      "boilerplate",
+      "react-native",
+      "backoffice",
+      "graphql",
+      "shop",
+      "fullstack",
+      "react-admin",
+      "graphcms",
+      "opencrud",
+      "zappy",
+      "epitech",
+      "javascript",
+      "reactjs",
+      "reactnative",
+      "meetup",
+      "aperoweb",
+      "draw",
+      "something",
+      "multiplayer"
+    ],
+    "externalContributions": 4,
+    "totalExternalCommits": 64,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Prisma",
+        "login": "prisma",
+        "description": "Prisma makes working with databases easy",
+        "membersCount": 15
+      },
+      {
+        "name": "GraphQL Nexus",
+        "login": "graphql-nexus",
+        "description": "Code First Type Safe GraphQL Schemas",
+        "membersCount": 2
+      }
+    ]
+  }
+]

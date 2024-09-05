@@ -1,17 +1,103 @@
 import { graphql } from "@octokit/graphql";
 import * as dotenv from "dotenv";
+import fs from "fs";
+import * as userSchema from "../server/db/schemas/users/schema";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
 
 dotenv.config({ path: "../.env" });
+
+dotenv.config({ path: "../.env" });
+
+const connection = neon(process.env.DB_URL!);
+const db = drizzle(connection, {
+  schema: {
+    ...userSchema,
+  },
+});
+
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_TOKEN) {
   throw new Error("GitHub token is required in .env file");
 }
 
+const organizations = [
+  "figma",
+  "planetscale",
+  "postmanlabs",
+  "auth0",
+  "netlify",
+  "launchdarkly",
+  "hasura",
+  "plaid",
+  "vercel",
+  "Airtable",
+  "segmentio",
+  "linear",
+  "tailscale",
+  "prisma",
+  "clerkinc",
+  "replit",
+  "circleci",
+  "zapier",
+  "renderinc",
+  "supabase",
+  "PostHog",
+  "tryretool",
+  "storyblok",
+  "getsentry",
+  "muxinc",
+  "coinbase",
+  "revolut-engineering",
+  "monzo",
+];
+
+const fetchOrganizationMembers = async (orgName: string) => {
+  const query = `
+    query($orgName: String!, $cursor: String) {
+      organization(login: $orgName) {
+        membersWithRole(first: 100, after: $cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            login
+          }
+        }
+      }
+    }
+  `;
+
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const members: string[] = [];
+
+  while (hasNextPage) {
+    const result: any = await graphql<any>({
+      query,
+      orgName,
+      cursor,
+      headers: {
+        authorization: `Bearer ${GITHUB_TOKEN}`,
+      },
+    });
+
+    const { nodes, pageInfo } = result.organization.membersWithRole;
+    members.push(...nodes.map((node: any) => node.login));
+    hasNextPage = pageInfo.hasNextPage;
+    cursor = pageInfo.endCursor;
+  }
+
+  return members;
+};
+
 const fetchUserDetails = async (username: string) => {
   const query = `
     query($login: String!) {
       user(login: $login) {
+        login
         name
         followers {
           totalCount
@@ -59,12 +145,6 @@ const fetchUserDetails = async (username: string) => {
               name
             }
             description
-            collaborators(first: 10) {
-              totalCount
-              nodes {
-                login
-              }
-            }
             repositoryTopics(first: 10) {
               nodes {
                 topic {
@@ -76,7 +156,9 @@ const fetchUserDetails = async (username: string) => {
         }
         contributionsCollection {
           contributionYears
-          totalCommitContributions
+          contributionCalendar {
+            totalContributions
+          }
           restrictedContributionsCount
           commitContributionsByRepository(maxRepositories: 100) {
             contributions {
@@ -112,157 +194,189 @@ const fetchUserDetails = async (username: string) => {
       },
     });
 
-    const user = result.user;
-
-    // Followers to Following Ratio
-    const followers = user.followers.totalCount;
-    const following = user.following.totalCount;
-    const followerToFollowingRatio =
-      following === 0 ? followers : (followers / following).toFixed(2);
-
-    console.log(`Name: ${user.name}`);
-    console.log(`Followers: ${followers}`);
-    console.log(`Following: ${following}`);
-    console.log(`Followers to Following Ratio: ${followerToFollowingRatio}`);
-    console.log(
-      "Contribution Years:",
-      user.contributionsCollection.contributionYears,
-    );
-    console.log(
-      "Total Commit Contributions:",
-      user.contributionsCollection.totalCommitContributions,
-    );
-    console.log(
-      "Restricted (Private) Contributions:",
-      user.contributionsCollection.restrictedContributionsCount,
-    );
-
-    let totalStars = 0;
-    let totalForks = 0;
-    const languagesMap: {
-      [language: string]: { repoCount: number; stars: number };
-    } = {};
-    const contributors: string[] = [];
-    const topics: string[] = [];
-
-    // Collect repository data
-    user.repositories.nodes.forEach((repo: any) => {
-      totalStars += repo.stargazerCount;
-      totalForks += repo.forkCount;
-
-      if (repo.primaryLanguage) {
-        const language = repo.primaryLanguage.name;
-        if (languagesMap[language]) {
-          languagesMap[language].repoCount += 1;
-          languagesMap[language].stars += repo.stargazerCount;
-        } else {
-          languagesMap[language] = { repoCount: 1, stars: repo.stargazerCount };
-        }
-      }
-
-      // Collaborators
-      repo.collaborators.nodes.forEach((collaborator: any) => {
-        if (!contributors.includes(collaborator.login)) {
-          contributors.push(collaborator.login);
-        }
-      });
-
-      // Repository Topics
-      repo.repositoryTopics.nodes.forEach((topic: any) => {
-        if (!topics.includes(topic.topic.name)) {
-          topics.push(topic.topic.name);
-        }
-      });
-    });
-
-    console.log(`\nTotal Repositories: ${user.repositories.totalCount}`);
-    console.log(`Total Stars: ${totalStars}`);
-    console.log(`Total Forks: ${totalForks}`);
-
-    console.log("\nMost Popular Technologies Used:");
-    const sortedLanguages = Object.entries(languagesMap).sort(
-      (a, b) => b[1].repoCount - a[1].repoCount,
-    );
-    sortedLanguages.forEach(([language, data]) => {
-      console.log(
-        `${language}: ${data.repoCount} repo(s) (${data.stars} stars)`,
-      );
-    });
-
-    console.log("\nUnique Contributors:");
-    contributors.forEach((contributor) => {
-      console.log(`- ${contributor}`);
-    });
-
-    console.log("\nUnique Topics:");
-    topics.forEach((topic) => {
-      console.log(`- ${topic}`);
-    });
-
-    console.log("\nContributions to Repositories Not Owned:");
-    const externalContributions =
-      user.contributionsCollection.commitContributionsByRepository
-        .filter((repo: any) => repo.repository.owner.login !== username)
-        .sort(
-          (a: any, b: any) =>
-            b.contributions.totalCount - a.contributions.totalCount,
-        );
-
-    externalContributions.forEach((repo: any) => {
-      console.log(
-        `Repository: ${repo.repository.owner.login}/${repo.repository.name}`,
-      );
-      console.log(`Commits: ${repo.contributions.totalCount}`);
-      console.log(`Stars: ${repo.repository.stargazerCount}`);
-      console.log(`Private: ${repo.repository.isPrivate}`);
-      if (repo.repository.owner.__typename === "Organization") {
-        console.log(`Organization Name: ${repo.repository.owner.name}`);
-        console.log(
-          `Organization Description: ${repo.repository.owner.description || "N/A"}`,
-        );
-        console.log(
-          `Organization Members: ${repo.repository.owner.membersWithRole.totalCount}`,
-        );
-      }
-      console.log("---");
-    });
-
-    console.log(
-      `\nTotal External Repositories Contributed To: ${externalContributions.length}`,
-    );
-    const totalExternalCommits = externalContributions.reduce(
-      (sum: number, repo: any) => sum + repo.contributions.totalCount,
-      0,
-    );
-    console.log(`Total External Commits: ${totalExternalCommits}`);
-
-    console.log("\nProjects Sponsored:");
-    user.sponsorshipsAsSponsor.nodes.forEach((sponsorship: any) => {
-      console.log(`- ${sponsorship.sponsorable.login}`);
-    });
-
-    console.log(`\nTotal Sponsors: ${user.sponsors.totalCount}`);
-
-    console.log("\nOrganizations:");
-    if (user.organizations.totalCount > 0) {
-      user.organizations.nodes.forEach((org: any) => {
-        console.log(`- ${org.name} (${org.login})`);
-        if (org.description) {
-          console.log(`  Description: ${org.description}`);
-        }
-        console.log(`  Members (${org.membersWithRole.totalCount}):`);
-        org.membersWithRole.nodes.forEach((member: any) => {
-          console.log(`    - ${member.name || member.login}`);
-        });
-        console.log();
-      });
-    } else {
-      console.log("User is not a member of any organizations.");
-    }
+    return result.user;
   } catch (error) {
-    console.error("Error fetching user details:", error);
+    console.error(`Error fetching user details for ${username}:`, error);
+    return null;
   }
 };
 
-// Replace 'username' with the GitHub username you want to query
-fetchUserDetails("noahgsolomon");
+const processUserData = (user: any) => {
+  if (!user) return null;
+
+  const followers = user.followers.totalCount;
+  const following = user.following.totalCount;
+  const followerToFollowingRatio =
+    following === 0 ? followers : (followers / following).toFixed(2);
+
+  let totalStars = 0;
+  let totalForks = 0;
+  const languagesMap: {
+    [language: string]: { repoCount: number; stars: number };
+  } = {};
+  const contributors: string[] = [];
+  const topics: string[] = [];
+
+  user.repositories.nodes.forEach((repo: any) => {
+    totalStars += repo.stargazerCount;
+    totalForks += repo.forkCount;
+
+    if (repo.primaryLanguage) {
+      const language = repo.primaryLanguage.name;
+      if (languagesMap[language]) {
+        languagesMap[language].repoCount += 1;
+        languagesMap[language].stars += repo.stargazerCount;
+      } else {
+        languagesMap[language] = { repoCount: 1, stars: repo.stargazerCount };
+      }
+    }
+
+    repo.repositoryTopics.nodes.forEach((topic: any) => {
+      if (!topics.includes(topic.topic.name)) {
+        topics.push(topic.topic.name);
+      }
+    });
+  });
+
+  const externalContributions =
+    user.contributionsCollection.commitContributionsByRepository
+      .filter((repo: any) => repo.repository.owner.login !== user.login)
+      .sort(
+        (a: any, b: any) =>
+          b.contributions.totalCount - a.contributions.totalCount,
+      );
+
+  const totalExternalCommits = externalContributions.reduce(
+    (sum: number, repo: any) => sum + repo.contributions.totalCount,
+    0,
+  );
+
+  // Calculate total commits
+  const totalCommits =
+    user.contributionsCollection.contributionCalendar.totalContributions;
+
+  return {
+    name: user.name,
+    login: user.login,
+    followers,
+    following,
+    followerToFollowingRatio,
+    contributionYears: user.contributionsCollection.contributionYears,
+    totalCommits, // Use this instead of totalCommitContributions
+    restrictedContributions:
+      user.contributionsCollection.restrictedContributionsCount,
+    totalRepositories: user.repositories.totalCount,
+    totalStars,
+    totalForks,
+    languages: Object.entries(languagesMap).sort(
+      (a, b) => b[1].repoCount - a[1].repoCount,
+    ),
+    uniqueContributors: contributors,
+    uniqueTopics: topics,
+    externalContributions: externalContributions.length,
+    totalExternalCommits,
+    sponsorsCount: user.sponsors.totalCount,
+    sponsoredProjects: user.sponsorshipsAsSponsor.nodes.map(
+      (s: any) => s.sponsorable.login,
+    ),
+    organizations: user.organizations.nodes.map((org: any) => ({
+      name: org.name,
+      login: org.login,
+      description: org.description,
+      membersCount: org.membersWithRole.totalCount,
+    })),
+  };
+};
+
+const main = async () => {
+  for (const org of organizations) {
+    console.log(`Processing organization: ${org}`);
+    const members = await fetchOrganizationMembers(org);
+    console.log(`Found ${members.length} members for ${org}`);
+
+    const orgData: any[] = [];
+
+    for (const member of members) {
+      console.log(`Fetching data for user: ${member}`);
+      const userData = await fetchUserDetails(member);
+      if (userData) {
+        const processedData = processUserData(userData);
+        if (processedData) {
+          orgData.push(processedData);
+
+          // Insert user data into the database
+          try {
+            await db
+              .insert(userSchema.githubUsers)
+              .values({
+                id: processedData.login,
+                name: processedData.name || null,
+                login: processedData.login,
+                followers: processedData.followers,
+                following: processedData.following,
+                followerToFollowingRatio: parseFloat(
+                  processedData.followerToFollowingRatio,
+                ),
+                contributionYears: processedData.contributionYears,
+                totalCommits: processedData.totalCommits,
+                restrictedContributions: processedData.restrictedContributions,
+                totalRepositories: processedData.totalRepositories,
+                totalStars: processedData.totalStars,
+                totalForks: processedData.totalForks,
+                languages: Object.fromEntries(processedData.languages),
+                uniqueTopics: processedData.uniqueTopics,
+                externalContributions: processedData.externalContributions,
+                totalExternalCommits: processedData.totalExternalCommits,
+                sponsorsCount: processedData.sponsorsCount,
+                sponsoredProjects: processedData.sponsoredProjects,
+                organizations: processedData.organizations,
+              })
+              .onConflictDoUpdate({
+                target: userSchema.githubUsers.login,
+                set: {
+                  name: processedData.name || null,
+                  followers: processedData.followers,
+                  following: processedData.following,
+                  followerToFollowingRatio: parseFloat(
+                    processedData.followerToFollowingRatio,
+                  ),
+                  contributionYears: processedData.contributionYears,
+                  totalCommits: processedData.totalCommits,
+                  restrictedContributions:
+                    processedData.restrictedContributions,
+                  totalRepositories: processedData.totalRepositories,
+                  totalStars: processedData.totalStars,
+                  totalForks: processedData.totalForks,
+                  languages: Object.fromEntries(processedData.languages),
+                  uniqueTopics: processedData.uniqueTopics,
+                  externalContributions: processedData.externalContributions,
+                  totalExternalCommits: processedData.totalExternalCommits,
+                  sponsorsCount: processedData.sponsorsCount,
+                  sponsoredProjects: processedData.sponsoredProjects,
+                  organizations: processedData.organizations,
+                },
+              });
+            console.log(
+              `Inserted/Updated data for user: ${processedData.login}`,
+            );
+          } catch (error) {
+            console.error(
+              `Error inserting/updating data for user: ${processedData.login}`,
+              error,
+            );
+          }
+        } else {
+          console.log(`No data found for user: ${member}`);
+        }
+      }
+      // Add a delay to avoid hitting rate limits
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    // Save data to a JSON file (optional, you can remove this if you don't need it anymore)
+    fs.writeFileSync(`${org}_data.json`, JSON.stringify(orgData, null, 2));
+    console.log(`Data for ${org} saved to ${org}_data.json`);
+  }
+};
+
+main().catch((error) => console.error("Error in main function:", error));

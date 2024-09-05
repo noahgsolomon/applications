@@ -1,0 +1,470 @@
+[
+  {
+    "name": "John Firebaugh",
+    "login": "jfirebaugh",
+    "followers": 579,
+    "following": 125,
+    "followerToFollowingRatio": "4.63",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012,
+      2011,
+      2010,
+      2009
+    ],
+    "totalCommits": 2324,
+    "restrictedContributions": 2236,
+    "totalRepositories": 51,
+    "totalStars": 1355,
+    "totalForks": 168,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 14,
+          "stars": 53
+        }
+      ],
+      [
+        "Starlark",
+        {
+          "repoCount": 13,
+          "stars": 1
+        }
+      ],
+      [
+        "Ruby",
+        {
+          "repoCount": 7,
+          "stars": 1138
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 3,
+          "stars": 147
+        }
+      ],
+      [
+        "C++",
+        {
+          "repoCount": 2,
+          "stars": 8
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "Shell",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 1
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 2,
+    "totalExternalCommits": 13,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "OpenStreetMap on GitHub",
+        "login": "openstreetmap",
+        "description": "",
+        "membersCount": 20
+      },
+      {
+        "name": "Rubinius",
+        "login": "rubinius",
+        "description": "",
+        "membersCount": 88
+      },
+      {
+        "name": "ruby-debug",
+        "login": "ruby-debug",
+        "description": null,
+        "membersCount": 5
+      },
+      {
+        "name": "Chai.js Assertion Library",
+        "login": "chaijs",
+        "description": "",
+        "membersCount": 16
+      },
+      {
+        "name": "Leaflet",
+        "login": "Leaflet",
+        "description": "",
+        "membersCount": 16
+      },
+      {
+        "name": "maptime",
+        "login": "maptime",
+        "description": "Start here: http://github.com/maptime/",
+        "membersCount": 56
+      },
+      {
+        "name": "Figma",
+        "login": "figma",
+        "description": "Collaborative interface design tool",
+        "membersCount": 5
+      },
+      {
+        "name": "turf",
+        "login": "Turfjs",
+        "description": "a fast and fully featured open gis engine written in javascript",
+        "membersCount": 11
+      },
+      {
+        "name": "Project OSRM",
+        "login": "Project-OSRM",
+        "description": "Open Source Routing Machine: The OpenStreetMap Data Routing Engine",
+        "membersCount": 16
+      },
+      {
+        "name": "documentationjs",
+        "login": "documentationjs",
+        "description": "a documentation system so good, you'll actually write documentation",
+        "membersCount": 6
+      },
+      {
+        "name": "Big Dada",
+        "login": "DADACONF",
+        "description": "big dada big dada big dada big dad",
+        "membersCount": 3
+      }
+    ]
+  },
+  {
+    "name": "Noah Levin",
+    "login": "nlevin",
+    "followers": 57,
+    "following": 2,
+    "followerToFollowingRatio": "28.50",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012,
+      2011,
+      2010,
+      2009
+    ],
+    "totalCommits": 0,
+    "restrictedContributions": 0,
+    "totalRepositories": 3,
+    "totalStars": 13,
+    "totalForks": 23,
+    "languages": [
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 13
+        }
+      ],
+      [
+        "Objective-C",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 1,
+          "stars": 0
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 0,
+    "totalExternalCommits": 0,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Figma",
+        "login": "figma",
+        "description": "Collaborative interface design tool",
+        "membersCount": 5
+      }
+    ]
+  },
+  {
+    "name": "Reid Draper",
+    "login": "reiddraper",
+    "followers": 316,
+    "following": 62,
+    "followerToFollowingRatio": "5.10",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016,
+      2015,
+      2014,
+      2013,
+      2012,
+      2011,
+      2010
+    ],
+    "totalCommits": 105,
+    "restrictedContributions": 100,
+    "totalRepositories": 53,
+    "totalStars": 737,
+    "totalForks": 71,
+    "languages": [
+      [
+        "Haskell",
+        {
+          "repoCount": 14,
+          "stars": 98
+        }
+      ],
+      [
+        "Clojure",
+        {
+          "repoCount": 8,
+          "stars": 493
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 5,
+          "stars": 46
+        }
+      ],
+      [
+        "Erlang",
+        {
+          "repoCount": 4,
+          "stars": 26
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 4,
+          "stars": 16
+        }
+      ],
+      [
+        "JavaScript",
+        {
+          "repoCount": 2,
+          "stars": 1
+        }
+      ],
+      [
+        "CSS",
+        {
+          "repoCount": 1,
+          "stars": 23
+        }
+      ],
+      [
+        "Ruby",
+        {
+          "repoCount": 1,
+          "stars": 18
+        }
+      ],
+      [
+        "HTML",
+        {
+          "repoCount": 1,
+          "stars": 6
+        }
+      ],
+      [
+        "C",
+        {
+          "repoCount": 1,
+          "stars": 2
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "clojure",
+      "actions",
+      "markdown",
+      "url",
+      "parser",
+      "verification",
+      "testing",
+      "linter"
+    ],
+    "externalContributions": 2,
+    "totalExternalCommits": 3,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Clojure",
+        "login": "clojure",
+        "description": "",
+        "membersCount": 37
+      },
+      {
+        "name": "Figma",
+        "login": "figma",
+        "description": "Collaborative interface design tool",
+        "membersCount": 5
+      },
+      {
+        "name": "Chicago Haskell",
+        "login": "chicagohaskell",
+        "description": "Central place to collectively work on Chicago Haskell projects",
+        "membersCount": 5
+      }
+    ]
+  },
+  {
+    "name": "Chris Santamaria",
+    "login": "chrissantamaria",
+    "followers": 48,
+    "following": 33,
+    "followerToFollowingRatio": "1.45",
+    "contributionYears": [
+      2024,
+      2023,
+      2022,
+      2021,
+      2020,
+      2019,
+      2018,
+      2017,
+      2016
+    ],
+    "totalCommits": 1287,
+    "restrictedContributions": 1280,
+    "totalRepositories": 33,
+    "totalStars": 36,
+    "totalForks": 6,
+    "languages": [
+      [
+        "JavaScript",
+        {
+          "repoCount": 25,
+          "stars": 31
+        }
+      ],
+      [
+        "TypeScript",
+        {
+          "repoCount": 2,
+          "stars": 2
+        }
+      ],
+      [
+        "Python",
+        {
+          "repoCount": 2,
+          "stars": 0
+        }
+      ],
+      [
+        "TeX",
+        {
+          "repoCount": 1,
+          "stars": 2
+        }
+      ]
+    ],
+    "uniqueContributors": [],
+    "uniqueTopics": [
+      "university-of-virginia"
+    ],
+    "externalContributions": 1,
+    "totalExternalCommits": 1,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [
+      "awesomekling"
+    ],
+    "organizations": [
+      {
+        "name": "Figma",
+        "login": "figma",
+        "description": "Collaborative interface design tool",
+        "membersCount": 5
+      }
+    ]
+  },
+  {
+    "name": "Kevin Lin",
+    "login": "klin-figma",
+    "followers": 6,
+    "following": 1,
+    "followerToFollowingRatio": "6.00",
+    "contributionYears": [
+      2024,
+      2023,
+      2022
+    ],
+    "totalCommits": 3127,
+    "restrictedContributions": 3123,
+    "totalRepositories": 0,
+    "totalStars": 0,
+    "totalForks": 0,
+    "languages": [],
+    "uniqueContributors": [],
+    "uniqueTopics": [],
+    "externalContributions": 0,
+    "totalExternalCommits": 0,
+    "sponsorsCount": 0,
+    "sponsoredProjects": [],
+    "organizations": [
+      {
+        "name": "Figma",
+        "login": "figma",
+        "description": "Collaborative interface design tool",
+        "membersCount": 5
+      }
+    ]
+  }
+]
