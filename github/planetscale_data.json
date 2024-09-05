@@ -2,6 +2,11 @@
   {
     "name": "Jason Long",
     "login": "jasonlong",
+    "location": "Columbus, Ohio",
+    "websiteUrl": "jasonlong.me",
+    "twitterUsername": null,
+    "email": "jason@jasonlong.me",
+    "bio": "Product Designerd",
     "followers": 1705,
     "following": 46,
     "followerToFollowingRatio": "37.07",
@@ -24,10 +29,10 @@
       2009,
       2008
     ],
-    "totalCommits": 2470,
+    "totalCommits": 2471,
     "restrictedContributions": 1778,
     "totalRepositories": 37,
-    "totalStars": 8067,
+    "totalStars": 8066,
     "totalForks": 857,
     "languages": [
       [
@@ -48,7 +53,7 @@
         "Ruby",
         {
           "repoCount": 2,
-          "stars": 1263
+          "stars": 1262
         }
       ],
       [
@@ -164,6 +169,11 @@
   {
     "name": "Vicent Martí",
     "login": "vmg",
+    "location": "Madrid",
+    "websiteUrl": "http://twitter.com/vmg",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Working on perf @planetscale. Previously: Principal Systems Engineer @github (this website, yo).",
     "followers": 1760,
     "following": 20,
     "followerToFollowingRatio": "88.00",
@@ -186,8 +196,8 @@
       2009,
       2008
     ],
-    "totalCommits": 417,
-    "restrictedContributions": 198,
+    "totalCommits": 419,
+    "restrictedContributions": 200,
     "totalRepositories": 23,
     "totalStars": 8371,
     "totalForks": 1096,
@@ -259,6 +269,11 @@
   {
     "name": "David Graham",
     "login": "dgraham",
+    "location": "Denver, CO, USA",
+    "websiteUrl": null,
+    "twitterUsername": "davidgraham",
+    "email": "david.malcom.graham@gmail.com",
+    "bio": "Building a database at @planetscale. Previously @github.",
     "followers": 829,
     "following": 65,
     "followerToFollowingRatio": "12.75",
@@ -396,6 +411,11 @@
   {
     "name": "Mike Coutermarsh",
     "login": "mscoutermarsh",
+    "location": "production console",
+    "websiteUrl": "https://mikecoutermarsh.com",
+    "twitterUsername": "mscccc",
+    "email": "coutermarsh.mike@gmail.com",
+    "bio": "☕ 😻 😻 😻 🥳",
     "followers": 969,
     "following": 83,
     "followerToFollowingRatio": "11.67",
@@ -550,6 +570,11 @@
   {
     "name": "Chris Sinjakli",
     "login": "Sinjo",
+    "location": "London, UK",
+    "websiteUrl": "https://blog.sinjakli.co.uk",
+    "twitterUsername": "ChrisSinjo",
+    "email": "chris@sinjakli.co.uk",
+    "bio": "This page uses frames, but your browser doesn't support them.",
     "followers": 85,
     "following": 48,
     "followerToFollowingRatio": "1.77",
@@ -571,8 +596,8 @@
       2010,
       2009
     ],
-    "totalCommits": 2748,
-    "restrictedContributions": 2584,
+    "totalCommits": 2750,
+    "restrictedContributions": 2586,
     "totalRepositories": 21,
     "totalStars": 49,
     "totalForks": 11,
@@ -663,6 +688,11 @@
   {
     "name": "Matt Robenolt",
     "login": "mattrobenolt",
+    "location": "Reno, NV",
+    "websiteUrl": "https://mattrobenolt.com",
+    "twitterUsername": "mattrobenolt",
+    "email": "m@robenolt.com",
+    "bio": "🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕🍕",
     "followers": 496,
     "following": 0,
     "followerToFollowingRatio": 496,
@@ -683,8 +713,8 @@
       2011,
       2010
     ],
-    "totalCommits": 1621,
-    "restrictedContributions": 1380,
+    "totalCommits": 1626,
+    "restrictedContributions": 1385,
     "totalRepositories": 117,
     "totalStars": 2011,
     "totalForks": 450,
@@ -840,6 +870,11 @@
   {
     "name": "joe miller",
     "login": "joemiller",
+    "location": "san francisco, ca",
+    "websiteUrl": "http://joemiller.me",
+    "twitterUsername": "miller_joe",
+    "email": "",
+    "bio": "infra/eng/sre, go/python/ruby/bash/k8s @planetscale #CrashLoopNeverBackoff",
     "followers": 175,
     "following": 55,
     "followerToFollowingRatio": "3.18",
@@ -860,8 +895,8 @@
       2011,
       2010
     ],
-    "totalCommits": 7303,
-    "restrictedContributions": 6827,
+    "totalCommits": 7305,
+    "restrictedContributions": 6829,
     "totalRepositories": 67,
     "totalStars": 1014,
     "totalForks": 194,
@@ -1053,6 +1088,11 @@
   {
     "name": "John Greet",
     "login": "jgreet",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "jgreet@gmail.com",
+    "bio": "",
     "followers": 216,
     "following": 16,
     "followerToFollowingRatio": "13.50",
@@ -1112,6 +1152,11 @@
   {
     "name": "Andrés Taylor",
     "login": "systay",
+    "location": "Lund, Sweden",
+    "websiteUrl": "http://systay.github.io/",
+    "twitterUsername": "andres_taylor",
+    "email": "andres@taylor.se",
+    "bio": "Working on Vitess @ PlanetScale. Previously @neo4j, @square, and @thoughtworks",
     "followers": 138,
     "following": 3,
     "followerToFollowingRatio": "46.00",
@@ -1132,7 +1177,7 @@
       2011,
       2010
     ],
-    "totalCommits": 1000,
+    "totalCommits": 1001,
     "restrictedContributions": 49,
     "totalRepositories": 18,
     "totalStars": 13,
@@ -1196,6 +1241,11 @@
   {
     "name": "Fatih Arslan",
     "login": "fatih",
+    "location": "Ankara, TR",
+    "websiteUrl": "https://arslan.io",
+    "twitterUsername": "fatih",
+    "email": "",
+    "bio": "Software Engineer. Gopher and Coffee geek. Creator of vim-go. Tool maker.",
     "followers": 8422,
     "following": 107,
     "followerToFollowingRatio": "78.71",
@@ -1217,24 +1267,24 @@
       2010,
       2009
     ],
-    "totalCommits": 1289,
-    "restrictedContributions": 1236,
+    "totalCommits": 1295,
+    "restrictedContributions": 1242,
     "totalRepositories": 43,
-    "totalStars": 38421,
-    "totalForks": 3961,
+    "totalStars": 38423,
+    "totalForks": 3962,
     "languages": [
       [
         "Go",
         {
           "repoCount": 26,
-          "stars": 18256
+          "stars": 18257
         }
       ],
       [
         "Vim Script",
         {
           "repoCount": 5,
-          "stars": 18153
+          "stars": 18154
         }
       ],
       [
@@ -1377,6 +1427,11 @@
   {
     "name": "Sugu Sougoumarane",
     "login": "sougou",
+    "location": null,
+    "websiteUrl": "sougou.io",
+    "twitterUsername": "ssougou",
+    "email": "ssougou@gmail.com",
+    "bio": "",
     "followers": 328,
     "following": 0,
     "followerToFollowingRatio": 328,
@@ -1435,6 +1490,11 @@
   {
     "name": "Iheanyi Ekechukwu",
     "login": "iheanyi",
+    "location": "Houston, TX",
+    "websiteUrl": "https://iheanyi.com",
+    "twitterUsername": "kwuchu",
+    "email": "iekechukwu@gmail.com",
+    "bio": "I just like building things.",
     "followers": 1359,
     "following": 235,
     "followerToFollowingRatio": "5.78",
@@ -1454,8 +1514,8 @@
       2012,
       2011
     ],
-    "totalCommits": 2577,
-    "restrictedContributions": 2301,
+    "totalCommits": 2578,
+    "restrictedContributions": 2302,
     "totalRepositories": 78,
     "totalStars": 1843,
     "totalForks": 264,
@@ -1577,6 +1637,11 @@
   {
     "name": "Matthias Crauwels",
     "login": "mcrauwel",
+    "location": "Ghent, Belgium",
+    "websiteUrl": null,
+    "twitterUsername": "mcrauwel",
+    "email": "",
+    "bio": "",
     "followers": 18,
     "following": 14,
     "followerToFollowingRatio": "1.29",
@@ -1595,8 +1660,8 @@
       2013,
       2012
     ],
-    "totalCommits": 333,
-    "restrictedContributions": 286,
+    "totalCommits": 334,
+    "restrictedContributions": 287,
     "totalRepositories": 12,
     "totalStars": 29,
     "totalForks": 12,
@@ -1661,9 +1726,14 @@
   {
     "name": "Matt Layher",
     "login": "mdlayher",
-    "followers": 1932,
+    "location": "Kalamazoo, MI",
+    "websiteUrl": "https://mdlayher.com/",
+    "twitterUsername": "mdlayher",
+    "email": "mdlayher@gmail.com",
+    "bio": "Software Engineer. Go, Rust, Linux, networking, and open source software. On and ever upward. ",
+    "followers": 1933,
     "following": 29,
-    "followerToFollowingRatio": "66.62",
+    "followerToFollowingRatio": "66.66",
     "contributionYears": [
       2024,
       2023,
@@ -1679,17 +1749,17 @@
       2013,
       2012
     ],
-    "totalCommits": 3944,
-    "restrictedContributions": 3761,
+    "totalCommits": 3956,
+    "restrictedContributions": 3773,
     "totalRepositories": 112,
-    "totalStars": 6002,
+    "totalStars": 6004,
     "totalForks": 986,
     "languages": [
       [
         "Go",
         {
           "repoCount": 86,
-          "stars": 5774
+          "stars": 5776
         }
       ],
       [
@@ -1783,7 +1853,7 @@
         "name": "Nix/Nixpkgs/NixOS",
         "login": "NixOS",
         "description": "",
-        "membersCount": 1027
+        "membersCount": 1028
       },
       {
         "name": "Go",
@@ -1832,6 +1902,11 @@
   {
     "name": "Harshit Gangal",
     "login": "harshit-gangal",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 19,
     "following": 0,
     "followerToFollowingRatio": 19,
@@ -1889,6 +1964,11 @@
   {
     "name": "Florent Poinsard",
     "login": "frouioui",
+    "location": "Mexico City, Mexico",
+    "websiteUrl": "linkedin.com/in/florent-poinsard/",
+    "twitterUsername": "fouioui",
+    "email": "",
+    "bio": "Maintainer of Vitess - Software Engineer at PlanetScale",
     "followers": 89,
     "following": 45,
     "followerToFollowingRatio": "1.98",

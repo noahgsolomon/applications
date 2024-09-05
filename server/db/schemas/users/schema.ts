@@ -290,5 +290,11 @@ export const githubUsers = pgTable("github_users", {
       membersCount: number;
     }>
   >(),
+  location: text("location"),
+  websiteUrl: text("website_url"),
+  twitterUsername: text("twitter_username"),
+  email: text("email"),
+  bio: text("bio"),
   createdAt: timestamp("created_at").defaultNow(),
+  isNearNYC: boolean("is_near_nyc"),
 });

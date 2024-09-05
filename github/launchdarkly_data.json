@@ -2,6 +2,11 @@
   {
     "name": "Paddy",
     "login": "paddycarver",
+    "location": "Tri-Cities, WA",
+    "websiteUrl": "https://paddy.carvers.com",
+    "twitterUsername": "paddycarver",
+    "email": "",
+    "bio": "\r\n    We can do better. he/him\r\n",
     "followers": 155,
     "following": 10,
     "followerToFollowingRatio": "15.50",
@@ -114,6 +119,11 @@
   {
     "name": "Hosh",
     "login": "hoshsadiq",
+    "location": "127.0.0.1",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "DevOps Warlock",
     "followers": 88,
     "following": 34,
     "followerToFollowingRatio": "2.59",
@@ -133,10 +143,10 @@
       2012,
       2011
     ],
-    "totalCommits": 1544,
-    "restrictedContributions": 1468,
+    "totalCommits": 1558,
+    "restrictedContributions": 1482,
     "totalRepositories": 28,
-    "totalStars": 1621,
+    "totalStars": 1622,
     "totalForks": 150,
     "languages": [
       [
@@ -164,7 +174,7 @@
         "Adblock Filter List",
         {
           "repoCount": 1,
-          "stars": 1442
+          "stars": 1443
         }
       ],
       [
@@ -231,6 +241,11 @@
   {
     "name": "Matthew M. Keeler",
     "login": "keelerm84",
+    "location": null,
+    "websiteUrl": "http://tortugas-llc.com",
+    "twitterUsername": null,
+    "email": "keelerm@tortugas-llc.com",
+    "bio": null,
     "followers": 35,
     "following": 20,
     "followerToFollowingRatio": "1.75",
@@ -409,6 +424,11 @@
   {
     "name": "Ryan Lamb",
     "login": "kinyoklion",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 7,
     "following": 0,
     "followerToFollowingRatio": 7,
@@ -426,8 +446,8 @@
       2014,
       2013
     ],
-    "totalCommits": 2526,
-    "restrictedContributions": 876,
+    "totalCommits": 2531,
+    "restrictedContributions": 879,
     "totalRepositories": 12,
     "totalStars": 1,
     "totalForks": 0,
@@ -478,7 +498,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 65,
-    "totalExternalCommits": 437,
+    "totalExternalCommits": 439,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -505,6 +525,11 @@
   {
     "name": "Behn",
     "login": "BehnH",
+    "location": "London",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Professional breaker of things @launchdarkly ex. @AmirionStudios, \r\n Linklaters",
     "followers": 18,
     "following": 50,
     "followerToFollowingRatio": "0.36",
@@ -521,8 +546,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1495,
-    "restrictedContributions": 1152,
+    "totalCommits": 1500,
+    "restrictedContributions": 1157,
     "totalRepositories": 16,
     "totalStars": 8,
     "totalForks": 3,
@@ -611,6 +636,11 @@
   {
     "name": "Nate Graf",
     "login": "njgraf512",
+    "location": "San Francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "ngraf@launchdarkly.com",
+    "bio": "",
     "followers": 10,
     "following": 11,
     "followerToFollowingRatio": "0.91",
@@ -628,8 +658,8 @@
       2014,
       2013
     ],
-    "totalCommits": 198,
-    "restrictedContributions": 198,
+    "totalCommits": 199,
+    "restrictedContributions": 199,
     "totalRepositories": 4,
     "totalStars": 3,
     "totalForks": 0,
@@ -667,6 +697,11 @@
   {
     "name": "Ben Woskow",
     "login": "bwoskow-ld",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 10,
     "following": 0,
     "followerToFollowingRatio": 10,
@@ -702,6 +737,11 @@
   {
     "name": "Thomas Varney",
     "login": "tvarney13",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 1,
     "following": 1,
     "followerToFollowingRatio": "1.00",

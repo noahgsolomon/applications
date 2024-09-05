@@ -2,6 +2,11 @@
   {
     "name": "James Tucker",
     "login": "raggi",
+    "location": "California or Bermuda",
+    "websiteUrl": "https://rag.pub",
+    "twitterUsername": "raggi",
+    "email": "jftucker@gmail.com",
+    "bio": "Currently: Tailscale\r\n\r\n\r\nPreviously: Fuchsia, GCP, Google stuff, Wildfire, ECL, ...",
     "followers": 799,
     "following": 245,
     "followerToFollowingRatio": "3.26",
@@ -135,7 +140,7 @@
         "name": "eventmachine",
         "login": "eventmachine",
         "description": null,
-        "membersCount": 1
+        "membersCount": 2
       },
       {
         "name": "Official Rack repositories",
@@ -178,6 +183,11 @@
   {
     "name": "Will Norris",
     "login": "willnorris",
+    "location": "Temecula, CA",
+    "websiteUrl": "https://willnorris.com",
+    "twitterUsername": null,
+    "email": "will@willnorris.com",
+    "bio": "Engineering at @tailscale.  Previously, open source at @google and @twitter.  Most of my active personal projects are @indieweb related, using @golang.",
     "followers": 1121,
     "following": 82,
     "followerToFollowingRatio": "13.67",
@@ -205,14 +215,14 @@
     "totalCommits": 1682,
     "restrictedContributions": 700,
     "totalRepositories": 47,
-    "totalStars": 3952,
+    "totalStars": 3953,
     "totalForks": 565,
     "languages": [
       [
         "Go",
         {
           "repoCount": 16,
-          "stars": 3656
+          "stars": 3657
         }
       ],
       [
@@ -343,6 +353,11 @@
   {
     "name": "Dave Anderson",
     "login": "danderson",
+    "location": "Canada",
+    "websiteUrl": "https://www.dave.tf",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 786,
     "following": 2,
     "followerToFollowingRatio": "393.00",
@@ -365,7 +380,7 @@
       2009,
       2008
     ],
-    "totalCommits": 549,
+    "totalCommits": 550,
     "restrictedContributions": 0,
     "totalRepositories": 46,
     "totalStars": 2445,
@@ -487,9 +502,14 @@
   {
     "name": "Brad Fitzpatrick",
     "login": "bradfitz",
-    "followers": 12010,
+    "location": "Seattle",
+    "websiteUrl": "https://bradfitz.com/",
+    "twitterUsername": null,
+    "email": "brad@danga.com",
+    "bio": "LiveJournal, memcached, OpenID, @golang team (2010-2020).\r\nCurrently making WireGuard & weird network tricks easier and more magical @Tailscale.",
+    "followers": 12012,
     "following": 41,
-    "followerToFollowingRatio": "292.93",
+    "followerToFollowingRatio": "292.98",
     "contributionYears": [
       2024,
       2023,
@@ -516,10 +536,10 @@
       2002,
       2001
     ],
-    "totalCommits": 3900,
-    "restrictedContributions": 2392,
+    "totalCommits": 3906,
+    "restrictedContributions": 2394,
     "totalRepositories": 86,
-    "totalStars": 13470,
+    "totalStars": 13471,
     "totalForks": 1391,
     "languages": [
       [
@@ -616,6 +636,11 @@
   {
     "name": "M. J. Fromberger",
     "login": "creachadair",
+    "location": "Seattle",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 130,
     "following": 36,
     "followerToFollowingRatio": "3.61",
@@ -638,8 +663,8 @@
       2009,
       2008
     ],
-    "totalCommits": 4233,
-    "restrictedContributions": 1799,
+    "totalCommits": 4244,
+    "restrictedContributions": 1807,
     "totalRepositories": 100,
     "totalStars": 375,
     "totalForks": 49,
@@ -778,6 +803,11 @@
   {
     "name": null,
     "login": "apenwarr",
+    "location": "Canada.  Sometimes.",
+    "websiteUrl": "http://apenwarr.ca/log/",
+    "twitterUsername": null,
+    "email": "apenwarr@gmail.com",
+    "bio": "Making WireGuard 2FA easy @Tailscale, and generally fighting off the demons of complexity.",
     "followers": 1162,
     "following": 3,
     "followerToFollowingRatio": "387.33",
@@ -905,6 +935,11 @@
   {
     "name": "David Carney",
     "login": "dfcarney",
+    "location": "Toronto, Ontario, Canada",
+    "websiteUrl": "tailscale.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 63,
     "following": 4,
     "followerToFollowingRatio": "15.75",
@@ -959,6 +994,11 @@
   {
     "name": "Tyler Smalley",
     "login": "tylersmalley",
+    "location": "Fox Island, WA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "@tailscale ",
     "followers": 101,
     "following": 6,
     "followerToFollowingRatio": "16.83",
@@ -981,8 +1021,8 @@
       2009,
       2008
     ],
-    "totalCommits": 743,
-    "restrictedContributions": 610,
+    "totalCommits": 744,
+    "restrictedContributions": 611,
     "totalRepositories": 16,
     "totalStars": 1,
     "totalForks": 2,
@@ -1081,6 +1121,11 @@
   {
     "name": "Kristoffer Dalby",
     "login": "kradalby",
+    "location": "Leiden, The Netherlands",
+    "websiteUrl": "https://kradalby.no",
+    "twitterUsername": "kradalby",
+    "email": "kristoffer@dalby.cc",
+    "bio": "",
     "followers": 207,
     "following": 247,
     "followerToFollowingRatio": "0.84",
@@ -1102,7 +1147,7 @@
       2010,
       2009
     ],
-    "totalCommits": 1568,
+    "totalCommits": 1581,
     "restrictedContributions": 501,
     "totalRepositories": 106,
     "totalStars": 166,
@@ -1278,7 +1323,7 @@
       "nix-flake"
     ],
     "externalContributions": 5,
-    "totalExternalCommits": 123,
+    "totalExternalCommits": 126,
     "sponsorsCount": 1,
     "sponsoredProjects": [],
     "organizations": [
@@ -1286,7 +1331,7 @@
         "name": "Nix/Nixpkgs/NixOS",
         "login": "NixOS",
         "description": "",
-        "membersCount": 1027
+        "membersCount": 1028
       },
       {
         "name": "Dotkom",
@@ -1335,6 +1380,11 @@
   {
     "name": "Jonathan Nobels",
     "login": "barnstar",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "jnobels@gmail.com",
+    "bio": "Software Engineer @Tailscale, formerly BBM, BlackBerry-Cylance",
     "followers": 4,
     "following": 0,
     "followerToFollowingRatio": 4,
@@ -1421,6 +1471,11 @@
   {
     "name": "Andrew Dunham",
     "login": "andrew-d",
+    "location": null,
+    "websiteUrl": "https://blog.dunham.io/",
+    "twitterUsername": null,
+    "email": "andrew@du.nham.ca",
+    "bio": "",
     "followers": 284,
     "following": 61,
     "followerToFollowingRatio": "4.66",
@@ -1440,8 +1495,8 @@
       2012,
       2011
     ],
-    "totalCommits": 1978,
-    "restrictedContributions": 1393,
+    "totalCommits": 1986,
+    "restrictedContributions": 1398,
     "totalRepositories": 152,
     "totalStars": 3728,
     "totalForks": 762,
@@ -1564,7 +1619,7 @@
       "golang"
     ],
     "externalContributions": 7,
-    "totalExternalCommits": 105,
+    "totalExternalCommits": 106,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1579,6 +1634,11 @@
   {
     "name": "Aaron Klotz",
     "login": "dblohm7",
+    "location": null,
+    "websiteUrl": "https://dblohm7.ca",
+    "twitterUsername": "dblohm7",
+    "email": "",
+    "bio": "",
     "followers": 20,
     "following": 6,
     "followerToFollowingRatio": "3.33",
@@ -1664,6 +1724,11 @@
   {
     "name": "Danny",
     "login": "dannypagano",
+    "location": "Tucson",
+    "websiteUrl": "dannypagano.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 9,
     "following": 5,
     "followerToFollowingRatio": "1.80",
@@ -1716,6 +1781,11 @@
   {
     "name": "Joe Tsai",
     "login": "dsnet",
+    "location": "Santa Clara",
+    "websiteUrl": "https://digital-static.net",
+    "twitterUsername": null,
+    "email": "joetsai@digital-static.net",
+    "bio": "",
     "followers": 1223,
     "following": 47,
     "followerToFollowingRatio": "26.02",
@@ -1831,6 +1901,11 @@
   {
     "name": "Mario Minardi",
     "login": "mpminardi",
+    "location": "Calgary AB",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 8,
     "following": 0,
     "followerToFollowingRatio": 8,
@@ -1871,6 +1946,11 @@
   {
     "name": "Sonia Appasamy",
     "login": "soniaappasamy",
+    "location": "NYC",
+    "websiteUrl": "soniaappasamy.com",
+    "twitterUsername": null,
+    "email": "sma246@cornell.edu",
+    "bio": "Engineer @ Tailscale",
     "followers": 20,
     "following": 4,
     "followerToFollowingRatio": "5.00",
@@ -1946,6 +2026,11 @@
   {
     "name": "Erisa A",
     "login": "Erisa",
+    "location": "Wales, UK",
+    "websiteUrl": "https://erisa.uk",
+    "twitterUsername": "ErisaDev",
+    "email": "erisa@erisa.uk",
+    "bio": "Support Engineer @tailscale & weirdo with a passion for making a mess of things.",
     "followers": 565,
     "following": 258,
     "followerToFollowingRatio": "2.19",
@@ -1964,7 +2049,7 @@
     "totalCommits": 743,
     "restrictedContributions": 128,
     "totalRepositories": 55,
-    "totalStars": 817,
+    "totalStars": 819,
     "totalForks": 124,
     "languages": [
       [
@@ -1992,14 +2077,14 @@
         "TypeScript",
         {
           "repoCount": 7,
-          "stars": 150
+          "stars": 151
         }
       ],
       [
         "C#",
         {
           "repoCount": 5,
-          "stars": 85
+          "stars": 86
         }
       ],
       [
@@ -2087,12 +2172,12 @@
       "portfolio-website",
       "cloudflare-pages",
       "cloudflare-pages-functions",
+      "hetzner-cloud",
       "workers-kv",
       "serverless",
       "slash-commands",
       "slash-create",
       "redirect-urls",
-      "hetzner-cloud",
       "bot",
       "csharp",
       "dsharpplus",
@@ -2195,6 +2280,11 @@
   {
     "name": "Adrian Dewhurst",
     "login": "sailorfrag",
+    "location": "Waterloo Region, Ontario, Canada",
+    "websiteUrl": null,
+    "twitterUsername": "SailorFrag",
+    "email": "sailor@sailorfrag.net",
+    "bio": "Professional software developer in Waterloo Region, Ontario, Canada. I have a background in embedded systems and networking. Xoogler. Currently at @tailscale.",
     "followers": 26,
     "following": 0,
     "followerToFollowingRatio": 26,
@@ -2205,8 +2295,8 @@
       2021,
       2020
     ],
-    "totalCommits": 401,
-    "restrictedContributions": 236,
+    "totalCommits": 407,
+    "restrictedContributions": 240,
     "totalRepositories": 1,
     "totalStars": 0,
     "totalForks": 0,

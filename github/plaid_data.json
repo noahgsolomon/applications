@@ -2,6 +2,11 @@
   {
     "name": "Ilya Shaisultanov",
     "login": "diversario",
+    "location": "Amsterdam",
+    "websiteUrl": "http://diversario.github.io",
+    "twitterUsername": null,
+    "email": "ilya.shaisultanov@gmail.com",
+    "bio": "\r\n    \r\n",
     "followers": 91,
     "following": 42,
     "followerToFollowingRatio": "2.17",
@@ -156,7 +161,7 @@
         "name": "Kubernetes",
         "login": "kubernetes",
         "description": "Production-Grade Container Scheduling and Management",
-        "membersCount": 573
+        "membersCount": 574
       },
       {
         "name": "Quovo",
@@ -169,6 +174,11 @@
   {
     "name": "Adam McBride",
     "login": "amcbride",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "adam@plaid.com",
+    "bio": "",
     "followers": 17,
     "following": 0,
     "followerToFollowingRatio": 17,
@@ -212,6 +222,11 @@
   {
     "name": "Ishan Kamat",
     "login": "pieman2201",
+    "location": "Houston",
+    "websiteUrl": "ishankam.at",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 4,
     "following": 2,
     "followerToFollowingRatio": "2.00",
@@ -316,6 +331,11 @@
   {
     "name": null,
     "login": "kparikh-plaid",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 2,
     "following": 0,
     "followerToFollowingRatio": 2,

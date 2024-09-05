@@ -99,6 +99,11 @@ const fetchUserDetails = async (username: string) => {
       user(login: $login) {
         login
         name
+        location
+        websiteUrl
+        twitterUsername
+        email
+        bio
         followers {
           totalCount
         }
@@ -251,18 +256,22 @@ const processUserData = (user: any) => {
     0,
   );
 
-  // Calculate total commits
   const totalCommits =
     user.contributionsCollection.contributionCalendar.totalContributions;
 
   return {
     name: user.name,
     login: user.login,
+    location: user.location,
+    websiteUrl: user.websiteUrl,
+    twitterUsername: user.twitterUsername,
+    email: user.email,
+    bio: user.bio,
     followers,
     following,
     followerToFollowingRatio,
     contributionYears: user.contributionsCollection.contributionYears,
-    totalCommits, // Use this instead of totalCommitContributions
+    totalCommits,
     restrictedContributions:
       user.contributionsCollection.restrictedContributionsCount,
     totalRepositories: user.repositories.totalCount,
@@ -304,7 +313,6 @@ const main = async () => {
         if (processedData) {
           orgData.push(processedData);
 
-          // Insert user data into the database
           try {
             await db
               .insert(userSchema.githubUsers)
@@ -312,6 +320,11 @@ const main = async () => {
                 id: processedData.login,
                 name: processedData.name || null,
                 login: processedData.login,
+                location: processedData.location || null,
+                websiteUrl: processedData.websiteUrl || null,
+                twitterUsername: processedData.twitterUsername || null,
+                email: processedData.email || null,
+                bio: processedData.bio || null,
                 followers: processedData.followers,
                 following: processedData.following,
                 followerToFollowingRatio: parseFloat(
@@ -335,6 +348,11 @@ const main = async () => {
                 target: userSchema.githubUsers.login,
                 set: {
                   name: processedData.name || null,
+                  location: processedData.location || null,
+                  websiteUrl: processedData.websiteUrl || null,
+                  twitterUsername: processedData.twitterUsername || null,
+                  email: processedData.email || null,
+                  bio: processedData.bio || null,
                   followers: processedData.followers,
                   following: processedData.following,
                   followerToFollowingRatio: parseFloat(
@@ -369,11 +387,9 @@ const main = async () => {
           console.log(`No data found for user: ${member}`);
         }
       }
-      // Add a delay to avoid hitting rate limits
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    // Save data to a JSON file (optional, you can remove this if you don't need it anymore)
     fs.writeFileSync(`${org}_data.json`, JSON.stringify(orgData, null, 2));
     console.log(`Data for ${org} saved to ${org}_data.json`);
   }

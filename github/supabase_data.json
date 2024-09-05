@@ -2,6 +2,11 @@
   {
     "name": "Mark Burggraf",
     "login": "burggraf",
+    "location": "Paso Robles, California, USA",
+    "websiteUrl": "https://supabase.io",
+    "twitterUsername": "burggraf2",
+    "email": "markb@mantisbible.com",
+    "bio": "",
     "followers": 88,
     "following": 6,
     "followerToFollowingRatio": "14.67",
@@ -117,6 +122,11 @@
   {
     "name": "Ant Wilson",
     "login": "awalias",
+    "location": "Singapore",
+    "websiteUrl": "https://supabase.io",
+    "twitterUsername": "antwilson",
+    "email": "",
+    "bio": "Co-Founder & CTO @ Supabase",
     "followers": 447,
     "following": 86,
     "followerToFollowingRatio": "5.20",
@@ -137,7 +147,7 @@
       2011,
       2010
     ],
-    "totalCommits": 150,
+    "totalCommits": 153,
     "restrictedContributions": 14,
     "totalRepositories": 15,
     "totalStars": 7,
@@ -203,6 +213,11 @@
   {
     "name": "Kevin Brolly",
     "login": "KevinBrolly",
+    "location": "Glasgow, Scotland",
+    "websiteUrl": "www.kevinbrolly.com",
+    "twitterUsername": null,
+    "email": "kevin.brolly@gmail.com",
+    "bio": "",
     "followers": 25,
     "following": 2,
     "followerToFollowingRatio": "12.50",
@@ -289,9 +304,14 @@
   {
     "name": "Chris Gwilliams",
     "login": "encima",
-    "followers": 71,
+    "location": "Helsinki, Finland",
+    "websiteUrl": "https://chris.pub",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
+    "followers": 72,
     "following": 23,
-    "followerToFollowingRatio": "3.09",
+    "followerToFollowingRatio": "3.13",
     "contributionYears": [
       2024,
       2023,
@@ -309,7 +329,7 @@
       2011,
       2010
     ],
-    "totalCommits": 240,
+    "totalCommits": 241,
     "restrictedContributions": 68,
     "totalRepositories": 132,
     "totalStars": 45,
@@ -482,6 +502,11 @@
   {
     "name": "Ivan Vasilov",
     "login": "ivasilov",
+    "location": "Skopje, Macedonia",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "vasilov.ivan@gmail.com",
+    "bio": "",
     "followers": 24,
     "following": 7,
     "followerToFollowingRatio": "3.43",
@@ -501,7 +526,7 @@
       2012,
       2011
     ],
-    "totalCommits": 925,
+    "totalCommits": 929,
     "restrictedContributions": 58,
     "totalRepositories": 9,
     "totalStars": 7,
@@ -546,7 +571,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 6,
-    "totalExternalCommits": 293,
+    "totalExternalCommits": 294,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -591,6 +616,11 @@
   {
     "name": "Hieu",
     "login": "phamhieu",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 62,
     "following": 1,
     "followerToFollowingRatio": "62.00",
@@ -670,6 +700,11 @@
   {
     "name": "Beng Eu",
     "login": "thebengeu",
+    "location": "Singapore",
+    "websiteUrl": "http://benghee.eu",
+    "twitterUsername": "thebengeu",
+    "email": "beng@bengeu.com",
+    "bio": "",
     "followers": 261,
     "following": 19,
     "followerToFollowingRatio": "13.74",
@@ -689,8 +724,8 @@
       2012,
       2011
     ],
-    "totalCommits": 4446,
-    "restrictedContributions": 4231,
+    "totalCommits": 4479,
+    "restrictedContributions": 4261,
     "totalRepositories": 12,
     "totalStars": 20,
     "totalForks": 5,
@@ -763,7 +798,7 @@
         "name": "NUSModifications",
         "login": "nusmodifications",
         "description": "NUSModifications enhances the quality of students' lives in National University of Singapore through technology.",
-        "membersCount": 12
+        "membersCount": 13
       },
       {
         "name": "Supabase",
@@ -776,6 +811,11 @@
   {
     "name": "Stas",
     "login": "abc3",
+    "location": "Ukraine",
+    "websiteUrl": null,
+    "twitterUsername": "abc3erl",
+    "email": "sts@abc3.dev",
+    "bio": "🇺🇦",
     "followers": 43,
     "following": 19,
     "followerToFollowingRatio": "2.26",
@@ -868,6 +908,11 @@
   {
     "name": "Kamil Ogórek",
     "login": "kamilogorek",
+    "location": "Kraków, Poland",
+    "websiteUrl": "https://kamilogorek.com",
+    "twitterUsername": "kamilogorek",
+    "email": "kamil.ogorek@gmail.com",
+    "bio": "Trying to make people's lives easier.\r\nIntegrations Lead at @supabase.\r\nPreviously @getsentry.",
     "followers": 297,
     "following": 0,
     "followerToFollowingRatio": 297,
@@ -886,8 +931,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1692,
-    "restrictedContributions": 1332,
+    "totalCommits": 1707,
+    "restrictedContributions": 1346,
     "totalRepositories": 27,
     "totalStars": 92,
     "totalForks": 12,
@@ -951,8 +996,8 @@
     ],
     "uniqueContributors": [],
     "uniqueTopics": [],
-    "externalContributions": 15,
-    "totalExternalCommits": 139,
+    "externalContributions": 16,
+    "totalExternalCommits": 140,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -985,6 +1030,11 @@
   {
     "name": "Steve Chavez",
     "login": "steve-chavez",
+    "location": "UTC-5",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "stevechavezast@gmail.com",
+    "bio": "",
     "followers": 236,
     "following": 14,
     "followerToFollowingRatio": "16.86",
@@ -1003,7 +1053,7 @@
       2013,
       2012
     ],
-    "totalCommits": 1011,
+    "totalCommits": 1018,
     "restrictedContributions": 99,
     "totalRepositories": 24,
     "totalStars": 89,
@@ -1092,7 +1142,7 @@
       "spinlock"
     ],
     "externalContributions": 17,
-    "totalExternalCommits": 303,
+    "totalExternalCommits": 308,
     "sponsorsCount": 0,
     "sponsoredProjects": [
       "jgm",
@@ -1108,7 +1158,7 @@
         "name": "Nix/Nixpkgs/NixOS",
         "login": "NixOS",
         "description": "",
-        "membersCount": 1027
+        "membersCount": 1028
       },
       {
         "name": "PostgREST",
@@ -1133,6 +1183,11 @@
   {
     "name": "Inian",
     "login": "inian",
+    "location": "Singapore",
+    "websiteUrl": "https://everconfusedguy.com/",
+    "twitterUsername": "everconfusedguy",
+    "email": "",
+    "bio": "Engineering @supabase, founder @Dexecure",
     "followers": 149,
     "following": 17,
     "followerToFollowingRatio": "8.76",
@@ -1152,7 +1207,7 @@
       2012,
       2011
     ],
-    "totalCommits": 677,
+    "totalCommits": 678,
     "restrictedContributions": 358,
     "totalRepositories": 20,
     "totalStars": 43,
@@ -1258,6 +1313,11 @@
   {
     "name": "Greg Richardson",
     "login": "gregnr",
+    "location": null,
+    "websiteUrl": "grichardson.com",
+    "twitterUsername": "ggrdson",
+    "email": "",
+    "bio": "YouTube @ RabbitHoleSyndrome //\r\nEngineer @supabase",
     "followers": 246,
     "following": 17,
     "followerToFollowingRatio": "14.47",
@@ -1275,9 +1335,9 @@
       2014,
       2013
     ],
-    "totalCommits": 972,
+    "totalCommits": 982,
     "restrictedContributions": 96,
-    "totalRepositories": 13,
+    "totalRepositories": 14,
     "totalStars": 36,
     "totalForks": 5,
     "languages": [
@@ -1291,7 +1351,7 @@
       [
         "TypeScript",
         {
-          "repoCount": 2,
+          "repoCount": 3,
           "stars": 3
         }
       ],
@@ -1334,7 +1394,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 19,
-    "totalExternalCommits": 583,
+    "totalExternalCommits": 590,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1355,6 +1415,11 @@
   {
     "name": "Rodrigo Mansueli",
     "login": "mansueli",
+    "location": "Maringá",
+    "websiteUrl": "http://mansueli.com",
+    "twitterUsername": "rmansueli",
+    "email": "rodrigo@mansueli.com",
+    "bio": "",
     "followers": 24,
     "following": 7,
     "followerToFollowingRatio": "3.43",
@@ -1473,6 +1538,11 @@
   {
     "name": "Rors ",
     "login": "roryw10",
+    "location": null,
+    "websiteUrl": "https://www.supabase.io",
+    "twitterUsername": "Rorstro",
+    "email": "",
+    "bio": "Head of Growth @supabase ",
     "followers": 22,
     "following": 7,
     "followerToFollowingRatio": "3.14",
@@ -1514,6 +1584,11 @@
   {
     "name": "Wen Bo Xie",
     "login": "w3b6x9",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": "wenboxie",
+    "email": "",
+    "bio": "Software Engineer @supabase",
     "followers": 152,
     "following": 63,
     "followerToFollowingRatio": "2.41",
@@ -1584,9 +1659,14 @@
   {
     "name": "Thor 雷神 Schaeff",
     "login": "thorwebdev",
-    "followers": 308,
+    "location": "Singapore",
+    "websiteUrl": "https://youtube.com/thorwebdev",
+    "twitterUsername": "thorwebdev",
+    "email": "",
+    "bio": "DevRel & DX at @Supabase ⚡️",
+    "followers": 309,
     "following": 1,
-    "followerToFollowingRatio": "308.00",
+    "followerToFollowingRatio": "309.00",
     "contributionYears": [
       2024,
       2023,
@@ -1601,7 +1681,7 @@
       2014,
       2013
     ],
-    "totalCommits": 655,
+    "totalCommits": 663,
     "restrictedContributions": 59,
     "totalRepositories": 62,
     "totalStars": 249,
@@ -1677,7 +1757,7 @@
       "android-pay"
     ],
     "externalContributions": 25,
-    "totalExternalCommits": 207,
+    "totalExternalCommits": 208,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1698,6 +1778,11 @@
   {
     "name": "Copple",
     "login": "kiwicopple",
+    "location": null,
+    "websiteUrl": "https://paul.copplest.one",
+    "twitterUsername": "kiwicopple",
+    "email": "",
+    "bio": "CEO @supabase \r\n| Discord: copple#9999",
     "followers": 1295,
     "following": 2,
     "followerToFollowingRatio": "647.50",
@@ -1714,10 +1799,10 @@
       2015,
       2014
     ],
-    "totalCommits": 1784,
+    "totalCommits": 1785,
     "restrictedContributions": 32,
     "totalRepositories": 69,
-    "totalStars": 605,
+    "totalStars": 606,
     "totalForks": 55,
     "languages": [
       [
@@ -1759,7 +1844,7 @@
         "Shell",
         {
           "repoCount": 4,
-          "stars": 307
+          "stars": 308
         }
       ],
       [
@@ -1833,6 +1918,11 @@
   {
     "name": "Alaister Young",
     "login": "alaister",
+    "location": "Singapore",
+    "websiteUrl": "https://www.alaisteryoung.com",
+    "twitterUsername": "alaisteryoung",
+    "email": "",
+    "bio": "24 - Web Dev - Walks like penguin ",
     "followers": 80,
     "following": 63,
     "followerToFollowingRatio": "1.27",
@@ -1910,9 +2000,14 @@
   {
     "name": "Tyler",
     "login": "dshukertjr",
-    "followers": 239,
+    "location": "Tokyo",
+    "websiteUrl": "https://supabase.com",
+    "twitterUsername": "dshukertjr",
+    "email": "",
+    "bio": "Developer based in Tokyo Japan. \r\nSupabase, Flutter, Kotlin, Next.js, Japanese and English",
+    "followers": 240,
     "following": 0,
-    "followerToFollowingRatio": 239,
+    "followerToFollowingRatio": 240,
     "contributionYears": [
       2024,
       2023,
@@ -1924,10 +2019,10 @@
       2017,
       2016
     ],
-    "totalCommits": 978,
+    "totalCommits": 981,
     "restrictedContributions": 60,
     "totalRepositories": 91,
-    "totalStars": 524,
+    "totalStars": 525,
     "totalForks": 106,
     "languages": [
       [
@@ -1941,7 +2036,7 @@
         "TypeScript",
         {
           "repoCount": 30,
-          "stars": 46
+          "stars": 47
         }
       ],
       [
@@ -2028,7 +2123,7 @@
       "realtime-database"
     ],
     "externalContributions": 17,
-    "totalExternalCommits": 314,
+    "totalExternalCommits": 316,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -2049,6 +2144,11 @@
   {
     "name": "Bo Lu",
     "login": "burmecia",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 23,
     "following": 3,
     "followerToFollowingRatio": "7.67",
@@ -2063,8 +2163,8 @@
       2017,
       2016
     ],
-    "totalCommits": 1642,
-    "restrictedContributions": 1206,
+    "totalCommits": 1644,
+    "restrictedContributions": 1208,
     "totalRepositories": 1,
     "totalStars": 0,
     "totalForks": 0,
@@ -2095,6 +2195,11 @@
   {
     "name": "Joshen Lim",
     "login": "joshenlim",
+    "location": "Singapore",
+    "websiteUrl": "http://joshen.me",
+    "twitterUsername": null,
+    "email": "joshenlimek@gmail.com",
+    "bio": "",
     "followers": 195,
     "following": 0,
     "followerToFollowingRatio": 195,
@@ -2109,7 +2214,7 @@
       2017,
       2016
     ],
-    "totalCommits": 1736,
+    "totalCommits": 1738,
     "restrictedContributions": 64,
     "totalRepositories": 22,
     "totalStars": 144,
@@ -2201,6 +2306,11 @@
   {
     "name": "Kang Ming",
     "login": "kangmingtay",
+    "location": "Singapore",
+    "websiteUrl": null,
+    "twitterUsername": "kangmingtay",
+    "email": "kang.ming1996@gmail.com",
+    "bio": "",
     "followers": 77,
     "following": 55,
     "followerToFollowingRatio": "1.40",
@@ -2302,6 +2412,11 @@
   {
     "name": "Paul Cioanca",
     "login": "pcnc",
+    "location": "Romania",
+    "websiteUrl": "https://cioan.ca",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 22,
     "following": 12,
     "followerToFollowingRatio": "1.83",
@@ -2315,8 +2430,8 @@
       2018,
       2017
     ],
-    "totalCommits": 2267,
-    "restrictedContributions": 1892,
+    "totalCommits": 2283,
+    "restrictedContributions": 1908,
     "totalRepositories": 0,
     "totalStars": 0,
     "totalForks": 0,
@@ -2339,6 +2454,11 @@
   {
     "name": "Bobbie Soedirgo",
     "login": "soedirgo",
+    "location": "Singapore",
+    "websiteUrl": "soedirgo.dev",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "++[---------->+<]>.-[------>+<]>-.+++.+.--[--->+<]>-.--[->++++<]>+.----------.++++++.-[---->+<]>+++.++[--->++<]>.+++..----.+[++>---<]>-.",
     "followers": 81,
     "following": 29,
     "followerToFollowingRatio": "2.79",
@@ -2352,7 +2472,7 @@
       2018,
       2017
     ],
-    "totalCommits": 871,
+    "totalCommits": 872,
     "restrictedContributions": 0,
     "totalRepositories": 34,
     "totalStars": 121,
@@ -2461,6 +2581,11 @@
   {
     "name": "Jordi Enric",
     "login": "jordienr",
+    "location": "Palma, Illes Balears, Spain",
+    "websiteUrl": "jordienric.com",
+    "twitterUsername": "jordienr",
+    "email": "",
+    "bio": "designer & developer",
     "followers": 147,
     "following": 126,
     "followerToFollowingRatio": "1.17",
@@ -2473,7 +2598,7 @@
       2019,
       2018
     ],
-    "totalCommits": 1033,
+    "totalCommits": 1034,
     "restrictedContributions": 373,
     "totalRepositories": 37,
     "totalStars": 544,
@@ -2571,6 +2696,11 @@
   {
     "name": "Marijana Pavlinić",
     "login": "marijanapav",
+    "location": null,
+    "websiteUrl": "marijanapav.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 19,
     "following": 12,
     "followerToFollowingRatio": "1.58",
@@ -2613,6 +2743,11 @@
   {
     "name": "Monica Khoury",
     "login": "monicakh",
+    "location": "Beirut, Lebanon",
+    "websiteUrl": "https://linktr.ee/monicakh",
+    "twitterUsername": "MonicaAlkhoury",
+    "email": "",
+    "bio": "One commit at a time! ",
     "followers": 23,
     "following": 1,
     "followerToFollowingRatio": "23.00",

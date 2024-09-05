@@ -2,6 +2,11 @@
   {
     "name": "James Greenhill",
     "login": "fuziontech",
+    "location": "San Francisco",
+    "websiteUrl": "posthog.com",
+    "twitterUsername": "fuziontech",
+    "email": "fuziontech@gmail.com",
+    "bio": "",
     "followers": 97,
     "following": 105,
     "followerToFollowingRatio": "0.92",
@@ -138,6 +143,11 @@
   {
     "name": "Paul D'Ambra",
     "login": "pauldambra",
+    "location": "Manchester, UK",
+    "websiteUrl": "https://pauldambra.dev",
+    "twitterUsername": "pauldambra",
+    "email": "paul.dambra@gmail.com",
+    "bio": "",
     "followers": 81,
     "following": 6,
     "followerToFollowingRatio": "13.50",
@@ -157,7 +167,7 @@
       2012,
       2011
     ],
-    "totalCommits": 3916,
+    "totalCommits": 3930,
     "restrictedContributions": 489,
     "totalRepositories": 109,
     "totalStars": 48,
@@ -281,8 +291,8 @@
       "javascript",
       "ubictionary"
     ],
-    "externalContributions": 15,
-    "totalExternalCommits": 1643,
+    "externalContributions": 16,
+    "totalExternalCommits": 1651,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -297,6 +307,11 @@
   {
     "name": "Tom Owers",
     "login": "Gilbert09",
+    "location": "London",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 11,
     "following": 2,
     "followerToFollowingRatio": "5.50",
@@ -315,8 +330,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1277,
-    "restrictedContributions": 58,
+    "totalCommits": 1284,
+    "restrictedContributions": 59,
     "totalRepositories": 12,
     "totalStars": 1,
     "totalForks": 2,
@@ -371,7 +386,7 @@
       "clipboard"
     ],
     "externalContributions": 4,
-    "totalExternalCommits": 600,
+    "totalExternalCommits": 602,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -386,6 +401,11 @@
   {
     "name": "Manoel Aranda Neto",
     "login": "marandaneto",
+    "location": "Vienna - Austria",
+    "websiteUrl": null,
+    "twitterUsername": "marandaneto",
+    "email": "",
+    "bio": "Mobile at @PostHog. Prev. Mobile SDKs at @getSentry",
     "followers": 101,
     "following": 98,
     "followerToFollowingRatio": "1.03",
@@ -403,7 +423,7 @@
       2014,
       2013
     ],
-    "totalCommits": 1759,
+    "totalCommits": 1770,
     "restrictedContributions": 71,
     "totalRepositories": 9,
     "totalStars": 10,
@@ -441,7 +461,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 14,
-    "totalExternalCommits": 619,
+    "totalExternalCommits": 620,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -462,6 +482,11 @@
   {
     "name": "Marcus Hof",
     "login": "MarconLP",
+    "location": null,
+    "websiteUrl": "https://marcushof.vercel.app/",
+    "twitterUsername": "marcon565",
+    "email": "",
+    "bio": "",
     "followers": 53,
     "following": 1,
     "followerToFollowingRatio": "53.00",
@@ -478,7 +503,7 @@
       2015,
       2014
     ],
-    "totalCommits": 627,
+    "totalCommits": 632,
     "restrictedContributions": 52,
     "totalRepositories": 13,
     "totalStars": 837,
@@ -534,7 +559,7 @@
       "chrome"
     ],
     "externalContributions": 19,
-    "totalExternalCommits": 230,
+    "totalExternalCommits": 234,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -555,6 +580,11 @@
   {
     "name": "Eric Duong",
     "login": "EDsCODE",
+    "location": "Everywhere",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 48,
     "following": 14,
     "followerToFollowingRatio": "3.43",
@@ -570,7 +600,7 @@
       2016,
       2015
     ],
-    "totalCommits": 1413,
+    "totalCommits": 1415,
     "restrictedContributions": 465,
     "totalRepositories": 12,
     "totalStars": 0,
@@ -616,6 +646,11 @@
   {
     "name": "Raquel Smith",
     "login": "raquelmsmith",
+    "location": "San Luis Obispo, CA",
+    "websiteUrl": "raquelmsmith.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Product engineer @ PostHog",
     "followers": 47,
     "following": 2,
     "followerToFollowingRatio": "23.50",
@@ -630,8 +665,8 @@
       2017,
       2016
     ],
-    "totalCommits": 1558,
-    "restrictedContributions": 679,
+    "totalCommits": 1562,
+    "restrictedContributions": 683,
     "totalRepositories": 9,
     "totalStars": 18,
     "totalForks": 4,

@@ -2,6 +2,11 @@
   {
     "name": "Walker",
     "login": "WalkerGriggs",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://walkergriggs.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "ex-Herokai, I wrote a RegEx once…                \r\n\r\n",
     "followers": 35,
     "following": 9,
     "followerToFollowingRatio": "3.89",

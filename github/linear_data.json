@@ -2,6 +2,11 @@
   {
     "name": "Tom Moor",
     "login": "tommoor",
+    "location": "NYC",
+    "websiteUrl": "https://www.tommoor.com",
+    "twitterUsername": "tommoor",
+    "email": "",
+    "bio": "Building @outline – Englishman in New York.",
     "followers": 1108,
     "following": 65,
     "followerToFollowingRatio": "17.05",
@@ -22,8 +27,8 @@
       2011,
       2010
     ],
-    "totalCommits": 9262,
-    "restrictedContributions": 7440,
+    "totalCommits": 9296,
+    "restrictedContributions": 7463,
     "totalRepositories": 38,
     "totalStars": 7012,
     "totalForks": 627,
@@ -94,7 +99,7 @@
       "website"
     ],
     "externalContributions": 6,
-    "totalExternalCommits": 1177,
+    "totalExternalCommits": 1185,
     "sponsorsCount": 0,
     "sponsoredProjects": [
       "marijnh",
@@ -132,6 +137,11 @@
   {
     "name": "Andreas Eldh",
     "login": "eldh",
+    "location": "Uppsala",
+    "websiteUrl": "http://eldh.co",
+    "twitterUsername": "eldh",
+    "email": "andreas.eldh@gmail.com",
+    "bio": "Httpster",
     "followers": 121,
     "following": 6,
     "followerToFollowingRatio": "20.17",
@@ -151,8 +161,8 @@
       2012,
       2011
     ],
-    "totalCommits": 1912,
-    "restrictedContributions": 1898,
+    "totalCommits": 1913,
+    "restrictedContributions": 1899,
     "totalRepositories": 40,
     "totalStars": 293,
     "totalForks": 24,
@@ -254,6 +264,11 @@
   {
     "name": "Bryan Stern",
     "login": "bryanstern",
+    "location": "Denver, CO",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 42,
     "following": 3,
     "followerToFollowingRatio": "14.00",
@@ -273,8 +288,8 @@
       2012,
       2011
     ],
-    "totalCommits": 1363,
-    "restrictedContributions": 1352,
+    "totalCommits": 1365,
+    "restrictedContributions": 1354,
     "totalRepositories": 3,
     "totalStars": 102,
     "totalForks": 12,
@@ -312,6 +327,11 @@
   {
     "name": "Sean McGivern",
     "login": "smcgivern",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 8,
     "following": 0,
     "followerToFollowingRatio": 8,
@@ -331,7 +351,7 @@
       2012,
       2011
     ],
-    "totalCommits": 64,
+    "totalCommits": 65,
     "restrictedContributions": 0,
     "totalRepositories": 24,
     "totalStars": 7,
@@ -419,6 +439,11 @@
   {
     "name": "Yann-Edern Gillet",
     "login": "yannglt",
+    "location": "Paris, France",
+    "websiteUrl": "https://yannglt.com",
+    "twitterUsername": "yannglt",
+    "email": "",
+    "bio": "Software Designer, Linear — Crafting interfaces, products, and systems",
     "followers": 33,
     "following": 13,
     "followerToFollowingRatio": "2.54",
@@ -433,8 +458,8 @@
       2017,
       2016
     ],
-    "totalCommits": 488,
-    "restrictedContributions": 440,
+    "totalCommits": 490,
+    "restrictedContributions": 442,
     "totalRepositories": 11,
     "totalStars": 22,
     "totalForks": 1,
@@ -508,6 +533,11 @@
   {
     "name": "Mufeez Amjad",
     "login": "mufeez-amjad",
+    "location": "New York, NY",
+    "websiteUrl": "mufeezamjad.com",
+    "twitterUsername": "moofeez",
+    "email": "",
+    "bio": "eng @linear, @uwaterloo alum",
     "followers": 121,
     "following": 49,
     "followerToFollowingRatio": "2.47",
@@ -522,8 +552,8 @@
       2017,
       2016
     ],
-    "totalCommits": 2191,
-    "restrictedContributions": 1906,
+    "totalCommits": 2195,
+    "restrictedContributions": 1907,
     "totalRepositories": 26,
     "totalStars": 78,
     "totalForks": 11,
@@ -652,7 +682,7 @@
       "graphics2d"
     ],
     "externalContributions": 4,
-    "totalExternalCommits": 114,
+    "totalExternalCommits": 116,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -673,9 +703,14 @@
   {
     "name": "paco",
     "login": "pacocoursey",
-    "followers": 2884,
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
+    "followers": 2886,
     "following": 81,
-    "followerToFollowingRatio": "35.60",
+    "followerToFollowingRatio": "35.63",
     "contributionYears": [
       2024,
       2023,
@@ -689,7 +724,7 @@
     "totalCommits": 2186,
     "restrictedContributions": 2064,
     "totalRepositories": 15,
-    "totalStars": 16560,
+    "totalStars": 16567,
     "totalForks": 568,
     "languages": [
       [
@@ -703,7 +738,7 @@
         "TypeScript",
         {
           "repoCount": 5,
-          "stars": 14634
+          "stars": 14641
         }
       ]
     ],

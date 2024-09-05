@@ -2,9 +2,14 @@
   {
     "name": "Armin Ronacher",
     "login": "mitsuhiko",
-    "followers": 21610,
+    "location": "Austria",
+    "websiteUrl": "https://lucumr.pocoo.org/",
+    "twitterUsername": "mitsuhiko",
+    "email": "armin.ronacher@active-4.com",
+    "bio": "Software developer and Open Source nut. Creator of the Flask framework. Engineering at @getsentry. Other things of interest: @pallets and @rust-lang",
+    "followers": 21611,
     "following": 23,
-    "followerToFollowingRatio": "939.57",
+    "followerToFollowingRatio": "939.61",
     "contributionYears": [
       2024,
       2023,
@@ -28,70 +33,70 @@
     "totalCommits": 1759,
     "restrictedContributions": 351,
     "totalRepositories": 166,
-    "totalStars": 18761,
-    "totalForks": 1900,
+    "totalStars": 18866,
+    "totalForks": 1899,
     "languages": [
       [
         "Python",
         {
           "repoCount": 46,
-          "stars": 8196
+          "stars": 8243
         }
       ],
       [
         "Rust",
         {
           "repoCount": 35,
-          "stars": 8365
+          "stars": 8404
         }
       ],
       [
         "Vim Script",
         {
           "repoCount": 6,
-          "stars": 671
+          "stars": 677
         }
       ],
       [
         "JavaScript",
         {
           "repoCount": 4,
-          "stars": 800
+          "stars": 804
         }
       ],
       [
         "CSS",
         {
           "repoCount": 2,
-          "stars": 542
+          "stars": 544
         }
       ],
       [
         "C",
         {
           "repoCount": 2,
-          "stars": 29
+          "stars": 31
         }
       ],
       [
         "PHP",
         {
           "repoCount": 1,
-          "stars": 37
+          "stars": 38
         }
       ],
       [
         "C++",
         {
           "repoCount": 1,
-          "stars": 36
+          "stars": 37
         }
       ],
       [
         "Swift",
         {
           "repoCount": 1,
-          "stars": 25
+          "stars": 26
         }
       ]
     ],
@@ -160,6 +165,11 @@
   {
     "name": "Matt Duncan",
     "login": "mrduncan",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://mattduncan.org",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 25,
     "following": 0,
     "followerToFollowingRatio": 25,
@@ -228,6 +238,11 @@
   {
     "name": "David Cramer",
     "login": "dcramer",
+    "location": "San Francisco, CA",
+    "websiteUrl": "http://cra.mr",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "founder/cto @getsentry",
     "followers": 2828,
     "following": 11,
     "followerToFollowingRatio": "257.09",
@@ -254,14 +269,14 @@
     "totalCommits": 2272,
     "restrictedContributions": 349,
     "totalRepositories": 126,
-    "totalStars": 6115,
+    "totalStars": 6118,
     "totalForks": 1536,
     "languages": [
       [
         "Python",
         {
           "repoCount": 66,
-          "stars": 5553
+          "stars": 5556
         }
       ],
       [
@@ -374,6 +389,11 @@
   {
     "name": "Mark Story",
     "login": "markstory",
+    "location": "Toronto, Ontario",
+    "websiteUrl": "http://mark-story.com",
+    "twitterUsername": null,
+    "email": "mark@mark-story.com",
+    "bio": "",
     "followers": 1284,
     "following": 19,
     "followerToFollowingRatio": "67.58",
@@ -396,8 +416,8 @@
       2009,
       2008
     ],
-    "totalCommits": 5663,
-    "restrictedContributions": 2148,
+    "totalCommits": 5666,
+    "restrictedContributions": 2149,
     "totalRepositories": 40,
     "totalStars": 1336,
     "totalForks": 379,
@@ -503,7 +523,7 @@
       "graphite"
     ],
     "externalContributions": 37,
-    "totalExternalCommits": 1466,
+    "totalExternalCommits": 1467,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -530,6 +550,11 @@
   {
     "name": "Chris Jennings",
     "login": "ckj",
+    "location": "San Francisco",
+    "websiteUrl": "http://chrisjennings.com",
+    "twitterUsername": "ckj",
+    "email": "chriskjennings@gmail.com",
+    "bio": "Co-founder at http://sentry.io",
     "followers": 155,
     "following": 11,
     "followerToFollowingRatio": "14.09",
@@ -590,6 +615,11 @@
   {
     "name": "Armen Zambrano G.",
     "login": "armenzg",
+    "location": "Toronto, Canada",
+    "websiteUrl": "https://armenzg.com",
+    "twitterUsername": "armenzg",
+    "email": "",
+    "bio": "Follower of Christ. Coding for his glory. Skills: automation, webdev full-stack, tooling, Docker. Current: @getsentry. Formerly @mozilla",
     "followers": 62,
     "following": 2,
     "followerToFollowingRatio": "31.00",
@@ -612,8 +642,8 @@
       2009,
       2008
     ],
-    "totalCommits": 1257,
-    "restrictedContributions": 333,
+    "totalCommits": 1266,
+    "restrictedContributions": 334,
     "totalRepositories": 45,
     "totalStars": 2,
     "totalForks": 7,
@@ -670,7 +700,7 @@
       "netlify"
     ],
     "externalContributions": 9,
-    "totalExternalCommits": 177,
+    "totalExternalCommits": 178,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -685,6 +715,11 @@
   {
     "name": "Michael Warkentin",
     "login": "mwarkentin",
+    "location": "Toronto, Ontario",
+    "websiteUrl": "http://til.tobalabs.com",
+    "twitterUsername": "mwarkentin",
+    "email": "mwarkentin@hey.com",
+    "bio": "Senior SRE @getsentry\r\nPreviously OpsEng @waveaccounting",
     "followers": 100,
     "following": 37,
     "followerToFollowingRatio": "2.70",
@@ -706,8 +741,8 @@
       2010,
       2009
     ],
-    "totalCommits": 1885,
-    "restrictedContributions": 1742,
+    "totalCommits": 1888,
+    "restrictedContributions": 1745,
     "totalRepositories": 43,
     "totalStars": 599,
     "totalForks": 108,
@@ -825,6 +860,11 @@
   {
     "name": "Billy Vong",
     "login": "billyvg",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": "billyvg",
+    "email": "",
+    "bio": "",
     "followers": 147,
     "following": 10,
     "followerToFollowingRatio": "14.70",
@@ -846,7 +886,7 @@
       2010,
       2009
     ],
-    "totalCommits": 1373,
+    "totalCommits": 1374,
     "restrictedContributions": 356,
     "totalRepositories": 35,
     "totalStars": 458,
@@ -940,7 +980,12 @@
   {
     "name": "Burak Yigit Kaya",
     "login": "BYK",
-    "followers": 1622,
+    "location": "London, UK",
+    "websiteUrl": "http://byk.im",
+    "twitterUsername": "madBYK",
+    "email": "",
+    "bio": "Helping engineers help themselves help us all. Tinkerer @getsentry\r\n",
+    "followers": 1623,
     "following": 176,
     "followerToFollowingRatio": "9.22",
     "contributionYears": [
@@ -1057,6 +1102,11 @@
   {
     "name": "Chad Whitacre",
     "login": "chadwhitacre",
+    "location": null,
+    "websiteUrl": "https://chadwhitacre.com/",
+    "twitterUsername": "chadwhitacre_",
+    "email": "",
+    "bio": "Head of Open Source at @getsentry",
     "followers": 527,
     "following": 13,
     "followerToFollowingRatio": "40.54",
@@ -1083,7 +1133,7 @@
       2005,
       2004
     ],
-    "totalCommits": 1418,
+    "totalCommits": 1419,
     "restrictedContributions": 133,
     "totalRepositories": 41,
     "totalStars": 254,
@@ -1168,7 +1218,12 @@
   {
     "name": "Alberto Leal",
     "login": "dashed",
-    "followers": 209,
+    "location": "Toronto, Canada",
+    "websiteUrl": "https://albertoleal.ca",
+    "twitterUsername": "dasheddashed",
+    "email": "mailforalberto@gmail.com",
+    "bio": "🇨🇦 he/him/his",
+    "followers": 210,
     "following": 581,
     "followerToFollowingRatio": "0.36",
     "contributionYears": [
@@ -1189,8 +1244,8 @@
       2010,
       2009
     ],
-    "totalCommits": 2616,
-    "restrictedContributions": 1819,
+    "totalCommits": 2619,
+    "restrictedContributions": 1822,
     "totalRepositories": 78,
     "totalStars": 543,
     "totalForks": 86,
@@ -1382,6 +1437,11 @@
   {
     "name": "Onkar Deshpande",
     "login": "onkar",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "onkar.deshpande@gmail.com",
+    "bio": "",
     "followers": 4,
     "following": 1,
     "followerToFollowingRatio": "4.00",
@@ -1403,7 +1463,7 @@
       2010,
       2009
     ],
-    "totalCommits": 44,
+    "totalCommits": 45,
     "restrictedContributions": 2,
     "totalRepositories": 6,
     "totalStars": 2,
@@ -1442,6 +1502,11 @@
   {
     "name": "Ryan Albrecht",
     "login": "ryan953",
+    "location": "San Francisco, CA",
+    "websiteUrl": "http://ryanalbrecht.ca",
+    "twitterUsername": null,
+    "email": "ryan@ryanalbrecht.ca",
+    "bio": "",
     "followers": 99,
     "following": 19,
     "followerToFollowingRatio": "5.21",
@@ -1462,8 +1527,8 @@
       2011,
       2010
     ],
-    "totalCommits": 3244,
-    "restrictedContributions": 1067,
+    "totalCommits": 3246,
+    "restrictedContributions": 1068,
     "totalRepositories": 33,
     "totalStars": 29,
     "totalForks": 6,
@@ -1548,7 +1613,7 @@
       "phabricator-differential-plugin"
     ],
     "externalContributions": 10,
-    "totalExternalCommits": 666,
+    "totalExternalCommits": 667,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1563,7 +1628,12 @@
   {
     "name": "Benjamin E. Coe",
     "login": "bcoe",
-    "followers": 1648,
+    "location": "Waterloo",
+    "websiteUrl": "https://twitter.com/benjamincoe",
+    "twitterUsername": null,
+    "email": "benjamin.coe@sentry.io",
+    "bio": "Co-founded Attachments.me, early employee at npm Inc. Maintains yargs, Istanbul, contributes to Node.js. Currently product at Sentry.",
+    "followers": 1649,
     "following": 188,
     "followerToFollowingRatio": "8.77",
     "contributionYears": [
@@ -1586,14 +1656,14 @@
     "totalCommits": 247,
     "restrictedContributions": 7,
     "totalRepositories": 152,
-    "totalStars": 6184,
+    "totalStars": 6187,
     "totalForks": 572,
     "languages": [
       [
         "JavaScript",
         {
           "repoCount": 71,
-          "stars": 4482
+          "stars": 4484
         }
       ],
       [
@@ -1607,7 +1677,7 @@
         "TypeScript",
         {
           "repoCount": 5,
-          "stars": 21
+          "stars": 22
         }
       ],
       [
@@ -1649,7 +1719,7 @@
         "Dart",
         {
           "repoCount": 1,
-          "stars": 0
+          "stars": 1
         }
       ]
     ],
@@ -1722,6 +1792,11 @@
   {
     "name": "Alex Jillard",
     "login": "alexjillard",
+    "location": "Windsor, Ontario, Canada",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "alexjillard@gmail.com",
+    "bio": "",
     "followers": 16,
     "following": 9,
     "followerToFollowingRatio": "1.78",
@@ -1795,6 +1870,11 @@
   {
     "name": "Anton Pirker",
     "login": "antonpirker",
+    "location": "Vienna",
+    "websiteUrl": "http://www.anton-pirker.at",
+    "twitterUsername": null,
+    "email": "anton@ignaz.at",
+    "bio": "Senior Software Engineer | @getsentry",
     "followers": 115,
     "following": 23,
     "followerToFollowingRatio": "5.00",
@@ -1815,7 +1895,7 @@
       2011,
       2010
     ],
-    "totalCommits": 1412,
+    "totalCommits": 1419,
     "restrictedContributions": 144,
     "totalRepositories": 28,
     "totalStars": 20,
@@ -1860,7 +1940,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 12,
-    "totalExternalCommits": 515,
+    "totalExternalCommits": 519,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1875,6 +1955,11 @@
   {
     "name": "David Herberth",
     "login": "Dav1dde",
+    "location": "Vienna / ArchLinux / K8S",
+    "websiteUrl": "https://dav1d.de",
+    "twitterUsername": null,
+    "email": "github@dav1d.de",
+    "bio": "",
     "followers": 299,
     "following": 6,
     "followerToFollowingRatio": "49.83",
@@ -1895,10 +1980,10 @@
       2011,
       2010
     ],
-    "totalCommits": 2273,
+    "totalCommits": 2274,
     "restrictedContributions": 427,
     "totalRepositories": 62,
-    "totalStars": 4538,
+    "totalStars": 4540,
     "totalForks": 638,
     "languages": [
       [
@@ -1933,7 +2018,7 @@
         "C",
         {
           "repoCount": 3,
-          "stars": 3725
+          "stars": 3727
         }
       ],
       [
@@ -2058,6 +2143,11 @@
   {
     "name": "Indragie Karunaratne",
     "login": "indragiek",
+    "location": "San Francisco Bay Area",
+    "websiteUrl": "http://indragie.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 1114,
     "following": 392,
     "followerToFollowingRatio": "2.84",
@@ -2180,6 +2270,11 @@
   {
     "name": "Matt Quinn",
     "login": "mjq",
+    "location": "Canada",
+    "websiteUrl": "https://mjquinn.ca/",
+    "twitterUsername": null,
+    "email": "matt@mjquinn.ca",
+    "bio": "",
     "followers": 2,
     "following": 0,
     "followerToFollowingRatio": 2,
@@ -2200,7 +2295,7 @@
       2011,
       2010
     ],
-    "totalCommits": 172,
+    "totalCommits": 173,
     "restrictedContributions": 47,
     "totalRepositories": 0,
     "totalStars": 0,
@@ -2224,6 +2319,11 @@
   {
     "name": "Daniel Griesser",
     "login": "HazAT",
+    "location": "Vienna",
+    "websiteUrl": "danielgriesser.com",
+    "twitterUsername": "DanielGri",
+    "email": "daniel@sentry.io",
+    "bio": "( ͡° ͜ʖ ͡°)",
     "followers": 181,
     "following": 1,
     "followerToFollowingRatio": "181.00",
@@ -2309,6 +2409,11 @@
   {
     "name": "Arpad Borsos",
     "login": "Swatinem",
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://swatinem.de",
+    "twitterUsername": null,
+    "email": "swatinem@swatinem.de",
+    "bio": "",
     "followers": 418,
     "following": 62,
     "followerToFollowingRatio": "6.74",
@@ -2332,10 +2437,10 @@
       2008,
       2007
     ],
-    "totalCommits": 2385,
+    "totalCommits": 2391,
     "restrictedContributions": 576,
     "totalRepositories": 74,
-    "totalStars": 2477,
+    "totalStars": 2478,
     "totalForks": 242,
     "languages": [
       [
@@ -2356,7 +2461,7 @@
         "TypeScript",
         {
           "repoCount": 11,
-          "stars": 2060
+          "stars": 2061
         }
       ],
       [
@@ -2418,6 +2523,11 @@
   {
     "name": "Zach Collins",
     "login": "corps",
+    "location": "Bay Area, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 18,
     "following": 3,
     "followerToFollowingRatio": "6.00",
@@ -2539,6 +2649,11 @@
   {
     "name": "Richard Gibert",
     "login": "rgibert",
+    "location": "Toronto, ON, Canada",
+    "websiteUrl": "https://richard.gibert.ca/",
+    "twitterUsername": null,
+    "email": "richard@gibert.ca",
+    "bio": "SRE @getsentry ",
     "followers": 11,
     "following": 0,
     "followerToFollowingRatio": 11,
@@ -2558,8 +2673,8 @@
       2012,
       2011
     ],
-    "totalCommits": 2410,
-    "restrictedContributions": 2365,
+    "totalCommits": 2415,
+    "restrictedContributions": 2370,
     "totalRepositories": 34,
     "totalStars": 2,
     "totalForks": 6,
@@ -2690,6 +2805,11 @@
   {
     "name": "Markus Unterwaditzer",
     "login": "untitaker",
+    "location": null,
+    "websiteUrl": "https://unterwaditzer.net",
+    "twitterUsername": "untitaker",
+    "email": "",
+    "bio": "",
     "followers": 665,
     "following": 101,
     "followerToFollowingRatio": "6.58",
@@ -2709,17 +2829,17 @@
       2012,
       2011
     ],
-    "totalCommits": 1049,
+    "totalCommits": 1050,
     "restrictedContributions": 0,
     "totalRepositories": 59,
-    "totalStars": 1274,
+    "totalStars": 1275,
     "totalForks": 123,
     "languages": [
       [
         "Rust",
         {
           "repoCount": 23,
-          "stars": 860
+          "stars": 861
         }
       ],
       [
@@ -2845,7 +2965,7 @@
       "profiler"
     ],
     "externalContributions": 16,
-    "totalExternalCommits": 276,
+    "totalExternalCommits": 277,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -2890,6 +3010,11 @@
   {
     "name": "George Gritsouk",
     "login": "gggritso",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 32,
     "following": 1,
     "followerToFollowingRatio": "32.00",
@@ -2909,7 +3034,7 @@
       2012,
       2011
     ],
-    "totalCommits": 1123,
+    "totalCommits": 1130,
     "restrictedContributions": 0,
     "totalRepositories": 27,
     "totalStars": 424,
@@ -2994,7 +3119,7 @@
       "tailwind"
     ],
     "externalContributions": 8,
-    "totalExternalCommits": 385,
+    "totalExternalCommits": 390,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -3009,6 +3134,11 @@
   {
     "name": "Taylor Osler",
     "login": "keeakita",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "(she/her)\r\n\r\nSite Reliability Engineer at @getsentry, Ohio State alum, open source nerd, hacker of things",
     "followers": 24,
     "following": 6,
     "followerToFollowingRatio": "4.00",
@@ -3137,6 +3267,11 @@
   {
     "name": "Alexander Tarasov",
     "login": "oioki",
+    "location": "Vienna",
+    "websiteUrl": "https://oioki.me/",
+    "twitterUsername": "oioki",
+    "email": "",
+    "bio": "",
     "followers": 38,
     "following": 24,
     "followerToFollowingRatio": "1.58",
@@ -3156,8 +3291,8 @@
       2012,
       2011
     ],
-    "totalCommits": 1437,
-    "restrictedContributions": 1034,
+    "totalCommits": 1448,
+    "restrictedContributions": 1045,
     "totalRepositories": 32,
     "totalStars": 59,
     "totalForks": 21,
@@ -3253,6 +3388,11 @@
   {
     "name": "Gabriel Lopes",
     "login": "gaprl",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Software Engineering Manager",
     "followers": 19,
     "following": 8,
     "followerToFollowingRatio": "2.38",
@@ -3303,6 +3443,11 @@
   {
     "name": "Scott Cooper",
     "login": "scttcper",
+    "location": "San Francisco",
+    "websiteUrl": "https://xmplaylist.com",
+    "twitterUsername": "scttcper",
+    "email": "",
+    "bio": "I have the internet merit badge",
     "followers": 286,
     "following": 62,
     "followerToFollowingRatio": "4.61",
@@ -3321,17 +3466,17 @@
       2013,
       2012
     ],
-    "totalCommits": 4037,
-    "restrictedContributions": 1673,
+    "totalCommits": 4041,
+    "restrictedContributions": 1675,
     "totalRepositories": 57,
-    "totalStars": 5637,
+    "totalStars": 5641,
     "totalForks": 930,
     "languages": [
       [
         "TypeScript",
         {
           "repoCount": 43,
-          "stars": 5617
+          "stars": 5621
         }
       ],
       [
@@ -3422,7 +3567,7 @@
       "hon"
     ],
     "externalContributions": 10,
-    "totalExternalCommits": 552,
+    "totalExternalCommits": 553,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -3437,6 +3582,11 @@
   {
     "name": "Markus Hintersteiner",
     "login": "markushi",
+    "location": "Austria",
+    "websiteUrl": "https://markushintersteiner.at",
+    "twitterUsername": "markushi_",
+    "email": "",
+    "bio": "Android @getsentry ",
     "followers": 333,
     "following": 13,
     "followerToFollowingRatio": "25.62",
@@ -3519,6 +3669,11 @@
   {
     "name": "Evan Purkhiser",
     "login": "evanpurkhiser",
+    "location": "San Francisco",
+    "websiteUrl": "http://evanpurkhiser.com",
+    "twitterUsername": "evanpurkhiser",
+    "email": "",
+    "bio": "Engineer + Trance / HHC DJ",
     "followers": 302,
     "following": 47,
     "followerToFollowingRatio": "6.43",
@@ -3538,8 +3693,8 @@
       2012,
       2011
     ],
-    "totalCommits": 4642,
-    "restrictedContributions": 1422,
+    "totalCommits": 4645,
+    "restrictedContributions": 1425,
     "totalRepositories": 77,
     "totalStars": 3109,
     "totalForks": 387,
@@ -3748,6 +3903,11 @@
   {
     "name": "Jan Michael Auer",
     "login": "jan-auer",
+    "location": "Vienna, Austria",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "contact@jauer.org",
+    "bio": "",
     "followers": 125,
     "following": 0,
     "followerToFollowingRatio": 125,
@@ -3766,7 +3926,7 @@
       2013,
       2012
     ],
-    "totalCommits": 879,
+    "totalCommits": 935,
     "restrictedContributions": 293,
     "totalRepositories": 16,
     "totalStars": 98,
@@ -3871,8 +4031,8 @@
       "multiplatform",
       "example"
     ],
-    "externalContributions": 13,
-    "totalExternalCommits": 246,
+    "externalContributions": 14,
+    "totalExternalCommits": 280,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -3893,6 +4053,11 @@
   {
     "name": "Joris Bayer",
     "login": "jjbayer",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 14,
     "following": 1,
     "followerToFollowingRatio": "14.00",
@@ -3911,7 +4076,7 @@
       2013,
       2012
     ],
-    "totalCommits": 1637,
+    "totalCommits": 1660,
     "restrictedContributions": 0,
     "totalRepositories": 14,
     "totalStars": 1,
@@ -3978,9 +4143,14 @@
   {
     "name": "Bruno Garcia",
     "login": "bruno-garcia",
-    "followers": 354,
+    "location": "Toronto, Canada",
+    "websiteUrl": "https://garcia.in",
+    "twitterUsername": "brungarc",
+    "email": "",
+    "bio": "",
+    "followers": 353,
     "following": 78,
-    "followerToFollowingRatio": "4.54",
+    "followerToFollowingRatio": "4.53",
     "contributionYears": [
       2024,
       2023,
@@ -3996,7 +4166,7 @@
       2013,
       2012
     ],
-    "totalCommits": 1418,
+    "totalCommits": 1419,
     "restrictedContributions": 131,
     "totalRepositories": 54,
     "totalStars": 413,
@@ -4157,7 +4327,7 @@
         "name": ".NET Platform",
         "login": "dotnet",
         "description": "Home of the open source .NET platform",
-        "membersCount": 606
+        "membersCount": 607
       },
       {
         "name": "Flutter",
@@ -4176,6 +4346,11 @@
   {
     "name": "Danny Lee",
     "login": "leedongwei",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://danny.dongwei.li",
+    "twitterUsername": null,
+    "email": "danny@dongwei.li",
+    "bio": "Engineering at @getsentry",
     "followers": 68,
     "following": 97,
     "followerToFollowingRatio": "0.70",
@@ -4194,7 +4369,7 @@
       2013,
       2012
     ],
-    "totalCommits": 167,
+    "totalCommits": 169,
     "restrictedContributions": 117,
     "totalRepositories": 10,
     "totalStars": 34,
@@ -4298,6 +4473,11 @@
   {
     "name": "Lyn Nagara",
     "login": "lynnagara",
+    "location": "seattle",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 73,
     "following": 0,
     "followerToFollowingRatio": 73,
@@ -4413,6 +4593,11 @@
   {
     "name": "Josh Ferge",
     "login": "JoshFerge",
+    "location": "dabay",
+    "websiteUrl": "http://joshferge.github.io",
+    "twitterUsername": "joshferge",
+    "email": "",
+    "bio": "@getsentry",
     "followers": 26,
     "following": 11,
     "followerToFollowingRatio": "2.36",
@@ -4431,7 +4616,7 @@
       2013,
       2012
     ],
-    "totalCommits": 2506,
+    "totalCommits": 2509,
     "restrictedContributions": 1174,
     "totalRepositories": 25,
     "totalStars": 4,
@@ -4505,6 +4690,11 @@
   {
     "name": "Karl Heinz Struggl",
     "login": "kahest",
+    "location": "Graz",
+    "websiteUrl": null,
+    "twitterUsername": "karheist",
+    "email": "",
+    "bio": "Engineering Manager, Mobile @getsentry ",
     "followers": 16,
     "following": 27,
     "followerToFollowingRatio": "0.59",
@@ -4523,7 +4713,7 @@
       2013,
       2012
     ],
-    "totalCommits": 476,
+    "totalCommits": 477,
     "restrictedContributions": 0,
     "totalRepositories": 0,
     "totalStars": 0,
@@ -4532,7 +4722,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 16,
-    "totalExternalCommits": 142,
+    "totalExternalCommits": 143,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -4547,6 +4737,11 @@
   {
     "name": "Francesco Novy",
     "login": "mydea",
+    "location": "Vienna, Austria",
+    "websiteUrl": "http://fnovy.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Senior Software Engineer @ Sentry, working on the JS SDKs",
     "followers": 93,
     "following": 2,
     "followerToFollowingRatio": "46.50",
@@ -4565,7 +4760,7 @@
       2013,
       2012
     ],
-    "totalCommits": 3096,
+    "totalCommits": 3105,
     "restrictedContributions": 0,
     "totalRepositories": 38,
     "totalStars": 331,
@@ -4626,7 +4821,7 @@
       "ember-data"
     ],
     "externalContributions": 22,
-    "totalExternalCommits": 943,
+    "totalExternalCommits": 947,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -4641,6 +4836,11 @@
   {
     "name": "Philipp Hofmann",
     "login": "philipphofmann",
+    "location": "Vienna",
+    "websiteUrl": "https://stackoverflow.com/story/philipphofmann",
+    "twitterUsername": "phil__hofmann",
+    "email": "",
+    "bio": "Building the next generation of application monitoring for mobile at \r\n@getsentry.",
     "followers": 47,
     "following": 34,
     "followerToFollowingRatio": "1.38",
@@ -4725,6 +4925,11 @@
   {
     "name": "Alexander Dinauer",
     "login": "adinauer",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 17,
     "following": 8,
     "followerToFollowingRatio": "2.13",
@@ -4824,6 +5029,11 @@
   {
     "name": "Evan Hicks",
     "login": "evanh",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Software Developer in Toronto, who loves building things.",
     "followers": 19,
     "following": 4,
     "followerToFollowingRatio": "4.75",
@@ -4888,6 +5098,11 @@
   {
     "name": "Matt Cannizzaro",
     "login": "mcannizz",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 4,
     "following": 0,
     "followerToFollowingRatio": 4,
@@ -4952,6 +5167,11 @@
   {
     "name": null,
     "login": "volokluev",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 10,
     "following": 1,
     "followerToFollowingRatio": "10.00",
@@ -5008,6 +5228,11 @@
   {
     "name": "Andrew McKnight",
     "login": "armcknight",
+    "location": "Fairbanks, AK",
+    "websiteUrl": "https://armcknight.com",
+    "twitterUsername": null,
+    "email": "amcknight2718@gmail.com",
+    "bio": "💻 🧗🏻‍♂️ 🏔️ ⛷️ 🏂🏻 🚴🏻 👨🏻‍🍳 👨‍👩‍👧 🗺️ 🧳",
     "followers": 76,
     "following": 73,
     "followerToFollowingRatio": "1.04",
@@ -5025,7 +5250,7 @@
       2014,
       2013
     ],
-    "totalCommits": 625,
+    "totalCommits": 626,
     "restrictedContributions": 5,
     "totalRepositories": 48,
     "totalStars": 60,
@@ -5134,6 +5359,11 @@
   {
     "name": "William Mak",
     "login": "wmak",
+    "location": "Toronto, Ontario",
+    "websiteUrl": "wmak.io",
+    "twitterUsername": null,
+    "email": "william@wmak.io",
+    "bio": "",
     "followers": 52,
     "following": 56,
     "followerToFollowingRatio": "0.93",
@@ -5246,6 +5476,11 @@
   {
     "name": "Darren Kwong",
     "login": "DeeVine",
+    "location": "san jose",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "darren.kwong@sentry.io",
+    "bio": "I have a passion for integrating technologies to solve\r\nbusiness problems and improve upon existing methods.",
     "followers": 3,
     "following": 2,
     "followerToFollowingRatio": "1.50",
@@ -5302,6 +5537,11 @@
   {
     "name": "John Manhart",
     "login": "jmanhart",
+    "location": "Seattle",
+    "websiteUrl": "http://manhart.io/",
+    "twitterUsername": "JohnManhart",
+    "email": "manhartjohn@gmail.com",
+    "bio": "Product Design Manager at Sentry ✌️\r\n",
     "followers": 81,
     "following": 201,
     "followerToFollowingRatio": "0.40",
@@ -5396,6 +5636,11 @@
   {
     "name": "Roman Zavarnitsyn",
     "login": "romtsn",
+    "location": "Austria",
+    "websiteUrl": "romtsn.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 111,
     "following": 24,
     "followerToFollowingRatio": "4.63",
@@ -5457,6 +5702,11 @@
   {
     "name": "Giovanni Barillari",
     "login": "gi0baro",
+    "location": "Vienna, Austria",
+    "websiteUrl": null,
+    "twitterUsername": "gi0baro",
+    "email": "g@baro.dev",
+    "bio": "Physicist, software developer, SRE. Photography passionated. In love with radical honesty.",
     "followers": 210,
     "following": 49,
     "followerToFollowingRatio": "4.29",
@@ -5474,17 +5724,17 @@
       2014,
       2013
     ],
-    "totalCommits": 1087,
-    "restrictedContributions": 587,
+    "totalCommits": 1094,
+    "restrictedContributions": 593,
     "totalRepositories": 28,
-    "totalStars": 66,
+    "totalStars": 67,
     "totalForks": 38,
     "languages": [
       [
         "Python",
         {
           "repoCount": 17,
-          "stars": 38
+          "stars": 39
         }
       ],
       [
@@ -5581,9 +5831,14 @@
   {
     "name": "Lazar Nikolov",
     "login": "nikolovlazar",
-    "followers": 460,
+    "location": "Toronto, Canada",
+    "websiteUrl": "https://nikolovlazar.com",
+    "twitterUsername": "NikolovLazar",
+    "email": "hello@nikolovlazar.com",
+    "bio": "Web Perf Developer Advocate @getsentry.\r\nInstructor @eggheadio.",
+    "followers": 461,
     "following": 45,
-    "followerToFollowingRatio": "10.22",
+    "followerToFollowingRatio": "10.24",
     "contributionYears": [
       2024,
       2023,
@@ -5601,14 +5856,14 @@
     "totalCommits": 1011,
     "restrictedContributions": 383,
     "totalRepositories": 50,
-    "totalStars": 865,
-    "totalForks": 219,
+    "totalStars": 873,
+    "totalForks": 220,
     "languages": [
       [
         "TypeScript",
         {
           "repoCount": 21,
-          "stars": 631
+          "stars": 639
         }
       ],
       [
@@ -5770,6 +6025,11 @@
   {
     "name": "Gabe Villalobos",
     "login": "GabeVillalobos",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Full-Stack Software Engineer with a mild obsession of Rust.",
     "followers": 4,
     "following": 1,
     "followerToFollowingRatio": "4.00",
@@ -5826,6 +6086,11 @@
   {
     "name": "Colton Allen",
     "login": "cmanallen",
+    "location": "Nashville, TN",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "colton.allen@sentry.io",
+    "bio": "",
     "followers": 11,
     "following": 0,
     "followerToFollowingRatio": 11,
@@ -5843,7 +6108,7 @@
       2014,
       2013
     ],
-    "totalCommits": 663,
+    "totalCommits": 664,
     "restrictedContributions": 0,
     "totalRepositories": 26,
     "totalStars": 11,
@@ -5929,6 +6194,11 @@
   {
     "name": "Kev",
     "login": "k-fish",
+    "location": "Toronto, Canada",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 34,
     "following": 7,
     "followerToFollowingRatio": "4.86",
@@ -5946,7 +6216,7 @@
       2014,
       2013
     ],
-    "totalCommits": 1078,
+    "totalCommits": 1079,
     "restrictedContributions": 516,
     "totalRepositories": 16,
     "totalStars": 12,
@@ -5994,6 +6264,11 @@
   {
     "name": "Nathan Hsieh",
     "login": "nhsiehgit",
+    "location": "San Francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 36,
     "following": 22,
     "followerToFollowingRatio": "1.64",
@@ -6011,7 +6286,7 @@
       2014,
       2013
     ],
-    "totalCommits": 588,
+    "totalCommits": 590,
     "restrictedContributions": 0,
     "totalRepositories": 3,
     "totalStars": 1,
@@ -6043,6 +6318,11 @@
   {
     "name": "Dan Fuller",
     "login": "wedamija",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "dfuller@sentry.io",
+    "bio": "",
     "followers": 19,
     "following": 0,
     "followerToFollowingRatio": 19,
@@ -6099,6 +6379,11 @@
   {
     "name": "Neel Shah",
     "login": "sl0thentr0py",
+    "location": "Vienna",
+    "websiteUrl": "vheis.su/about",
+    "twitterUsername": "sl0thentr0py",
+    "email": "",
+    "bio": "quod est inferius est sicut quod est superius | SDKs @getsentry",
     "followers": 20,
     "following": 2,
     "followerToFollowingRatio": "10.00",
@@ -6115,7 +6400,7 @@
       2015,
       2014
     ],
-    "totalCommits": 709,
+    "totalCommits": 711,
     "restrictedContributions": 31,
     "totalRepositories": 20,
     "totalStars": 2,
@@ -6242,6 +6527,11 @@
   {
     "name": "Michi Hoffmann",
     "login": "cleptric",
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://cleptric.com",
+    "twitterUsername": "cleptric",
+    "email": "",
+    "bio": "",
     "followers": 124,
     "following": 6,
     "followerToFollowingRatio": "20.67",
@@ -6258,8 +6548,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1303,
-    "restrictedContributions": 179,
+    "totalCommits": 1307,
+    "restrictedContributions": 180,
     "totalRepositories": 6,
     "totalStars": 10,
     "totalForks": 0,
@@ -6278,7 +6568,7 @@
       "github-config"
     ],
     "externalContributions": 25,
-    "totalExternalCommits": 387,
+    "totalExternalCommits": 388,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6305,6 +6595,11 @@
   {
     "name": "Simon Hellmayr",
     "login": "shellmayr",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 4,
     "following": 1,
     "followerToFollowingRatio": "4.00",
@@ -6321,8 +6616,8 @@
       2015,
       2014
     ],
-    "totalCommits": 490,
-    "restrictedContributions": 187,
+    "totalCommits": 493,
+    "restrictedContributions": 189,
     "totalRepositories": 1,
     "totalStars": 0,
     "totalForks": 0,
@@ -6338,7 +6633,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 8,
-    "totalExternalCommits": 89,
+    "totalExternalCommits": 90,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6353,6 +6648,11 @@
   {
     "name": null,
     "login": "ArthurKnaus",
+    "location": "Vienna",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 6,
     "following": 2,
     "followerToFollowingRatio": "3.00",
@@ -6369,7 +6669,7 @@
       2015,
       2014
     ],
-    "totalCommits": 1585,
+    "totalCommits": 1590,
     "restrictedContributions": 0,
     "totalRepositories": 2,
     "totalStars": 0,
@@ -6393,7 +6693,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 7,
-    "totalExternalCommits": 542,
+    "totalExternalCommits": 543,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6408,6 +6708,11 @@
   {
     "name": "Nate Moore",
     "login": "natemoo-re",
+    "location": "Chicago, IL",
+    "websiteUrl": "http://nmoo.dev",
+    "twitterUsername": "n_moore",
+    "email": "",
+    "bio": "Designer-turned-developer building open source tooling to empower fellow creatives",
     "followers": 1701,
     "following": 85,
     "followerToFollowingRatio": "20.01",
@@ -6572,6 +6877,11 @@
   {
     "name": "Daniel Szoke",
     "login": "szokeasaurusrex",
+    "location": "Vienna, Austria",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Minimize complexity",
     "followers": 13,
     "following": 38,
     "followerToFollowingRatio": "0.34",
@@ -6588,7 +6898,7 @@
       2015,
       2014
     ],
-    "totalCommits": 1249,
+    "totalCommits": 1258,
     "restrictedContributions": 106,
     "totalRepositories": 24,
     "totalStars": 4,
@@ -6672,7 +6982,7 @@
       "socket-io"
     ],
     "externalContributions": 10,
-    "totalExternalCommits": 386,
+    "totalExternalCommits": 390,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6687,9 +6997,14 @@
   {
     "name": "Luca Forstner",
     "login": "lforst",
-    "followers": 65,
+    "location": "Vienna, Austria",
+    "websiteUrl": null,
+    "twitterUsername": "LucaForstner",
+    "email": "luca.forstner@gmail.com",
+    "bio": "Breaking SDKs at @getsentry",
+    "followers": 66,
     "following": 20,
-    "followerToFollowingRatio": "3.25",
+    "followerToFollowingRatio": "3.30",
     "contributionYears": [
       2024,
       2023,
@@ -6703,7 +7018,7 @@
       2015,
       2014
     ],
-    "totalCommits": 2196,
+    "totalCommits": 2208,
     "restrictedContributions": 0,
     "totalRepositories": 9,
     "totalStars": 9,
@@ -6735,7 +7050,7 @@
       "tiss"
     ],
     "externalContributions": 25,
-    "totalExternalCommits": 673,
+    "totalExternalCommits": 674,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6756,6 +7071,11 @@
   {
     "name": "Lukas Stracke",
     "login": "Lms24",
+    "location": "Vienna, Austria",
+    "websiteUrl": "stracke.tech",
+    "twitterUsername": "lukasstracke",
+    "email": "lukas@stracke.co.at",
+    "bio": "SDK Engineer at @getsentry ⦁ Side project: @henri-live ⦁ @tugraz Grad",
     "followers": 31,
     "following": 32,
     "followerToFollowingRatio": "0.97",
@@ -6772,7 +7092,7 @@
       2015,
       2014
     ],
-    "totalCommits": 2540,
+    "totalCommits": 2544,
     "restrictedContributions": 86,
     "totalRepositories": 40,
     "totalStars": 5,
@@ -6864,6 +7184,11 @@
   {
     "name": "Matej Minar",
     "login": "matejminar",
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://www.minar.dev/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 35,
     "following": 99,
     "followerToFollowingRatio": "0.35",
@@ -6880,7 +7205,7 @@
       2015,
       2014
     ],
-    "totalCommits": 1327,
+    "totalCommits": 1328,
     "restrictedContributions": 215,
     "totalRepositories": 4,
     "totalStars": 8,
@@ -6926,6 +7251,11 @@
   {
     "name": "Jonas",
     "login": "JonasBa",
+    "location": "NYC",
+    "websiteUrl": "https://blog.badalic.com",
+    "twitterUsername": "JonasBadalic",
+    "email": "jonas@badalic.com",
+    "bio": "Engineer @Sentry,  prev Specto (acquired by Sentry) and before that @algolia | Be nice, offer help and see if we can all learn something.",
     "followers": 62,
     "following": 42,
     "followerToFollowingRatio": "1.48",
@@ -6997,6 +7327,11 @@
   {
     "name": "David Wang",
     "login": "davidenwang",
+    "location": "University of Illinois at Urbana-Champaign",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "davidew2@illinois.edu",
+    "bio": "",
     "followers": 33,
     "following": 8,
     "followerToFollowingRatio": "4.13",
@@ -7073,6 +7408,11 @@
   {
     "name": "Tony Xiao",
     "login": "Zylphrex",
+    "location": "Toronto",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 28,
     "following": 5,
     "followerToFollowingRatio": "5.60",
@@ -7089,8 +7429,8 @@
       2015,
       2014
     ],
-    "totalCommits": 2922,
-    "restrictedContributions": 1114,
+    "totalCommits": 2929,
+    "restrictedContributions": 1117,
     "totalRepositories": 11,
     "totalStars": 13,
     "totalForks": 5,
@@ -7134,7 +7474,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 9,
-    "totalExternalCommits": 688,
+    "totalExternalCommits": 691,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -7149,6 +7489,11 @@
   {
     "name": "Malachi Willey",
     "login": "malwilley",
+    "location": "San Francisco, CA",
+    "websiteUrl": "malachi.dev",
+    "twitterUsername": "malwilley",
+    "email": "",
+    "bio": "Mostly front-end things @getsentry ",
     "followers": 13,
     "following": 1,
     "followerToFollowingRatio": "13.00",
@@ -7164,8 +7509,8 @@
       2016,
       2015
     ],
-    "totalCommits": 2127,
-    "restrictedContributions": 693,
+    "totalCommits": 2130,
+    "restrictedContributions": 695,
     "totalRepositories": 11,
     "totalStars": 31,
     "totalForks": 0,
@@ -7243,9 +7588,14 @@
   {
     "name": null,
     "login": "joshuarli",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "moderate computer user",
     "followers": 204,
-    "following": 89,
-    "followerToFollowingRatio": "2.29",
+    "following": 90,
+    "followerToFollowingRatio": "2.27",
     "contributionYears": [
       2024,
       2023,
@@ -7258,7 +7608,7 @@
       2016,
       2015
     ],
-    "totalCommits": 1369,
+    "totalCommits": 1370,
     "restrictedContributions": 324,
     "totalRepositories": 25,
     "totalStars": 375,
@@ -7358,6 +7708,11 @@
   {
     "name": "Katie Byers",
     "login": "lobsterkatie",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Software engineer at @getsentry",
     "followers": 63,
     "following": 7,
     "followerToFollowingRatio": "9.00",
@@ -7447,6 +7802,11 @@
   {
     "name": "John",
     "login": "john-z-yang",
+    "location": "Near Tannhäuser Gate",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 11,
     "following": 8,
     "followerToFollowingRatio": "1.38",
@@ -7515,6 +7875,11 @@
   {
     "name": null,
     "login": "MeredithAnya",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 41,
     "following": 1,
     "followerToFollowingRatio": "41.00",
@@ -7597,6 +7962,11 @@
   {
     "name": "Riccardo Busetti",
     "login": "iambriccardo",
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://bento.me/riccardobusetti",
+    "twitterUsername": "iambriccardo",
+    "email": "",
+    "bio": "Writing code @ Sentry. Obsessed with cats 🐱, productivity apps 📲 and clean code 👨‍💻. Oh, and pizza 🍕.",
     "followers": 42,
     "following": 45,
     "followerToFollowingRatio": "0.93",
@@ -7714,6 +8084,11 @@
   {
     "name": "Snigdha Sharma",
     "login": "snigdhas",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 7,
     "following": 0,
     "followerToFollowingRatio": 7,
@@ -7760,6 +8135,11 @@
   {
     "name": "Stefano",
     "login": "stefanosiano",
+    "location": null,
+    "websiteUrl": "https://angel.co/u/stefanosiano",
+    "twitterUsername": null,
+    "email": "stefano.siano91@gmail.com",
+    "bio": "I like programming, especially for\r\nAndroid, but I also like to learn\r\nnew languages and tools to\r\nautomate things I’ m too lazy to\r\ndo manually",
     "followers": 13,
     "following": 0,
     "followerToFollowingRatio": 13,
@@ -7821,6 +8201,11 @@
   {
     "name": "Ian Woodard",
     "login": "IanWoodard",
+    "location": "San Francisco",
+    "websiteUrl": "https://ianwoodard.me",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Software Engineer at @getsentry",
     "followers": 23,
     "following": 13,
     "followerToFollowingRatio": "1.77",
@@ -7835,7 +8220,7 @@
       2017,
       2016
     ],
-    "totalCommits": 3119,
+    "totalCommits": 3122,
     "restrictedContributions": 1458,
     "totalRepositories": 5,
     "totalStars": 2,
@@ -7873,7 +8258,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 33,
-    "totalExternalCommits": 570,
+    "totalExternalCommits": 571,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -7894,6 +8279,11 @@
   {
     "name": "Jeffrey Hung",
     "login": "Jeffreyhung",
+    "location": null,
+    "websiteUrl": "https://jeffreyhung.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "CISSP, Security+",
     "followers": 14,
     "following": 16,
     "followerToFollowingRatio": "0.88",
@@ -7908,8 +8298,8 @@
       2017,
       2016
     ],
-    "totalCommits": 1830,
-    "restrictedContributions": 1527,
+    "totalCommits": 1831,
+    "restrictedContributions": 1528,
     "totalRepositories": 29,
     "totalStars": 10,
     "totalForks": 3,
@@ -8006,9 +8396,14 @@
   {
     "name": "Abhijeet Prasad",
     "login": "AbhiPrasad",
-    "followers": 195,
+    "location": "Canada",
+    "websiteUrl": "https://www.linkedin.com/in/abhijeet-prasad",
+    "twitterUsername": "imabhiprasad",
+    "email": "devabhiprasad@gmail.com",
+    "bio": "Building SDKs @getsentry, @uWaterloo SYDE Grad",
+    "followers": 196,
     "following": 80,
-    "followerToFollowingRatio": "2.44",
+    "followerToFollowingRatio": "2.45",
     "contributionYears": [
       2024,
       2023,
@@ -8020,7 +8415,7 @@
       2017,
       2016
     ],
-    "totalCommits": 2940,
+    "totalCommits": 2942,
     "restrictedContributions": 95,
     "totalRepositories": 48,
     "totalStars": 19,
@@ -8177,6 +8572,11 @@
   {
     "name": "Matthew T",
     "login": "mdtro",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 15,
     "following": 11,
     "followerToFollowingRatio": "1.36",
@@ -8191,8 +8591,8 @@
       2017,
       2016
     ],
-    "totalCommits": 1130,
-    "restrictedContributions": 749,
+    "totalCommits": 1133,
+    "restrictedContributions": 751,
     "totalRepositories": 6,
     "totalStars": 0,
     "totalForks": 0,
@@ -8222,7 +8622,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 26,
-    "totalExternalCommits": 132,
+    "totalExternalCommits": 133,
     "sponsorsCount": 0,
     "sponsoredProjects": [
       "zkat",
@@ -8241,6 +8641,11 @@
   {
     "name": "Charly Gomez",
     "login": "chargome",
+    "location": "Vienna",
+    "websiteUrl": "https://chargome.com/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 7,
     "following": 9,
     "followerToFollowingRatio": "0.78",
@@ -8255,7 +8660,7 @@
       2017,
       2016
     ],
-    "totalCommits": 1115,
+    "totalCommits": 1123,
     "restrictedContributions": 807,
     "totalRepositories": 11,
     "totalStars": 0,
@@ -8286,7 +8691,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 5,
-    "totalExternalCommits": 74,
+    "totalExternalCommits": 78,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8301,6 +8706,11 @@
   {
     "name": "Ram Senthamarai",
     "login": "ram-senth",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 2,
     "following": 1,
     "followerToFollowingRatio": "2.00",
@@ -8315,7 +8725,7 @@
       2017,
       2016
     ],
-    "totalCommits": 299,
+    "totalCommits": 301,
     "restrictedContributions": 0,
     "totalRepositories": 3,
     "totalStars": 0,
@@ -8343,7 +8753,7 @@
       "text-generation"
     ],
     "externalContributions": 8,
-    "totalExternalCommits": 97,
+    "totalExternalCommits": 98,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8358,6 +8768,11 @@
   {
     "name": "Nar Saynorath",
     "login": "narsaynorath",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "nar.saynorath@sentry.io",
+    "bio": "",
     "followers": 13,
     "following": 7,
     "followerToFollowingRatio": "1.86",
@@ -8439,6 +8854,11 @@
   {
     "name": "Enoch Tang",
     "login": "enochtangg",
+    "location": "Toronto",
+    "websiteUrl": "https://enochtangg.github.io/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 93,
     "following": 7,
     "followerToFollowingRatio": "13.29",
@@ -8453,7 +8873,7 @@
       2017,
       2016
     ],
-    "totalCommits": 492,
+    "totalCommits": 494,
     "restrictedContributions": 67,
     "totalRepositories": 14,
     "totalStars": 4664,
@@ -8512,7 +8932,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 4,
-    "totalExternalCommits": 175,
+    "totalExternalCommits": 177,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8533,6 +8953,11 @@
   {
     "name": "Kyle Mumma",
     "login": "kylemumma",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "kyle.mumma@sentry.io",
+    "bio": "junior eng at sentry.io, cse@uw",
     "followers": 15,
     "following": 17,
     "followerToFollowingRatio": "0.88",
@@ -8621,6 +9046,11 @@
   {
     "name": "Hubert Deng",
     "login": "hubertdeng123",
+    "location": null,
+    "websiteUrl": "hubertdeng.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "@getsentry ",
     "followers": 13,
     "following": 2,
     "followerToFollowingRatio": "6.50",
@@ -8634,7 +9064,7 @@
       2018,
       2017
     ],
-    "totalCommits": 1021,
+    "totalCommits": 1024,
     "restrictedContributions": 0,
     "totalRepositories": 3,
     "totalStars": 0,
@@ -8658,7 +9088,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 13,
-    "totalExternalCommits": 266,
+    "totalExternalCommits": 267,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8673,6 +9103,11 @@
   {
     "name": "Angelo",
     "login": "Angelodaniel",
+    "location": "Amsterdam",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "angelo_de_voer@hotmail.com",
+    "bio": "",
     "followers": 0,
     "following": 3,
     "followerToFollowingRatio": "0.00",
@@ -8686,7 +9121,7 @@
       2018,
       2017
     ],
-    "totalCommits": 84,
+    "totalCommits": 85,
     "restrictedContributions": 0,
     "totalRepositories": 6,
     "totalStars": 4,
@@ -8718,6 +9153,11 @@
   {
     "name": "Vjeran Grozdanić",
     "login": "vgrozdanic",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "vjeran.grozdanic@gmail.com",
+    "bio": "",
     "followers": 5,
     "following": 4,
     "followerToFollowingRatio": "1.25",
@@ -8731,7 +9171,7 @@
       2018,
       2017
     ],
-    "totalCommits": 268,
+    "totalCommits": 270,
     "restrictedContributions": 0,
     "totalRepositories": 2,
     "totalStars": 4,
@@ -8770,6 +9210,11 @@
   {
     "name": "Ryan Skonnord",
     "login": "RyanSkonnord",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "ryanskonnord@gmail.com",
+    "bio": "",
     "followers": 9,
     "following": 0,
     "followerToFollowingRatio": 9,
@@ -8822,6 +9267,11 @@
   {
     "name": "Priscila Oliveira",
     "login": "priscilawebdev",
+    "location": " Vienna, Austria",
+    "websiteUrl": "https://priscilawebdev.github.io/priscilaoliveira/",
+    "twitterUsername": null,
+    "email": "priscilawebdev@gmail.com",
+    "bio": "Front-end Engineer 👩‍💻 • Functional Programming and Javascript enthusiast • Core contributor to @verdaccio 🚀 • From 🇧🇷 living in the beautiful 🇦🇹",
     "followers": 217,
     "following": 32,
     "followerToFollowingRatio": "6.78",
@@ -8835,8 +9285,8 @@
       2018,
       2017
     ],
-    "totalCommits": 555,
-    "restrictedContributions": 161,
+    "totalCommits": 560,
+    "restrictedContributions": 165,
     "totalRepositories": 11,
     "totalStars": 8,
     "totalForks": 4,
@@ -8871,7 +9321,7 @@
       "ducks"
     ],
     "externalContributions": 3,
-    "totalExternalCommits": 113,
+    "totalExternalCommits": 114,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8886,6 +9336,11 @@
   {
     "name": "Nicolas Hrubec",
     "login": "nicohrubec",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 6,
     "following": 10,
     "followerToFollowingRatio": "0.60",
@@ -8899,7 +9354,7 @@
       2018,
       2017
     ],
-    "totalCommits": 423,
+    "totalCommits": 427,
     "restrictedContributions": 0,
     "totalRepositories": 18,
     "totalStars": 1,
@@ -8951,7 +9406,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 4,
-    "totalExternalCommits": 67,
+    "totalExternalCommits": 68,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -8966,6 +9421,11 @@
   {
     "name": "Colleen O'Rourke",
     "login": "ceorourke",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "colleen@sentry.io",
+    "bio": "software engineer @ sentry.io",
     "followers": 45,
     "following": 4,
     "followerToFollowingRatio": "11.25",
@@ -8979,8 +9439,8 @@
       2018,
       2017
     ],
-    "totalCommits": 1350,
-    "restrictedContributions": 548,
+    "totalCommits": 1356,
+    "restrictedContributions": 550,
     "totalRepositories": 66,
     "totalStars": 5,
     "totalForks": 3,
@@ -9045,7 +9505,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 4,
-    "totalExternalCommits": 235,
+    "totalExternalCommits": 237,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -9060,6 +9520,11 @@
   {
     "name": "Jenn Mueng",
     "login": "jennmueng",
+    "location": "Bay Area",
+    "websiteUrl": "jennmueng.com",
+    "twitterUsername": "jennmueng",
+    "email": "",
+    "bio": "AI/ML @getsentry",
     "followers": 31,
     "following": 10,
     "followerToFollowingRatio": "3.10",
@@ -9073,8 +9538,8 @@
       2018,
       2017
     ],
-    "totalCommits": 1482,
-    "restrictedContributions": 556,
+    "totalCommits": 1501,
+    "restrictedContributions": 575,
     "totalRepositories": 9,
     "totalStars": 11,
     "totalForks": 2,
@@ -9119,6 +9584,11 @@
   {
     "name": "Krystof Woldrich",
     "login": "krystofwoldrich",
+    "location": "Vienna, Austria",
+    "websiteUrl": "woldri.ch",
+    "twitterUsername": "krystofwoldrich",
+    "email": "",
+    "bio": "Typescript, NodeJS, PowerShell, Linux, Docker, CI/CD magician.",
     "followers": 40,
     "following": 28,
     "followerToFollowingRatio": "1.43",
@@ -9132,7 +9602,7 @@
       2018,
       2017
     ],
-    "totalCommits": 1134,
+    "totalCommits": 1135,
     "restrictedContributions": 12,
     "totalRepositories": 25,
     "totalStars": 7,
@@ -9221,6 +9691,11 @@
   {
     "name": "Sigrid Huemer",
     "login": "s1gr1d",
+    "location": null,
+    "websiteUrl": "https://sigrid.digital",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "I create stuff for the web ✨\r\n\r\nCurrently working on JS SDKs @getsentry ",
     "followers": 44,
     "following": 25,
     "followerToFollowingRatio": "1.76",
@@ -9234,24 +9709,24 @@
       2018,
       2017
     ],
-    "totalCommits": 853,
+    "totalCommits": 861,
     "restrictedContributions": 89,
-    "totalRepositories": 18,
+    "totalRepositories": 19,
     "totalStars": 20,
     "totalForks": 2,
     "languages": [
+      [
+        "TypeScript",
+        {
+          "repoCount": 7,
+          "stars": 13
+        }
+      ],
       [
         "JavaScript",
         {
           "repoCount": 7,
           "stars": 3
-        }
-      ],
-      [
-        "TypeScript",
-        {
-          "repoCount": 6,
-          "stars": 13
         }
       ],
       [
@@ -9318,6 +9793,11 @@
   {
     "name": "Raj Joshi",
     "login": "iamrajjoshi",
+    "location": "San Francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Software Engineer @getsentry",
     "followers": 45,
     "following": 42,
     "followerToFollowingRatio": "1.07",
@@ -9432,6 +9912,11 @@
   {
     "name": "Shashank Jarmale",
     "login": "shashjar",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "shashankjarmale1@gmail.com",
+    "bio": "",
     "followers": 8,
     "following": 21,
     "followerToFollowingRatio": "0.38",
@@ -9445,8 +9930,8 @@
       2018,
       2017
     ],
-    "totalCommits": 294,
-    "restrictedContributions": 241,
+    "totalCommits": 296,
+    "restrictedContributions": 243,
     "totalRepositories": 6,
     "totalStars": 2,
     "totalForks": 27,
@@ -9498,6 +9983,11 @@
   {
     "name": "Leander Rodrigues",
     "login": "leeandher",
+    "location": "Toronto, Canada",
+    "websiteUrl": "leander.xyz",
+    "twitterUsername": "leeandher",
+    "email": "me@leander.xyz",
+    "bio": "pushing buttons professionally\r\n\r\n@getsentry\r\n@facebook\r\n@Accenture\r\n@ShopBonsai\r\n@uwblueprint",
     "followers": 22,
     "following": 8,
     "followerToFollowingRatio": "2.75",
@@ -9708,6 +10198,11 @@
   {
     "name": "Tobias Wilfert",
     "login": "tobias-wilfert",
+    "location": "Belgium",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "MSc Software Engineering Student @ University of Antwerp",
     "followers": 8,
     "following": 8,
     "followerToFollowingRatio": "1.00",
@@ -9796,6 +10291,11 @@
   {
     "name": "Vu Luong",
     "login": "vuluongj20",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "vuluongj20@gmail.com",
+    "bio": "Web developer & Designer.",
     "followers": 17,
     "following": 0,
     "followerToFollowingRatio": 17,
@@ -9847,6 +10347,11 @@
   {
     "name": "Isabella Enriquez",
     "login": "isabellaenriquez",
+    "location": null,
+    "websiteUrl": "isabellaenriquez.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "code monkey 🙈",
     "followers": 19,
     "following": 16,
     "followerToFollowingRatio": "1.19",
@@ -9859,8 +10364,8 @@
       2019,
       2018
     ],
-    "totalCommits": 1221,
-    "restrictedContributions": 858,
+    "totalCommits": 1227,
+    "restrictedContributions": 863,
     "totalRepositories": 11,
     "totalStars": 8,
     "totalForks": 2,
@@ -9946,6 +10451,11 @@
   {
     "name": "Richard Roggenkemper",
     "login": "roggenkemper",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 9,
     "following": 2,
     "followerToFollowingRatio": "4.50",
@@ -9981,6 +10491,11 @@
   {
     "name": "Steven Eubank",
     "login": "smeubank",
+    "location": "Vienna, Austria",
+    "websiteUrl": "http://www.steven-eubank.com/",
+    "twitterUsername": "steven_boKnows",
+    "email": "",
+    "bio": "Product Manager @ Sentry.io\r\n🇺🇸  -> 🇦🇹 ",
     "followers": 10,
     "following": 8,
     "followerToFollowingRatio": "1.25",
@@ -9992,7 +10507,7 @@
       2020,
       2019
     ],
-    "totalCommits": 349,
+    "totalCommits": 353,
     "restrictedContributions": 151,
     "totalRepositories": 8,
     "totalStars": 5,
@@ -10045,6 +10560,11 @@
   {
     "name": "Riya Chakraborty",
     "login": "ayirr7",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "columbia '22",
     "followers": 7,
     "following": 4,
     "followerToFollowingRatio": "1.75",
@@ -10080,6 +10600,11 @@
   {
     "name": "Rohan Agarwal",
     "login": "roaga",
+    "location": "San Francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "AI/ML @ Sentry | \r\n\r\nPrev. Researcher @ Georgia Tech Entertainment Intelligence Lab,\r\nSWE Intern @ Chan Zuckerberg Single Cell Science",
     "followers": 8,
     "following": 4,
     "followerToFollowingRatio": "2.00",
@@ -10091,7 +10616,7 @@
       2020,
       2019
     ],
-    "totalCommits": 524,
+    "totalCommits": 525,
     "restrictedContributions": 361,
     "totalRepositories": 17,
     "totalStars": 16,
@@ -10136,7 +10661,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 3,
-    "totalExternalCommits": 64,
+    "totalExternalCommits": 65,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -10151,6 +10676,11 @@
   {
     "name": "Michael Sun",
     "login": "MichaelSun48",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "@getsentry engineer",
     "followers": 1,
     "following": 0,
     "followerToFollowingRatio": 1,
@@ -10162,8 +10692,8 @@
       2020,
       2019
     ],
-    "totalCommits": 741,
-    "restrictedContributions": 317,
+    "totalCommits": 742,
+    "restrictedContributions": 318,
     "totalRepositories": 11,
     "totalStars": 0,
     "totalForks": 0,
@@ -10229,6 +10759,11 @@
   {
     "name": "Catherine Lee",
     "login": "c298lee",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 4,
     "following": 4,
     "followerToFollowingRatio": "1.00",
@@ -10240,7 +10775,7 @@
       2020,
       2019
     ],
-    "totalCommits": 791,
+    "totalCommits": 792,
     "restrictedContributions": 182,
     "totalRepositories": 1,
     "totalStars": 0,
@@ -10272,6 +10807,11 @@
   {
     "name": "Mia Hsu",
     "login": "ameliahsu",
+    "location": null,
+    "websiteUrl": "https://ameliahsu.github.io/portfolio/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "she/her",
     "followers": 19,
     "following": 18,
     "followerToFollowingRatio": "1.06",
@@ -10315,6 +10855,11 @@
   {
     "name": "Prithvi Raj",
     "login": "Prithvirajkumar",
+    "location": "London, Ontario, Canada",
+    "websiteUrl": "https://www.linkedin.com/in/prithvirajkumar/",
+    "twitterUsername": "PrithviCodes",
+    "email": "prithvirajkumar14@gmail.com",
+    "bio": "JavaScript developer",
     "followers": 8,
     "following": 49,
     "followerToFollowingRatio": "0.16",
@@ -10393,6 +10938,11 @@
   {
     "name": "Michelle Zhang",
     "login": "michellewzhang",
+    "location": "san francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 4,
     "following": 2,
     "followerToFollowingRatio": "2.00",
@@ -10404,7 +10954,7 @@
       2020,
       2019
     ],
-    "totalCommits": 3180,
+    "totalCommits": 3181,
     "restrictedContributions": 1176,
     "totalRepositories": 2,
     "totalStars": 1,
@@ -10454,6 +11004,11 @@
   {
     "name": "Toni Samuels",
     "login": "masinette",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 7,
     "following": 15,
     "followerToFollowingRatio": "0.47",
@@ -10511,6 +11066,11 @@
   {
     "name": null,
     "login": "JoshuaMoelans",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 7,
     "following": 5,
     "followerToFollowingRatio": "1.40",
@@ -10521,7 +11081,7 @@
       2021,
       2020
     ],
-    "totalCommits": 334,
+    "totalCommits": 335,
     "restrictedContributions": 142,
     "totalRepositories": 9,
     "totalStars": 1,
@@ -10584,6 +11144,11 @@
   {
     "name": "George K.",
     "login": "t-h-man",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Support Manager",
     "followers": 3,
     "following": 0,
     "followerToFollowingRatio": 3,
@@ -10626,6 +11191,11 @@
   {
     "name": "Shruthi",
     "login": "shruthilayaj",
+    "location": "Toronto",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 12,
     "following": 1,
     "followerToFollowingRatio": "12.00",
@@ -10639,8 +11209,8 @@
       2018,
       2017
     ],
-    "totalCommits": 1179,
-    "restrictedContributions": 502,
+    "totalCommits": 1181,
+    "restrictedContributions": 504,
     "totalRepositories": 4,
     "totalStars": 4,
     "totalForks": 0,
@@ -10685,6 +11255,11 @@
   {
     "name": null,
     "login": "rodolfoBee",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 8,
     "following": 0,
     "followerToFollowingRatio": 8,
@@ -10719,6 +11294,11 @@
   {
     "name": "Rohit Kataria",
     "login": "rohitkataria-sentryio",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 5,
     "following": 1,
     "followerToFollowingRatio": "5.00",
@@ -10761,6 +11341,11 @@
   {
     "name": "Seiji Chew",
     "login": "schew2381",
+    "location": "San Francisco",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "🐱",
     "followers": 3,
     "following": 3,
     "followerToFollowingRatio": "1.00",
@@ -10771,7 +11356,7 @@
       2021,
       2020
     ],
-    "totalCommits": 1819,
+    "totalCommits": 1820,
     "restrictedContributions": 814,
     "totalRepositories": 2,
     "totalStars": 0,
@@ -10795,6 +11380,11 @@
   {
     "name": "Brian Lou",
     "login": "brian-lou",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Princeton CS '24. I'm interested in ML and the future of AI |\r\nMy Student Github: https://github.com/brianlou2024",
     "followers": 6,
     "following": 3,
     "followerToFollowingRatio": "2.00",
@@ -10855,6 +11445,11 @@
   {
     "name": "Cathy Teng",
     "login": "cathteng",
+    "location": null,
+    "websiteUrl": "cathyteng.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 10,
     "following": 10,
     "followerToFollowingRatio": "1.00",
@@ -10865,8 +11460,8 @@
       2021,
       2020
     ],
-    "totalCommits": 2090,
-    "restrictedContributions": 906,
+    "totalCommits": 2092,
+    "restrictedContributions": 908,
     "totalRepositories": 4,
     "totalStars": 0,
     "totalForks": 0,
@@ -10911,6 +11506,11 @@
   {
     "name": "Nicholas Meisenheimer",
     "login": "souredoutlook",
+    "location": "Kitchener ON",
+    "websiteUrl": null,
+    "twitterUsername": "nickmeisenhaus",
+    "email": "",
+    "bio": "Helping People @getsentry ",
     "followers": 21,
     "following": 23,
     "followerToFollowingRatio": "0.91",
@@ -10959,6 +11559,11 @@
   {
     "name": "Jasmin",
     "login": "jas-kas",
+    "location": "Toronto, Ontario",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Product Manager of Session Replay. fan of deno and pinia logos",
     "followers": 22,
     "following": 25,
     "followerToFollowingRatio": "0.88",
@@ -11000,6 +11605,11 @@
   {
     "name": "Nikhar Saxena",
     "login": "nikhars",
+    "location": "Dublin, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 8,
     "following": 0,
     "followerToFollowingRatio": 8,
@@ -11033,6 +11643,11 @@
   {
     "name": "Ogi",
     "login": "obostjancic",
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://www.ognjenbostjancic.com/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 7,
     "following": 10,
     "followerToFollowingRatio": "0.70",
@@ -11043,8 +11658,8 @@
       2021,
       2020
     ],
-    "totalCommits": 3016,
-    "restrictedContributions": 1396,
+    "totalCommits": 3022,
+    "restrictedContributions": 1399,
     "totalRepositories": 24,
     "totalStars": 6,
     "totalForks": 0,
@@ -11095,7 +11710,7 @@
       "organizer"
     ],
     "externalContributions": 4,
-    "totalExternalCommits": 458,
+    "totalExternalCommits": 459,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -11110,6 +11725,11 @@
   {
     "name": null,
     "login": "yuval-sentry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 4,
     "following": 1,
     "followerToFollowingRatio": "4.00",
@@ -11158,6 +11778,11 @@
   {
     "name": null,
     "login": "sdzhong",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 6,
     "following": 0,
     "followerToFollowingRatio": 6,
@@ -11206,6 +11831,11 @@
   {
     "name": "Francis ",
     "login": "Fwang36",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "francis.wang@sentry.io",
+    "bio": "",
     "followers": 2,
     "following": 0,
     "followerToFollowingRatio": 2,
@@ -11296,6 +11926,11 @@
   {
     "name": null,
     "login": "kerenkhatiwada",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 4,
     "following": 0,
     "followerToFollowingRatio": 4,
@@ -11336,6 +11971,11 @@
   {
     "name": "Rene Goertzen",
     "login": "ReneGreen27",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 3,
     "following": 1,
     "followerToFollowingRatio": "3.00",
@@ -11368,6 +12008,11 @@
   {
     "name": "anthony sottile",
     "login": "asottile-sentry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 28,
     "following": 0,
     "followerToFollowingRatio": 28,
@@ -11376,7 +12021,7 @@
       2023,
       2022
     ],
-    "totalCommits": 3128,
+    "totalCommits": 3135,
     "restrictedContributions": 0,
     "totalRepositories": 0,
     "totalStars": 0,
@@ -11385,7 +12030,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 33,
-    "totalExternalCommits": 1275,
+    "totalExternalCommits": 1279,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -11400,6 +12045,11 @@
   {
     "name": "Ben McKerry",
     "login": "bmckerry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "SRE @getsentry ",
     "followers": 1,
     "following": 0,
     "followerToFollowingRatio": 1,
@@ -11432,6 +12082,11 @@
   {
     "name": "Jodi Jang",
     "login": "jangjodi",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 2,
     "following": 0,
     "followerToFollowingRatio": 2,
@@ -11479,6 +12134,11 @@
   {
     "name": "Athena Moghaddam",
     "login": "sentaur-athena",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 4,
     "following": 0,
     "followerToFollowingRatio": 4,
@@ -11510,6 +12170,11 @@
   {
     "name": null,
     "login": "xurui-c",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 1,
     "following": 0,
     "followerToFollowingRatio": 1,
@@ -11540,13 +12205,18 @@
   {
     "name": "Andrew Liu",
     "login": "aliu39",
+    "location": "San Francisco, CA",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 1,
     "following": 3,
     "followerToFollowingRatio": "0.33",
     "contributionYears": [
       2024
     ],
-    "totalCommits": 415,
+    "totalCommits": 419,
     "restrictedContributions": 0,
     "totalRepositories": 0,
     "totalStars": 0,
@@ -11555,7 +12225,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 9,
-    "totalExternalCommits": 142,
+    "totalExternalCommits": 143,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -11570,13 +12240,18 @@
   {
     "name": null,
     "login": "colin-sentry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": null,
     "followers": 1,
     "following": 0,
     "followerToFollowingRatio": 1,
     "contributionYears": [
       2024
     ],
-    "totalCommits": 324,
+    "totalCommits": 329,
     "restrictedContributions": 0,
     "totalRepositories": 1,
     "totalStars": 0,
@@ -11593,7 +12268,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 10,
-    "totalExternalCommits": 162,
+    "totalExternalCommits": 166,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -11608,13 +12283,18 @@
   {
     "name": "Andrei",
     "login": "andreiborza",
+    "location": "Vienna, Austria",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Working on SDKs at @getsentry",
     "followers": 9,
     "following": 3,
     "followerToFollowingRatio": "3.00",
     "contributionYears": [
       2024
     ],
-    "totalCommits": 494,
+    "totalCommits": 500,
     "restrictedContributions": 65,
     "totalRepositories": 3,
     "totalStars": 0,
@@ -11638,7 +12318,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 8,
-    "totalExternalCommits": 121,
+    "totalExternalCommits": 124,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -11653,6 +12333,11 @@
   {
     "name": "Brendan Hy",
     "login": "brendanhsentry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 0,
     "following": 0,
     "followerToFollowingRatio": 0,
@@ -11683,13 +12368,18 @@
   {
     "name": "Suejung Shin",
     "login": "suejung-sentry",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "suejung.shin@sentry.io",
+    "bio": "",
     "followers": 2,
     "following": 0,
     "followerToFollowingRatio": 2,
     "contributionYears": [
       2024
     ],
-    "totalCommits": 130,
+    "totalCommits": 132,
     "restrictedContributions": 0,
     "totalRepositories": 1,
     "totalStars": 1,
@@ -11721,13 +12411,18 @@
   {
     "name": "Aayush Seth",
     "login": "aayush-se",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 0,
     "following": 0,
     "followerToFollowingRatio": 0,
     "contributionYears": [
       2024
     ],
-    "totalCommits": 10,
+    "totalCommits": 11,
     "restrictedContributions": 0,
     "totalRepositories": 0,
     "totalStars": 0,
@@ -11736,7 +12431,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 1,
-    "totalExternalCommits": 2,
+    "totalExternalCommits": 3,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [

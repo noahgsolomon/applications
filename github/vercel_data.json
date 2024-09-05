@@ -2,9 +2,14 @@
   {
     "name": "Guillermo Rauch",
     "login": "rauchg",
-    "followers": 14715,
+    "location": "SF",
+    "websiteUrl": "http://twitter.com/rauchg",
+    "twitterUsername": null,
+    "email": "rauchg@gmail.com",
+    "bio": "",
+    "followers": 14718,
     "following": 883,
-    "followerToFollowingRatio": "16.66",
+    "followerToFollowingRatio": "16.67",
     "contributionYears": [
       2024,
       2023,
@@ -27,8 +32,8 @@
     "totalCommits": 79,
     "restrictedContributions": 0,
     "totalRepositories": 61,
-    "totalStars": 18667,
-    "totalForks": 4419,
+    "totalStars": 18668,
+    "totalForks": 4420,
     "languages": [
       [
         "JavaScript",
@@ -41,7 +46,7 @@
         "TypeScript",
         {
           "repoCount": 9,
-          "stars": 1534
+          "stars": 1535
         }
       ],
       [
@@ -142,6 +147,11 @@
   {
     "name": "Tom Occhino",
     "login": "tomocchino",
+    "location": "Burlingame, CA",
+    "websiteUrl": "tomocchino.com",
+    "twitterUsername": "tomocchino",
+    "email": "",
+    "bio": "",
     "followers": 899,
     "following": 3,
     "followerToFollowingRatio": "299.67",
@@ -216,6 +226,11 @@
   {
     "name": "Nathan Rajlich",
     "login": "TooTallNate",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://n8.io",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Programmer / Nerd. Former @nodejs core committer. Revolutionizing deployments @vercel. Before you ask, I'm 6’6”",
     "followers": 6174,
     "following": 139,
     "followerToFollowingRatio": "44.42",
@@ -240,8 +255,8 @@
     "totalCommits": 1903,
     "restrictedContributions": 496,
     "totalRepositories": 169,
-    "totalStars": 23054,
-    "totalForks": 5261,
+    "totalStars": 23058,
+    "totalForks": 5262,
     "languages": [
       [
         "JavaScript",
@@ -254,14 +269,14 @@
         "TypeScript",
         {
           "repoCount": 8,
-          "stars": 1089
+          "stars": 1090
         }
       ],
       [
         "C++",
         {
           "repoCount": 5,
-          "stars": 1017
+          "stars": 1018
         }
       ],
       [
@@ -275,7 +290,7 @@
         "Java",
         {
           "repoCount": 1,
-          "stars": 10449
+          "stars": 10451
         }
       ],
       [
@@ -389,6 +404,11 @@
   {
     "name": "Vincent Voyer",
     "login": "vvo",
+    "location": "Nantes, France",
+    "websiteUrl": "https://www.linkedin.com/in/vvoyer",
+    "twitterUsername": "vvoyer",
+    "email": "",
+    "bio": "",
     "followers": 978,
     "following": 473,
     "followerToFollowingRatio": "2.07",
@@ -410,10 +430,10 @@
       2010,
       2009
     ],
-    "totalCommits": 1390,
-    "restrictedContributions": 1071,
+    "totalCommits": 1400,
+    "restrictedContributions": 1081,
     "totalRepositories": 78,
-    "totalStars": 12433,
+    "totalStars": 12436,
     "totalForks": 942,
     "languages": [
       [
@@ -427,7 +447,7 @@
         "TypeScript",
         {
           "repoCount": 6,
-          "stars": 3588
+          "stars": 3591
         }
       ],
       [
@@ -538,6 +558,11 @@
   {
     "name": "Benjamin Woodruff",
     "login": "bgw",
+    "location": "San Carlos, CA",
+    "websiteUrl": "https://benjam.info/",
+    "twitterUsername": null,
+    "email": "github@benjam.info",
+    "bio": "Turbopack & Next.js @ ▲ Vercel",
     "followers": 469,
     "following": 33,
     "followerToFollowingRatio": "14.21",
@@ -558,7 +583,7 @@
       2011,
       2010
     ],
-    "totalCommits": 458,
+    "totalCommits": 459,
     "restrictedContributions": 62,
     "totalRepositories": 26,
     "totalStars": 183,
@@ -668,6 +693,11 @@
   {
     "name": "Damien Simonin Feugas",
     "login": "feugy",
+    "location": "Villeurbanne, France",
+    "websiteUrl": "http://feugy.github.io",
+    "twitterUsername": null,
+    "email": "damien.feugas@gmail.com",
+    "bio": "",
     "followers": 81,
     "following": 4,
     "followerToFollowingRatio": "20.25",
@@ -688,8 +718,8 @@
       2011,
       2010
     ],
-    "totalCommits": 796,
-    "restrictedContributions": 683,
+    "totalCommits": 802,
+    "restrictedContributions": 689,
     "totalRepositories": 33,
     "totalStars": 94,
     "totalForks": 21,
@@ -775,6 +805,11 @@
   {
     "name": "Sebastian Roming",
     "login": "sebastianroming",
+    "location": "Dunningen, Germany",
+    "websiteUrl": "https://wbmnky.me",
+    "twitterUsername": "sebastianroming",
+    "email": "",
+    "bio": "Manager, Customer Success Engineering ▲ @vercel",
     "followers": 81,
     "following": 203,
     "followerToFollowingRatio": "0.40",
@@ -888,8 +923,13 @@
   {
     "name": "Steven",
     "login": "styfle",
+    "location": "::1",
+    "websiteUrl": "https://styfle.dev",
+    "twitterUsername": "styfle",
+    "email": "",
+    "bio": "🐏Software Shepherd,\r\n🛡️TypeScript enthusiast,\r\n✏️@markedjs maintainer,\r\n💚@nodejs contributor,\r\n🤵husband of @wyfle,\r\n✝️Jesus lover\r\n",
     "followers": 2632,
-    "following": 1007,
+    "following": 1008,
     "followerToFollowingRatio": "2.61",
     "contributionYears": [
       2024,
@@ -908,10 +948,10 @@
       2011,
       2010
     ],
-    "totalCommits": 2081,
-    "restrictedContributions": 982,
+    "totalCommits": 2087,
+    "restrictedContributions": 986,
     "totalRepositories": 41,
-    "totalStars": 8150,
+    "totalStars": 8151,
     "totalForks": 588,
     "languages": [
       [
@@ -1040,7 +1080,7 @@
       "example"
     ],
     "externalContributions": 31,
-    "totalExternalCommits": 237,
+    "totalExternalCommits": 238,
     "sponsorsCount": 2,
     "sponsoredProjects": [],
     "organizations": [
@@ -1115,6 +1155,11 @@
   {
     "name": "Felix Haus",
     "login": "ofhouse",
+    "location": "SH, Germany",
+    "websiteUrl": "https://felix.house",
+    "twitterUsername": "ofhouse",
+    "email": "",
+    "bio": "",
     "followers": 78,
     "following": 19,
     "followerToFollowingRatio": "4.11",
@@ -1135,8 +1180,8 @@
       2011,
       2010
     ],
-    "totalCommits": 1281,
-    "restrictedContributions": 1259,
+    "totalCommits": 1285,
+    "restrictedContributions": 1263,
     "totalRepositories": 43,
     "totalStars": 231,
     "totalForks": 45,
@@ -1266,6 +1311,11 @@
   {
     "name": "Lindsey Simon",
     "login": "elsigh",
+    "location": "San Francisco",
+    "websiteUrl": "https://read.cv/elsigh",
+    "twitterUsername": "elsigh",
+    "email": "elsigh@gmail.com",
+    "bio": "Ever passionate about the web.",
     "followers": 135,
     "following": 6,
     "followerToFollowingRatio": "22.50",
@@ -1349,6 +1399,11 @@
   {
     "name": "Joe Haddad",
     "login": "Timer",
+    "location": "Medina, Ohio",
+    "websiteUrl": "https://timer.blog",
+    "twitterUsername": "timer150",
+    "email": "timer150@gmail.com",
+    "bio": "Senior Software Engineer at Vercel. Previously maintainer of Next.js and Create React App.",
     "followers": 2450,
     "following": 17,
     "followerToFollowingRatio": "144.12",
@@ -1469,9 +1524,14 @@
   {
     "name": "Wyatt Johnson",
     "login": "wyattjoh",
-    "followers": 182,
+    "location": "Calgary, Alberta Canada",
+    "websiteUrl": "https://wyattjoh.ca/",
+    "twitterUsername": "wyattjoh",
+    "email": "accounts+github@wyattjoh.ca",
+    "bio": "Full-stack developer with a security first mindset. Working on Next.js at @vercel. Previously @voxmedia, @coralproject.",
+    "followers": 184,
     "following": 15,
-    "followerToFollowingRatio": "12.13",
+    "followerToFollowingRatio": "12.27",
     "contributionYears": [
       2024,
       2023,
@@ -1488,7 +1548,7 @@
       2012,
       2011
     ],
-    "totalCommits": 660,
+    "totalCommits": 662,
     "restrictedContributions": 243,
     "totalRepositories": 110,
     "totalStars": 98,
@@ -1637,7 +1697,7 @@
       "golang"
     ],
     "externalContributions": 3,
-    "totalExternalCommits": 116,
+    "totalExternalCommits": 117,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -1664,6 +1724,11 @@
   {
     "name": "Dima Voytenko",
     "login": "dvoytenko",
+    "location": "CA",
+    "websiteUrl": "https://twitter.com/dvoytenko",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 116,
     "following": 0,
     "followerToFollowingRatio": 116,
@@ -1729,9 +1794,14 @@
   {
     "name": "Will Binns-Smith",
     "login": "wbinnssmith",
-    "followers": 580,
+    "location": "Bay Area, CA",
+    "websiteUrl": "https://wbinnssmith.com",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Engineer @vercel. Previously @atlassian and @facebook.",
+    "followers": 581,
     "following": 166,
-    "followerToFollowingRatio": "3.49",
+    "followerToFollowingRatio": "3.50",
     "contributionYears": [
       2024,
       2023,
@@ -1793,6 +1863,11 @@
   {
     "name": "Shu Uesugi",
     "login": "chibicode",
+    "location": null,
+    "websiteUrl": "http://hello.chibicode.com",
+    "twitterUsername": "chibicode",
+    "email": "",
+    "bio": "",
     "followers": 1231,
     "following": 0,
     "followerToFollowingRatio": 1231,
@@ -1812,8 +1887,8 @@
       2012,
       2011
     ],
-    "totalCommits": 915,
-    "restrictedContributions": 905,
+    "totalCommits": 926,
+    "restrictedContributions": 916,
     "totalRepositories": 9,
     "totalStars": 1787,
     "totalForks": 269,
@@ -1874,6 +1949,11 @@
   {
     "name": "Swarnava Sengupta",
     "login": "swarnava",
+    "location": "Kolkata, IN",
+    "websiteUrl": "https://swarnava.in",
+    "twitterUsername": "sw4rn4v4",
+    "email": "",
+    "bio": "",
     "followers": 83,
     "following": 10,
     "followerToFollowingRatio": "8.30",
@@ -1944,6 +2024,11 @@
   {
     "name": "Cindy Wu",
     "login": "cindywu",
+    "location": "Kingdom of Hawai'i",
+    "websiteUrl": "cindy-wu.com",
+    "twitterUsername": "cindywu",
+    "email": "ciindy.wu@gmail.com",
+    "bio": "making things do things at ▲",
     "followers": 134,
     "following": 264,
     "followerToFollowingRatio": "0.51",
@@ -1963,8 +2048,8 @@
       2012,
       2011
     ],
-    "totalCommits": 494,
-    "restrictedContributions": 450,
+    "totalCommits": 497,
+    "restrictedContributions": 453,
     "totalRepositories": 174,
     "totalStars": 53,
     "totalForks": 2,
@@ -2074,9 +2159,14 @@
   {
     "name": "Tobias Koppers",
     "login": "sokra",
-    "followers": 9055,
+    "location": "Germany",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Author of webpack",
+    "followers": 9056,
     "following": 8,
-    "followerToFollowingRatio": "1131.88",
+    "followerToFollowingRatio": "1132.00",
     "contributionYears": [
       2024,
       2023,
@@ -2092,7 +2182,7 @@
       2013,
       2012
     ],
-    "totalCommits": 2540,
+    "totalCommits": 2545,
     "restrictedContributions": 475,
     "totalRepositories": 24,
     "totalStars": 3874,
@@ -2123,7 +2213,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 6,
-    "totalExternalCommits": 823,
+    "totalExternalCommits": 826,
     "sponsorsCount": 2,
     "sponsoredProjects": [],
     "organizations": [
@@ -2186,9 +2276,14 @@
   {
     "name": "Timo Lins",
     "login": "timolins",
-    "followers": 1022,
+    "location": "Vienna, Austria",
+    "websiteUrl": "https://timo.sh",
+    "twitterUsername": "timolins",
+    "email": "me@timo.sh",
+    "bio": "I design and code (Order may vary)",
+    "followers": 1023,
     "following": 68,
-    "followerToFollowingRatio": "15.03",
+    "followerToFollowingRatio": "15.04",
     "contributionYears": [
       2024,
       2023,
@@ -2204,10 +2299,10 @@
       2013,
       2012
     ],
-    "totalCommits": 1351,
-    "restrictedContributions": 1170,
+    "totalCommits": 1353,
+    "restrictedContributions": 1172,
     "totalRepositories": 8,
-    "totalStars": 10096,
+    "totalStars": 10097,
     "totalForks": 398,
     "languages": [
       [
@@ -2221,7 +2316,7 @@
         "TypeScript",
         {
           "repoCount": 2,
-          "stars": 9870
+          "stars": 9871
         }
       ],
       [
@@ -2290,6 +2385,11 @@
   {
     "name": "Mark Glagola",
     "login": "mglagola",
+    "location": "United States",
+    "websiteUrl": "http://mark.gl/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 204,
     "following": 57,
     "followerToFollowingRatio": "3.58",
@@ -2308,8 +2408,8 @@
       2013,
       2012
     ],
-    "totalCommits": 2193,
-    "restrictedContributions": 2190,
+    "totalCommits": 2201,
+    "restrictedContributions": 2198,
     "totalRepositories": 25,
     "totalStars": 252,
     "totalForks": 60,
@@ -2420,6 +2520,11 @@
   {
     "name": "Dom Sip",
     "login": "dominiksipowicz",
+    "location": "London",
+    "websiteUrl": null,
+    "twitterUsername": "dom_sipowicz",
+    "email": "dom@vercel.com",
+    "bio": "",
     "followers": 75,
     "following": 40,
     "followerToFollowingRatio": "1.88",
@@ -2534,6 +2639,11 @@
   {
     "name": "Javi Velasco",
     "login": "javivelasco",
+    "location": "Madrid",
+    "websiteUrl": "https://javivelasco.com",
+    "twitterUsername": "javivelasco",
+    "email": "javier.velasco86@gmail.com",
+    "bio": "👾🦄 • Tech Lead at Vercel • react-toolbox.io author",
     "followers": 1160,
     "following": 53,
     "followerToFollowingRatio": "21.89",
@@ -2552,8 +2662,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1261,
-    "restrictedContributions": 1182,
+    "totalCommits": 1262,
+    "restrictedContributions": 1183,
     "totalRepositories": 14,
     "totalStars": 1076,
     "totalForks": 91,
@@ -2652,6 +2762,11 @@
   {
     "name": "Zack Tanner",
     "login": "ztanner",
+    "location": "Los Angeles, CA",
+    "websiteUrl": null,
+    "twitterUsername": "zt1072",
+    "email": "",
+    "bio": "Next.js Maintainer @Vercel",
     "followers": 240,
     "following": 60,
     "followerToFollowingRatio": "4.00",
@@ -2670,7 +2785,7 @@
       2013,
       2012
     ],
-    "totalCommits": 1688,
+    "totalCommits": 1690,
     "restrictedContributions": 356,
     "totalRepositories": 11,
     "totalStars": 1,
@@ -2735,6 +2850,11 @@
   {
     "name": "Javier Bórquez",
     "login": "javierbyte",
+    "location": "Berlin, Germany",
+    "websiteUrl": "https://javier.xyz",
+    "twitterUsername": "javierbyte",
+    "email": "hi@javier.xyz",
+    "bio": "",
     "followers": 895,
     "following": 257,
     "followerToFollowingRatio": "3.48",
@@ -2753,8 +2873,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1260,
-    "restrictedContributions": 1158,
+    "totalCommits": 1267,
+    "restrictedContributions": 1165,
     "totalRepositories": 49,
     "totalStars": 8696,
     "totalForks": 723,
@@ -2906,6 +3026,11 @@
   {
     "name": "Ian Jones",
     "login": "WITS",
+    "location": null,
+    "websiteUrl": "https://ian.dev",
+    "twitterUsername": null,
+    "email": "hi@ian.bio",
+    "bio": "",
     "followers": 55,
     "following": 5,
     "followerToFollowingRatio": "11.00",
@@ -2963,6 +3088,11 @@
   {
     "name": "Kiko Beats",
     "login": "Kikobeats",
+    "location": "Murcia, Spain",
+    "websiteUrl": "https://kikobeats.com",
+    "twitterUsername": "Kikobeats",
+    "email": "josefrancisco.verdu@gmail.com",
+    "bio": "Software writer.",
     "followers": 1455,
     "following": 195,
     "followerToFollowingRatio": "7.46",
@@ -2981,8 +3111,8 @@
       2013,
       2012
     ],
-    "totalCommits": 5180,
-    "restrictedContributions": 1125,
+    "totalCommits": 5186,
+    "restrictedContributions": 1129,
     "totalRepositories": 249,
     "totalStars": 8209,
     "totalForks": 1031,
@@ -3155,7 +3285,7 @@
       "snippets"
     ],
     "externalContributions": 42,
-    "totalExternalCommits": 2531,
+    "totalExternalCommits": 2532,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -3200,6 +3330,11 @@
   {
     "name": null,
     "login": "balazs4",
+    "location": "Bavaria, Germany",
+    "websiteUrl": null,
+    "twitterUsername": "balazs4",
+    "email": "",
+    "bio": "software engineer",
     "followers": 71,
     "following": 69,
     "followerToFollowingRatio": "1.03",
@@ -3218,8 +3353,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1347,
-    "restrictedContributions": 801,
+    "totalCommits": 1351,
+    "restrictedContributions": 805,
     "totalRepositories": 77,
     "totalStars": 21,
     "totalForks": 7,
@@ -3335,9 +3470,14 @@
   {
     "name": "Dillon Mulroy",
     "login": "dmmulroy",
-    "followers": 552,
+    "location": "Raleigh, NC",
+    "websiteUrl": "https://dillonmulroy.com",
+    "twitterUsername": "dillon_mulroy",
+    "email": "dillon.mulroy@gmail.com",
+    "bio": "Software Engineer @vercel",
+    "followers": 554,
     "following": 119,
-    "followerToFollowingRatio": "4.64",
+    "followerToFollowingRatio": "4.66",
     "contributionYears": [
       2024,
       2023,
@@ -3353,10 +3493,10 @@
       2013,
       2012
     ],
-    "totalCommits": 2023,
-    "restrictedContributions": 788,
+    "totalCommits": 2025,
+    "restrictedContributions": 789,
     "totalRepositories": 60,
-    "totalStars": 1101,
+    "totalStars": 1104,
     "totalForks": 77,
     "languages": [
       [
@@ -3384,7 +3524,7 @@
         "Lua",
         {
           "repoCount": 4,
-          "stars": 769
+          "stars": 772
         }
       ],
       [
@@ -3523,6 +3663,11 @@
   {
     "name": "Maia Teegarden",
     "login": "padmaia",
+    "location": "AZ",
+    "websiteUrl": null,
+    "twitterUsername": "padmaia",
+    "email": "dev@padmaia.rocks",
+    "bio": "",
     "followers": 286,
     "following": 5,
     "followerToFollowingRatio": "57.20",
@@ -3608,6 +3753,11 @@
   {
     "name": "Thomas Knickman",
     "login": "tknickman",
+    "location": "Baltimore, MD (Remote)",
+    "websiteUrl": "https://www.tomk.info?ref=github_profile",
+    "twitterUsername": "tknickman",
+    "email": "tknickman@gmail.com",
+    "bio": "Engineering ▲ @Vercel. \r\n\r\nPreviously @SurveyMonkey & @underarmour",
     "followers": 116,
     "following": 39,
     "followerToFollowingRatio": "2.97",
@@ -3626,8 +3776,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1747,
-    "restrictedContributions": 1167,
+    "totalCommits": 1751,
+    "restrictedContributions": 1171,
     "totalRepositories": 26,
     "totalStars": 16,
     "totalForks": 4,
@@ -3707,6 +3857,11 @@
   {
     "name": "jeffrey",
     "login": "jarneson",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 42,
     "following": 0,
     "followerToFollowingRatio": 42,
@@ -3727,14 +3882,14 @@
     "totalCommits": 262,
     "restrictedContributions": 252,
     "totalRepositories": 6,
-    "totalStars": 354,
+    "totalStars": 353,
     "totalForks": 26,
     "languages": [
       [
         "GDScript",
         {
           "repoCount": 3,
-          "stars": 353
+          "stars": 352
         }
       ],
       [
@@ -3770,7 +3925,12 @@
   {
     "name": "Shu Ding",
     "login": "shuding",
-    "followers": 6593,
+    "location": "Berlin",
+    "websiteUrl": "shud.in",
+    "twitterUsername": "shuding_",
+    "email": "g@shud.in",
+    "bio": "Be curious. Read widely. Try new things. — aaronsw",
+    "followers": 6594,
     "following": 345,
     "followerToFollowingRatio": "19.11",
     "contributionYears": [
@@ -3787,10 +3947,10 @@
       2014,
       2013
     ],
-    "totalCommits": 3162,
-    "restrictedContributions": 2544,
+    "totalCommits": 3165,
+    "restrictedContributions": 2547,
     "totalRepositories": 88,
-    "totalStars": 25361,
+    "totalStars": 25377,
     "totalForks": 2359,
     "languages": [
       [
@@ -3804,14 +3964,14 @@
         "TypeScript",
         {
           "repoCount": 9,
-          "stars": 15253
+          "stars": 15262
         }
       ],
       [
         "HTML",
         {
           "repoCount": 7,
-          "stars": 4037
+          "stars": 4040
         }
       ],
       [
@@ -3832,7 +3992,7 @@
         "MDX",
         {
           "repoCount": 2,
-          "stars": 4118
+          "stars": 4122
         }
       ],
       [
@@ -3974,6 +4134,11 @@
   {
     "name": "Chris Olszewski",
     "login": "chris-olszewski",
+    "location": "Cleveland",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "UW-Madison Alum",
     "followers": 36,
     "following": 0,
     "followerToFollowingRatio": 36,
@@ -3991,7 +4156,7 @@
       2014,
       2013
     ],
-    "totalCommits": 1211,
+    "totalCommits": 1215,
     "restrictedContributions": 0,
     "totalRepositories": 20,
     "totalStars": 2,
@@ -4078,7 +4243,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 4,
-    "totalExternalCommits": 334,
+    "totalExternalCommits": 336,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -4099,6 +4264,11 @@
   {
     "name": "Luis Alvarez D.",
     "login": "lfades",
+    "location": "Sabaneta - Colombia",
+    "websiteUrl": null,
+    "twitterUsername": "luis_fades",
+    "email": "luis@vercel.com",
+    "bio": "Working on Solutions. Engineer.",
     "followers": 689,
     "following": 7,
     "followerToFollowingRatio": "98.43",
@@ -4155,6 +4325,11 @@
   {
     "name": "Matheus Fernandes",
     "login": "matheuss",
+    "location": "Brazil",
+    "websiteUrl": "https://m5s.sh",
+    "twitterUsername": "matheusfrndes",
+    "email": "m@vercel.com",
+    "bio": "Principal Engineer @vercel",
     "followers": 1122,
     "following": 121,
     "followerToFollowingRatio": "9.27",
@@ -4284,9 +4459,14 @@
   {
     "name": "Jiachi Liu",
     "login": "huozhi",
-    "followers": 1476,
+    "location": "</>",
+    "websiteUrl": "https://huozhi.im",
+    "twitterUsername": "huozhi",
+    "email": "",
+    "bio": "build things in minimalism",
+    "followers": 1478,
     "following": 153,
-    "followerToFollowingRatio": "9.65",
+    "followerToFollowingRatio": "9.66",
     "contributionYears": [
       2024,
       2023,
@@ -4301,17 +4481,17 @@
       2014,
       2013
     ],
-    "totalCommits": 2290,
+    "totalCommits": 2297,
     "restrictedContributions": 170,
     "totalRepositories": 61,
-    "totalStars": 2050,
+    "totalStars": 2054,
     "totalForks": 83,
     "languages": [
       [
         "JavaScript",
         {
           "repoCount": 39,
-          "stars": 1062
+          "stars": 1064
         }
       ],
       [
@@ -4325,7 +4505,7 @@
         "TypeScript",
         {
           "repoCount": 3,
-          "stars": 948
+          "stars": 950
         }
       ],
       [
@@ -4462,7 +4642,7 @@
       "ui"
     ],
     "externalContributions": 19,
-    "totalExternalCommits": 429,
+    "totalExternalCommits": 432,
     "sponsorsCount": 2,
     "sponsoredProjects": [],
     "organizations": [
@@ -4483,6 +4663,11 @@
   {
     "name": "Aldo Schumann",
     "login": "aldosch",
+    "location": "Melbourne",
+    "websiteUrl": "aldo.io",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "CSE at @vercel ",
     "followers": 12,
     "following": 12,
     "followerToFollowingRatio": "1.00",
@@ -4560,6 +4745,11 @@
   {
     "name": "Caleb Boyd",
     "login": "calebboyd",
+    "location": null,
+    "websiteUrl": "twitter.com/calebsboyd",
+    "twitterUsername": "calebsboyd",
+    "email": "",
+    "bio": "useful thing builder",
     "followers": 153,
     "following": 230,
     "followerToFollowingRatio": "0.67",
@@ -4655,9 +4845,14 @@
   {
     "name": "Tim Neutkens",
     "login": "timneutkens",
-    "followers": 5416,
+    "location": "The Netherlands",
+    "websiteUrl": "https://timn.tech",
+    "twitterUsername": "timneutkens",
+    "email": "",
+    "bio": "Co-author of Next.js and MDX",
+    "followers": 5417,
     "following": 0,
-    "followerToFollowingRatio": 5416,
+    "followerToFollowingRatio": 5417,
     "contributionYears": [
       2024,
       2023,
@@ -4671,7 +4866,7 @@
       2015,
       2014
     ],
-    "totalCommits": 1759,
+    "totalCommits": 1766,
     "restrictedContributions": 184,
     "totalRepositories": 69,
     "totalStars": 265,
@@ -4728,7 +4923,7 @@
       "react"
     ],
     "externalContributions": 14,
-    "totalExternalCommits": 561,
+    "totalExternalCommits": 565,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -4749,6 +4944,11 @@
   {
     "name": "Luc Leray",
     "login": "lucleray",
+    "location": null,
+    "websiteUrl": "https://lucleray.com",
+    "twitterUsername": "lucleray",
+    "email": "",
+    "bio": "engineering @vercel",
     "followers": 464,
     "following": 25,
     "followerToFollowingRatio": "18.56",
@@ -4879,7 +5079,7 @@
         "name": "styled-components",
         "login": "styled-components",
         "description": "Visual primitives for the component age. Use the best bits of ES6 and CSS to style your apps without stress 💅",
-        "membersCount": 101
+        "membersCount": 100
       },
       {
         "name": "Sequence.work",
@@ -4892,6 +5092,11 @@
   {
     "name": "Ben Seymour",
     "login": "bseymour",
+    "location": "Oxford, UK",
+    "websiteUrl": "http://benseymour.com",
+    "twitterUsername": "bseymour",
+    "email": "",
+    "bio": "Director, Sales Engineering @ ▲Vercel  \r\n| Creator:  Storyus, Slow Social, Unslump | Co.: See More Potential, Haktive\r\n ",
     "followers": 64,
     "following": 7,
     "followerToFollowingRatio": "9.14",
@@ -4972,6 +5177,11 @@
   {
     "name": "Evil Rabbit",
     "login": "evilrabbit",
+    "location": "San Francisco, CA.",
+    "websiteUrl": "https://evilrabb.it",
+    "twitterUsername": null,
+    "email": "hello@evilrabb.it",
+    "bio": "Founding Designer @vercel @nextjs",
     "followers": 1321,
     "following": 112,
     "followerToFollowingRatio": "11.79",
@@ -5027,6 +5237,11 @@
   {
     "name": "Chris",
     "login": "chriswdmr",
+    "location": "Germany",
+    "websiteUrl": null,
+    "twitterUsername": "chriswdmr",
+    "email": "",
+    "bio": "",
     "followers": 65,
     "following": 0,
     "followerToFollowingRatio": 65,
@@ -5043,8 +5258,8 @@
       2015,
       2014
     ],
-    "totalCommits": 818,
-    "restrictedContributions": 800,
+    "totalCommits": 819,
+    "restrictedContributions": 801,
     "totalRepositories": 3,
     "totalStars": 0,
     "totalForks": 0,
@@ -5075,6 +5290,11 @@
   {
     "name": "Mark Knichel",
     "login": "mknichel",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 26,
     "following": 16,
     "followerToFollowingRatio": "1.63",
@@ -5140,6 +5360,11 @@
   {
     "name": "Luka Hartwig",
     "login": "lukahartwig",
+    "location": "Hamburg",
+    "websiteUrl": "https://lukahartwig.de",
+    "twitterUsername": "lukahartwig",
+    "email": "",
+    "bio": "TypeScript, Go, Rust.",
     "followers": 30,
     "following": 26,
     "followerToFollowingRatio": "1.15",
@@ -5156,8 +5381,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1117,
-    "restrictedContributions": 1081,
+    "totalCommits": 1122,
+    "restrictedContributions": 1086,
     "totalRepositories": 21,
     "totalStars": 13,
     "totalForks": 2,
@@ -5264,6 +5489,11 @@
   {
     "name": "paulogdm",
     "login": "paulogdm",
+    "location": "BR",
+    "websiteUrl": "https://paulogdm.com",
+    "twitterUsername": null,
+    "email": "me@paulogdm.com",
+    "bio": "",
     "followers": 329,
     "following": 60,
     "followerToFollowingRatio": "5.48",
@@ -5280,8 +5510,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1114,
-    "restrictedContributions": 1105,
+    "totalCommits": 1116,
+    "restrictedContributions": 1107,
     "totalRepositories": 70,
     "totalStars": 89,
     "totalForks": 26,
@@ -5401,6 +5631,11 @@
   {
     "name": "Mitchell Wright",
     "login": "mitchellwright",
+    "location": "Midway, UT",
+    "websiteUrl": null,
+    "twitterUsername": "mitchellbwright",
+    "email": "mitchellbwright@gmail.com",
+    "bio": "Growth, product, and operations.",
     "followers": 58,
     "following": 21,
     "followerToFollowingRatio": "2.76",
@@ -5417,8 +5652,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1049,
-    "restrictedContributions": 1028,
+    "totalCommits": 1059,
+    "restrictedContributions": 1031,
     "totalRepositories": 12,
     "totalStars": 2,
     "totalForks": 2,
@@ -5462,7 +5697,7 @@
     "uniqueContributors": [],
     "uniqueTopics": [],
     "externalContributions": 6,
-    "totalExternalCommits": 9,
+    "totalExternalCommits": 14,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -5477,6 +5712,11 @@
   {
     "name": "Thomas Mickley-Doyle",
     "login": "tmickleydoyle",
+    "location": "New Orleans, LA, USA",
+    "websiteUrl": "https://tmickleydoyle.vercel.app",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 87,
     "following": 145,
     "followerToFollowingRatio": "0.60",
@@ -5493,8 +5733,8 @@
       2015,
       2014
     ],
-    "totalCommits": 1722,
-    "restrictedContributions": 1595,
+    "totalCommits": 1723,
+    "restrictedContributions": 1596,
     "totalRepositories": 10,
     "totalStars": 66,
     "totalForks": 2,
@@ -5556,6 +5796,11 @@
   {
     "name": "Florentin / 珞辰",
     "login": "ecklf",
+    "location": "Munich, Germany",
+    "websiteUrl": "ecklf.com",
+    "twitterUsername": null,
+    "email": "ecklf@icloud.com",
+    "bio": "Fullstack Web, App and Game development. I love tinkering with *nix systems and learning new languages.(DE | EN | ZH)\r\n",
     "followers": 400,
     "following": 113,
     "followerToFollowingRatio": "3.54",
@@ -5575,14 +5820,14 @@
     "totalCommits": 1217,
     "restrictedContributions": 884,
     "totalRepositories": 46,
-    "totalStars": 4128,
+    "totalStars": 4129,
     "totalForks": 315,
     "languages": [
       [
         "TypeScript",
         {
           "repoCount": 15,
-          "stars": 2878
+          "stars": 2879
         }
       ],
       [
@@ -5754,7 +5999,7 @@
         "name": "Nix/Nixpkgs/NixOS",
         "login": "NixOS",
         "description": "",
-        "membersCount": 1027
+        "membersCount": 1028
       },
       {
         "name": "Vercel",
@@ -5773,6 +6018,11 @@
   {
     "name": "Christopher",
     "login": "skllcrn",
+    "location": "Norway",
+    "websiteUrl": "skllcrn.me",
+    "twitterUsername": "skllcrn",
+    "email": "",
+    "bio": "https://bukk.it/noidea-golf.gif",
     "followers": 143,
     "following": 1,
     "followerToFollowingRatio": "143.00",
@@ -5839,9 +6089,14 @@
   {
     "name": "Max Leiter",
     "login": "MaxLeiter",
-    "followers": 427,
+    "location": "California",
+    "websiteUrl": "https://maxleiter.com/",
+    "twitterUsername": "Max_Leiter",
+    "email": "maxwell.leiter@gmail.com",
+    "bio": "Building @vercel",
+    "followers": 428,
     "following": 42,
-    "followerToFollowingRatio": "10.17",
+    "followerToFollowingRatio": "10.19",
     "contributionYears": [
       2024,
       2023,
@@ -5855,10 +6110,10 @@
       2015,
       2014
     ],
-    "totalCommits": 5671,
-    "restrictedContributions": 5176,
+    "totalCommits": 5679,
+    "restrictedContributions": 5184,
     "totalRepositories": 36,
-    "totalStars": 2136,
+    "totalStars": 2138,
     "totalForks": 115,
     "languages": [
       [
@@ -5872,7 +6127,7 @@
         "TypeScript",
         {
           "repoCount": 8,
-          "stars": 1572
+          "stars": 1574
         }
       ],
       [
@@ -5988,6 +6243,11 @@
   {
     "name": "hrmny",
     "login": "ForsakenHarmony",
+    "location": "Berlin, Germany",
+    "websiteUrl": "https://hrmny.sh/",
+    "twitterUsername": "hrmny_",
+    "email": "",
+    "bio": "@preactjs core team | ❤️ @rust-lang",
     "followers": 393,
     "following": 6,
     "followerToFollowingRatio": "65.50",
@@ -6004,7 +6264,7 @@
       2015,
       2014
     ],
-    "totalCommits": 922,
+    "totalCommits": 924,
     "restrictedContributions": 231,
     "totalRepositories": 57,
     "totalStars": 499,
@@ -6116,9 +6376,14 @@
   {
     "name": "Lee Robinson",
     "login": "leerob",
-    "followers": 11528,
+    "location": "Des Moines, IA",
+    "websiteUrl": "https://leerob.io",
+    "twitterUsername": "leeerob",
+    "email": "me@leerob.io",
+    "bio": "VP of Product @Vercel",
+    "followers": 11532,
     "following": 0,
-    "followerToFollowingRatio": 11528,
+    "followerToFollowingRatio": 11532,
     "contributionYears": [
       2024,
       2023,
@@ -6132,17 +6397,17 @@
       2015,
       2014
     ],
-    "totalCommits": 2200,
-    "restrictedContributions": 737,
+    "totalCommits": 2206,
+    "restrictedContributions": 738,
     "totalRepositories": 38,
-    "totalStars": 12588,
+    "totalStars": 12591,
     "totalForks": 2621,
     "languages": [
       [
         "JavaScript",
         {
           "repoCount": 17,
-          "stars": 2712
+          "stars": 2713
         }
       ],
       [
@@ -6170,7 +6435,7 @@
         "MDX",
         {
           "repoCount": 1,
-          "stars": 7109
+          "stars": 7111
         }
       ],
       [
@@ -6257,7 +6522,7 @@
       "ios-swift"
     ],
     "externalContributions": 39,
-    "totalExternalCommits": 481,
+    "totalExternalCommits": 484,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -6272,6 +6537,11 @@
   {
     "name": "Cody Ogden",
     "login": "codyogden",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://codyogden.com",
+    "twitterUsername": "killedbygoogle",
+    "email": "cody@codyogden.com",
+    "bio": "I make things for the web.",
     "followers": 388,
     "following": 38,
     "followerToFollowingRatio": "10.21",
@@ -6366,6 +6636,11 @@
   {
     "name": "Shohei Maeda",
     "login": "smaeda-ks",
+    "location": "Tokyo, Japan",
+    "websiteUrl": null,
+    "twitterUsername": "jrsyo",
+    "email": "",
+    "bio": "SWE, compute @vercel ",
     "followers": 80,
     "following": 2,
     "followerToFollowingRatio": "40.00",
@@ -6381,8 +6656,8 @@
       2016,
       2015
     ],
-    "totalCommits": 1467,
-    "restrictedContributions": 1421,
+    "totalCommits": 1479,
+    "restrictedContributions": 1433,
     "totalRepositories": 14,
     "totalStars": 63,
     "totalForks": 17,
@@ -6494,6 +6769,11 @@
   {
     "name": "Cody Brouwers",
     "login": "codybrouwers",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
     "followers": 62,
     "following": 24,
     "followerToFollowingRatio": "2.58",
@@ -6509,8 +6789,8 @@
       2016,
       2015
     ],
-    "totalCommits": 1884,
-    "restrictedContributions": 1864,
+    "totalCommits": 1887,
+    "restrictedContributions": 1867,
     "totalRepositories": 13,
     "totalStars": 7,
     "totalForks": 2,
@@ -6562,9 +6842,14 @@
   {
     "name": "Sebastian \"Sebbie\" Silbermann",
     "login": "eps1lon",
-    "followers": 1223,
+    "location": "Berlin, Germany",
+    "websiteUrl": "https://solverfox.dev",
+    "twitterUsername": "sebsilbermann",
+    "email": "silbermann.sebastian@gmail.com",
+    "bio": "I maintain stuff.",
+    "followers": 1225,
     "following": 39,
-    "followerToFollowingRatio": "31.36",
+    "followerToFollowingRatio": "31.41",
     "contributionYears": [
       2024,
       2023,
@@ -6578,7 +6863,7 @@
       2015,
       2014
     ],
-    "totalCommits": 2978,
+    "totalCommits": 2982,
     "restrictedContributions": 617,
     "totalRepositories": 130,
     "totalStars": 586,
@@ -6657,7 +6942,7 @@
       "i18n"
     ],
     "externalContributions": 22,
-    "totalExternalCommits": 702,
+    "totalExternalCommits": 706,
     "sponsorsCount": 6,
     "sponsoredProjects": [],
     "organizations": [
@@ -6714,6 +6999,11 @@
   {
     "name": "Janka Uryga",
     "login": "lubieowoce",
+    "location": "Berlin, Germany",
+    "websiteUrl": null,
+    "twitterUsername": "lubieowoce",
+    "email": "lolzatu2@gmail.com",
+    "bio": "i like computers /\r\n\r\nnext.js at @vercel",
     "followers": 99,
     "following": 17,
     "followerToFollowingRatio": "5.82",
@@ -6729,7 +7019,7 @@
       2016,
       2015
     ],
-    "totalCommits": 301,
+    "totalCommits": 302,
     "restrictedContributions": 0,
     "totalRepositories": 25,
     "totalStars": 201,
@@ -6808,6 +7098,11 @@
   {
     "name": "John Pham",
     "login": "JohnPhamous",
+    "location": "Seattle",
+    "websiteUrl": "http://phamous.dev",
+    "twitterUsername": "johnphamous",
+    "email": "john@pham.codes",
+    "bio": "Previously breaking things @highlight-run, @MicrosoftEdge, @nasa",
     "followers": 293,
     "following": 46,
     "followerToFollowingRatio": "6.37",
@@ -6823,8 +7118,8 @@
       2016,
       2015
     ],
-    "totalCommits": 1866,
-    "restrictedContributions": 1653,
+    "totalCommits": 1867,
+    "restrictedContributions": 1654,
     "totalRepositories": 152,
     "totalStars": 189,
     "totalForks": 98,
@@ -6950,9 +7245,14 @@
   {
     "name": "Balázs Orbán",
     "login": "balazsorban44",
-    "followers": 1516,
+    "location": "Oslo, Norway",
+    "websiteUrl": "https://balazsorban.com",
+    "twitterUsername": "balazsorban44",
+    "email": "info@balazsorban.com",
+    "bio": "Open-sourcerer. 🧙 Speaking Hungarian/Norwegian/JavaScript.",
+    "followers": 1517,
     "following": 54,
-    "followerToFollowingRatio": "28.07",
+    "followerToFollowingRatio": "28.09",
     "contributionYears": [
       2024,
       2023,
@@ -6964,11 +7264,11 @@
       2017,
       2016
     ],
-    "totalCommits": 1779,
-    "restrictedContributions": 264,
+    "totalCommits": 1780,
+    "restrictedContributions": 265,
     "totalRepositories": 98,
     "totalStars": 456,
-    "totalForks": 105,
+    "totalForks": 106,
     "languages": [
       [
         "JavaScript",
@@ -7131,6 +7431,11 @@
   {
     "name": "JJ Kasper",
     "login": "ijjk",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://jjsweb.site",
+    "twitterUsername": "_ijjk",
+    "email": "jj@jjsweb.site",
+    "bio": "Software Engineer at Vercel. Maintainer of Next.js",
     "followers": 3235,
     "following": 40,
     "followerToFollowingRatio": "80.88",
@@ -7145,7 +7450,7 @@
       2017,
       2016
     ],
-    "totalCommits": 3002,
+    "totalCommits": 3003,
     "restrictedContributions": 1032,
     "totalRepositories": 29,
     "totalStars": 3733,
@@ -7209,7 +7514,7 @@
       "nodemailer"
     ],
     "externalContributions": 5,
-    "totalExternalCommits": 480,
+    "totalExternalCommits": 481,
     "sponsorsCount": 0,
     "sponsoredProjects": [],
     "organizations": [
@@ -7224,9 +7529,14 @@
   {
     "name": "rauno",
     "login": "raunofreiberg",
-    "followers": 4183,
+    "location": null,
+    "websiteUrl": "rauno.me",
+    "twitterUsername": "raunofreiberg",
+    "email": "",
+    "bio": "",
+    "followers": 4187,
     "following": 7,
-    "followerToFollowingRatio": "597.57",
+    "followerToFollowingRatio": "598.14",
     "contributionYears": [
       2024,
       2023,
@@ -7344,6 +7654,11 @@
   {
     "name": "Matthew Sweeney",
     "login": "mcsdevv",
+    "location": "UK",
+    "websiteUrl": "https://twitter.com/mcsdev",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Senior Director, Customer Success @ Vercel",
     "followers": 208,
     "following": 12,
     "followerToFollowingRatio": "17.33",
@@ -7431,6 +7746,11 @@
   {
     "name": "Sam Ko",
     "login": "samcx",
+    "location": "CA",
+    "websiteUrl": "https://sam.cx",
+    "twitterUsername": "samko_cx",
+    "email": "sam@vercel.com",
+    "bio": "Software Engineer @vercel, @nextjs ",
     "followers": 189,
     "following": 52,
     "followerToFollowingRatio": "3.63",
@@ -7485,9 +7805,14 @@
   {
     "name": "Donny/강동윤",
     "login": "kdy1",
-    "followers": 3890,
+    "location": "South korea",
+    "websiteUrl": "https://kdy1.dev",
+    "twitterUsername": "kdy1dev",
+    "email": "kdy1997.dev@gmail.com",
+    "bio": "Creator of @swc-project and maintainer of next.js / turbopack\r\n\r\nex @denoland",
+    "followers": 3892,
     "following": 21,
-    "followerToFollowingRatio": "185.24",
+    "followerToFollowingRatio": "185.33",
     "contributionYears": [
       2024,
       2023,
@@ -7499,8 +7824,8 @@
       2017,
       2016
     ],
-    "totalCommits": 7007,
-    "restrictedContributions": 2960,
+    "totalCommits": 7016,
+    "restrictedContributions": 2963,
     "totalRepositories": 78,
     "totalStars": 662,
     "totalForks": 61,
@@ -7584,7 +7909,7 @@
       "hashmap"
     ],
     "externalContributions": 38,
-    "totalExternalCommits": 1713,
+    "totalExternalCommits": 1716,
     "sponsorsCount": 6,
     "sponsoredProjects": [
       "HerringtonDarkholme",
@@ -7629,6 +7954,11 @@
   {
     "name": "Kylie Czajkowski",
     "login": "kale-stew",
+    "location": "Colorado",
+    "websiteUrl": "https://kylieis.online/",
+    "twitterUsername": "kyliestew",
+    "email": "",
+    "bio": "eng @vercel ▲",
     "followers": 365,
     "following": 12,
     "followerToFollowingRatio": "30.42",
@@ -7722,6 +8052,11 @@
   {
     "name": "Yanick Bélanger",
     "login": "emeraldsanto",
+    "location": "Montréal, Québec, Canada",
+    "websiteUrl": "https://yanickbelanger.dev?utm_source=github",
+    "twitterUsername": "yanthedev",
+    "email": "yanick.belanger@yahoo.com",
+    "bio": "Mobile developer working with cross-platform tech.",
     "followers": 78,
     "following": 60,
     "followerToFollowingRatio": "1.30",
@@ -7735,17 +8070,17 @@
       2018,
       2017
     ],
-    "totalCommits": 1393,
-    "restrictedContributions": 1382,
+    "totalCommits": 1396,
+    "restrictedContributions": 1385,
     "totalRepositories": 10,
-    "totalStars": 588,
+    "totalStars": 589,
     "totalForks": 77,
     "languages": [
       [
         "TypeScript",
         {
           "repoCount": 5,
-          "stars": 574
+          "stars": 575
         }
       ],
       [
@@ -7839,6 +8174,11 @@
   {
     "name": "Andrew Healey",
     "login": "healeycodes",
+    "location": "UK",
+    "websiteUrl": "https://healeycodes.com",
+    "twitterUsername": "healeycodes",
+    "email": "healeycodes@gmail.com",
+    "bio": "software engineer @vercel",
     "followers": 540,
     "following": 1,
     "followerToFollowingRatio": "540.00",
@@ -7852,17 +8192,17 @@
       2018,
       2017
     ],
-    "totalCommits": 4474,
-    "restrictedContributions": 4310,
+    "totalCommits": 4496,
+    "restrictedContributions": 4332,
     "totalRepositories": 82,
-    "totalStars": 1647,
+    "totalStars": 1650,
     "totalForks": 212,
     "languages": [
       [
         "Python",
         {
           "repoCount": 24,
-          "stars": 474
+          "stars": 477
         }
       ],
       [
@@ -8154,6 +8494,11 @@
   {
     "name": "Ana Trajkovska",
     "login": "anatrajkovska",
+    "location": "Germany",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Backend Engineer",
     "followers": 0,
     "following": 0,
     "followerToFollowingRatio": 0,
@@ -8233,6 +8578,11 @@
   {
     "name": "Luis Meyer",
     "login": "luismeyer",
+    "location": "Bremen",
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "luis_meyer@outlook.de",
+    "bio": "",
     "followers": 28,
     "following": 31,
     "followerToFollowingRatio": "0.90",
@@ -8245,8 +8595,8 @@
       2019,
       2018
     ],
-    "totalCommits": 1047,
-    "restrictedContributions": 752,
+    "totalCommits": 1051,
+    "restrictedContributions": 756,
     "totalRepositories": 39,
     "totalStars": 18,
     "totalForks": 1,
@@ -8324,9 +8674,14 @@
   {
     "name": "Tom Lienard",
     "login": "QuiiBz",
-    "followers": 511,
+    "location": "London",
+    "websiteUrl": "https://tom.lnrd.fr",
+    "twitterUsername": "tomlienard",
+    "email": "tom.lienrd@gmail.com",
+    "bio": "Developer, enjoying Cloud and Open Source. Compute @vercel. Founder of @lagonapp",
+    "followers": 513,
     "following": 21,
-    "followerToFollowingRatio": "24.33",
+    "followerToFollowingRatio": "24.43",
     "contributionYears": [
       2024,
       2023,
@@ -8336,10 +8691,10 @@
       2019,
       2018
     ],
-    "totalCommits": 2486,
-    "restrictedContributions": 1589,
+    "totalCommits": 2495,
+    "restrictedContributions": 1598,
     "totalRepositories": 32,
-    "totalStars": 2383,
+    "totalStars": 2388,
     "totalForks": 92,
     "languages": [
       [
@@ -8360,7 +8715,7 @@
         "Rust",
         {
           "repoCount": 2,
-          "stars": 803
+          "stars": 808
         }
       ],
       [
@@ -8471,6 +8826,11 @@
   {
     "name": "Robin Yoong",
     "login": "robinyoong",
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": "robinyoong",
+    "email": "",
+    "bio": "",
     "followers": 61,
     "following": 63,
     "followerToFollowingRatio": "0.97",
@@ -8542,6 +8902,11 @@
   {
     "name": "Jiwon Choi",
     "login": "devjiwonchoi",
+    "location": null,
+    "websiteUrl": "jiw.one/x",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Spending time on time-saving.",
     "followers": 102,
     "following": 38,
     "followerToFollowingRatio": "2.68",
@@ -8550,7 +8915,7 @@
       2023,
       2022
     ],
-    "totalCommits": 2514,
+    "totalCommits": 2521,
     "restrictedContributions": 0,
     "totalRepositories": 109,
     "totalStars": 43,
@@ -8666,8 +9031,8 @@
       "replace",
       "replaceall"
     ],
-    "externalContributions": 25,
-    "totalExternalCommits": 258,
+    "externalContributions": 24,
+    "totalExternalCommits": 257,
     "sponsorsCount": 1,
     "sponsoredProjects": [
       "shuding",

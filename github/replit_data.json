@@ -2,6 +2,11 @@
   {
     "name": "Michele Catasta",
     "login": "pirroh",
+    "location": "SF Bay Area, CA",
+    "websiteUrl": "https://pirroh.fyi",
+    "twitterUsername": "pirroh",
+    "email": "pirroh@cs.stanford.edu",
+    "bio": "Large Language Models, AI for Code → Building, Advising, Investing",
     "followers": 277,
     "following": 2,
     "followerToFollowingRatio": "138.50",
@@ -83,6 +88,11 @@
   {
     "name": "Amjad Masad",
     "login": "amasad",
+    "location": "Bay Area, CA",
+    "websiteUrl": "http://amasad.me",
+    "twitterUsername": null,
+    "email": "amjad.masad@gmail.com",
+    "bio": "ceo @ repl.it",
     "followers": 2036,
     "following": 33,
     "followerToFollowingRatio": "61.70",
@@ -209,7 +219,12 @@
   {
     "name": "Szymon Kaliski",
     "login": "szymonkaliski",
-    "followers": 503,
+    "location": null,
+    "websiteUrl": "https://szymonkaliski.com",
+    "twitterUsername": null,
+    "email": "hi@szymonkaliski.com",
+    "bio": "",
+    "followers": 504,
     "following": 329,
     "followerToFollowingRatio": "1.53",
     "contributionYears": [
@@ -228,8 +243,8 @@
       2012,
       2011
     ],
-    "totalCommits": 1203,
-    "restrictedContributions": 1029,
+    "totalCommits": 1221,
+    "restrictedContributions": 1047,
     "totalRepositories": 67,
     "totalStars": 1854,
     "totalForks": 142,
@@ -397,9 +412,14 @@
   {
     "name": "Faris Masad",
     "login": "masad-frost",
-    "followers": 127,
+    "location": null,
+    "websiteUrl": null,
+    "twitterUsername": null,
+    "email": "",
+    "bio": "",
+    "followers": 128,
     "following": 22,
-    "followerToFollowingRatio": "5.77",
+    "followerToFollowingRatio": "5.82",
     "contributionYears": [
       2024,
       2023,
@@ -415,8 +435,8 @@
       2013,
       2012
     ],
-    "totalCommits": 1444,
-    "restrictedContributions": 1016,
+    "totalCommits": 1446,
+    "restrictedContributions": 1017,
     "totalRepositories": 12,
     "totalStars": 12,
     "totalForks": 1,
@@ -477,6 +497,11 @@
   {
     "name": "Zach Anderson",
     "login": "Zabot",
+    "location": "Norman, OK",
+    "websiteUrl": "zabot.dev",
+    "twitterUsername": null,
+    "email": "zach@zabot.dev",
+    "bio": "Avid robot whisperer. Sometimes I have to shout at them too.\r\n\r\nPlatform eng @replit",
     "followers": 37,
     "following": 0,
     "followerToFollowingRatio": 37,
@@ -494,7 +519,7 @@
       2014,
       2013
     ],
-    "totalCommits": 744,
+    "totalCommits": 745,
     "restrictedContributions": 730,
     "totalRepositories": 32,
     "totalStars": 24,
@@ -633,6 +658,11 @@
   {
     "name": "Connor Brewster",
     "login": "cbrewster",
+    "location": "Oklahoma",
+    "websiteUrl": "https://cbrewster.dev",
+    "twitterUsername": null,
+    "email": "cbrewster@hey.com",
+    "bio": "Software Engineer @ Replit.com,\r\nRust Enthusiast",
     "followers": 133,
     "following": 15,
     "followerToFollowingRatio": "8.87",
@@ -649,8 +679,8 @@
       2015,
       2014
     ],
-    "totalCommits": 3176,
-    "restrictedContributions": 3037,
+    "totalCommits": 3179,
+    "restrictedContributions": 3040,
     "totalRepositories": 37,
     "totalStars": 77,
     "totalForks": 10,
@@ -798,7 +828,12 @@
   {
     "name": "Jacky Zhao",
     "login": "jackyzha0",
-    "followers": 1427,
+    "location": "San Francisco",
+    "websiteUrl": "jzhao.xyz",
+    "twitterUsername": "_jzhao",
+    "email": "",
+    "bio": "independent research, distributed systems, interaction design, and enjoying sunsets",
+    "followers": 1428,
     "following": 313,
     "followerToFollowingRatio": "4.56",
     "contributionYears": [
@@ -812,17 +847,17 @@
       2017,
       2016
     ],
-    "totalCommits": 2770,
-    "restrictedContributions": 932,
+    "totalCommits": 2778,
+    "restrictedContributions": 937,
     "totalRepositories": 47,
-    "totalStars": 8371,
-    "totalForks": 2641,
+    "totalStars": 8378,
+    "totalForks": 2642,
     "languages": [
       [
         "TypeScript",
         {
           "repoCount": 12,
-          "stars": 7481
+          "stars": 7488
         }
       ],
       [
@@ -1012,7 +1047,7 @@
       "maelstrom"
     ],
     "externalContributions": 10,
-    "totalExternalCommits": 349,
+    "totalExternalCommits": 350,
     "sponsorsCount": 18,
     "sponsoredProjects": [
       "spencerc99",
@@ -1061,6 +1096,11 @@
   {
     "name": "ReplBot",
     "login": "replbot",
+    "location": "San Francisco, CA",
+    "websiteUrl": "https://repl.it/",
+    "twitterUsername": null,
+    "email": "",
+    "bio": "Beep boop.",
     "followers": 63,
     "following": 0,
     "followerToFollowingRatio": 63,
