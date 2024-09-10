@@ -147,6 +147,61 @@ async function querySimilarJobTitles(job: string) {
 }
 
 export const outboundRouter = createTRPCRouter({
+  findSimilarProfiles: protectedProcedure
+    .input(
+      z.object({
+        profileUrl: z.string().url(),
+        searchFocus: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Step 1: Find the candidate with the given LinkedIn URL
+      const candidateRow = await ctx.db.query.candidates.findFirst({
+        where: eq(
+          candidates.url,
+          input.profileUrl.endsWith("/")
+            ? input.profileUrl.slice(0, -1)
+            : input.profileUrl,
+        ),
+      });
+
+      if (!candidateRow) {
+        return {
+          success: false,
+          message: "Profile not found in the database.",
+          similarProfiles: [],
+        };
+      }
+
+      // Step 2: Extract company LinkedIn URLs from the candidate's position history
+      const companyLinkedInUrls = candidateRow.linkedinData.positionHistory.map(
+        (position: any) => position.linkedInUrl,
+      ) as string[];
+
+      // Step 3: Find companies with matching LinkedIn URLs
+      const matchingCompanies = await ctx.db.query.company.findMany({
+        where: inArray(companyTable.linkedinUrl, companyLinkedInUrls),
+      });
+
+      const matchingCompanyIds = matchingCompanies.map((company) => company.id);
+
+      // Step 4: Find candidates working at these companies
+      const similarCandidates = await ctx.db.query.candidates.findMany({
+        where: inArray(candidates.companyId, matchingCompanyIds),
+        with: { company: true },
+      });
+
+      // Step 5: Remove the original candidate from the results
+      const filteredCandidates = similarCandidates.filter(
+        (candidate) => candidate.id !== candidateRow.id,
+      );
+
+      return {
+        success: true,
+        message: "Similar profiles found based on company history.",
+        similarProfiles: filteredCandidates,
+      };
+    }),
   findFilteredCandidates: protectedProcedure
     .input(
       z.object({

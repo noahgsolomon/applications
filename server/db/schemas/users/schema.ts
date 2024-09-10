@@ -127,6 +127,7 @@ export const candidates = pgTable("candidates", {
   companyId: varchar("company_id", { length: 255 }).references(
     () => company.id,
   ), // not unique until we make the matches (weight similarity and stuff json object)
+  companyIds: jsonb("company_ids").$type<string[]>().default([]),
   url: text("url").notNull().unique(),
   linkedinData: json("linkedin_data").$type<any>().default({}),
   cookdData: json("cookd_data").$type<any>().default({}),
@@ -138,6 +139,11 @@ export const candidates = pgTable("candidates", {
   jobTitles: json("job_titles").$type<string[]>().default([]),
   topFeatures: json("top_features").$type<string[]>().default([]),
   isEngineer: boolean("is_engineer").default(false),
+  isSkillAvgInVectorDB: boolean("is_skill_avg_in_vector_db").default(false),
+  isJobTitleAvgInVectorDB: boolean("is_job_title_avg_in_vector_db").default(
+    false,
+  ),
+  isFeatureAvgInVectorDB: boolean("is_feature_avg_in_vector_db").default(false),
 });
 
 export const candidatesRelations = relations(candidates, ({ one }) => ({

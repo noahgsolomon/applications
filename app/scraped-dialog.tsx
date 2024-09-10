@@ -47,8 +47,11 @@ export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
   const [sorting, setSorting] = useState(false);
+  const [searchMode, setSearchMode] = useState<"query" | "profile">("query");
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
+  const [profileUrl, setProfileUrl] = useState("");
+  const [searchFocus, setSearchFocus] = useState("");
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
@@ -184,6 +187,20 @@ export default function ScrapedDialog() {
       // });
     }
   };
+  const handleProfileSearch = () => {
+    if (!profileUrl) {
+      setError("Profile URL cannot be empty.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    // Implement the logic for searching similar profiles based on the URL
+    // You might need to create a new API endpoint for this functionality
+    // For now, we'll just log the URL and set an error
+    console.log("Searching for profiles similar to:", profileUrl);
+    setError("Profile search functionality not implemented yet.");
+    setLoading(false);
+  };
 
   return (
     <>
@@ -218,80 +235,134 @@ export default function ScrapedDialog() {
             Enter the details for the candidate search.
           </DialogDescription>
           <Flex direction="column" gap="3">
-            <label>
-              <Text as="div" mb="1" size="2" weight="bold">
-                Search Query
-              </Text>
-              <TextFieldInput
-                placeholder="Enter search query"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {filters && filters.valid && filters.companies.length > 0 && (
-                <div className="pt-2 flex flex-wrap gap-1">
-                  {filters.companies.map((company) => (
-                    <Avatar
-                      key={company.id}
-                      color="blue"
-                      size="2"
-                      fallback={company.name.charAt(0).toUpperCase()}
-                      src={company.logo ?? ""}
-                    />
-                  ))}
-                  {filters.job !== "" && (
-                    <Badge variant="surface" color="amber" className="h-[33px]">
-                      <Building2 className="size-4" />
-                      <Text>{toPascalCase(filters.job)}</Text>
-                    </Badge>
-                  )}
-                  {filters.skills.map((skill: string) => (
-                    <Badge
-                      key={skill}
-                      variant="surface"
-                      color="blue"
-                      className="h-[33px]"
-                    >
-                      <Text>{toPascalCase(skill)}</Text>
-                    </Badge>
-                  ))}
-                  {filters.skills.length > 0 && (
-                    <Badge
-                      variant="surface"
-                      color={filters.Or ? "yellow" : "red"}
-                      className="h-[33px]"
-                    >
-                      <Text>{filters.Or ? "OR" : "AND"}</Text>
-                    </Badge>
-                  )}
-
-                  <Badge
-                    style={{ cursor: "pointer" }}
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={nearBrooklyn ? "green" : "red"}
-                    onClick={() => handleToggle("nearBrooklyn")}
-                  >
-                    {nearBrooklyn ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500" />
+            <Flex gap="3" justify="start" mt="4">
+              <Button
+                variant={searchMode === "query" ? "soft" : "surface"}
+                color={searchMode === "query" ? "orange" : "gray"}
+                onClick={() => setSearchMode("query")}
+                style={{ flex: 1, cursor: "pointer" }}
+              >
+                Query Search
+              </Button>
+              <Button
+                color={searchMode === "profile" ? "orange" : "gray"}
+                variant={searchMode === "profile" ? "soft" : "surface"}
+                onClick={() => setSearchMode("profile")}
+                style={{ flex: 1, cursor: "pointer" }}
+              >
+                Profile Search
+              </Button>
+            </Flex>
+            {searchMode === "query" ? (
+              <label>
+                <Text as="div" mb="1" size="2" weight="bold">
+                  Search Query
+                </Text>
+                <TextFieldInput
+                  placeholder="Enter search query"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {filters && filters.valid && filters.companies.length > 0 && (
+                  <div className="pt-2 flex flex-wrap gap-1">
+                    {filters.companies.map((company) => (
+                      <Avatar
+                        key={company.id}
+                        color="blue"
+                        size="2"
+                        fallback={company.name.charAt(0).toUpperCase()}
+                        src={company.logo ?? ""}
+                      />
+                    ))}
+                    {filters.job !== "" && (
+                      <Badge
+                        variant="surface"
+                        color="amber"
+                        className="h-[33px]"
+                      >
+                        <Building2 className="size-4" />
+                        <Text>{toPascalCase(filters.job)}</Text>
+                      </Badge>
                     )}
-                    <Text>Near Brooklyn</Text>
-                  </Badge>
+                    {filters.skills.map((skill: string) => (
+                      <Badge
+                        key={skill}
+                        variant="surface"
+                        color="blue"
+                        className="h-[33px]"
+                      >
+                        <Text>{toPascalCase(skill)}</Text>
+                      </Badge>
+                    ))}
+                    {filters.skills.length > 0 && (
+                      <Badge
+                        variant="surface"
+                        color={filters.Or ? "yellow" : "red"}
+                        className="h-[33px]"
+                      >
+                        <Text>{filters.Or ? "OR" : "AND"}</Text>
+                      </Badge>
+                    )}
 
-                  <Badge
-                    style={{ cursor: "pointer" }}
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={"gray"}
-                    onClick={() => setFilters(null)}
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      className={`h-[33px]`}
+                      variant="surface"
+                      color={nearBrooklyn ? "green" : "red"}
+                      onClick={() => handleToggle("nearBrooklyn")}
+                    >
+                      {nearBrooklyn ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      <Text>Near Brooklyn</Text>
+                    </Badge>
+
+                    <Badge
+                      style={{ cursor: "pointer" }}
+                      className={`h-[33px]`}
+                      variant="surface"
+                      color={"gray"}
+                      onClick={() => setFilters(null)}
+                    >
+                      <Text>Clear Filters</Text>
+                    </Badge>
+                  </div>
+                )}
+              </label>
+            ) : (
+              <>
+                <label>
+                  <Text as="div" mb="1" size="2" weight="bold">
+                    Profile URL
+                  </Text>
+                  <TextFieldInput
+                    placeholder="Enter GitHub or LinkedIn URL"
+                    value={profileUrl}
+                    onChange={(e) => setProfileUrl(e.target.value)}
+                  />
+                </label>
+                <label>
+                  <Text as="div" mb="1" size="1" weight="bold">
+                    Search Focus (Optional)
+                  </Text>
+                  <TextFieldInput
+                    placeholder="E.g., skills, experience, projects"
+                    value={searchFocus}
+                    onChange={(e) => setSearchFocus(e.target.value)}
+                  />
+                  <Text
+                    as="div"
+                    size="1"
+                    color="gray"
+                    style={{ marginTop: "4px" }}
                   >
-                    <Text>Clear Filters</Text>
-                  </Badge>
-                </div>
-              )}
-            </label>
-
+                    What do you find compelling about this profile?
+                  </Text>
+                </label>
+              </>
+            )}
             {error && (
               <Text as="div" size="2" color="red">
                 {error}
@@ -308,25 +379,34 @@ export default function ScrapedDialog() {
               disabled={loading}
               variant="classic"
               onClick={() => {
-                if (
-                  filters?.valid &&
-                  filters.companies.length > 0 &&
-                  query === filters.query
-                ) {
-                  handleSearch();
+                if (searchMode === "query") {
+                  if (
+                    filters?.valid &&
+                    filters.companies.length > 0 &&
+                    query === filters.query
+                  ) {
+                    handleSearch();
+                  } else {
+                    handleFilter();
+                  }
                 } else {
-                  handleFilter();
+                  // Handle profile search
+                  handleProfileSearch();
                 }
               }}
             >
               {loading ? (
                 <Loader className="size-4 animate-spin" />
-              ) : filters?.valid &&
+              ) : searchMode === "query" ? (
+                filters?.valid &&
                 filters.companies.length > 0 &&
                 query === filters.query ? (
-                "Search"
+                  "Search"
+                ) : (
+                  "Filter"
+                )
               ) : (
-                "Filter"
+                "Search Similar Profiles"
               )}
             </Button>
           </Flex>
