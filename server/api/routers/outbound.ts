@@ -457,55 +457,6 @@ export async function queryVectorDb(
   return [];
 }
 
-export async function fetchCandidatesWithCursor(
-  cursor: {
-    id: string;
-    createdAt: Date;
-  },
-  db: any,
-) {
-  try {
-    const candidates = await db.query.candidates.findMany({
-      where: and(
-        or(
-          gt(schema.candidates.createdAt, cursor.createdAt),
-          and(
-            eq(schema.candidates.createdAt, cursor.createdAt),
-            gt(schema.candidates.id, cursor.id),
-          ),
-        ),
-      ),
-      limit: 100000,
-      orderBy: [asc(schema.candidates.createdAt), asc(schema.candidates.id)],
-    });
-    return candidates;
-  } catch (error) {
-    console.error("Error fetching candidates:", error);
-    throw error;
-  }
-}
-
-export async function fetchAllCandidates(db: any) {
-  let allCandidates: InferSelectModel<typeof schema.candidates>[] = [];
-  let lastCursor: { id: string; createdAt: Date } = {
-    id: "0",
-    createdAt: new Date("1970-01-01T00:00:00Z"),
-  };
-  while (true) {
-    const candidates = await fetchCandidatesWithCursor(lastCursor, db);
-    if (candidates.length === 0) {
-      break;
-    }
-    allCandidates = allCandidates.concat(candidates);
-    lastCursor = {
-      id: candidates[candidates.length - 1].id,
-      createdAt: candidates[candidates.length - 1].createdAt,
-    };
-    console.log(`Fetched ${allCandidates.length} candidates so far...`);
-  }
-  return allCandidates;
-}
-
 export const outboundRouter = createTRPCRouter({
   findSimilarProfiles: protectedProcedure
     .input(
@@ -622,7 +573,7 @@ export const outboundRouter = createTRPCRouter({
 
         // Fetch all candidates
         console.log("Fetching all candidates");
-        const allCandidates = await fetchAllCandidates(ctx.db);
+        const allCandidates = await ctx.db.query.candidates.findMany();
         console.log(`Fetched ${allCandidates.length} candidates`);
 
         // Process candidates in batches
