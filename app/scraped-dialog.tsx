@@ -43,7 +43,6 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
-import * as pdfjs from "pdfjs-dist";
 
 const toPascalCase = (str: string) => {
   return str
@@ -180,41 +179,21 @@ export default function ScrapedDialog() {
 
   const handleFileProcessing = async (file: File) => {
     setError("");
-    if (file.type === "application/pdf") {
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-        let content = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          content += textContent.items.map((item: any) => item.str).join(" ");
-        }
-        const urls = extractLinkedInUrls(content);
+    // Handle text and CSV files as before
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      const urls = extractLinkedInUrls(content);
+      if (urls.length > 0) {
         setProfileUrls(urls);
-        if (urls.length === 0) {
-          setError("No valid LinkedIn URLs found in the PDF.");
-        }
-      } catch (error) {
-        console.error("Error processing PDF:", error);
-        setError("Error processing PDF file. Please try again.");
+      } else {
+        setError("No valid LinkedIn URLs found in the file.");
       }
-    } else {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result as string;
-        const urls = extractLinkedInUrls(content);
-        if (urls.length > 0) {
-          setProfileUrls(urls);
-        } else {
-          setError("No valid LinkedIn URLs found in the file.");
-        }
-      };
-      reader.onerror = () => {
-        setError("Error reading file. Please try again.");
-      };
-      reader.readAsText(file);
-    }
+    };
+    reader.onerror = () => {
+      setError("Error reading file. Please try again.");
+    };
+    reader.readAsText(file);
   };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -470,14 +449,14 @@ export default function ScrapedDialog() {
                   <Upload className="size-6" />
                   <p className={`text-sm text-center`}>
                     {
-                      "Drag and drop your file here (.txt, .csv, or .pdf)\nor click to upload"
+                      "Drag and drop your file here (.txt, .csv)\nor click to upload"
                     }
                   </p>
                   <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileSelect}
-                    accept=".txt,.csv,.pdf"
+                    accept=".txt,.csv"
                     style={{ display: "none" }}
                   />
                 </div>
