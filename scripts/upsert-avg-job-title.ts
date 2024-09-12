@@ -59,7 +59,7 @@ async function computeAndStoreJobTitleAverages() {
       new Array(jobTitleEmbeddings[0].length).fill(0),
     );
 
-    const upsert = await index.namespace("candidate-job-title-average").upsert([
+    await index.namespace("candidate-job-title-average").upsert([
       {
         id: candidate.id,
         values: averageEmbedding,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Text,
   Button,
@@ -16,7 +16,14 @@ import {
   Avatar,
   ScrollArea,
 } from "frosted-ui";
-import { Building2, Check, Loader, UserRoundSearch, X } from "lucide-react";
+import {
+  Building2,
+  Check,
+  FileBox,
+  Loader,
+  UserRoundSearch,
+  X,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -50,17 +57,39 @@ export default function ScrapedDialog() {
   const [searchMode, setSearchMode] = useState<"query" | "profile">("query");
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
-  const [profileUrl, setProfileUrl] = useState("");
-  const [searchFocus, setSearchFocus] = useState("");
+  const [profileUrls, setProfileUrls] = useState<string[]>([]);
+
+  const extractLinkedInUrls = (content: string): string[] => {
+    const regex = /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
+    const matches = content.match(regex);
+    return matches ? [...new Set(matches)] : [];
+  };
+
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
+  const [cookdSorting, setCookdSorting] = useState(true);
   const [candidateMatches, setCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
         company?: InferSelectModel<typeof companyTable> | null;
       })[]
     | null
   >(null);
+
+  const findSimilarProfilesMutation =
+    api.outbound.findSimilarProfiles.useMutation({
+      onSuccess: (data) => {
+        console.log("Similar profiles found:", data);
+        setCandidateMatches(data.similarProfiles);
+        setCookdSorting(false);
+        setLoading(false);
+        toast.success("Similar profiles search completed");
+      },
+      onError: (error) => {
+        setLoading(false);
+        toast.error("Error finding similar profiles: " + error.message);
+      },
+    });
 
   const [sortedCandidateMatches, setSortedCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
@@ -150,6 +179,51 @@ export default function ScrapedDialog() {
     });
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileProcessing = (file: File) => {
+    setError("");
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      const urls = extractLinkedInUrls(content);
+      if (urls.length > 0) {
+        setProfileUrls(urls);
+      } else {
+        setError("No valid LinkedIn URLs found in the file.");
+      }
+    };
+    reader.onerror = () => {
+      setError("Error reading file. Please try again.");
+    };
+
+    if (
+      file.type === "text/plain" ||
+      file.type === "text/csv" ||
+      file.name.endsWith(".csv")
+    ) {
+      reader.readAsText(file);
+    } else {
+      setError("Please upload a .txt or .csv file.");
+    }
+  };
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFileProcessing(file);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileProcessing(file);
+    }
+  };
+
   const handleSearch = () => {
     setLoading(true);
 
@@ -187,19 +261,16 @@ export default function ScrapedDialog() {
       // });
     }
   };
+
   const handleProfileSearch = () => {
-    if (!profileUrl) {
-      setError("Profile URL cannot be empty.");
+    if (profileUrls.length === 0) {
+      setError("No LinkedIn URLs loaded.");
       return;
     }
     setLoading(true);
     setError("");
-    // Implement the logic for searching similar profiles based on the URL
-    // You might need to create a new API endpoint for this functionality
-    // For now, we'll just log the URL and set an error
-    console.log("Searching for profiles similar to:", profileUrl);
-    setError("Profile search functionality not implemented yet.");
-    setLoading(false);
+
+    findSimilarProfilesMutation.mutate({ profileUrls });
   };
 
   return (
@@ -238,17 +309,15 @@ export default function ScrapedDialog() {
             <Flex gap="3" justify="start" mt="4">
               <Button
                 variant={searchMode === "query" ? "soft" : "surface"}
-                color={searchMode === "query" ? "orange" : "gray"}
+                color={searchMode === "query" ? "red" : "gray"}
                 onClick={() => setSearchMode("query")}
-                style={{ flex: 1, cursor: "pointer" }}
               >
                 Query Search
               </Button>
               <Button
-                color={searchMode === "profile" ? "orange" : "gray"}
+                color={searchMode === "profile" ? "red" : "gray"}
                 variant={searchMode === "profile" ? "soft" : "surface"}
                 onClick={() => setSearchMode("profile")}
-                style={{ flex: 1, cursor: "pointer" }}
               >
                 Profile Search
               </Button>
@@ -333,40 +402,58 @@ export default function ScrapedDialog() {
               </label>
             ) : (
               <>
-                <label>
-                  <Text as="div" mb="1" size="2" weight="bold">
-                    Profile URL
-                  </Text>
-                  <TextFieldInput
-                    placeholder="Enter GitHub or LinkedIn URL"
-                    value={profileUrl}
-                    onChange={(e) => setProfileUrl(e.target.value)}
+                <Text as="div" mb="1" size="2" weight="bold">
+                  Upload LinkedIn URL File
+                </Text>
+                <div
+                  className={`border-dashed p-4 py-12 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
+                    flex flex-col gap-2 items-center justify-center opacity-60`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={handleFileDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <FileBox className="size-6" />
+                  <p className={`text-sm text-center`}>
+                    {
+                      "Drag and drop your LinkedIn URL file here (.txt or .csv)\nor click to upload"
+                    }
+                  </p>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept=".txt,.csv"
+                    style={{ display: "none" }}
                   />
-                </label>
-                <label>
-                  <Text as="div" mb="1" size="1" weight="bold">
-                    Search Focus (Optional)
-                  </Text>
-                  <TextFieldInput
-                    placeholder="E.g., skills, experience, projects"
-                    value={searchFocus}
-                    onChange={(e) => setSearchFocus(e.target.value)}
-                  />
+                </div>
+                {error && (
                   <Text
                     as="div"
-                    size="1"
-                    color="gray"
-                    style={{ marginTop: "4px" }}
+                    size="2"
+                    color="red"
+                    style={{ marginTop: "10px" }}
                   >
-                    What do you find compelling about this profile?
+                    {error}
                   </Text>
-                </label>
+                )}
+                {profileUrls.length > 0 && (
+                  <div className="mt-4">
+                    <Text as="div" size="2" style={{ marginBottom: "10px" }}>
+                      {profileUrls.length} unique LinkedIn URLs loaded
+                    </Text>
+                    <div className="flex flex-wrap gap-2">
+                      {profileUrls.map((url, index) => (
+                        <Badge key={index} variant="surface" color="blue">
+                          {url.split("/").pop()}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
-            )}
-            {error && (
-              <Text as="div" size="2" color="red">
-                {error}
-              </Text>
             )}
           </Flex>
           <Flex gap="3" justify="end" mt="4">
@@ -376,9 +463,13 @@ export default function ScrapedDialog() {
               </Button>
             </DialogClose>
             <Button
-              disabled={loading}
+              disabled={
+                loading ||
+                (searchMode === "profile" && profileUrls.length === 0)
+              }
               variant="classic"
               onClick={() => {
+                console.log(searchMode);
                 if (searchMode === "query") {
                   if (
                     filters?.valid &&
@@ -390,7 +481,6 @@ export default function ScrapedDialog() {
                     handleFilter();
                   }
                 } else {
-                  // Handle profile search
                   handleProfileSearch();
                 }
               }}
@@ -406,7 +496,7 @@ export default function ScrapedDialog() {
                   "Filter"
                 )
               ) : (
-                "Search Similar Profiles"
+                "Find Similar Profiles"
               )}
             </Button>
           </Flex>
@@ -427,7 +517,8 @@ export default function ScrapedDialog() {
                 </DialogDescription>
                 {candidateMatches &&
                   candidateMatches.filter((c) => c.cookdReviewed).length <
-                    candidateMatches.length - 1 && (
+                    candidateMatches.length - 1 &&
+                  cookdSorting && (
                     <Button
                       onClick={handleSort}
                       disabled={sorting}
@@ -460,8 +551,10 @@ export default function ScrapedDialog() {
                           ? (sortedCandidateMatches ?? [])
                           : candidateMatches
                         )
-                          ?.sort(
-                            (a, b) => (b.cookdScore ?? 0) - (a.cookdScore ?? 0),
+                          ?.sort((a, b) =>
+                            cookdSorting
+                              ? (b.cookdScore ?? 0) - (a.cookdScore ?? 0)
+                              : 0,
                           )
                           .map((candidate) => (
                             <CandidateCard
