@@ -457,17 +457,6 @@ export async function queryVectorDb(
   return [];
 }
 
-type Candidate = {
-  id: string;
-  url: string;
-  createdAt: Date;
-  linkedinData: any;
-  livesNearBrooklyn: boolean;
-  topTechnologies?: string[] | null;
-  topFeatures?: string[] | null;
-  jobTitles?: string[] | null;
-};
-
 export async function fetchCandidatesWithCursor(
   cursor: {
     id: string;
@@ -497,7 +486,7 @@ export async function fetchCandidatesWithCursor(
 }
 
 export async function fetchAllCandidates(db: any) {
-  let allCandidates: Candidate[] = [];
+  let allCandidates: InferSelectModel<typeof schema.candidates>[] = [];
   let lastCursor: { id: string; createdAt: Date } = {
     id: "0",
     createdAt: new Date("1970-01-01T00:00:00Z"),
