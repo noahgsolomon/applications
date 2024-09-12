@@ -475,7 +475,7 @@ export async function fetchCandidatesWithCursor(
           ),
         ),
       ),
-      limit: 10000,
+      limit: 100000,
       orderBy: [asc(schema.candidates.createdAt), asc(schema.candidates.id)],
     });
     return candidates;
