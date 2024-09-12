@@ -15,12 +15,13 @@ import {
   Badge,
   Avatar,
   ScrollArea,
+  TextArea,
 } from "frosted-ui";
 import {
   Building2,
   Check,
-  FileBox,
   Loader,
+  Upload,
   UserRoundSearch,
   X,
 } from "lucide-react";
@@ -42,6 +43,7 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
+import * as pdfjs from "pdfjs-dist";
 
 const toPascalCase = (str: string) => {
   return str
@@ -58,12 +60,6 @@ export default function ScrapedDialog() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<string[]>([]);
-
-  const extractLinkedInUrls = (content: string): string[] => {
-    const regex = /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
-    const matches = content.match(regex);
-    return matches ? [...new Set(matches)] : [];
-  };
 
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
@@ -166,30 +162,58 @@ export default function ScrapedDialog() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileProcessing = (file: File) => {
-    setError("");
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      const urls = extractLinkedInUrls(content);
-      if (urls.length > 0) {
-        setProfileUrls(urls);
-      } else {
-        setError("No valid LinkedIn URLs found in the file.");
-      }
-    };
-    reader.onerror = () => {
-      setError("Error reading file. Please try again.");
-    };
+  const [manualUrls, setManualUrls] = useState("");
 
-    if (
-      file.type === "text/plain" ||
-      file.type === "text/csv" ||
-      file.name.endsWith(".csv")
-    ) {
-      reader.readAsText(file);
+  const extractLinkedInUrls = (content: string): string[] => {
+    const regex = /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
+    const matches = content.match(regex);
+    return matches ? [...new Set(matches)] : [];
+  };
+
+  const handleManualUrlsChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    setManualUrls(e.target.value);
+    const urls = extractLinkedInUrls(e.target.value);
+    setProfileUrls(urls);
+  };
+
+  const handleFileProcessing = async (file: File) => {
+    setError("");
+    if (file.type === "application/pdf") {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+        let content = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          content += textContent.items.map((item: any) => item.str).join(" ");
+        }
+        const urls = extractLinkedInUrls(content);
+        setProfileUrls(urls);
+        if (urls.length === 0) {
+          setError("No valid LinkedIn URLs found in the PDF.");
+        }
+      } catch (error) {
+        console.error("Error processing PDF:", error);
+        setError("Error processing PDF file. Please try again.");
+      }
     } else {
-      setError("Please upload a .txt or .csv file.");
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        const urls = extractLinkedInUrls(content);
+        if (urls.length > 0) {
+          setProfileUrls(urls);
+        } else {
+          setError("No valid LinkedIn URLs found in the file.");
+        }
+      };
+      reader.onerror = () => {
+        setError("Error reading file. Please try again.");
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -416,11 +440,26 @@ export default function ScrapedDialog() {
             ) : (
               <>
                 <Text as="div" mb="1" size="2" weight="bold">
-                  Upload LinkedIn URL File
+                  Enter LinkedIn URLs
+                </Text>
+                <TextArea
+                  placeholder="Paste LinkedIn URLs here (one per line)"
+                  value={manualUrls}
+                  onChange={handleManualUrlsChange}
+                  style={{ minHeight: "100px" }}
+                />
+                <Text
+                  as="div"
+                  mb="1"
+                  size="2"
+                  weight="bold"
+                  style={{ marginTop: "1rem" }}
+                >
+                  Or Upload File
                 </Text>
                 <div
-                  className={`border-dashed p-4 py-12 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
-                    flex flex-col gap-2 items-center justify-center opacity-60`}
+                  className={`border-dashed p-4 py-6 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
+                  flex flex-col gap-2 items-center justify-center opacity-60`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -428,17 +467,17 @@ export default function ScrapedDialog() {
                   onDrop={handleFileDrop}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <FileBox className="size-6" />
+                  <Upload className="size-6" />
                   <p className={`text-sm text-center`}>
                     {
-                      "Drag and drop your LinkedIn URL file here (.txt or .csv)\nor click to upload"
+                      "Drag and drop your file here (.txt, .csv, or .pdf)\nor click to upload"
                     }
                   </p>
                   <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileSelect}
-                    accept=".txt,.csv"
+                    accept=".txt,.csv,.pdf"
                     style={{ display: "none" }}
                   />
                 </div>

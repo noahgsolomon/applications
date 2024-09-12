@@ -1,8 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 import { db } from "@/server/db";
 import { candidates } from "@/server/db/schemas/users/schema";
-import { eq, inArray, InferSelectModel } from "drizzle-orm";
+import { eq, InferSelectModel } from "drizzle-orm";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
@@ -467,10 +466,69 @@ async function generateSummary(profileData: any) {
   return completion.choices[0].message.content;
 }
 
+async function upsertToVectorDB(
+  id: string,
+  namespace: string,
+  items: string[],
+  candidateId: string,
+  name: string,
+) {
+  for (const item of items) {
+    if (/^[\x00-\x7F]*$/.test(item)) {
+      const embedding = await getEmbedding(item);
+      await index.namespace(namespace).upsert([
+        {
+          id: id,
+          values: embedding,
+          metadata: {
+            candidateId,
+            [name]: item,
+          },
+        },
+      ]);
+    } else {
+      console.log(`Skipping non-ASCII item: ${item}`);
+    }
+  }
+}
+
+async function computeAndStoreAverage(
+  id: string,
+  namespace: string,
+  items: string[],
+  candidateId: string,
+  name: string,
+) {
+  if (items.length === 0) return;
+
+  const embeddings = await Promise.all(items.map(getEmbedding));
+  const averageEmbedding = embeddings.reduce(
+    (acc, embedding) =>
+      acc.map((val, i) => val + embedding[i] / embeddings.length),
+    new Array(embeddings[0].length).fill(0),
+  );
+
+  await index.namespace(namespace).upsert([
+    {
+      id: id,
+      values: averageEmbedding,
+      metadata: {
+        userId: candidateId,
+        [name]: items,
+      },
+    },
+  ]);
+}
+
 async function insertCandidate(profileData: any) {
   console.log("Inserting candidate into the database...");
   const miniSummary = await generateMiniSummary(profileData);
   const { tech, features, isEngineer } = await gatherTopSkills(profileData);
+
+  // Extract job titles
+  const jobTitles = profileData.positions.positionHistory.map(
+    (position: any) => position.title,
+  );
 
   console.log("Checking additional conditions for candidate...");
   const workedInBigTech = await askCondition(
@@ -492,8 +550,9 @@ async function insertCandidate(profileData: any) {
   );
 
   const summary = await generateSummary(profileData);
-
   const candidateId = uuid();
+
+  // Insert into database
   await db.insert(schema.candidates).values({
     id: candidateId,
     url: profileData.linkedInUrl as string,
@@ -502,6 +561,7 @@ async function insertCandidate(profileData: any) {
     summary,
     topTechnologies: tech,
     topFeatures: features,
+    jobTitles,
     isEngineer,
     workedInBigTech,
     livesNearBrooklyn,
@@ -511,6 +571,70 @@ async function insertCandidate(profileData: any) {
   console.log(
     `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
   );
+
+  // Upsert individual items to vector DB
+
+  if (tech.length > 0) {
+    await upsertToVectorDB(
+      candidateId,
+      "technologies",
+      tech,
+      candidateId,
+      "technology",
+    );
+  }
+
+  if (jobTitles.length > 0) {
+    await upsertToVectorDB(
+      candidateId,
+      "job-titles",
+      jobTitles,
+      candidateId,
+      "jobTitle",
+    );
+  }
+
+  // Compute and store averages
+  if (tech.length > 0) {
+    await computeAndStoreAverage(
+      candidateId,
+      "candidate-skill-average",
+      tech,
+      candidateId,
+      "skills",
+    );
+  }
+
+  if (features.length > 0) {
+    await computeAndStoreAverage(
+      candidateId,
+      "candidate-feature-average",
+      features,
+      candidateId,
+      "features",
+    );
+  }
+
+  if (jobTitles.length > 0) {
+    await computeAndStoreAverage(
+      candidateId,
+      "candidate-job-title-average",
+      jobTitles,
+      candidateId,
+      "jobTitles",
+    );
+  }
+
+  // Update flags in the database
+  await db
+    .update(schema.candidates)
+    .set({
+      isSkillAvgInVectorDB: true,
+      isFeatureAvgInVectorDB: true,
+      isJobTitleAvgInVectorDB: true,
+    })
+    .where(eq(schema.candidates.id, candidateId));
+
   return candidateId;
 }
 
@@ -570,6 +694,7 @@ export async function POST(request: Request) {
     const shouldApplyNYCWeight = analyzeNYCProximity(inputCandidates);
 
     // Generate embeddings
+
     const skillEmbeddings = await generateEmbeddingsWithLogging(
       inputCandidates.flatMap((c) => c.topTechnologies || []),
       "skill",
