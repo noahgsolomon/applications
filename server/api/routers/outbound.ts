@@ -26,7 +26,6 @@ import {
 import { InferResultType } from "@/utils/infer";
 import { jsonArrayContainsAny } from "@/lib/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
-import * as schema from "@/server/db/schemas/users/schema";
 
 // const client = new SQSClient();
 
