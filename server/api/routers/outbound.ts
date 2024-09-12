@@ -514,7 +514,9 @@ export const outboundRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      console.log("Starting findSimilarProfiles mutation");
       try {
+        console.log("Fetching input candidates");
         // Fetch input candidates
         const inputCandidates = await ctx.db.query.candidates.findMany({
           where: inArray(schema.candidates.url, input.profileUrls),
@@ -530,6 +532,7 @@ export const outboundRouter = createTRPCRouter({
         });
 
         if (inputCandidates.length === 0) {
+          console.log("No matching input candidates found");
           throw new Error(
             "No matching input candidates found in the database.",
           );
@@ -539,6 +542,7 @@ export const outboundRouter = createTRPCRouter({
           `Found ${inputCandidates.length} matching input candidates.`,
         );
 
+        console.log("Calculating experience bounds");
         // Calculate experience bounds
         const { mean, stdDev } = calculateExperienceBounds(inputCandidates);
         console.log(
@@ -547,6 +551,7 @@ export const outboundRouter = createTRPCRouter({
 
         const inputCandidateIds = new Set(inputCandidates.map((c) => c.id));
 
+        console.log("Analyzing input candidates");
         // Analyze input candidates
         const companyWeights = analyzeCompanies(inputCandidates);
         const educationWeights = analyzeEducation(inputCandidates);
@@ -614,11 +619,15 @@ export const outboundRouter = createTRPCRouter({
         console.log("Scores combined.");
 
         // Fetch all candidates
+        console.log("Fetching all candidates");
         const allCandidates = await fetchAllCandidates(ctx.db);
+        console.log(`Fetched ${allCandidates.length} candidates`);
 
         // Process candidates in batches
+        console.log("Processing candidates in batches");
         const batchSize = 1000;
         for (let i = 0; i < allCandidates.length; i += batchSize) {
+          console.log(`Processing batch ${i / batchSize + 1}`);
           const batch = allCandidates.slice(i, i + batchSize);
 
           batch.forEach((candidate) => {
@@ -666,8 +675,10 @@ export const outboundRouter = createTRPCRouter({
             }
           });
         }
+        console.log("Finished processing all batches");
 
         // Sort and select top candidates
+        console.log("Sorting and selecting top candidates");
         const topCandidates = allCandidates
           .filter((candidate) => !inputCandidateIds.has(candidate.id))
           .map((candidate) => {
@@ -682,7 +693,9 @@ export const outboundRouter = createTRPCRouter({
           })
           .sort((a, b) => b.score - a.score)
           .slice(0, 100);
+        console.log(`Selected ${topCandidates.length} top candidates`);
 
+        console.log("Returning results");
         return {
           success: true,
           message: "Similar profiles found based on various factors.",
