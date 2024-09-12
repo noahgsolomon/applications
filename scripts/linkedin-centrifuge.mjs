@@ -26,7 +26,95 @@ const pinecone = new Pinecone({
 
 const index = pinecone.Index("whop");
 
-async function getEmbedding(text) {
+export function calculateExperienceBounds(candidates) {
+  const currentYear = new Date().getFullYear();
+  const experiences = [];
+
+  candidates.forEach((candidate) => {
+    let earliestStartYear = currentYear;
+    let latestEndYear = 0;
+
+    if (
+      candidate.linkedinData &&
+      candidate.linkedinData.positions &&
+      candidate.linkedinData.positions.positionHistory
+    ) {
+      candidate.linkedinData.positions.positionHistory.forEach((position) => {
+        const startYear = position.startEndDate?.start?.year;
+        const endYear = position.startEndDate?.end?.year || currentYear;
+
+        if (startYear) {
+          earliestStartYear = Math.min(earliestStartYear, startYear);
+        }
+        latestEndYear = Math.max(latestEndYear, endYear);
+      });
+    }
+
+    const totalExperience = latestEndYear - earliestStartYear;
+    experiences.push(totalExperience);
+  });
+
+  const mean =
+    experiences.reduce((sum, exp) => sum + exp, 0) / experiences.length;
+
+  const variance =
+    experiences.reduce((sum, exp) => sum + Math.pow(exp - mean, 2), 0) /
+    experiences.length;
+  const stdDev = Math.sqrt(variance);
+
+  const lowerBound = Math.max(0, Math.round(mean - 2 * stdDev));
+  const upperBound = Math.round(mean + 2 * stdDev);
+
+  console.log(
+    `Experience statistics: Mean = ${mean.toFixed(2)}, StdDev = ${stdDev.toFixed(2)}`,
+  );
+  console.log(
+    `Experience bounds: Lower = ${lowerBound} years, Upper = ${upperBound} years`,
+  );
+
+  return { lowerBound, upperBound, mean, stdDev };
+}
+
+export function calculateExperienceScore(candidate, mean, stdDev) {
+  const currentYear = new Date().getFullYear();
+  let earliestStartYear = currentYear;
+  let latestEndYear = 0;
+
+  if (
+    candidate.linkedinData &&
+    candidate.linkedinData.positions &&
+    candidate.linkedinData.positions.positionHistory
+  ) {
+    candidate.linkedinData.positions.positionHistory.forEach((position) => {
+      const startYear = position.startEndDate?.start?.year;
+      const endYear = position.startEndDate?.end?.year || currentYear;
+      if (startYear) {
+        earliestStartYear = Math.min(earliestStartYear, startYear);
+      }
+      latestEndYear = Math.max(latestEndYear, endYear);
+    });
+  }
+
+  const totalExperience = latestEndYear - earliestStartYear;
+
+  // Calculate score based on how close the experience is to the mean
+  let experienceScore = 0;
+  if (stdDev !== 0) {
+    // Calculate z-score (number of standard deviations from the mean)
+    const zScore = (totalExperience - mean) / stdDev;
+
+    // Convert z-score to a score between 0 and 1
+    // Using a Gaussian function to create a bell curve centered at the mean
+    experienceScore = Math.exp(-(zScore * zScore) / 2);
+  } else {
+    // If stdDev is 0, all candidates have the same experience
+    experienceScore = 1;
+  }
+
+  return { experienceScore, totalExperience };
+}
+
+export async function getEmbedding(text) {
   try {
     const response = await openai.embeddings.create({
       model: "text-embedding-3-large",
@@ -40,7 +128,7 @@ async function getEmbedding(text) {
   }
 }
 
-async function fetchCandidatesWithCursor(cursor) {
+export async function fetchCandidatesWithCursor(cursor) {
   try {
     const candidates = await db.query.candidates.findMany({
       columns: {
@@ -72,7 +160,7 @@ async function fetchCandidatesWithCursor(cursor) {
   }
 }
 
-async function fetchAllCandidates() {
+export async function fetchAllCandidates() {
   let allCandidates = [];
   let lastCursor = {
     id: "0",
@@ -93,7 +181,7 @@ async function fetchAllCandidates() {
   return allCandidates;
 }
 
-async function computeAverageEmbedding(embeddings) {
+export async function computeAverageEmbedding(embeddings) {
   if (embeddings.length === 0) {
     throw new Error("No embeddings provided to compute average");
   }
@@ -104,7 +192,7 @@ async function computeAverageEmbedding(embeddings) {
   );
 }
 
-async function queryVectorDb(namespace, queryVector, topK, retries = 3) {
+export async function queryVectorDb(namespace, queryVector, topK, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       console.log(
@@ -152,7 +240,7 @@ async function queryVectorDb(namespace, queryVector, topK, retries = 3) {
   return [];
 }
 
-function analyzeCompanies(candidates) {
+export function analyzeCompanies(candidates) {
   const companyFrequency = {};
   let totalUniqueCandidateCompanies = 0;
 
@@ -179,7 +267,7 @@ function analyzeCompanies(candidates) {
   return companyWeights;
 }
 
-function analyzeEducation(candidates) {
+export function analyzeEducation(candidates) {
   const educationFrequency = {};
   let totalEducations = 0;
 
@@ -220,7 +308,7 @@ function analyzeEducation(candidates) {
   return educationWeights;
 }
 
-function analyzeNYCProximity(candidates) {
+export function analyzeNYCProximity(candidates) {
   const nycCount = candidates.filter((c) => c.livesNearBrooklyn).length;
   const nycRatio = nycCount / candidates.length;
   const shouldApplyNYCWeight = nycRatio >= 0.5;
@@ -253,7 +341,12 @@ async function main(linkedinUrls) {
 
     console.log(`Found ${inputCandidates.length} matching input candidates.`);
 
-    // Keep track of input candidate IDs
+    const { lowerBound, upperBound, mean, stdDev } =
+      calculateExperienceBounds(inputCandidates);
+    console.log(
+      `Experience mean: ${mean.toFixed(2)} years, StdDev: ${stdDev.toFixed(2)} years`,
+    );
+
     const inputCandidateIds = new Set(inputCandidates.map((c) => c.id));
 
     const companyWeights = analyzeCompanies(inputCandidates);
@@ -319,6 +412,16 @@ async function main(linkedinUrls) {
 
       batch.forEach((candidate) => {
         if (!inputCandidateIds.has(candidate.id)) {
+          const { experienceScore } = calculateExperienceScore(
+            candidate,
+            mean,
+            stdDev,
+          );
+          const experienceWeight = 0.2;
+          combinedScores[candidate.id] =
+            (combinedScores[candidate.id] || 0) +
+            experienceScore * experienceWeight;
+
           // Company and education scoring remains the same
           if (
             candidate.linkedinData &&
@@ -366,19 +469,28 @@ async function main(linkedinUrls) {
 
     const topCandidates = allCandidates
       .filter((candidate) => !inputCandidateIds.has(candidate.id))
-      .map((candidate) => ({
-        ...candidate,
-        score: combinedScores[candidate.id] || 0,
-      }))
+      .map((candidate) => {
+        const { experienceScore, totalExperience } = calculateExperienceScore(
+          candidate,
+          lowerBound,
+          upperBound,
+        );
+        return {
+          ...candidate,
+          score: combinedScores[candidate.id] || 0,
+          totalExperience,
+          experienceScore,
+        };
+      })
       .sort((a, b) => b.score - a.score)
       .slice(0, 100);
 
     console.log(
-      "Top 100 candidates based on combined similarity scores, company experience, education, and NYC proximity (excluding input candidates):",
+      "Top 100 candidates based on combined similarity scores, company experience, education, NYC proximity, and years of experience (excluding input candidates):",
     );
     for (const candidate of topCandidates) {
       console.log(
-        `Candidate: ${candidate.url}, Combined Score: ${candidate.score}, Near NYC: ${candidate.livesNearBrooklyn}`,
+        `Candidate: ${candidate.url}, Combined Score: ${candidate.score.toFixed(2)}, Near NYC: ${candidate.livesNearBrooklyn}, Total Experience: ${candidate.totalExperience} years, Experience Score: ${candidate.experienceScore.toFixed(2)}`,
       );
     }
   } catch (error) {
