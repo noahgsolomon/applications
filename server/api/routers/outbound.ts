@@ -465,8 +465,6 @@ export const outboundRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("20 second delay");
-      await new Promise((resolve) => setTimeout(resolve, 20000));
       console.log("Starting findSimilarProfiles mutation");
       try {
         console.log("Fetching input candidates");
