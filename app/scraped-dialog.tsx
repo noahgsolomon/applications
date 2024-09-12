@@ -76,21 +76,6 @@ export default function ScrapedDialog() {
     | null
   >(null);
 
-  const findSimilarProfilesMutation =
-    api.outbound.findSimilarProfiles.useMutation({
-      onSuccess: (data) => {
-        console.log("Similar profiles found:", data);
-        setCandidateMatches(data.similarProfiles);
-        setCookdSorting(false);
-        setLoading(false);
-        toast.success("Similar profiles search completed");
-      },
-      onError: (error) => {
-        setLoading(false);
-        toast.error("Error finding similar profiles: " + error.message);
-      },
-    });
-
   const [sortedCandidateMatches, setSortedCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
         company?: InferSelectModel<typeof companyTable> | null;
@@ -262,6 +247,34 @@ export default function ScrapedDialog() {
     }
   };
 
+  const findSimilarProfiles = async (profileUrls: string[]) => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/find-similar-profiles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ profileUrls }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      console.log("Similar profiles found:", data);
+      setCandidateMatches(data.similarProfiles);
+      setCookdSorting(false);
+      setLoading(false);
+      toast.success("Similar profiles search completed");
+    } catch (error) {
+      setLoading(false);
+      toast.error("Error finding similar profiles: " + error);
+    }
+  };
+
   const handleProfileSearch = () => {
     if (profileUrls.length === 0) {
       setError("No LinkedIn URLs loaded.");
@@ -270,7 +283,7 @@ export default function ScrapedDialog() {
     setLoading(true);
     setError("");
 
-    findSimilarProfilesMutation.mutate({ profileUrls });
+    findSimilarProfiles(profileUrls);
   };
 
   return (
