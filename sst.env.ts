@@ -8,4 +8,5 @@ export const NextEnv = {
   COOKD_API_KEY: process.env.COOKD_API_KEY!,
   COOKD_RESUME_SCREENER_ID: process.env.COOKD_RESUME_SCREENER_ID!,
   COOKD_SLUG_ID: process.env.COOKD_SLUG_ID!,
+  GITHUB_TOKEN: process.env.GITHUB_TOKEN!,
 };
