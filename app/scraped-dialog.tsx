@@ -421,6 +421,9 @@ export default function ScrapedDialog() {
                 <Text as="div" mb="1" size="2" weight="bold">
                   Enter LinkedIn URLs
                 </Text>
+                <Text color="red" as="div" mb="1" size="1" weight="bold">
+                  If it gives an error, refresh the page and try again.
+                </Text>
                 <TextArea
                   placeholder="Paste LinkedIn URLs here (one per line)"
                   value={manualUrls}
