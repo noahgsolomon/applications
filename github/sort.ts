@@ -45,7 +45,7 @@ const askCondition = async (condition: string): Promise<boolean> => {
   return result;
 };
 
-const isNearNYC = async (user: any): Promise<boolean> => {
+export const isNearNYC = async (user: any): Promise<boolean> => {
   if (!user) {
     console.error("User object is null or undefined");
     return false;

@@ -1,0 +1,909 @@
+[
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "iamkun"
+      },
+      {
+        "login": "ept"
+      },
+      {
+        "login": "frankmcsherry"
+      },
+      {
+        "login": "LingDong-"
+      },
+      {
+        "login": "joshwcomeau"
+      },
+      {
+        "login": "alexreardon"
+      },
+      {
+        "login": "guybedford"
+      },
+      {
+        "login": "tonsky"
+      },
+      {
+        "login": "longlho"
+      },
+      {
+        "login": "sindresorhus"
+      },
+      {
+        "login": "mxstbr"
+      },
+      {
+        "login": "dli"
+      },
+      {
+        "login": "qiao"
+      },
+      {
+        "login": "gaearon"
+      },
+      {
+        "login": "zhxnlai"
+      },
+      {
+        "login": "chenglou"
+      },
+      {
+        "login": "petehunt"
+      },
+      {
+        "login": "lihaoyi"
+      },
+      {
+        "login": "sdiehl"
+      },
+      {
+        "login": "sstephenson"
+      },
+      {
+        "login": "whitequark"
+      },
+      {
+        "login": "josevalim"
+      },
+      {
+        "login": "gsingh93"
+      },
+      {
+        "login": "namin"
+      },
+      {
+        "login": "bodil"
+      },
+      {
+        "login": "swannodette"
+      },
+      {
+        "login": "akeep"
+      },
+      {
+        "login": "syg"
+      },
+      {
+        "login": "pluskid"
+      },
+      {
+        "login": "jiaqi-g"
+      },
+      {
+        "login": "fogus"
+      },
+      {
+        "login": "TooTallNate"
+      },
+      {
+        "login": "cloverfisher"
+      },
+      {
+        "login": "NatureFeng"
+      },
+      {
+        "login": "richhickey"
+      },
+      {
+        "login": "vejuhust"
+      },
+      {
+        "login": "matrush"
+      },
+      {
+        "login": "courageJ"
+      },
+      {
+        "login": "fffonion"
+      },
+      {
+        "login": "lastmayday"
+      },
+      {
+        "login": "toctan"
+      },
+      {
+        "login": "beforeload"
+      },
+      {
+        "login": "rgrove"
+      },
+      {
+        "login": "jashkenas"
+      },
+      {
+        "login": "tpope"
+      },
+      {
+        "login": "xuzhao9"
+      },
+      {
+        "login": "raytaylorlin"
+      },
+      {
+        "login": "clowwindy"
+      },
+      {
+        "login": "LeaVerou"
+      },
+      {
+        "login": "BYVoid"
+      },
+      {
+        "login": "GZShi"
+      },
+      {
+        "login": "Winiex"
+      },
+      {
+        "login": "houkanshan"
+      },
+      {
+        "login": "huacnlee"
+      },
+      {
+        "login": "fengli"
+      },
+      {
+        "login": "liuhk388"
+      },
+      {
+        "login": "zeroomega"
+      },
+      {
+        "login": "kennethreitz"
+      },
+      {
+        "login": "fengmk2"
+      },
+      {
+        "login": "yishanhe"
+      },
+      {
+        "login": "matz"
+      },
+      {
+        "login": "yinwang0"
+      },
+      {
+        "login": "dword1511"
+      },
+      {
+        "login": "wong2"
+      },
+      {
+        "login": "ritksm"
+      },
+      {
+        "login": "tj"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "jichu4n"
+      },
+      {
+        "login": "hoi"
+      },
+      {
+        "login": "dhh"
+      },
+      {
+        "login": "mitrenegade"
+      },
+      {
+        "login": "vladigleba"
+      },
+      {
+        "login": "nlcamp"
+      },
+      {
+        "login": "mchung"
+      },
+      {
+        "login": "cdeonier"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "ninjasort"
+      },
+      {
+        "login": "ainzacruz"
+      },
+      {
+        "login": "nitin42"
+      },
+      {
+        "login": "allenrabinovich"
+      },
+      {
+        "login": "joelinstrum"
+      },
+      {
+        "login": "fatih"
+      },
+      {
+        "login": "xcv58"
+      },
+      {
+        "login": "jonkaya"
+      },
+      {
+        "login": "rainrivas"
+      },
+      {
+        "login": "psyduc"
+      },
+      {
+        "login": "jwu910"
+      },
+      {
+        "login": "GiangoFett"
+      },
+      {
+        "login": "TimeDropsSB"
+      },
+      {
+        "login": "lukeed"
+      },
+      {
+        "login": "jordwalke"
+      },
+      {
+        "login": "graham"
+      },
+      {
+        "login": "sebmck"
+      },
+      {
+        "login": "cpojer"
+      },
+      {
+        "login": "gaearon"
+      },
+      {
+        "login": "jlord"
+      },
+      {
+        "login": "rauchg"
+      },
+      {
+        "login": "sdras"
+      },
+      {
+        "login": "jessfraz"
+      },
+      {
+        "login": "TheLarkInn"
+      },
+      {
+        "login": "kenwheeler"
+      },
+      {
+        "login": "developit"
+      },
+      {
+        "login": "ryanflorence"
+      },
+      {
+        "login": "paulirish"
+      },
+      {
+        "login": "addyosmani"
+      },
+      {
+        "login": "hzoo"
+      },
+      {
+        "login": "kentcdodds"
+      },
+      {
+        "login": "sebmarkbage"
+      },
+      {
+        "login": "jaysondc"
+      },
+      {
+        "login": "kilokeith"
+      },
+      {
+        "login": "benjaminmiles"
+      },
+      {
+        "login": "austinmayer"
+      },
+      {
+        "login": "mariehuynh"
+      },
+      {
+        "login": "codegoblin"
+      },
+      {
+        "login": "gregipp"
+      },
+      {
+        "login": "SSifantus"
+      },
+      {
+        "login": "luciddesignconcepts"
+      },
+      {
+        "login": "BrianMcCain"
+      },
+      {
+        "login": "d-vidr"
+      },
+      {
+        "login": "tjstein"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "fat"
+      },
+      {
+        "login": "zachwise"
+      },
+      {
+        "login": "awinder"
+      },
+      {
+        "login": "dwillis"
+      },
+      {
+        "login": "aboutaaron"
+      },
+      {
+        "login": "palewire"
+      },
+      {
+        "login": "sisiwei"
+      },
+      {
+        "login": "albertsun"
+      },
+      {
+        "login": "ashaw"
+      },
+      {
+        "login": "schwanksta"
+      },
+      {
+        "login": "kevinschaul"
+      },
+      {
+        "login": "iros"
+      },
+      {
+        "login": "ryanpitts"
+      },
+      {
+        "login": "pilhofer"
+      },
+      {
+        "login": "zzolo"
+      },
+      {
+        "login": "coordt"
+      },
+      {
+        "login": "dannguyen"
+      },
+      {
+        "login": "jhnlsn"
+      },
+      {
+        "login": "rnagle"
+      },
+      {
+        "login": "inadarei"
+      },
+      {
+        "login": "cmdelaserna"
+      },
+      {
+        "login": "ryanmark"
+      },
+      {
+        "login": "jacqui"
+      },
+      {
+        "login": "jlord"
+      },
+      {
+        "login": "thejefflarson"
+      },
+      {
+        "login": "kleinmatic"
+      },
+      {
+        "login": "kkjschmidt"
+      },
+      {
+        "login": "jkeefe"
+      },
+      {
+        "login": "DataMinerUK"
+      },
+      {
+        "login": "amandabee"
+      },
+      {
+        "login": "knowtheory"
+      },
+      {
+        "login": "hamman"
+      },
+      {
+        "login": "onyxfish"
+      },
+      {
+        "login": "alexgraul"
+      },
+      {
+        "login": "shuhblam"
+      },
+      {
+        "login": "JoeGermuska"
+      },
+      {
+        "login": "fortes"
+      },
+      {
+        "login": "tysone"
+      },
+      {
+        "login": "eads"
+      },
+      {
+        "login": "delambo"
+      },
+      {
+        "login": "samuelclay"
+      },
+      {
+        "login": "bycoffe"
+      },
+      {
+        "login": "scott2b"
+      },
+      {
+        "login": "brianboyer"
+      },
+      {
+        "login": "maboa"
+      },
+      {
+        "login": "niran"
+      },
+      {
+        "login": "unruthless"
+      },
+      {
+        "login": "jashkenas"
+      },
+      {
+        "login": "mattandrews"
+      },
+      {
+        "login": "eyeseast"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      },
+      {
+        "login": "bobbygrace"
+      },
+      {
+        "login": "nicktalwar"
+      },
+      {
+        "login": "emmettnicholas"
+      },
+      {
+        "login": "douglascrockford"
+      },
+      {
+        "login": "aza"
+      },
+      {
+        "login": "howietl"
+      },
+      {
+        "login": "jeresig"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "SuryaDuggirala-at"
+      },
+      {
+        "login": "plamere"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "AndrewKumansley-at"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "jackszeto-at"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "DavidZbarsky-at"
+      },
+      {
+        "login": "pyrocat101"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      },
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      },
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "JeffreyChen-at"
+      },
+      {
+        "login": "Hyperbase"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "usephysics"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      },
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Airtable"
+      },
+      {
+        "login": "Hyperbase"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": []
+  },
+  {
+    "followingList": [
+      {
+        "login": "Hyperbase"
+      },
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Airtable"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  }
+]

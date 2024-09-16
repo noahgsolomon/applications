@@ -1,0 +1,889 @@
+[
+  {
+    "followingList": [
+      {
+        "login": "LinkBenjamin"
+      },
+      {
+        "login": "jkusa"
+      },
+      {
+        "login": "pelletier"
+      },
+      {
+        "login": "achille-roussel"
+      },
+      {
+        "login": "dispatchrun"
+      },
+      {
+        "login": "pooyaj"
+      },
+      {
+        "login": "segmentio"
+      },
+      {
+        "login": "dlasky"
+      },
+      {
+        "login": "colinking"
+      },
+      {
+        "login": "collinvandyck"
+      },
+      {
+        "login": "kamebkj"
+      },
+      {
+        "login": "lcampos"
+      },
+      {
+        "login": "lucasericsson222"
+      },
+      {
+        "login": "kevin868"
+      },
+      {
+        "login": "abergs"
+      },
+      {
+        "login": "bdmayes"
+      },
+      {
+        "login": "braco"
+      },
+      {
+        "login": "johanericsson"
+      },
+      {
+        "login": "joshskeen"
+      },
+      {
+        "login": "galfgarion"
+      },
+      {
+        "login": "ntblack"
+      },
+      {
+        "login": "fson"
+      },
+      {
+        "login": "FaridSafi"
+      },
+      {
+        "login": "melangepastrylab"
+      },
+      {
+        "login": "eugenecli"
+      },
+      {
+        "login": "ivarley"
+      },
+      {
+        "login": "andreydg"
+      },
+      {
+        "login": "anishkothari"
+      },
+      {
+        "login": "maxdemarzi"
+      },
+      {
+        "login": "antony-a1"
+      },
+      {
+        "login": "callmeismail"
+      },
+      {
+        "login": "jiahanericsson"
+      },
+      {
+        "login": "DjMojoRisin"
+      },
+      {
+        "login": "mericssonsfdc"
+      },
+      {
+        "login": "aasamy"
+      },
+      {
+        "login": "hackerdojoml"
+      },
+      {
+        "login": "emreberge"
+      },
+      {
+        "login": "dtia"
+      },
+      {
+        "login": "ReidCarlberg"
+      },
+      {
+        "login": "shawnlewis"
+      },
+      {
+        "login": "jretz"
+      },
+      {
+        "login": "smurthas"
+      },
+      {
+        "login": "superfell"
+      },
+      {
+        "login": "aashay"
+      },
+      {
+        "login": "sugestio"
+      },
+      {
+        "login": "willywu"
+      },
+      {
+        "login": "dorkitude"
+      },
+      {
+        "login": "robbywalker"
+      },
+      {
+        "login": "svensson"
+      },
+      {
+        "login": "DanMeyer"
+      },
+      {
+        "login": "kriti"
+      },
+      {
+        "login": "dkador"
+      },
+      {
+        "login": "jrgoodner"
+      },
+      {
+        "login": "ryankennedy"
+      },
+      {
+        "login": "hungrymachine"
+      },
+      {
+        "login": "mustpax"
+      },
+      {
+        "login": "jwickett"
+      },
+      {
+        "login": "jboner"
+      },
+      {
+        "login": "iamwilhelm"
+      },
+      {
+        "login": "dshaw"
+      },
+      {
+        "login": "matthooks"
+      },
+      {
+        "login": "codahale"
+      },
+      {
+        "login": "al3x"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "ahill00"
+      },
+      {
+        "login": "pirogoeth"
+      },
+      {
+        "login": "cmastr"
+      },
+      {
+        "login": "hanssv"
+      },
+      {
+        "login": "antonym"
+      },
+      {
+        "login": "daniel0m0baker"
+      },
+      {
+        "login": "qubit9"
+      },
+      {
+        "login": "TyKranig"
+      },
+      {
+        "login": "mattlopez4011"
+      },
+      {
+        "login": "KevinArnall"
+      },
+      {
+        "login": "joejulian"
+      },
+      {
+        "login": "vespian"
+      },
+      {
+        "login": "Qubit-9"
+      },
+      {
+        "login": "floatme-corp"
+      },
+      {
+        "login": "samvantran"
+      },
+      {
+        "login": "tnoff"
+      },
+      {
+        "login": "lucky"
+      },
+      {
+        "login": "ChristopherMacGown"
+      },
+      {
+        "login": "jmeridth"
+      },
+      {
+        "login": "robyifan"
+      },
+      {
+        "login": "mikejennings"
+      },
+      {
+        "login": "Fabs"
+      },
+      {
+        "login": "MichaelPorras"
+      },
+      {
+        "login": "kramen22"
+      },
+      {
+        "login": "sushilsuresh"
+      },
+      {
+        "login": "rm-you"
+      },
+      {
+        "login": "ryancl"
+      },
+      {
+        "login": "alanquillin"
+      },
+      {
+        "login": "mike6856"
+      },
+      {
+        "login": "evanscottgray"
+      },
+      {
+        "login": "kjmancuso"
+      },
+      {
+        "login": "calebgroom"
+      },
+      {
+        "login": "beardymcbeards"
+      },
+      {
+        "login": "sumbach"
+      },
+      {
+        "login": "kilogram"
+      },
+      {
+        "login": "torvalds"
+      },
+      {
+        "login": "bdelliott"
+      },
+      {
+        "login": "DragonDM"
+      },
+      {
+        "login": "jr0d"
+      },
+      {
+        "login": "hhoover"
+      },
+      {
+        "login": "badlogic"
+      },
+      {
+        "login": "SandyWalsh"
+      },
+      {
+        "login": "tr3buchet"
+      },
+      {
+        "login": "mikegriffin"
+      },
+      {
+        "login": "gondoi"
+      },
+      {
+        "login": "m00dawg"
+      },
+      {
+        "login": "abg"
+      },
+      {
+        "login": "neogenix"
+      },
+      {
+        "login": "derks"
+      },
+      {
+        "login": "rconradharris"
+      },
+      {
+        "login": "wwkeyboard"
+      },
+      {
+        "login": "major"
+      },
+      {
+        "login": "MattDietz"
+      },
+      {
+        "login": "pvo"
+      },
+      {
+        "login": "jk0"
+      },
+      {
+        "login": "jschairb"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "RegulusImpact"
+      },
+      {
+        "login": "bcanseco"
+      },
+      {
+        "login": "ahughes02"
+      },
+      {
+        "login": "silvolu"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "rossedman"
+      },
+      {
+        "login": "pooyaj"
+      },
+      {
+        "login": "danielstjules"
+      },
+      {
+        "login": "t0sche"
+      },
+      {
+        "login": "kchintakunta"
+      },
+      {
+        "login": "JustinSHong"
+      },
+      {
+        "login": "mmeljem"
+      },
+      {
+        "login": "cv"
+      },
+      {
+        "login": "drew-thompson"
+      },
+      {
+        "login": "mericsson"
+      },
+      {
+        "login": "alberts"
+      },
+      {
+        "login": "malixsys"
+      },
+      {
+        "login": "tomnomnom"
+      },
+      {
+        "login": "jsvensson"
+      },
+      {
+        "login": "dacoursey"
+      },
+      {
+        "login": "jgamblin"
+      },
+      {
+        "login": "NOPROD"
+      },
+      {
+        "login": "aaronlippold"
+      },
+      {
+        "login": "kuvelas"
+      },
+      {
+        "login": "bmayen"
+      },
+      {
+        "login": "JoshuaSeidel"
+      },
+      {
+        "login": "micahcourey"
+      },
+      {
+        "login": "DarrellRichards"
+      },
+      {
+        "login": "arealesramirez"
+      },
+      {
+        "login": "smackysnacks"
+      },
+      {
+        "login": "infosecdad"
+      },
+      {
+        "login": "JrPribs"
+      },
+      {
+        "login": "bkimminich"
+      },
+      {
+        "login": "lojikil"
+      },
+      {
+        "login": "aur3lius-dev"
+      },
+      {
+        "login": "sethlaw"
+      },
+      {
+        "login": "pjcoole"
+      },
+      {
+        "login": "kerosive-dev"
+      },
+      {
+        "login": "forced-request"
+      },
+      {
+        "login": "davidlindner"
+      },
+      {
+        "login": "cktricky"
+      },
+      {
+        "login": "Atticuss"
+      },
+      {
+        "login": "amunawar"
+      },
+      {
+        "login": "avemuri57"
+      },
+      {
+        "login": "nvisium-jack-mannino"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "testcontainers"
+      },
+      {
+        "login": "keshao728"
+      },
+      {
+        "login": "celery"
+      },
+      {
+        "login": "segmentio"
+      },
+      {
+        "login": "golang"
+      },
+      {
+        "login": "twilio-labs"
+      },
+      {
+        "login": "kelseyhightower"
+      },
+      {
+        "login": "adonovan"
+      },
+      {
+        "login": "paulinekpn"
+      },
+      {
+        "login": "karpathy"
+      },
+      {
+        "login": "needcaffeine"
+      },
+      {
+        "login": "sharadbhadouria"
+      },
+      {
+        "login": "lab176"
+      },
+      {
+        "login": "andreiko"
+      },
+      {
+        "login": "ajhenry"
+      },
+      {
+        "login": "abraithwaite"
+      },
+      {
+        "login": "jvns"
+      },
+      {
+        "login": "catherinechiu"
+      },
+      {
+        "login": "j-buckner"
+      },
+      {
+        "login": "madebymichaelg"
+      },
+      {
+        "login": "KyleBoudewyn"
+      },
+      {
+        "login": "tonyfengli"
+      },
+      {
+        "login": "MasiraMulla"
+      },
+      {
+        "login": "jsh-wu"
+      },
+      {
+        "login": "ucarion"
+      },
+      {
+        "login": "Alexander-Infante"
+      },
+      {
+        "login": "heidiyoora"
+      },
+      {
+        "login": "squadri96"
+      },
+      {
+        "login": "stephl3"
+      },
+      {
+        "login": "vincentvankoh"
+      },
+      {
+        "login": "evperlman"
+      },
+      {
+        "login": "mjiang108"
+      },
+      {
+        "login": "whbladon"
+      },
+      {
+        "login": "asuggula"
+      },
+      {
+        "login": "djchie"
+      },
+      {
+        "login": "nickmorri"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "ClickHouse"
+      },
+      {
+        "login": "zyedidia"
+      },
+      {
+        "login": "NiloofarMahmoodian"
+      },
+      {
+        "login": "fatih"
+      },
+      {
+        "login": "luxas"
+      },
+      {
+        "login": "askmeegs"
+      },
+      {
+        "login": "burrsutter"
+      },
+      {
+        "login": "jwilm"
+      },
+      {
+        "login": "sharkdp"
+      },
+      {
+        "login": "jesseduffield"
+      },
+      {
+        "login": "ahejlsberg"
+      },
+      {
+        "login": "typicode"
+      },
+      {
+        "login": "NeilFraser"
+      },
+      {
+        "login": "defunkt"
+      },
+      {
+        "login": "ry"
+      },
+      {
+        "login": "davecheney"
+      },
+      {
+        "login": "addyosmani"
+      },
+      {
+        "login": "elithrar"
+      },
+      {
+        "login": "torvalds"
+      },
+      {
+        "login": "kelseyhightower"
+      },
+      {
+        "login": "fhinkel"
+      },
+      {
+        "login": "isaacs"
+      },
+      {
+        "login": "tokestermw"
+      },
+      {
+        "login": "Yangqing"
+      },
+      {
+        "login": "hunan-rostomyan"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "pailyfe"
+      },
+      {
+        "login": "advancedlogic"
+      },
+      {
+        "login": "staltz"
+      },
+      {
+        "login": "acouchman"
+      },
+      {
+        "login": "hoop33"
+      },
+      {
+        "login": "taylornturner"
+      },
+      {
+        "login": "sgillespie"
+      },
+      {
+        "login": "jselden"
+      },
+      {
+        "login": "jdhornsby"
+      },
+      {
+        "login": "galenandrew"
+      },
+      {
+        "login": "jmscott"
+      },
+      {
+        "login": "chrismllr"
+      },
+      {
+        "login": "loganbfisher"
+      },
+      {
+        "login": "MichaelJCole"
+      },
+      {
+        "login": "RealTschoegl"
+      },
+      {
+        "login": "samerfallouh"
+      },
+      {
+        "login": "jathomas9"
+      },
+      {
+        "login": "getify"
+      },
+      {
+        "login": "Catherine-R"
+      },
+      {
+        "login": "JamieCrisman"
+      },
+      {
+        "login": "mfmc112"
+      },
+      {
+        "login": "pN3mesis"
+      },
+      {
+        "login": "ivern"
+      },
+      {
+        "login": "lukekeith"
+      },
+      {
+        "login": "rustysec"
+      },
+      {
+        "login": "robmcguinness"
+      },
+      {
+        "login": "dnoler"
+      },
+      {
+        "login": "azare"
+      },
+      {
+        "login": "mprivat"
+      },
+      {
+        "login": "kohlschuetter"
+      },
+      {
+        "login": "lavinjj"
+      },
+      {
+        "login": "JeffreyWay"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "Causadix"
+      },
+      {
+        "login": "iampueroo"
+      },
+      {
+        "login": "schnerd"
+      },
+      {
+        "login": "alexwilson2012"
+      },
+      {
+        "login": "bfirsh"
+      },
+      {
+        "login": "harperreed"
+      },
+      {
+        "login": "jackie"
+      },
+      {
+        "login": "donmccurdy"
+      },
+      {
+        "login": "sosso"
+      },
+      {
+        "login": "zacwest"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "cv"
+      },
+      {
+        "login": "colinking"
+      },
+      {
+        "login": "systemizer"
+      },
+      {
+        "login": "boggsboggs"
+      },
+      {
+        "login": "jnraine"
+      },
+      {
+        "login": "anastassia-b"
+      },
+      {
+        "login": "eculver"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "dlasky"
+      },
+      {
+        "login": "nicksmider"
+      },
+      {
+        "login": "SethNuteTwilio"
+      },
+      {
+        "login": "hocaho"
+      },
+      {
+        "login": "vadimdemedes"
+      },
+      {
+        "login": "segmentio"
+      }
+    ]
+  },
+  {
+    "followingList": [
+      {
+        "login": "tc39"
+      }
+    ]
+  },
+  {
+    "followingList": []
+  }
+]

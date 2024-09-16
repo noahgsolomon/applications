@@ -16,6 +16,8 @@ import {
   Avatar,
   ScrollArea,
   TextArea,
+  Select,
+  Link,
 } from "frosted-ui";
 import {
   Building2,
@@ -59,6 +61,11 @@ export default function ScrapedDialog() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<string[]>([]);
+  const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
+
+  const [profileType, setProfileType] = useState<"linkedin" | "github">(
+    "linkedin",
+  );
 
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
@@ -163,17 +170,31 @@ export default function ScrapedDialog() {
 
   const [manualUrls, setManualUrls] = useState("");
 
-  const extractLinkedInUrls = (content: string): string[] => {
-    const regex = /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
-    const matches = content.match(regex);
-    return matches ? [...new Set(matches)] : [];
+  const extractUrls = (
+    content: string,
+  ): { type: "linkedin" | "github"; urls: string[] } => {
+    const linkedinRegex =
+      /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
+    const githubRegex = /https:\/\/(?:www\.)?github\.com\/[a-zA-Z0-9-]+/g;
+
+    const linkedinMatches = content.match(linkedinRegex) || [];
+    const githubMatches = content.match(githubRegex) || [];
+
+    if (linkedinMatches.length > 0) {
+      return { type: "linkedin", urls: [...new Set(linkedinMatches)] };
+    } else if (githubMatches.length > 0) {
+      return { type: "github", urls: [...new Set(githubMatches)] };
+    }
+
+    return { type: "linkedin", urls: [] }; // Default to LinkedIn if no matches
   };
 
   const handleManualUrlsChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     setManualUrls(e.target.value);
-    const urls = extractLinkedInUrls(e.target.value);
+    const { type, urls } = extractUrls(e.target.value);
+    setProfileType(type);
     setProfileUrls(urls);
   };
 
@@ -183,11 +204,12 @@ export default function ScrapedDialog() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      const urls = extractLinkedInUrls(content);
+      const { type, urls } = extractUrls(content);
       if (urls.length > 0) {
+        setProfileType(type);
         setProfileUrls(urls);
       } else {
-        setError("No valid LinkedIn URLs found in the file.");
+        setError("No valid LinkedIn or GitHub URLs found in the file.");
       }
     };
     reader.onerror = () => {
@@ -253,12 +275,19 @@ export default function ScrapedDialog() {
   const findSimilarProfiles = async (profileUrls: string[]) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/find-similar-profiles", {
+      const endpoint =
+        profileType === "linkedin"
+          ? "/api/find-similar-profiles"
+          : "/api/find-similar-profiles-github";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ profileUrls }),
+        body: JSON.stringify({
+          [profileType === "linkedin" ? "profileUrls" : "githubUrls"]:
+            profileUrls,
+        }),
       });
 
       if (!response.ok) {
@@ -268,13 +297,21 @@ export default function ScrapedDialog() {
       const data = await response.json();
 
       console.log("Similar profiles found:", data);
-      setCandidateMatches(data.similarProfiles);
+      if (profileType === "linkedin") {
+        setCandidateMatches(data.similarProfiles);
+      } else {
+        setMatchedGithubUrls(
+          data.similarProfiles.map(
+            (profile: any) => `https://github.com/${profile.login}`,
+          ),
+        );
+      }
       setCookdSorting(false);
       setLoading(false);
-      toast.success("Similar profiles search completed");
+      toast.success(`Similar ${profileType} profiles search completed`);
     } catch (error) {
       setLoading(false);
-      toast.error("Error finding similar profiles: " + error);
+      toast.error(`Error finding similar ${profileType} profiles: ` + error);
     }
   };
 
@@ -419,7 +456,7 @@ export default function ScrapedDialog() {
             ) : (
               <>
                 <Text as="div" mb="1" size="2" weight="bold">
-                  Enter LinkedIn URLs
+                  Enter Linkedin or Github URLs (not both)
                 </Text>
                 <Text color="red" as="div" mb="1" size="1" weight="bold">
                   If it gives an error, refresh the page and try again.
@@ -476,11 +513,17 @@ export default function ScrapedDialog() {
                 {profileUrls.length > 0 && (
                   <div className="mt-4">
                     <Text as="div" size="2" style={{ marginBottom: "10px" }}>
-                      {profileUrls.length} unique LinkedIn URLs loaded
+                      {profileUrls.length} unique{" "}
+                      {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
+                      loaded
                     </Text>
                     <div className="flex flex-wrap gap-2">
                       {profileUrls.map((url, index) => (
-                        <Badge key={index} variant="surface" color="blue">
+                        <Badge
+                          key={index}
+                          variant="surface"
+                          color={profileType === "linkedin" ? "blue" : "green"}
+                        >
                           {url.split("/").pop()}
                         </Badge>
                       ))}
@@ -534,7 +577,7 @@ export default function ScrapedDialog() {
               )}
             </Button>
           </Flex>
-          {(candidateMatches || sorting) && (
+          {(candidateMatches || sorting || matchedGithubUrls) && (
             <DialogRoot>
               <DialogTrigger>
                 <Button
@@ -549,23 +592,33 @@ export default function ScrapedDialog() {
                 <DialogDescription className="font-bold text-2xl italic">
                   List of candidates sorted by weight.
                 </DialogDescription>
-                {candidateMatches &&
-                  candidateMatches.filter((c) => c.cookdReviewed).length <
-                    candidateMatches.length - 1 &&
-                  cookdSorting && (
-                    <Button
-                      onClick={handleSort}
-                      disabled={sorting}
-                      variant="classic"
-                      style={{ cursor: "pointer" }}
-                    >
-                      {sorting ? (
-                        <Loader className="size-4 animate-spin" />
-                      ) : (
-                        "Sort"
-                      )}
-                    </Button>
-                  )}
+                {candidateMatches ? (
+                  <>
+                    {candidateMatches.filter((c) => c.cookdReviewed).length <
+                      candidateMatches.length - 1 && cookdSorting ? (
+                      <Button
+                        onClick={handleSort}
+                        disabled={sorting}
+                        variant="classic"
+                        style={{ cursor: "pointer" }}
+                      >
+                        {sorting ? (
+                          <Loader className="size-4 animate-spin" />
+                        ) : (
+                          "Sort"
+                        )}
+                      </Button>
+                    ) : null}
+                  </>
+                ) : matchedGithubUrls ? (
+                  <div className="flex flex-col gap-2 ">
+                    {matchedGithubUrls.map((url) => (
+                      <Link href={url} target="_blank" key={url}>
+                        {url}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
                 {sorting && (
                   <Text
                     as="div"

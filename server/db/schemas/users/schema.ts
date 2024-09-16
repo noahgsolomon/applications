@@ -297,8 +297,10 @@ export const githubUsers = pgTable("github_users", {
     }>
   >(),
   location: text("location"),
+  normalizedLocation: text("normalized_location"),
   websiteUrl: text("website_url"),
   twitterUsername: text("twitter_username"),
+  linkedinUrl: text("linkedin_url"),
   email: text("email"),
   bio: text("bio"),
   createdAt: timestamp("created_at").defaultNow(),

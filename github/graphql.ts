@@ -7,7 +7,7 @@ import { neon } from "@neondatabase/serverless";
 import OpenAI from "openai";
 import { eq } from "drizzle-orm";
 
-class RateLimiter {
+export class RateLimiter {
   private isWaiting: boolean = false;
 
   async wait() {
@@ -86,7 +86,7 @@ const askCondition = async (condition: string): Promise<boolean> => {
   return result;
 };
 
-const isNearNYC = async (user: any): Promise<boolean> => {
+export async function isNearNYC(user: any): Promise<boolean> {
   if (!user) {
     console.error("User object is null or undefined");
     return false;
@@ -96,40 +96,41 @@ const isNearNYC = async (user: any): Promise<boolean> => {
     return false;
   }
 
-  const condition = `Is this location (${user.location}) within 50 miles of Brooklyn, New York City? If it is ambiguous like if it says USA return false.`;
+  const condition = `Is this location (${user.location}) within 50 miles of Brooklyn, New York City? If it is ambiguous like if it says USA or obviously if the location isn't 50 miles from Brooklyn, return false.`;
   const result = await askCondition(condition);
   return result;
-};
+}
 
 const organizations = [
-  "figma",
-  "planetscale",
-  "postmanlabs",
-  "auth0",
-  "netlify",
-  "launchdarkly",
-  "hasura",
-  "plaid",
-  "vercel",
-  "Airtable",
-  "segmentio",
-  "linear",
-  "tailscale",
-  "prisma",
-  "clerkinc",
-  "replit",
-  "circleci",
-  "zapier",
-  "renderinc",
-  "supabase",
-  "PostHog",
-  "tryretool",
-  "storyblok",
-  "getsentry",
-  "muxinc",
-  "coinbase",
-  "revolut-engineering",
-  "monzo",
+  "stripe",
+  "airbnb",
+  "uber",
+  "facebook",
+  "google",
+  "microsoft",
+  "apple",
+  "amazon",
+  "netflix",
+  "twitter",
+  "spotify",
+  "dropbox",
+  "slack",
+  "square",
+  "twilio",
+  "shopify",
+  "digitalocean",
+  "gitlab",
+  "docker",
+  "elastic",
+  "databricks",
+  "palantir",
+  "snowflake",
+  "confluent",
+  "databricks",
+  "hashicorp",
+  "datadog",
+  "mongodb",
+  "okta",
 ];
 
 const fetchOrganizationMembers = async (orgName: string) => {
@@ -198,6 +199,12 @@ const fetchUserDetails = async (
             totalCount
             nodes {
               login
+            }
+          }
+          socialAccounts(first: 10) {
+            nodes {
+              provider
+              url
             }
           }
           ${
@@ -303,7 +310,7 @@ const fetchUserDetails = async (
   });
 };
 
-const processFollowingData = (user: any) => {
+const processFollowingData = async (user: any) => {
   if (!user) return null;
 
   const followers = user.followers.totalCount;
@@ -356,10 +363,18 @@ const processFollowingData = (user: any) => {
   const totalCommits =
     user.contributionsCollection.contributionCalendar.totalContributions;
 
+  const linkedInAccount = user.socialAccounts.nodes.find(
+    (account: any) => account.provider === "LINKEDIN",
+  );
+  const linkedinUrl = linkedInAccount ? linkedInAccount.url : null;
+
+  const normalizedLocation = await getNormalizedLocation(user.location || "");
+
   return {
     name: user.name,
     login: user.login,
     location: user.location,
+    normalizedLocation,
     websiteUrl: user.websiteUrl,
     twitterUsername: user.twitterUsername,
     email: user.email,
@@ -384,130 +399,76 @@ const processFollowingData = (user: any) => {
     uniqueTopics: topics,
     externalContributions: externalContributions.length,
     totalExternalCommits,
-    sponsorsCount: user.sponsors.totalCount,
-    sponsoredProjects: user.sponsorshipsAsSponsor.nodes.map(
-      (s: any) => s.sponsorable.login,
-    ),
-    organizations: user.organizations.nodes.map((org: any) => ({
-      name: org.name,
-      login: org.login,
-      description: org.description,
-      membersCount: org.membersWithRole.totalCount,
-    })),
+    sponsorsCount: user.sponsors?.totalCount || 0,
+    sponsoredProjects:
+      user.sponsorshipsAsSponsor?.nodes.map((s: any) => s.sponsorable.login) ||
+      [],
+    organizations:
+      user.organizations?.nodes.map((org: any) => ({
+        name: org.name,
+        login: org.login,
+        description: org.description,
+        membersCount: org.membersWithRole.totalCount,
+      })) || [],
+    linkedinUrl,
   };
 };
 
-const processUserData = (user: any) => {
+const processUserData = async (user: any) => {
   if (!user) return null;
 
-  // const followers = user.followers.totalCount;
-  // const following = user.following.totalCount;
-  // const followerToFollowingRatio =
-  //   following === 0 ? followers : (followers / following).toFixed(2);
-  //
-  // let totalStars = 0;
-  // let totalForks = 0;
-  // const languagesMap: {
-  //   [language: string]: { repoCount: number; stars: number };
-  // } = {};
-  // const contributors: string[] = [];
-  // const topics: string[] = [];
+  const linkedInAccount = user.socialAccounts.nodes.find(
+    (account: any) => account.provider === "LINKEDIN",
+  );
+  const linkedinUrl = linkedInAccount ? linkedInAccount.url : null;
 
-  // user.repositories.nodes.forEach((repo: any) => {
-  //   totalStars += repo.stargazerCount;
-  //   totalForks += repo.forkCount;
-  //
-  //   if (repo.primaryLanguage) {
-  //     const language = repo.primaryLanguage.name;
-  //     if (languagesMap[language]) {
-  //       languagesMap[language].repoCount += 1;
-  //       languagesMap[language].stars += repo.stargazerCount;
-  //     } else {
-  //       languagesMap[language] = { repoCount: 1, stars: repo.stargazerCount };
-  //     }
-  //   }
-  //
-  //   repo.repositoryTopics.nodes.forEach((topic: any) => {
-  //     if (!topics.includes(topic.topic.name)) {
-  //       topics.push(topic.topic.name);
-  //     }
-  //   });
-  // });
-  //
-  // const externalContributions =
-  //   user.contributionsCollection.commitContributionsByRepository
-  //     .filter((repo: any) => repo.repository.owner.login !== user.login)
-  //     .sort(
-  //       (a: any, b: any) =>
-  //         b.contributions.totalCount - a.contributions.totalCount,
-  //     );
-  //
-  // const totalExternalCommits = externalContributions.reduce(
-  //   (sum: number, repo: any) => sum + repo.contributions.totalCount,
-  //   0,
-  // );
-  //
-  // const totalCommits =
-  //   user.contributionsCollection.contributionCalendar.totalContributions;
+  const normalizedLocation = await getNormalizedLocation(user.location || "");
 
   return {
-    // name: user.name,
-    // login: user.login,
-    // location: user.location,
-    // websiteUrl: user.websiteUrl,
-    // twitterUsername: user.twitterUsername,
-    // email: user.email,
-    // bio: user.bio,
-    // followers,
-    // following,
     followingList: user.following.nodes.map((node: any) => ({
       login: node.login,
     })),
-    // followerToFollowingRatio,
-    // contributionYears: user.contributionsCollection.contributionYears,
-    // totalCommits,
-    // restrictedContributions:
-    //   user.contributionsCollection.restrictedContributionsCount,
-    // totalRepositories: user.repositories.totalCount,
-    // totalStars,
-    // totalForks,
-    // languages: Object.entries(languagesMap).sort(
-    //   (a, b) => b[1].repoCount - a[1].repoCount,
-    // ),
-    // uniqueContributors: contributors,
-    // uniqueTopics: topics,
-    // externalContributions: externalContributions.length,
-    // totalExternalCommits,
-    // sponsorsCount: user.sponsors.totalCount,
-    // sponsoredProjects: user.sponsorshipsAsSponsor.nodes.map(
-    //   (s: any) => s.sponsorable.login,
-    // ),
-    // organizations: user.organizations.nodes.map((org: any) => ({
-    //   name: org.name,
-    //   login: org.login,
-    //   description: org.description,
-    //   membersCount: org.membersWithRole.totalCount,
-    // })),
+    linkedinUrl,
+    location: user.location,
+    normalizedLocation,
   };
 };
 
-const processBatch = async (usernames: string[]) => {
-  const results = [];
-
-  for (const username of usernames) {
-    console.log(`Fetching data for user: ${username}`);
-    const userData = await fetchUserDetails(username, true);
-    if (userData) {
-      const processedData = processUserData(userData);
-      if (processedData) {
-        await processFollowing(processedData.followingList);
-        results.push(processedData);
-      }
-    }
+async function getNormalizedLocation(location: string): Promise<string> {
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are a location normalizer. Given a location, return the uppercase state name if it's a US location, or the uppercase country name if it's outside the US. If it's a city, return the state (for US) or country it's in. If unsure or the location is invalid, return "UNKNOWN".
+Examples:
+- New York City -> NEW YORK
+- New York -> NEW YORK
+- London -> UNITED KINGDOM
+- California -> CALIFORNIA
+- Tokyo -> JAPAN
+- Paris, France -> FRANCE
+- Sydney -> AUSTRALIA
+- 90210 -> CALIFORNIA
+- Earth -> UNKNOWN`,
+        },
+        {
+          role: "user",
+          content: location,
+        },
+      ],
+      model: "gpt-4o-mini",
+      temperature: 0,
+      max_tokens: 256,
+    });
+    return (
+      completion.choices[0].message.content?.trim().toUpperCase() || "UNKNOWN"
+    );
+  } catch (error) {
+    console.error(`Error normalizing location for "${location}":`, error);
+    return "UNKNOWN";
   }
-
-  return results;
-};
+}
 
 const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
   try {
@@ -518,6 +479,7 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
         name: processedData.name || null,
         login: processedData.login,
         location: processedData.location || null,
+        normalizedLocation: processedData.normalizedLocation || null,
         websiteUrl: processedData.websiteUrl || null,
         twitterUsername: processedData.twitterUsername || null,
         email: processedData.email || null,
@@ -541,12 +503,14 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
         sponsoredProjects: processedData.sponsoredProjects,
         organizations: processedData.organizations,
         isNearNYC: nearNyc,
+        linkedinUrl: processedData.linkedinUrl || null,
       })
       .onConflictDoUpdate({
         target: userSchema.githubUsers.login,
         set: {
           name: processedData.name || null,
           location: processedData.location || null,
+          normalizedLocation: processedData.normalizedLocation || null,
           websiteUrl: processedData.websiteUrl || null,
           twitterUsername: processedData.twitterUsername || null,
           email: processedData.email || null,
@@ -570,6 +534,7 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
           sponsoredProjects: processedData.sponsoredProjects,
           organizations: processedData.organizations,
           isNearNYC: nearNyc,
+          linkedinUrl: processedData.linkedinUrl || null,
         },
       });
     console.log(`Inserted/Updated data for user: ${processedData.login}`);
@@ -591,7 +556,7 @@ const processFollowing = async (followingList: any[]) => {
     } else {
       const userData = await fetchUserDetails(followingPerson.login, false);
       if (userData) {
-        const processedData = processFollowingData(userData);
+        const processedData = await processFollowingData(userData);
         if (processedData) {
           const nearNyc = await isNearNYC(processedData);
           await insertOrUpdateUser(processedData, nearNyc);
@@ -599,6 +564,24 @@ const processFollowing = async (followingList: any[]) => {
       }
     }
   }
+};
+
+const processBatch = async (usernames: string[]) => {
+  const results = [];
+
+  for (const username of usernames) {
+    console.log(`Fetching data for user: ${username}`);
+    const userData = await fetchUserDetails(username, true);
+    if (userData) {
+      const processedData = await processUserData(userData);
+      if (processedData) {
+        await processFollowing(processedData.followingList);
+        results.push(processedData);
+      }
+    }
+  }
+
+  return results;
 };
 
 const main = async () => {
@@ -624,4 +607,4 @@ const main = async () => {
   }
 };
 
-main().catch((error) => console.error("Error in main function:", error));
+// main().catch((error) => console.error("Error in main function:", error));

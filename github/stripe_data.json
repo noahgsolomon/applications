@@ -1,0 +1,77 @@
+[
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": "Singapore",
+    "normalizedLocation": "SINGAPORE"
+  },
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": "London, UK",
+    "normalizedLocation": "UNITED KINGDOM"
+  },
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [
+      {
+        "login": "BenEmdon"
+      },
+      {
+        "login": "areitz-stripe"
+      }
+    ],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [
+      {
+        "login": "evanw"
+      },
+      {
+        "login": "jez"
+      },
+      {
+        "login": "xavdid"
+      }
+    ],
+    "linkedinUrl": null,
+    "location": null,
+    "normalizedLocation": "UNKNOWN"
+  },
+  {
+    "followingList": [
+      {
+        "login": "dedoussis"
+      }
+    ],
+    "linkedinUrl": null,
+    "location": "San Fransisco, California",
+    "normalizedLocation": "CALIFORNIA"
+  }
+]
