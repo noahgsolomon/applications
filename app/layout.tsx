@@ -2,12 +2,10 @@ import { Theme } from "frosted-ui";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { LayoutProps } from "@/lib/types";
-import Header from "./header";
 import "frosted-ui/styles.css";
 import "./globals.css";
 import { ThemeProvider } from "./providers";
 import { TRPCReactProvider } from "@/trpc/react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,10 +24,7 @@ export default function RootLayout({ children }: LayoutProps) {
       <body className={inter.variable}>
         <TRPCReactProvider>
           <ThemeProvider>
-            <Theme>
-              {/* <Header /> */}
-              {children}
-            </Theme>
+            <Theme>{children}</Theme>
           </ThemeProvider>
         </TRPCReactProvider>
       </body>
