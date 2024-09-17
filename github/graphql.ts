@@ -607,4 +607,4 @@ const main = async () => {
   }
 };
 
-// main().catch((error) => console.error("Error in main function:", error));
+main().catch((error) => console.error("Error in main function:", error));

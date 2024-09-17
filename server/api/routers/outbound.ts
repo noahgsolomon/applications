@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   candidates,
   company as companyTable,
@@ -155,7 +155,7 @@ async function querySimilarJobTitles(job: string) {
 }
 
 export const outboundRouter = createTRPCRouter({
-  findFilteredCandidates: protectedProcedure
+  findFilteredCandidates: publicProcedure
     .input(
       z.object({
         query: z.string(),
@@ -406,7 +406,7 @@ export const outboundRouter = createTRPCRouter({
         throw new Error("An error occurred during the mutation.");
       }
     }),
-  findRelevantCompanies: protectedProcedure
+  findRelevantCompanies: publicProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
       // Step 1: Standardize the input query to technologies, specialties, and features
@@ -631,7 +631,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         ],
       };
     }),
-  deletePendingCompanyOutbound: protectedProcedure
+  deletePendingCompanyOutbound: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db
@@ -639,7 +639,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         .where(eq(pendingCompanyOutbound.id, input.id));
     }),
 
-  companyFilter: protectedProcedure
+  companyFilter: publicProcedure
     .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       console.log("Starting companyFilter mutation");
@@ -776,7 +776,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         throw new Error("An error occurred during the mutation.");
       }
     }),
-  allActiveCompanies: protectedProcedure.query(async ({ ctx }) => {
+  allActiveCompanies: publicProcedure.query(async ({ ctx }) => {
     const companies = await ctx.db.query.company.findMany({
       where: (company, { exists, eq }) =>
         exists(
@@ -794,14 +794,14 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
       logo: company.logo,
     }));
   }),
-  deletePendingOutbound: protectedProcedure
+  deletePendingOutbound: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .delete(pendingOutbound)
         .where(eq(pendingOutbound.id, input.id));
     }),
-  searches: protectedProcedure
+  searches: publicProcedure
     .input(z.object({ recommended: z.boolean() }).optional())
     .query(async ({ ctx, input }) => {
       const result: (InferSelectModel<typeof outbound> & {
@@ -875,7 +875,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
       return result;
     }),
-  pollPendingOutbound: protectedProcedure
+  pollPendingOutbound: publicProcedure
     .input(z.object({ existingPendingOutboundId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const pendingOutboundRecord = await ctx.db
@@ -890,7 +890,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
       return pendingOutboundRecord;
     }),
-  pollPendingCompanyOutbound: protectedProcedure.mutation(
+  pollPendingCompanyOutbound: publicProcedure.mutation(
     async ({ ctx, input }) => {
       let pendingCompanyOutboundDB =
         await ctx.db.query.pendingCompanyOutbound.findMany({
@@ -921,7 +921,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
       return result;
     },
   ),
-  existingPendingOutbound: protectedProcedure.query(async ({ ctx }) => {
+  existingPendingOutbound: publicProcedure.query(async ({ ctx }) => {
     const existingPendingOutbound = await ctx.db.select().from(pendingOutbound);
     return {
       existing: existingPendingOutbound.length > 0,
@@ -929,84 +929,8 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         existingPendingOutbound.length > 0 ? existingPendingOutbound[0].id : -1,
     };
   }),
-  addOutboundRequest: protectedProcedure
-    .input(
-      z.object({
-        query: z.string(),
-        job: z.string(),
-        nearBrooklyn: z.boolean(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const completion = await openai.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `
-You generate search queries for Whop, a consumer tech platform. Given a job description or instructions, return a JSON object with three attributes: "isValid" (true or false), "booleanSearch" (a concise boolean string for search), and ;company" (the company name or "Big Tech" if unclear). The job should be the job title or skills mentioned in query or "Software Engineer" if unclear.
 
-- If the query clearly indicates a job title or company, set "isValid" to true. Otherwise, set it to false.
-
-Ensure the boolean search string includes:
-- The company name first
-- The job title
-- Key skills from the query
-
-Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "company". Don't add backslashes in the query
-      `,
-          },
-          {
-            role: "user",
-            content: input.query,
-          },
-        ],
-        response_format: { type: "json_object" },
-        model: "gpt-4o",
-        temperature: 0,
-        max_tokens: 256,
-      });
-
-      console.log("Condition response received.");
-      const response = JSON.parse(
-        completion.choices[0].message.content ?? '{ "isValid": false }',
-      );
-
-      const isValid = response.isValid;
-
-      if (!isValid) {
-        return { isValid };
-      }
-
-      const uuidId = uuid();
-      await ctx.db.insert(pendingOutbound).values({
-        id: uuidId,
-        job: response.job,
-        company: response.company,
-        query: input.query,
-        progress: 0,
-        status: "Starting scrape",
-        userId: ctx.user_id,
-        outboundId: uuid(),
-        nearBrooklyn: input.nearBrooklyn,
-        booleanSearch:
-          response.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
-        logs: "",
-      });
-
-      // await client.send(
-      //   new SendMessageCommand({
-      //     QueueUrl: Resource.WhopQueue.url,
-      //     MessageBody: JSON.stringify({
-      //       pendingOutboundId: uuidId,
-      //       type: "OUTBOUND",
-      //     }),
-      //   }),
-      // );
-
-      return { isValid };
-    }),
-
-  addCompanyRequest: protectedProcedure
+  addCompanyRequest: publicProcedure
     .input(
       z.object({
         query: z.string(),
@@ -1028,7 +952,7 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         query: input.query,
         progress: 0,
         status: "Starting scrape",
-        userId: ctx.user_id,
+        userId: "random (no longer needed)",
         outboundId: uuid(),
         skills: input.skills,
         nearBrooklyn: input.nearBrooklyn,
@@ -1049,7 +973,7 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
       //   }),
       // );
     }),
-  sendCookdScoringRequest: protectedProcedure
+  sendCookdScoringRequest: publicProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
       const candidatesFiltered = await ctx.db.query.candidates.findMany({
@@ -1090,7 +1014,7 @@ Return the answer as a JSON object with "isValid", "booleanSearch", "job", and "
         }),
       );
     }),
-  pollCookdScoringRequest: protectedProcedure
+  pollCookdScoringRequest: publicProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .query(async ({ ctx, input }) => {
       const scoredCandidates = await ctx.db.query.candidates.findMany({

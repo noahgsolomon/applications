@@ -36,9 +36,7 @@ jobs:
         run: bunx sst deploy --stage production
         env:
           DB_URL: ${{ secrets.DB_URL }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           WEBSITE: ${{ secrets.WEBSITE }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           MODE: "PROD"
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SCRAPIN_API_KEY: ${{ secrets.SCRAPIN_API_KEY }}

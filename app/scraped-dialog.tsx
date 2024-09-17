@@ -577,7 +577,7 @@ export default function ScrapedDialog() {
               )}
             </Button>
           </Flex>
-          {(candidateMatches || sorting || matchedGithubUrls) && (
+          {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
             <DialogRoot>
               <DialogTrigger>
                 <Button
