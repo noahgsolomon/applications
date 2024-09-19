@@ -1,5 +1,4 @@
 import { candidates } from "@/server/db/schemas/users/schema";
-import { and, eq, isNotNull, ne } from "drizzle-orm";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import axios from "axios";
@@ -254,24 +253,26 @@ async function insertCandidate(profileData: any) {
   const candidateId = uuid();
 
   // Insert into database
-  await db.insert(schema.candidates).values({
-    id: candidateId,
-    url: profileData.linkedInUrl as string,
-    linkedinData: profileData,
-    miniSummary,
-    summary,
-    topTechnologies: tech,
-    topFeatures: features,
-    jobTitles,
-    isEngineer,
-    workedInBigTech,
-    livesNearBrooklyn,
-    createdAt: new Date(),
-  });
+  try {
+    await db.insert(schema.candidates).values({
+      id: candidateId,
+      url: profileData.linkedInUrl.replace(/\/$/, "") as string,
+      linkedinData: profileData,
+      miniSummary,
+      summary,
+      topTechnologies: tech,
+      topFeatures: features,
+      jobTitles,
+      isEngineer,
+      workedInBigTech,
+      livesNearBrooklyn,
+      createdAt: new Date(),
+    });
 
-  console.log(
-    `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
-  );
+    console.log(
+      `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
+    );
+  } catch {}
 
   // Upsert individual items to vector DB
 
@@ -339,57 +340,116 @@ async function insertCandidate(profileData: any) {
   return candidateId;
 }
 
+import { URL } from "url";
+import { and, eq, isNotNull, ne, not, exists, inArray } from "drizzle-orm";
+
+function validateAndNormalizeLinkedInUrl(url: string): string | null {
+  try {
+    const parsedUrl = new URL(url);
+
+    if (!parsedUrl.hostname.endsWith("linkedin.com")) {
+      return null;
+    }
+
+    parsedUrl.protocol = "https:";
+
+    if (parsedUrl.hostname === "linkedin.com") {
+      parsedUrl.hostname = "www.linkedin.com";
+    }
+
+    if (!parsedUrl.pathname.startsWith("/in/")) {
+      return null;
+    }
+
+    parsedUrl.pathname = parsedUrl.pathname.replace(/\/$/, "");
+    parsedUrl.search = "";
+    parsedUrl.hash = "";
+
+    return parsedUrl.toString();
+  } catch (error) {
+    console.error(`Invalid URL: ${url}`);
+    return null;
+  }
+}
+
 async function main() {
   try {
-    const input = await db.query.githubUsers.findMany({
-      columns: { linkedinUrl: true },
-      where: and(
-        isNotNull(schema.githubUsers.linkedinUrl),
-        ne(schema.githubUsers.linkedinUrl, ""),
-      ),
+    const input = await db
+      .select()
+      .from(schema.githubUsers)
+      .where(
+        and(
+          isNotNull(schema.githubUsers.linkedinUrl),
+          ne(schema.githubUsers.linkedinUrl, ""),
+        ),
+      );
+
+    console.log("Total input URLs:", input.length);
+
+    const urlUpdatePromises = input.map(async (user) => {
+      const normalizedUrl = validateAndNormalizeLinkedInUrl(user.linkedinUrl!);
+      if (normalizedUrl !== null && normalizedUrl !== user.linkedinUrl) {
+        // Update the database with the normalized URL
+        await db
+          .update(schema.githubUsers)
+          .set({ linkedinUrl: normalizedUrl })
+          .where(eq(schema.githubUsers.id, user.id));
+        console.log(
+          `Updated URL for user ${user.id}: ${user.linkedinUrl} -> ${normalizedUrl}`,
+        );
+        return normalizedUrl;
+      } else if (normalizedUrl !== null) {
+        return normalizedUrl;
+      }
+      return null;
     });
 
-    console.log("Starting findSimilarProfiles");
+    const validProfileUrls = (await Promise.all(urlUpdatePromises)).filter(
+      (url): url is string => url !== null,
+    );
+
+    console.log("Valid and normalized URLs:", validProfileUrls.length);
+
+    const existingUrls = await db
+      .select({ url: schema.candidates.url })
+      .from(schema.candidates)
+      .where(inArray(schema.candidates.url, validProfileUrls));
+
+    const existingUrlSet = new Set(existingUrls.map((row) => row.url));
+
+    const newProfileUrls = validProfileUrls.filter(
+      (url) => !existingUrlSet.has(url),
+    );
+
+    console.log("New URLs to process:", newProfileUrls.length);
 
     const batchSize = 10;
     const delay = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
-    const profileUrls = input.map((user) => user.linkedinUrl!);
 
-    for (let i = 0; i < profileUrls.length; i += batchSize) {
-      const batch = profileUrls.slice(i, i + batchSize);
+    for (let i = 0; i < newProfileUrls.length; i += batchSize) {
+      const batch = newProfileUrls.slice(i, i + batchSize);
       await Promise.all(
         batch.map(async (profileUrl) => {
-          let candidate = await db.query.candidates.findFirst({
-            where: eq(candidates.url, profileUrl),
-            columns: { id: true },
-          });
-
-          if (!candidate) {
-            console.log(
-              `Candidate not found for URL: ${profileUrl}. Scraping and inserting.`,
-            );
-            const scrapedData = await scrapeLinkedInProfile(profileUrl);
-            if (scrapedData && scrapedData.success) {
-              await insertCandidate(scrapedData.person);
-            } else {
-              console.error(
-                `Failed to scrape or insert candidate for URL: ${profileUrl}`,
-              );
-            }
+          console.log(`Processing URL: ${profileUrl}`);
+          const scrapedData = await scrapeLinkedInProfile(profileUrl);
+          if (scrapedData && scrapedData.success) {
+            await insertCandidate(scrapedData.person);
           } else {
-            console.log("user already exists. skipping");
+            console.error(
+              `Failed to scrape or insert candidate for URL: ${profileUrl}`,
+            );
           }
         }),
       );
 
-      if (i + batchSize < profileUrls.length) {
-        console.log("Waiting 1 second before processing next batch...");
-        await delay(1000);
+      if (i + batchSize < newProfileUrls.length) {
+        console.log("Waiting 2.5 seconds before processing next batch...");
+        await delay(2500);
       }
     }
   } catch (error) {
-    console.error("Error in findSimilarProfiles:", error);
+    console.error("Error:", error);
   }
 }
 
