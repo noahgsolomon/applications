@@ -19,7 +19,7 @@ export async function resolveTcoLink(url: string): Promise<string> {
   }
 }
 
-export async function getPopularTweets(username: string, limit: number = 1000) {
+export async function getPopularTweets(username: string, limit: number = 100) {
   const baseQuery = `from:${username} -filter:replies`;
   let allTweets: any[] = [];
   let maxId: string | undefined;
@@ -137,6 +137,6 @@ export async function getPopularTweets(username: string, limit: number = 1000) {
 }
 
 // Usage
-getPopularTweets("7etsuo").then((tweets) =>
+getPopularTweets("noahgsolomon").then((tweets) =>
   console.log(JSON.stringify(tweets, null, 2) + "\n", "Process completed."),
 );
