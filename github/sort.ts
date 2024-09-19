@@ -160,12 +160,24 @@ const writeResultsToFile = (users: any[]) => {
   fs.writeFileSync("scored_users.txt", resultLines.join("\n"), "utf-8");
 };
 
-const main = async () => {
+const main = async (usernames?: string[]) => {
   try {
-    console.log("Querying users from the database...");
-    // Query users from the database
-    const users = await db.query.githubUsers.findMany();
-    console.log(`Retrieved ${users.length} users from the database.`);
+    console.log("Querying users...");
+    let users;
+    if (usernames && usernames.length > 0) {
+      // Query only the specified users from the database
+      users = await db.query.githubUsers.findMany({
+        where: (githubUsers, { inArray }) =>
+          inArray(githubUsers.login, usernames),
+      });
+      console.log(
+        `Retrieved ${users.length} specified users from the database.`,
+      );
+    } else {
+      // Query all users from the database
+      users = await db.query.githubUsers.findMany();
+      console.log(`Retrieved ${users.length} users from the database.`);
+    }
 
     // Function to batch isNearNYC requests
     const batchIsNearNYC = async (batch: any[]) => {
@@ -181,7 +193,7 @@ const main = async () => {
     const batchSize = 100;
     let processedUsers: any[] = [];
 
-    // Process users in batches of 50
+    // Process users in batches of 100
     for (let i = 0; i < users.length; i += batchSize) {
       const batch = users.slice(i, i + batchSize);
       const processedBatch = await batchIsNearNYC(batch);
@@ -204,11 +216,40 @@ const main = async () => {
     console.log(
       "Processing complete. Users written to 'scored_users.txt' sorted by score.",
     );
-
-    console.log("Processing complete. Scores written to 'scored_users.txt'.");
   } catch (error) {
     console.error("An error occurred:", error);
   }
 };
 
-main().catch((error) => console.error("Error in main function:", error));
+main([
+  "jeffposnick",
+  "pbiggar",
+  "jdhitsolutions",
+  "housseindjirdeh",
+  "pauldix",
+  "davidsonfellipe",
+  "evanmiller",
+  "chris-greening",
+  "ammubhave",
+  "meowgorithm",
+  "ftrain",
+  "kylebarron",
+  "skottler",
+  "frankgreco",
+  "victorquinn",
+  "abdonrd",
+  "michaelmior",
+  "nickmorri",
+  "terkelg",
+  "loganrosen",
+  "austinv11",
+  "davidfeng88",
+  "jianglai",
+  "shea256",
+  "saphal1998",
+  "joelnagy",
+  "chenware",
+  "nezlobnaya",
+  "stevenbarash",
+  "larrytheliquid",
+]).catch((error) => console.error("Error in main function:", error));
