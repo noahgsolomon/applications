@@ -305,4 +305,10 @@ export const githubUsers = pgTable("github_users", {
   bio: text("bio"),
   createdAt: timestamp("created_at").defaultNow(),
   isNearNYC: boolean("is_near_nyc"),
+  twitterFollowerCount: integer("twitter_follower_count"),
+  twitterFollowingCount: integer("twitter_following_count"),
+  twitterFollowerToFollowingRatio: real("twitter_follower_to_following_ratio"),
+  twitterBio: text("twitter_bio"),
+  tweets: jsonb("tweets").$type<any[]>(),
+  isUpsertedInAllBios: boolean("is_upserted_in_all_bios").default(false),
 });

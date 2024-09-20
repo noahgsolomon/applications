@@ -60,7 +60,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const askCondition = async (condition: string): Promise<boolean> => {
+export const askCondition = async (condition: string): Promise<boolean> => {
   const completion = await openai.chat.completions.create({
     messages: [
       {
@@ -598,4 +598,4 @@ const main = async () => {
   }
 };
 
-main().catch((error) => console.error("Error in main function:", error));
+// main().catch((error) => console.error("Error in main function:", error));
