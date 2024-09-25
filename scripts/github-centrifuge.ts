@@ -202,6 +202,7 @@ export async function fetchUserFromGitHub(
     const normalizedLocation = await getNormalizedLocation(user.location || "");
     const nearNyc = await isNearNYC(user);
 
+    //@ts-ignore
     return {
       id: user.login,
       name: user.name,

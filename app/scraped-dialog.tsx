@@ -249,7 +249,6 @@ export default function ScrapedDialog() {
       skills: filters?.skills,
       booleanSearch: "",
       nearBrooklyn,
-      Or: filters?.Or,
     });
   };
 
@@ -635,7 +634,7 @@ export default function ScrapedDialog() {
                     {candidateMatches?.length === 0
                       ? "No matches 😲"
                       : (sorting
-                          ? (sortedCandidateMatches ?? [])
+                          ? sortedCandidateMatches ?? []
                           : candidateMatches
                         )
                           ?.sort((a, b) =>

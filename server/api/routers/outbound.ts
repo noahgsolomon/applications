@@ -340,24 +340,22 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         standardizedResponse.standardizedTechs?.map((tech: string) =>
           tech.toLowerCase(),
         ) ?? [];
-      const standardizedSpecialties: string[] =
-        [
-          ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
-            feature.toLowerCase(),
-          ),
-          ...standardizedResponse.standardizedSpecialties?.map(
-            (specialty: string) => specialty.toLowerCase(),
-          ),
-        ] ?? [];
-      const standardizedFeatures: string[] =
-        [
-          ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
-            feature.toLowerCase(),
-          ),
-          ...standardizedResponse.standardizedSpecialties?.map(
-            (specialty: string) => specialty.toLowerCase(),
-          ),
-        ] ?? [];
+      const standardizedSpecialties: string[] = [
+        ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
+          feature.toLowerCase(),
+        ),
+        ...standardizedResponse.standardizedSpecialties?.map(
+          (specialty: string) => specialty.toLowerCase(),
+        ),
+      ];
+      const standardizedFeatures: string[] = [
+        ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
+          feature.toLowerCase(),
+        ),
+        ...standardizedResponse.standardizedSpecialties?.map(
+          (specialty: string) => specialty.toLowerCase(),
+        ),
+      ];
 
       console.log(
         "Standardized technologies:",
