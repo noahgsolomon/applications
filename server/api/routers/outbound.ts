@@ -166,7 +166,6 @@ export const outboundRouter = createTRPCRouter({
         skills: z.array(z.string()),
         booleanSearch: z.string().optional(),
         companyIds: z.array(z.string()),
-        Or: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -186,221 +185,115 @@ export const outboundRouter = createTRPCRouter({
           similarTechnologiesArrays.flat(),
         );
 
-        if (input.Or) {
-          // If input.Or is true, flatten the arrays into a single array
-          const allSimilarTechnologies = similarTechnologiesArrays.flat();
+        const allSimilarTechnologies = similarTechnologiesArrays.flat();
 
-          console.log("Expanded skills (OR logic):", allSimilarTechnologies);
+        console.log("Expanded skills:", allSimilarTechnologies);
 
-          const candidatesFiltered = await ctx.db.query.candidates.findMany({
-            limit: 100,
-            with: { company: true },
-            where: (candidate, { and, eq, inArray }) => {
-              let condition = or(
-                eq(candidate.livesNearBrooklyn, true),
-                eq(candidate.livesNearBrooklyn, false),
+        const candidatesFiltered = await ctx.db.query.candidates.findMany({
+          with: { company: true },
+          where: (candidate, { and, eq, inArray }) => {
+            let condition = or(
+              eq(candidate.livesNearBrooklyn, true),
+              eq(candidate.livesNearBrooklyn, false),
+            );
+            if (input.nearBrooklyn) {
+              condition = eq(candidate.livesNearBrooklyn, true);
+            }
+            let skillCondition = undefined;
+            if (input.skills.length > 0) {
+              skillCondition = jsonArrayContainsAny(
+                candidate.topTechnologies,
+                allSimilarTechnologies.map((tech) => tech.technology),
               );
-              if (input.nearBrooklyn) {
-                condition = eq(candidate.livesNearBrooklyn, true);
-              }
-              let skillCondition = undefined;
-              if (input.skills.length > 0) {
-                skillCondition = jsonArrayContainsAny(
-                  candidate.topTechnologies,
-                  allSimilarTechnologies.map((tech) => tech.technology),
-                );
-              }
-              let jobTitleCondition = undefined;
-              if (similarJobTitlesArray.length > 0) {
-                jobTitleCondition = jsonArrayContainsAny(
-                  candidate.jobTitles,
-                  similarJobTitlesArray,
-                );
-              }
-              return and(
-                condition,
-                skillCondition,
-                exists(
-                  ctx.db
-                    .select()
-                    .from(companyTable)
-                    .where(
-                      and(
-                        inArray(companyTable.id, input.companyIds),
-                        eq(candidate.companyId, companyTable.id),
-                      ),
+            }
+            let jobTitleCondition = undefined;
+            if (similarJobTitlesArray.length > 0) {
+              jobTitleCondition = jsonArrayContainsAny(
+                candidate.jobTitles,
+                similarJobTitlesArray,
+              );
+            }
+            return and(
+              condition,
+              skillCondition,
+              exists(
+                ctx.db
+                  .select()
+                  .from(companyTable)
+                  .where(
+                    and(
+                      inArray(companyTable.id, input.companyIds),
+                      eq(candidate.companyId, companyTable.id),
                     ),
-                ),
-                jobTitleCondition,
-              );
-            },
-          });
-
-          // Make fetch request for each candidate
-          await Promise.all(
-            candidatesFiltered.map(async (candidate) => {
-              try {
-                const candidateDB = await ctx.db.query.candidates.findFirst({
-                  where: eq(candidates.id, candidate.id),
-                });
-                if (!candidateDB?.cookdReviewed) {
-                  const response = await fetch("https://cookd.dev/api/score", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
-                      slugId: process.env.COOKD_SLUG_ID,
-                      apiKey: process.env.COOKD_API_KEY,
-                      webhookUrl:
-                        "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
-                      candidateJson: {
-                        id: candidate.id,
-                        first_name: candidate.linkedinData.firstName,
-                        last_name: candidate.linkedinData.lastName,
-                        ...candidate.linkedinData,
-                      },
-                    }),
-                  });
-                  const responseBody = await response.text();
-                  console.log(responseBody);
-                }
-              } catch (error) {
-                console.error(
-                  `Error scoring candidate ${candidate.id}:`,
-                  error,
-                );
-              }
-            }),
-          );
-
-          return {
-            valid: candidatesFiltered.length > 0,
-            message:
-              candidatesFiltered.length > 0
-                ? "Relevant candidates found."
-                : "No relevant candidates found.",
-            candidates: candidatesFiltered,
-            query: input.query,
-            job: input.job,
-            skills: similarTechnologiesArrays.flat(),
-            nearBrooklyn: input.nearBrooklyn,
-            relevantRoleId: input.relevantRoleId ?? undefined,
-          };
-        } else {
-          // If input.Or is false, chain conditions for each group of similar technologies
-
-          let candidatesFiltered = await ctx.db.query.candidates.findMany({
-            limit: 100,
-            with: { company: true },
-            where: (candidate, { and, eq }) => {
-              const extraConditions: any[] = [];
-
-              similarTechnologiesArrays.forEach((similarTechnologies) => {
-                if (input.skills.length > 0) {
-                  const newCondition = jsonArrayContainsAny(
-                    candidate.topTechnologies,
-                    similarTechnologies.map((tech) => tech.technology),
-                  )!;
-                  extraConditions.push(newCondition);
-                }
-              });
-
-              let condition = and(
-                eq(candidate.livesNearBrooklyn, true),
-                and(...extraConditions),
-              )!;
-
-              if (!input.nearBrooklyn) {
-                condition = and(
-                  or(
-                    eq(candidate.livesNearBrooklyn, true),
-                    eq(candidate.livesNearBrooklyn, false),
                   ),
-                  ...extraConditions,
-                )!;
-              }
+              ),
+              jobTitleCondition,
+            );
+          },
+        });
 
-              let jobTitleCondition = undefined;
-              if (similarJobTitlesArray.length > 0) {
-                jobTitleCondition = jsonArrayContainsAny(
-                  candidate.jobTitles,
-                  similarJobTitlesArray,
-                );
-              }
+        // Sort candidates based on the number of matching skills
+        const sortedCandidates = candidatesFiltered
+          .map((candidate) => {
+            const matchingSkillsCount = allSimilarTechnologies.filter((tech) =>
+              candidate.topTechnologies?.includes(tech.technology),
+            ).length;
+            return { ...candidate, matchingSkillsCount };
+          })
+          .sort((a, b) => b.matchingSkillsCount - a.matchingSkillsCount);
 
-              return and(
-                condition,
-                exists(
-                  ctx.db
-                    .select()
-                    .from(companyTable)
-                    .where(
-                      and(
-                        inArray(companyTable.id, input.companyIds),
-                        eq(candidate.companyId, companyTable.id),
-                      ),
-                    ),
-                ),
-                jobTitleCondition,
-              );
-            },
-          });
+        // Truncate to 100 candidates
+        const topCandidates = sortedCandidates.slice(0, 100);
 
-          // Make fetch request for each candidate
-          await Promise.all(
-            candidatesFiltered.map(async (candidate) => {
-              try {
-                const candidateDB = await ctx.db.query.candidates.findFirst({
-                  where: eq(candidates.id, candidate.id),
-                });
-                if (!candidateDB?.cookdReviewed) {
-                  const response = await fetch("https://cookd.dev/api/score", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
+        // Make fetch request for each candidate
+        await Promise.all(
+          topCandidates.map(async (candidate) => {
+            try {
+              const candidateDB = await ctx.db.query.candidates.findFirst({
+                where: eq(candidates.id, candidate.id),
+              });
+              if (!candidateDB?.cookdReviewed) {
+                const response = await fetch("https://cookd.dev/api/score", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
+                    slugId: process.env.COOKD_SLUG_ID,
+                    apiKey: process.env.COOKD_API_KEY,
+                    webhookUrl:
+                      "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
+                    candidateJson: {
+                      id: candidate.id,
+                      first_name: candidate.linkedinData.firstName,
+                      last_name: candidate.linkedinData.lastName,
+                      ...candidate.linkedinData,
                     },
-                    body: JSON.stringify({
-                      resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
-                      slugId: process.env.COOKD_SLUG_ID,
-                      apiKey: process.env.COOKD_API_KEY,
-                      webhookUrl:
-                        "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
-                      candidateJson: {
-                        id: candidate.id,
-                        first_name: candidate.linkedinData.firstName,
-                        last_name: candidate.linkedinData.lastName,
-                        ...candidate.linkedinData,
-                      },
-                    }),
-                  });
-                  const responseBody = await response.text();
-                  console.log(responseBody);
-                }
-              } catch (error) {
-                console.error(
-                  `Error scoring candidate ${candidate.id}:`,
-                  error,
-                );
+                  }),
+                });
+                const responseBody = await response.text();
+                console.log(responseBody);
               }
-            }),
-          );
+            } catch (error) {
+              console.error(`Error scoring candidate ${candidate.id}:`, error);
+            }
+          }),
+        );
 
-          return {
-            valid: candidatesFiltered.length > 0,
-            message:
-              candidatesFiltered.length > 0
-                ? "Relevant candidates found."
-                : "No relevant candidates found.",
-            candidates: candidatesFiltered,
-            query: input.query,
-            job: input.job,
-            skills: similarTechnologiesArrays.flat(),
-            nearBrooklyn: input.nearBrooklyn,
-            relevantRoleId: input.relevantRoleId ?? undefined,
-          };
-        }
+        return {
+          valid: topCandidates.length > 0,
+          message:
+            topCandidates.length > 0
+              ? "Relevant candidates found."
+              : "No relevant candidates found.",
+          candidates: topCandidates,
+          query: input.query,
+          job: input.job,
+          skills: similarTechnologiesArrays.flat(),
+          nearBrooklyn: input.nearBrooklyn,
+          relevantRoleId: input.relevantRoleId ?? undefined,
+        };
       } catch (error) {
         console.error("Error during findFilteredCandidates mutation:", error);
         throw new Error("An error occurred during the mutation.");
