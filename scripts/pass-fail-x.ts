@@ -232,21 +232,6 @@ async function getUserInfo(username: string): Promise<any> {
   }
 }
 
-processUser(
-  [
-    "falcoagustin",
-    "nanzhong",
-    "hichaelmart",
-    "connordav_is",
-    "Raynos",
-    "astuyve",
-    "brandur",
-    "isukkaw",
-    "kuvos",
-    "penberg",
-    "feedthejim",
-  ],
-  true,
-)
+processUser(["everconfusedguy", "SferaDev", "nutlope", "okikio_dev"], true)
   .then(() => console.log("Process completed."))
   .catch((error) => console.error("Error in processing:", error));

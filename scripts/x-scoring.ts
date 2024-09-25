@@ -93,7 +93,12 @@ async function searchCandidates() {
     const results: {
       userId: string;
       username: string;
-      score: number;
+      totalScore: number;
+      locationScore: number;
+      similarityScore: number;
+      followerCountScore: number;
+      followerRatioScore: number;
+      avgLikesScore: number;
       normalizedLocation: string | null;
       twitterFollowerCount: number | null;
       twitterFollowingCount: number | null;
@@ -107,20 +112,22 @@ async function searchCandidates() {
       const userId = user.id;
       const normalizedLocation = user.normalizedLocation;
 
-      // Initialize score
-      let score = 0;
+      // Initialize score components
+      let locationScore = 0;
+      let similarityScore = 0;
+      let followerCountScore = 0;
+      let followerRatioScore = 0;
+      let avgLikesScore = 0;
 
       // Check if the user is in New York using normalizedLocation
       const isInNewYork = normalizedLocation === "NEW YORK";
       if (isInNewYork) {
-        score += 1; // Increase score if in New York
+        locationScore = 2.5; // Increase score if in New York
       }
 
       // Get similarity score from Pinecone query
       const similarity = userIdToSimilarity[userId] ?? 0;
-
-      // Add similarity score (weighted)
-      score += similarity * 5; // Adjust the weight as needed
+      similarityScore = similarity * 5; // Adjust the weight as needed
 
       // Factor in Twitter follower count and ratio
       const followerCount = user.twitterFollowerCount ?? 0;
@@ -128,17 +135,42 @@ async function searchCandidates() {
 
       // Normalize follower count (e.g., logarithmic scale)
       const normalizedFollowerCount = Math.log10(followerCount + 1); // Logarithmic scale
-      score += normalizedFollowerCount * 0.5; // Adjust the weight as needed
+      followerCountScore = normalizedFollowerCount * 0.5; // Adjust the weight as needed
 
       // Factor in follower ratio
       const normalizedFollowerRatio = Math.min(followerRatio / 10, 1); // Cap at 1
-      score += normalizedFollowerRatio * 0.5; // Adjust the weight as needed
+      followerRatioScore = normalizedFollowerRatio * 0.5; // Adjust the weight as needed
+
+      let avgLikes = 0;
+      if (user.tweets && Array.isArray(user.tweets)) {
+        const tweets = user.tweets;
+        const totalLikes = tweets.reduce((sum, tweet) => {
+          return sum + (tweet.favorite_count || 0);
+        }, 0);
+        avgLikes = tweets.length > 0 ? totalLikes / tweets.length : 0;
+      }
+
+      const normalizedAvgLikes = Math.log10(avgLikes + 1); // Logarithmic scale
+      avgLikesScore = normalizedAvgLikes * 0.5;
+
+      // Calculate total score
+      const totalScore =
+        locationScore +
+        similarityScore +
+        followerCountScore +
+        followerRatioScore +
+        avgLikesScore;
 
       // Collect the result
       results.push({
         userId,
         username,
-        score,
+        totalScore,
+        locationScore,
+        similarityScore,
+        followerCountScore,
+        followerRatioScore,
+        avgLikesScore,
         normalizedLocation,
         twitterFollowerCount: followerCount,
         twitterFollowingCount: user.twitterFollowingCount ?? 0,
@@ -148,17 +180,20 @@ async function searchCandidates() {
     }
 
     // Sort the results by score in descending order
-    results.sort((a, b) => b.score - a.score);
+    results.sort((a, b) => b.totalScore - a.totalScore);
 
     // Output the top results
     console.log("Top candidates:");
     for (const result of results.slice(0, 50)) {
       console.log(
-        `https://x.com/${result.username}, Score: ${result.score.toFixed(
-          2,
-        )}, Location: ${result.normalizedLocation ?? "Unknown"}, Followers: ${
-          result.twitterFollowerCount
-        }`,
+        `https://x.com/${result.username}, Total Score: ${result.totalScore.toFixed(2)} ` +
+          `(Location: ${result.locationScore.toFixed(2)}, ` +
+          `Similarity: ${result.similarityScore.toFixed(2)}, ` +
+          `Follower Count: ${result.followerCountScore.toFixed(2)}, ` +
+          `Follower Ratio: ${result.followerRatioScore.toFixed(2)}, ` +
+          `Avg Likes: ${result.avgLikesScore.toFixed(2)}), ` +
+          `Location: ${result.normalizedLocation ?? "Unknown"}, ` +
+          `Followers: ${result.twitterFollowerCount}`,
       );
     }
 

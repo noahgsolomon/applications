@@ -1,87 +1,24 @@
 import * as dotenv from "dotenv";
 import * as userSchema from "../server/db/schemas/users/schema";
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
-import OpenAI from "openai";
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import fs from "fs";
-import { eq } from "drizzle-orm";
 
 dotenv.config({ path: "../.env" });
 
-const connection = neon(process.env.DB_URL!);
-const db = drizzle(connection, {
-  schema: {
-    ...userSchema,
-  },
+const pool = new Pool({ connectionString: process.env.DB_URL });
+export const db = drizzle(pool, {
+  schema: userSchema,
 });
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const askCondition = async (condition: string): Promise<boolean> => {
-  const completion = await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content:
-          'You are to return a valid parseable JSON object with one attribute "condition" which can either be true or false. All questions users ask will always be able to be answered in a yes or no. An example response would be { "condition": true }',
-      },
-      {
-        role: "user",
-        content: condition,
-      },
-    ],
-    response_format: { type: "json_object" },
-    model: "gpt-4o-mini",
-    temperature: 0,
-    max_tokens: 256,
-  });
-
-  const result = JSON.parse(
-    completion.choices[0].message.content ?? '{ "condition": false }',
-  ).condition as boolean;
-
-  return result;
-};
-
-export const isNearNYC = async (user: any): Promise<boolean> => {
-  if (!user) {
-    console.error("User object is null or undefined");
-    return false;
-  }
-
-  if (typeof user.isNearNYC === "boolean") {
-    return user.isNearNYC;
-  }
-
-  if (!user.location) {
-    await updateUserNearNYCStatus(user.id, false);
-    return false;
-  }
-
-  const condition = `Is this location (${user.location}) within 50 miles of Brooklyn, New York City? If it is ambiguous like if it says USA return false.`;
-  const result = await askCondition(condition);
-
-  await updateUserNearNYCStatus(user.id, result);
-  return result;
-};
-
-const updateUserNearNYCStatus = async (userId: string, isNearNYC: boolean) => {
-  await db
-    .update(userSchema.githubUsers)
-    .set({ isNearNYC })
-    .where(eq(userSchema.githubUsers.id, userId));
-};
 
 // Function to calculate language score based on stars and repos for JS, TS, and Ruby
 const calculateLanguageScore = (languages: any): number => {
   let score = 0;
 
   const languageWeights: any = {
-    JavaScript: { repoWeight: 3, starWeight: 5 },
-    TypeScript: { repoWeight: 4, starWeight: 5 },
-    Ruby: { repoWeight: 5, starWeight: 5 },
+    TypeScript: { repoWeight: 1, starWeight: 2 },
+    Swift: { repoWeight: 1, starWeight: 4 },
+    Ruby: { repoWeight: 20, starWeight: 60 },
   };
 
   Object.keys(languages).forEach((language) => {
@@ -98,63 +35,113 @@ const calculateLanguageScore = (languages: any): number => {
 
 const calculateUserScore = (
   user: any,
-  nearNYC: boolean,
+  isInNewYork: boolean,
 ): { total: number; breakdown: any } => {
-  // Higher precedence for followers by giving it a higher weight
-  const followerWeight = 40;
-  const repoWeight = 10;
-  const starWeight = 20;
+  // Logarithmic scaling function
+  const logScale = (value: number, base: number = 10) =>
+    Math.log(value + 1) / Math.log(base);
 
-  // Follower to following ratio
+  // Adjust weights
+  const followerWeight = 0.5;
+  const followRatioWeight = 0.25;
+  const experienceWeight = 0.2;
+  const contributionsWeight = 0.5;
+  const repoWeight = 0.25;
+  const starWeight = 0.5;
+  const forkWeight = 0.25;
+  const languageWeight = 1;
+  const locationBonus = 2;
+
+  // Calculate individual scores
+  const followerScore = logScale(user.followers) * followerWeight;
   const followRatio = user.followers / (user.following || 1);
+  const followRatioScore = logScale(followRatio) * followRatioWeight;
+  const experienceScore =
+    Math.min(user.contributionYears?.length || 0, 10) * experienceWeight;
+  const contributionsScore =
+    logScale(user.totalCommits + user.restrictedContributions) *
+    contributionsWeight;
+  const repoScore = logScale(user.totalRepositories) * repoWeight;
+  const starScore = logScale(user.totalStars) * starWeight;
+  const forkScore = logScale(user.totalForks) * forkWeight;
 
-  // Experience is based on the number of contribution years
-  const experienceWeight = user.contributionYears?.length || 0;
-
-  // Contributions based on total commits
-  const contributionsWeight = user.totalCommits + user.restrictedContributions;
-
-  // Language score based on languages, repo counts, and stars
+  // Calculate language score with emphasis on Ruby and TypeScript
   const languageScore = calculateLanguageScore(user.languages || {});
+  const scaledLanguageScore = logScale(languageScore) * languageWeight;
+
+  // Check for Ruby and TypeScript experience
+  const hasRuby = user.languages && user.languages.Ruby;
+  const hasTypeScript = user.languages && user.languages.TypeScript;
+
+  // Calculate location score
+  const locationScore = isInNewYork ? locationBonus : 0;
+
+  // Calculate synergy bonus
+  let synergyBonus = 0;
+  if (isInNewYork && hasRuby) {
+    synergyBonus += 2; // Bonus for Ruby + NYC
+  }
+  if (isInNewYork && hasRuby && hasTypeScript) {
+    synergyBonus += 3; // Additional bonus for Ruby + TypeScript + NYC
+  }
 
   // Breakdown of the score components
   const breakdown = {
-    followRatio: followRatio * 10,
-    followers: user.followers * followerWeight,
-    experience: experienceWeight * 100,
-    contributions: contributionsWeight * 10,
-    totalRepos: user.totalRepositories * repoWeight,
-    totalStars: user.totalStars * starWeight,
-    totalForks: user.totalForks * 30,
-    languageScore: languageScore,
-    locationBonus: nearNYC ? 10000000 : 0, // Large bonus if near NYC
+    followers: followerScore,
+    followRatio: followRatioScore,
+    experience: experienceScore,
+    contributions: contributionsScore,
+    totalRepos: repoScore,
+    totalStars: starScore,
+    totalForks: forkScore,
+    languageScore: scaledLanguageScore,
+    locationBonus: locationScore,
+    synergyBonus: synergyBonus,
   };
 
-  // Calculate the total score by summing up all the values in the breakdown
+  // Calculate the total score
   const total = Object.values(breakdown).reduce((sum, value) => sum + value, 0);
 
-  return { total, breakdown };
+  // Normalize the total score to a 0-10 range
+  const normalizedTotal = total;
+
+  // Normalize each component in the breakdown
+  const normalizedBreakdown = Object.fromEntries(
+    Object.entries(breakdown).map(([key, value]) => [key, Math.min(5, value)]),
+  );
+
+  return {
+    total: normalizedTotal,
+    breakdown: normalizedBreakdown,
+  };
 };
 
 const writeResultsToFile = (users: any[]) => {
   // Sort users by score in descending order
   const sortedUsers = users.sort((a, b) => b.score.total - a.score.total);
 
-  const nycUsers = sortedUsers.filter((user) => user.nearNYC);
-  const nonNycUsers = sortedUsers.filter((user) => !user.nearNYC);
+  const nycUsers = sortedUsers.filter((user) => user.isInNewYork);
+  const nonNycUsers = sortedUsers.filter((user) => !user.isInNewYork);
 
   const resultLines: string[] = [];
 
-  const writeUsername = (user: any, isNYC: boolean) => {
-    const nycSuffix = isNYC ? " -- lives in New York" : "";
-    resultLines.push(`https://github.com/${user.login}${nycSuffix}`);
+  const writeUserDetails = (user: any) => {
+    resultLines.push(`https://github.com/${user.login}`);
+    resultLines.push(`Total Score: ${user.score.total.toFixed(2)}`);
+    resultLines.push("Score Breakdown:");
+    for (const [key, value] of Object.entries(user.score.breakdown)) {
+      resultLines.push(`  ${key}: ${(value as number).toFixed(2)}`);
+    }
+    resultLines.push("");
   };
 
   // Add NYC users
-  nycUsers.forEach((user) => writeUsername(user, true));
+  resultLines.push("Users in New York:");
+  nycUsers.forEach((user) => writeUserDetails(user));
 
   // Add non-NYC users
-  nonNycUsers.forEach((user) => writeUsername(user, false));
+  resultLines.push("Users not in New York:");
+  nonNycUsers.forEach((user) => writeUserDetails(user));
 
   // Write to file
   fs.writeFileSync("scored_users.txt", resultLines.join("\n"), "utf-8");
@@ -179,32 +166,16 @@ const main = async (usernames?: string[]) => {
       console.log(`Retrieved ${users.length} users from the database.`);
     }
 
-    // Function to batch isNearNYC requests
-    const batchIsNearNYC = async (batch: any[]) => {
-      console.log(`Processing batch of ${batch.length} users for isNearNYC...`);
-      return await Promise.all(
-        batch.map(async (user) => {
-          const nearNYC = await isNearNYC(user);
-          return { ...user, nearNYC };
-        }),
-      );
-    };
-
-    const batchSize = 100;
-    let processedUsers: any[] = [];
-
-    // Process users in batches of 100
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
-      const processedBatch = await batchIsNearNYC(batch);
-      processedUsers = [...processedUsers, ...processedBatch];
-      console.log(`Processed ${processedUsers.length} users so far...`);
-    }
+    // Process users and check if they are in New York
+    const processedUsers = users.map((user) => ({
+      ...user,
+      isInNewYork: user.normalizedLocation === "NEW YORK",
+    }));
 
     // Calculate scores for all processed users and sort them
     const scoredUsers = processedUsers
       .map((user) => {
-        const userScore = calculateUserScore(user, user.nearNYC);
+        const userScore = calculateUserScore(user, user.isInNewYork);
         return { ...user, score: userScore };
       })
       .sort((a, b) => b.score.total - a.score.total);
@@ -221,35 +192,4 @@ const main = async (usernames?: string[]) => {
   }
 };
 
-main([
-  "jeffposnick",
-  "pbiggar",
-  "jdhitsolutions",
-  "housseindjirdeh",
-  "pauldix",
-  "davidsonfellipe",
-  "evanmiller",
-  "chris-greening",
-  "ammubhave",
-  "meowgorithm",
-  "ftrain",
-  "kylebarron",
-  "skottler",
-  "frankgreco",
-  "victorquinn",
-  "abdonrd",
-  "michaelmior",
-  "nickmorri",
-  "terkelg",
-  "loganrosen",
-  "austinv11",
-  "davidfeng88",
-  "jianglai",
-  "shea256",
-  "saphal1998",
-  "joelnagy",
-  "chenware",
-  "nezlobnaya",
-  "stevenbarash",
-  "larrytheliquid",
-]).catch((error) => console.error("Error in main function:", error));
+main().catch((error) => console.error("Error in main function:", error));
