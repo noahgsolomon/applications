@@ -9,6 +9,7 @@ import {
   real,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -266,8 +267,23 @@ export const companyRelations = relations(company, ({ many }) => ({
   candidates: many(candidates),
 }));
 
+export const jobs = pgTable("jobs", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  jobTitle: varchar("job_title", { length: 255 }).notNull(),
+  jobDescription: text("job_description").notNull(),
+  whoYouAre: text("who_you_are").notNull(),
+  qualifications: text("qualifications").notNull(),
+  jobSlug: varchar("job_slug", { length: 255 }).notNull().unique(),
+});
+
 export const githubUsers = pgTable("github_users", {
-  id: varchar("id", { length: 255 }).primaryKey(),
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: varchar("name", { length: 255 }),
   login: varchar("login", { length: 255 }).notNull().unique(),
   followers: integer("followers").notNull(),
@@ -311,4 +327,56 @@ export const githubUsers = pgTable("github_users", {
   twitterBio: text("twitter_bio"),
   tweets: jsonb("tweets").$type<any[]>(),
   isUpsertedInAllBios: boolean("is_upserted_in_all_bios").default(false),
+  isWhopUser: boolean("is_whop_user"),
+  isWhopCreator: boolean("is_whop_creator"),
 });
+
+export const whopTwitterAccounts = pgTable("whop_twitter_accounts", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  twitterId: varchar("twitter_id", { length: 255 }).notNull().unique(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  twitterData: jsonb("twitter_data").$type<any>(),
+});
+
+export const whopTwitterFollowers = pgTable(
+  "whop_twitter_followers",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    twitterId: varchar("twitter_id", { length: 255 }).notNull(),
+    whopTwitterAccountId: varchar("whop_twitter_account_id", { length: 255 })
+      .notNull()
+      .references(() => whopTwitterAccounts.twitterId),
+    username: varchar("username", { length: 255 }).notNull(),
+    twitterData: jsonb("twitter_data").$type<any>(),
+  },
+  (t) => ({
+    unq: unique().on(t.whopTwitterAccountId, t.username),
+    unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
+  }),
+);
+
+export const whopTwitterFollowing = pgTable(
+  "whop_twitter_following",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    twitterId: varchar("twitter_id", { length: 255 }).notNull(),
+    whopTwitterAccountId: varchar("whop_twitter_account_id", { length: 255 })
+      .notNull()
+      .references(() => whopTwitterAccounts.twitterId),
+    username: varchar("username", { length: 255 }).notNull(),
+    twitterData: jsonb("twitter_data").$type<any>(),
+  },
+  (t) => ({
+    unq: unique().on(t.whopTwitterAccountId, t.username),
+    unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
+  }),
+);
