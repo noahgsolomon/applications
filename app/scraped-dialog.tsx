@@ -293,6 +293,8 @@ export default function ScrapedDialog() {
             profileUrls,
         }),
       });
+
+      console.log(JSON.stringify(response));
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
