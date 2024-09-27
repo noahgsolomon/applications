@@ -7,4 +7,7 @@ export const NextEnv = {
   COOKD_RESUME_SCREENER_ID: process.env.COOKD_RESUME_SCREENER_ID!,
   COOKD_SLUG_ID: process.env.COOKD_SLUG_ID!,
   GITHUB_TOKEN: process.env.GITHUB_TOKEN!,
+  SCRAPIN_API_KEY: process.env.SCRAPIN_API_KEY!,
+  WHOP_API_KEY: process.env.WHOP_API_KEY!,
+  WHOP_COOKIE: process.env.WHOP_COOKIE!,
 };

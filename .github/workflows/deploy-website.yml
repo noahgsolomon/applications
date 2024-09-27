@@ -47,3 +47,5 @@ jobs:
           COOKD_RESUME_SCREENER_ID: ${{ secrets.COOKD_RESUME_SCREENER_ID }}
           COOKD_SLUG_ID: ${{ secrets.COOKD_SLUG_ID }}
           GITHUB_TOKEN: ${{ secrets._GITHUB_TOKEN }}
+          WHOP_API_KEY: ${{ secrets.WHOP_API_KEY }}
+          WHOP_COOKIE: ${{ secrets.WHOP_COOKIE }}
