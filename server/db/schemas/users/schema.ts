@@ -44,6 +44,20 @@ export const pendingOutbound = pgTable("pendingOutbound", {
   logs: text("logs").notNull(),
 });
 
+export const pendingSimilarProfiles = pgTable("pending_similar_profiles", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  type: varchar("type", ["GITHUB", "LINKEDIN"]),
+  urls: json("urls").$type<string[]>().notNull(),
+  progress: integer("progress").default(0),
+  message: text("message"),
+  response: json("response").$type<any[]>(),
+  error: boolean("error").default(false),
+  success: boolean("success").default(false),
+});
+
 export const pendingCompanyOutbound = pgTable("pending_company_outbound", {
   id: varchar("id", { length: 255 })
     .notNull()
