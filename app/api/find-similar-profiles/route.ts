@@ -782,7 +782,7 @@ export async function POST(request: Request) {
     console.log(`Fetched ${allCandidates.length} candidates.`);
 
     // Process candidates in batches
-    const processBatchSize = 1000;
+    const processBatchSize = 100000;
     console.log(`Processing candidates in batches of ${processBatchSize}...`);
     for (let i = 0; i < allCandidates.length; i += processBatchSize) {
       const batch = allCandidates.slice(i, i + processBatchSize);
