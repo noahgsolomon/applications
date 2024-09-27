@@ -9,5 +9,13 @@ declare module "sst" {
       "type": "sst.aws.Nextjs"
       "url": string
     }
+    "findSimilarProfilesGithubQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "findSimilarProfilesLinkedinQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
   }
 }
