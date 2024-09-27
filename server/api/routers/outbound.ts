@@ -7,6 +7,7 @@ import {
   outboundCandidates,
   pendingCompanyOutbound,
   pendingOutbound,
+  pendingSimilarProfiles,
   relevantRoles,
 } from "@/server/db/schemas/users/schema";
 //@ts-ignore
@@ -155,6 +156,19 @@ async function querySimilarJobTitles(job: string) {
 }
 
 export const outboundRouter = createTRPCRouter({
+  findFirstPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
+    const pendingSimilarProfiles =
+      await ctx.db.query.pendingSimilarProfiles.findFirst();
+
+    return pendingSimilarProfiles;
+  }),
+  deletePendingSimilarProfiles: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input: { id } }) => {
+      await ctx.db
+        .delete(pendingSimilarProfiles)
+        .where(eq(pendingSimilarProfiles.id, id));
+    }),
   findFilteredCandidates: publicProcedure
     .input(
       z.object({
