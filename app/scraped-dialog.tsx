@@ -170,12 +170,19 @@ export default function ScrapedDialog() {
 
   const [manualUrls, setManualUrls] = useState("");
 
+  const normalizeUrl = (url: string) => {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      return `https://${url}`;
+    }
+    return url;
+  };
+
   const extractUrls = (
     content: string,
   ): { type: "linkedin" | "github"; urls: string[] } => {
     const linkedinRegex =
-      /https:\/\/(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
-    const githubRegex = /https:\/\/(?:www\.)?github\.com\/[a-zA-Z0-9-]+/g;
+      /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-%.]+/g;
+    const githubRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9-]+/g;
 
     const linkedinMatches = content.match(linkedinRegex) || [];
     const githubMatches = content.match(githubRegex) || [];
@@ -186,9 +193,8 @@ export default function ScrapedDialog() {
       return { type: "github", urls: [...new Set(githubMatches)] };
     }
 
-    return { type: "linkedin", urls: [] }; // Default to LinkedIn if no matches
+    return { type: "linkedin", urls: [] };
   };
-
   const handleManualUrlsChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
@@ -200,7 +206,6 @@ export default function ScrapedDialog() {
 
   const handleFileProcessing = async (file: File) => {
     setError("");
-    // Handle text and CSV files as before
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
@@ -288,13 +293,13 @@ export default function ScrapedDialog() {
             profileUrls,
         }),
       });
-
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`,
+        );
       }
-
       const data = await response.json();
-
       console.log("Similar profiles found:", data);
       if (profileType === "linkedin") {
         setCandidateMatches(data.similarProfiles);
@@ -306,23 +311,32 @@ export default function ScrapedDialog() {
         );
       }
       setCookdSorting(false);
-      setLoading(false);
       toast.success(`Similar ${profileType} profiles search completed`);
     } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(`Error finding similar ${profileType} profiles`);
+      }
+      toast.error(`Error finding similar ${profileType} profiles`);
+    } finally {
       setLoading(false);
-      toast.error(`Error finding similar ${profileType} profiles: ` + error);
     }
   };
 
   const handleProfileSearch = () => {
     if (profileUrls.length === 0) {
-      setError("No LinkedIn URLs loaded.");
+      setError("No LinkedIn or GitHub URLs loaded.");
       return;
     }
-    setLoading(true);
-    setError("");
-
-    findSimilarProfiles(profileUrls);
+    const normalizeUrl = (url: string) => {
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        return `https://${url}`;
+      }
+      return url;
+    };
+    const normalizedUrls = profileUrls.map(normalizeUrl);
+    findSimilarProfiles(normalizedUrls);
   };
 
   return (
@@ -597,14 +611,14 @@ export default function ScrapedDialog() {
                       candidateMatches.length - 1 && cookdSorting ? (
                       <Button
                         onClick={handleSort}
-                        disabled={sorting}
+                        disabled={sorting || true} // disabled indefinitely right now because waiting on custom signals
                         variant="classic"
                         style={{ cursor: "pointer" }}
                       >
                         {sorting ? (
                           <Loader className="size-4 animate-spin" />
                         ) : (
-                          "Sort"
+                          "Sort (disabled rn)"
                         )}
                       </Button>
                     ) : null}
@@ -634,7 +648,7 @@ export default function ScrapedDialog() {
                     {candidateMatches?.length === 0
                       ? "No matches 😲"
                       : (sorting
-                          ? sortedCandidateMatches ?? []
+                          ? (sortedCandidateMatches ?? [])
                           : candidateMatches
                         )
                           ?.sort((a, b) =>
