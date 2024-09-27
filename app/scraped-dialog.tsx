@@ -16,7 +16,6 @@ import {
   Avatar,
   ScrollArea,
   TextArea,
-  Select,
   Link,
 } from "frosted-ui";
 import {
@@ -45,6 +44,8 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
+import { Resource } from "sst";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const toPascalCase = (str: string) => {
   return str
@@ -52,6 +53,8 @@ const toPascalCase = (str: string) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 };
+
+const client = new SQSClient();
 
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
@@ -84,6 +87,39 @@ export default function ScrapedDialog() {
       })[]
     | null
   >(null);
+
+  const findFirstPendingSimilarProfilesQuery =
+    api.outbound.findFirstPendingSimilarProfiles.useQuery(undefined, {
+      refetchInterval: 5000,
+    });
+
+  useEffect(() => {
+    if (cookdSorting) {
+      setCookdSorting(false);
+    }
+    if (findFirstPendingSimilarProfilesQuery.data) {
+      setLoading(true);
+      setCandidateMatches(findFirstPendingSimilarProfilesQuery.data.response);
+    }
+    if (findFirstPendingSimilarProfilesQuery.data?.error) {
+      toast.error("Internal Server Error");
+
+      deletePendingSimilarProfilesMutation.mutate({
+        id: findFirstPendingSimilarProfilesQuery.data.id,
+      });
+
+      setLoading(false);
+    } else if (findFirstPendingSimilarProfilesQuery.data?.success) {
+      toast.success("Search completed!");
+      setLoading(false);
+    }
+  }, [findFirstPendingSimilarProfilesQuery.data]);
+
+  const deletePendingSimilarProfilesMutation =
+    api.outbound.deletePendingSimilarProfiles.useMutation({
+      onSuccess: (data) => {},
+      onError: () => {},
+    });
 
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
@@ -188,9 +224,15 @@ export default function ScrapedDialog() {
     const githubMatches = content.match(githubRegex) || [];
 
     if (linkedinMatches.length > 0) {
-      return { type: "linkedin", urls: [...new Set(linkedinMatches)] };
+      return {
+        type: "linkedin",
+        urls: [...new Set(linkedinMatches)].map(normalizeUrl),
+      };
     } else if (githubMatches.length > 0) {
-      return { type: "github", urls: [...new Set(githubMatches)] };
+      return {
+        type: "github",
+        urls: [...new Set(githubMatches)].map(normalizeUrl),
+      };
     }
 
     return { type: "linkedin", urls: [] };
@@ -278,51 +320,24 @@ export default function ScrapedDialog() {
 
   const findSimilarProfiles = async (profileUrls: string[]) => {
     setLoading(true);
-    try {
-      const endpoint =
-        profileType === "linkedin"
-          ? "/api/find-similar-profiles"
-          : "/api/find-similar-profiles-github";
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          [profileType === "linkedin" ? "profileUrls" : "githubUrls"]:
+    if (profileType === "linkedin") {
+      await client.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.findSimilarProfilesLinkedinQueue.url,
+          MessageBody: JSON.stringify({
             profileUrls,
+          }),
         }),
-      });
-
-      console.log(JSON.stringify(response));
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
-        );
-      }
-      const data = await response.json();
-      console.log("Similar profiles found:", data);
-      if (profileType === "linkedin") {
-        setCandidateMatches(data.similarProfiles);
-      } else {
-        setMatchedGithubUrls(
-          data.similarProfiles.map(
-            (profile: any) => `https://github.com/${profile.login}`,
-          ),
-        );
-      }
-      setCookdSorting(false);
-      toast.success(`Similar ${profileType} profiles search completed`);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError(`Error finding similar ${profileType} profiles`);
-      }
-      toast.error(`Error finding similar ${profileType} profiles`);
-    } finally {
-      setLoading(false);
+      );
+    } else {
+      await client.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.findSimilarProfilesGithubQueue.url,
+          MessageBody: JSON.stringify({
+            githubUrls: profileUrls,
+          }),
+        }),
+      );
     }
   };
 
