@@ -49,3 +49,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets._GITHUB_TOKEN }}
           WHOP_API_KEY: ${{ secrets.WHOP_API_KEY }}
           WHOP_COOKIE: ${{ secrets.WHOP_COOKIE }}
+          NEXT_PUBLIC_GITHUB_QUEUE_URL: ${{ secrets.NEXT_PUBLIC_GITHUB_QUEUE_URL }}
+          NEXT_PUBLIC_LINKEDIN_QUEUE_URL: ${{ secrets.NEXT_PUBLIC_LINKEDIN_QUEUE_URL }}

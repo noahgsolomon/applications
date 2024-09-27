@@ -10,6 +10,8 @@ export const NextEnv = {
   SCRAPIN_API_KEY: process.env.SCRAPIN_API_KEY!,
   WHOP_API_KEY: process.env.WHOP_API_KEY!,
   WHOP_COOKIE: process.env.WHOP_COOKIE!,
+  NEXT_PUBLIC_GITHUB_QUEUE_URL: process.env.NEXT_PUBLIC_GITHUB_QUEUE_URL!,
+  NEXT_PUBLIC_LINKEDIN_QUEUE_URL: process.env.NEXT_PUBLIC_LINKEDIN_QUEUE_URL!,
 };
 
 export const SubscriberEnv = {
@@ -24,4 +26,6 @@ export const SubscriberEnv = {
   SCRAPIN_API_KEY: process.env.SCRAPIN_API_KEY!,
   WHOP_API_KEY: process.env.WHOP_API_KEY!,
   WHOP_COOKIE: process.env.WHOP_COOKIE!,
+  NEXT_PUBLIC_GITHUB_QUEUE_URL: process.env.NEXT_PUBLIC_GITHUB_QUEUE_URL!,
+  NEXT_PUBLIC_LINKEDIN_QUEUE_URL: process.env.NEXT_PUBLIC_LINKEDIN_QUEUE_URL!,
 };

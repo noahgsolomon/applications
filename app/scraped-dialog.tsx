@@ -44,7 +44,6 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
-import { Resource } from "sst";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const toPascalCase = (str: string) => {
@@ -323,7 +322,7 @@ export default function ScrapedDialog() {
     if (profileType === "linkedin") {
       await client.send(
         new SendMessageCommand({
-          QueueUrl: Resource.findSimilarProfilesLinkedinQueue.url,
+          QueueUrl: process.env.NEXT_PUBLIC_LINKEDIN_QUEUE_URL,
           MessageBody: JSON.stringify({
             profileUrls,
           }),
@@ -332,7 +331,7 @@ export default function ScrapedDialog() {
     } else {
       await client.send(
         new SendMessageCommand({
-          QueueUrl: Resource.findSimilarProfilesGithubQueue.url,
+          QueueUrl: process.env.NEXT_PUBLIC_GITHUB_QUEUE_URL,
           MessageBody: JSON.stringify({
             githubUrls: profileUrls,
           }),
@@ -665,7 +664,7 @@ export default function ScrapedDialog() {
                     {candidateMatches?.length === 0
                       ? "No matches 😲"
                       : (sorting
-                          ? (sortedCandidateMatches ?? [])
+                          ? sortedCandidateMatches ?? []
                           : candidateMatches
                         )
                           ?.sort((a, b) =>
