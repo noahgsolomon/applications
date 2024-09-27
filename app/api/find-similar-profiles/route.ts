@@ -747,9 +747,25 @@ export async function POST(request: Request) {
       10_000,
     );
 
+    if (
+      skillMatches.length === 0 &&
+      featureMatches.length === 0 &&
+      jobTitleMatches.length === 0
+    ) {
+      console.error("All vector DB queries failed");
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Error querying vector database",
+        },
+        { status: 500 },
+      );
+    }
+
     const combinedScores: Record<string, number> = {};
 
     // Combine scores from vector DB matches
+    console.log("Combining scores from vector DB matches...");
     [skillMatches, featureMatches, jobTitleMatches].forEach((matches) => {
       matches.forEach((match) => {
         if (!inputCandidateIds.has(match.id)) {
@@ -758,14 +774,19 @@ export async function POST(request: Request) {
         }
       });
     });
+    console.log("Vector DB scores combined.");
 
     // Fetch all candidates
+    console.log("Fetching all candidates...");
     const allCandidates = await db.query.candidates.findMany();
+    console.log(`Fetched ${allCandidates.length} candidates.`);
 
     // Process candidates in batches
     const processBatchSize = 1000;
+    console.log(`Processing candidates in batches of ${processBatchSize}...`);
     for (let i = 0; i < allCandidates.length; i += processBatchSize) {
       const batch = allCandidates.slice(i, i + processBatchSize);
+      console.log(`Processing batch ${i / processBatchSize + 1}...`);
 
       batch.forEach((candidate) => {
         if (!inputCandidateIds.has(candidate.id)) {
@@ -810,9 +831,11 @@ export async function POST(request: Request) {
           }
         }
       });
+      console.log(`Batch ${i / processBatchSize + 1} processed.`);
     }
 
     // Sort and select top candidates
+    console.log("Sorting and selecting top candidates...");
     const topCandidates = allCandidates
       .filter((candidate) => !inputCandidateIds.has(candidate.id))
       .map((candidate) => {
@@ -830,6 +853,7 @@ export async function POST(request: Request) {
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 100);
+    console.log(`Selected ${topCandidates.length} top candidates.`);
 
     return NextResponse.json({
       success: true,
