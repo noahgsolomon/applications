@@ -253,27 +253,27 @@ export const outboundRouter = createTRPCRouter({
                 where: eq(candidates.id, candidate.id),
               });
               if (!candidateDB?.cookdReviewed) {
-                const response = await fetch("https://cookd.dev/api/score", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
-                    slugId: process.env.COOKD_SLUG_ID,
-                    apiKey: process.env.COOKD_API_KEY,
-                    webhookUrl:
-                      "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
-                    candidateJson: {
-                      id: candidate.id,
-                      first_name: candidate.linkedinData.firstName,
-                      last_name: candidate.linkedinData.lastName,
-                      ...candidate.linkedinData,
-                    },
-                  }),
-                });
-                const responseBody = await response.text();
-                console.log(responseBody);
+                // const response = await fetch("https://cookd.dev/api/score", {
+                //   method: "POST",
+                //   headers: {
+                //     "Content-Type": "application/json",
+                //   },
+                //   body: JSON.stringify({
+                //     resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
+                //     slugId: process.env.COOKD_SLUG_ID,
+                //     apiKey: process.env.COOKD_API_KEY,
+                //     webhookUrl:
+                //       "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
+                //     candidateJson: {
+                //       id: candidate.id,
+                //       first_name: candidate.linkedinData.firstName,
+                //       last_name: candidate.linkedinData.lastName,
+                //       ...candidate.linkedinData,
+                //     },
+                //   }),
+                // });
+                // const responseBody = await response.text();
+                // console.log(responseBody);
               }
             } catch (error) {
               console.error(`Error scoring candidate ${candidate.id}:`, error);
@@ -877,27 +877,27 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
               where: eq(candidates.id, candidate.id),
             });
             if (!candidateDB?.cookdReviewed) {
-              const response = await fetch("https://cookd.dev/api/score", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
-                  slugId: process.env.COOKD_SLUG_ID,
-                  apiKey: process.env.COOKD_API_KEY,
-                  webhookUrl:
-                    "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
-                  candidateJson: {
-                    id: candidate.id,
-                    first_name: candidate.linkedinData.firstName,
-                    last_name: candidate.linkedinData.lastName,
-                    ...candidate.linkedinData,
-                  },
-                }),
-              });
-              const responseBody = await response.text();
-              console.log(responseBody);
+              // const response = await fetch("https://cookd.dev/api/score", {
+              //   method: "POST",
+              //   headers: {
+              //     "Content-Type": "application/json",
+              //   },
+              //   body: JSON.stringify({
+              //     resumeScreenerId: process.env.COOKD_RESUME_SCREENER_ID,
+              //     slugId: process.env.COOKD_SLUG_ID,
+              //     apiKey: process.env.COOKD_API_KEY,
+              //     webhookUrl:
+              //       "https://d2ft34rr19twyp.cloudfront.net/api/webhook",
+              //     candidateJson: {
+              //       id: candidate.id,
+              //       first_name: candidate.linkedinData.firstName,
+              //       last_name: candidate.linkedinData.lastName,
+              //       ...candidate.linkedinData,
+              //     },
+              //   }),
+              // });
+              // const responseBody = await response.text();
+              // console.log(responseBody);
             }
           } catch (error) {
             console.error(`Error scoring candidate ${candidate.id}:`, error);
