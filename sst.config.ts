@@ -10,29 +10,9 @@ export default $config({
     };
   },
   async run() {
-    //
-    //
-    // const hono = new sst.aws.Function("PoliticalBlogHono", {
-    //   environment: HonoEnv,
-    //   url: true,
-    //   handler: "src/hono.handler",
-    // });
-
-    // const queue = new sst.aws.Queue("WhopQueue");
-
-    // queue.subscribe({
-    //   handler: "src/subscriber.handler",
-    //   environment: SubscriberEnv,
-    //   timeout: "10 minutes",
-    // });
-
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
-      // link: [queue],
+      timeout: "5 minutes",
     });
-
-    // return {
-    //   queue: queue.url,
-    // };
   },
 });
