@@ -553,20 +553,23 @@ async function insertCandidate(profileData: any) {
   const candidateId = uuid();
 
   // Insert into database
-  await db.insert(schema.candidates).values({
-    id: candidateId,
-    url: profileData.linkedInUrl as string,
-    linkedinData: profileData,
-    miniSummary,
-    summary,
-    topTechnologies: tech,
-    topFeatures: features,
-    jobTitles,
-    isEngineer,
-    workedInBigTech,
-    livesNearBrooklyn,
-    createdAt: new Date(),
-  });
+  await db
+    .insert(schema.candidates)
+    .values({
+      id: candidateId,
+      url: profileData.linkedInUrl as string,
+      linkedinData: profileData,
+      miniSummary,
+      summary,
+      topTechnologies: tech,
+      topFeatures: features,
+      jobTitles,
+      isEngineer,
+      workedInBigTech,
+      livesNearBrooklyn,
+      createdAt: new Date(),
+    })
+    .onConflictDoNothing();
 
   console.log(
     `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
@@ -646,31 +649,43 @@ export async function POST(request: Request) {
     console.log("Starting findSimilarProfiles");
 
     const inputCandidates: InferSelectModel<typeof schema.candidates>[] = [];
-    for (const profileUrl of input.profileUrls) {
-      let candidate = await db.query.candidates.findFirst({
-        where: eq(candidates.url, profileUrl),
-      });
+    const batchSize = 50;
 
-      if (!candidate) {
-        console.log(
-          `Candidate not found for URL: ${profileUrl}. Scraping and inserting.`,
-        );
-        const scrapedData = await scrapeLinkedInProfile(profileUrl);
-        if (scrapedData && scrapedData.success) {
-          const candidateId = await insertCandidate(scrapedData.person);
-          candidate = await db.query.candidates.findFirst({
-            where: eq(candidates.id, candidateId),
+    for (let i = 0; i < input.profileUrls.length; i += batchSize) {
+      const batch = input.profileUrls.slice(i, i + batchSize);
+      const batchResults = await Promise.all(
+        batch.map(async (profileUrl) => {
+          let candidate = await db.query.candidates.findFirst({
+            where: eq(candidates.url, profileUrl),
           });
-        } else {
-          console.error(
-            `Failed to scrape or insert candidate for URL: ${profileUrl}`,
-          );
-        }
-      }
 
-      if (candidate) {
-        inputCandidates.push(candidate);
-      }
+          if (!candidate) {
+            console.log(
+              `Candidate not found for URL: ${profileUrl}. Scraping and inserting.`,
+            );
+            const scrapedData = await scrapeLinkedInProfile(profileUrl);
+            if (scrapedData && scrapedData.success) {
+              const candidateId = await insertCandidate(scrapedData.person);
+              candidate = await db.query.candidates.findFirst({
+                where: eq(candidates.id, candidateId),
+              });
+            } else {
+              console.error(
+                `Failed to scrape or insert candidate for URL: ${profileUrl}`,
+              );
+            }
+          }
+
+          return candidate;
+        }),
+      );
+
+      inputCandidates.push(
+        ...batchResults.filter(
+          (c): c is InferSelectModel<typeof schema.candidates> =>
+            c !== undefined,
+        ),
+      );
     }
 
     if (inputCandidates.length === 0) {
@@ -748,9 +763,9 @@ export async function POST(request: Request) {
     const allCandidates = await db.query.candidates.findMany();
 
     // Process candidates in batches
-    const batchSize = 1000;
-    for (let i = 0; i < allCandidates.length; i += batchSize) {
-      const batch = allCandidates.slice(i, i + batchSize);
+    const processBatchSize = 1000;
+    for (let i = 0; i < allCandidates.length; i += processBatchSize) {
+      const batch = allCandidates.slice(i, i + processBatchSize);
 
       batch.forEach((candidate) => {
         if (!inputCandidateIds.has(candidate.id)) {
