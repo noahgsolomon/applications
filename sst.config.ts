@@ -12,7 +12,6 @@ export default $config({
   async run() {
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
-      timeout: "5 minutes",
     });
   },
 });
