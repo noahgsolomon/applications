@@ -93,23 +93,41 @@ export default function ScrapedDialog() {
     if (cookdSorting) {
       setCookdSorting(false);
     }
-    if (findFirstPendingSimilarProfilesQuery.data) {
+    console.log("here it is" + findFirstPendingSimilarProfilesQuery.data);
+    if (
+      findFirstPendingSimilarProfilesQuery.data &&
+      findFirstPendingSimilarProfilesQuery.data[0]
+    ) {
       setLoading(true);
-      setCandidateMatches(findFirstPendingSimilarProfilesQuery.data.response);
+      setCandidateMatches(
+        findFirstPendingSimilarProfilesQuery.data[0].response,
+      );
     }
-    if (findFirstPendingSimilarProfilesQuery.data?.error) {
+    if (
+      findFirstPendingSimilarProfilesQuery.data &&
+      findFirstPendingSimilarProfilesQuery.data[0] &&
+      findFirstPendingSimilarProfilesQuery.data[0]?.error
+    ) {
       toast.error("Internal Server Error");
 
       deletePendingSimilarProfilesMutation.mutate({
-        id: findFirstPendingSimilarProfilesQuery.data.id,
+        id: findFirstPendingSimilarProfilesQuery.data[0].id,
       });
 
       setLoading(false);
-    } else if (findFirstPendingSimilarProfilesQuery.data?.success) {
+    } else if (
+      findFirstPendingSimilarProfilesQuery.data &&
+      findFirstPendingSimilarProfilesQuery.data[0] &&
+      findFirstPendingSimilarProfilesQuery.data[0]?.success
+    ) {
       toast.success("Search completed!");
       setLoading(false);
     }
-  }, [findFirstPendingSimilarProfilesQuery.data]);
+  }, [
+    findFirstPendingSimilarProfilesQuery.data,
+    findFirstPendingSimilarProfilesQuery.isFetched,
+    findFirstPendingSimilarProfilesQuery.status,
+  ]);
 
   const deletePendingSimilarProfilesMutation =
     api.outbound.deletePendingSimilarProfiles.useMutation({
@@ -119,7 +137,13 @@ export default function ScrapedDialog() {
 
   const insertIntoQueueMutation = api.outbound.insertIntoQueue.useMutation({
     onSuccess: (data) => {
-      toast.success("Message sent successfully");
+      if (data?.success) {
+        toast.success("Message sent successfully");
+      } else {
+        setLoading(false);
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message");
+      }
     },
     onError: (error) => {
       setLoading(false);

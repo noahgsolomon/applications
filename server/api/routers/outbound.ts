@@ -153,9 +153,15 @@ export const outboundRouter = createTRPCRouter({
         profileType: z.enum(["linkedin", "github"]),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { payload, profileType } = input;
 
+      const similarProfileQueries =
+        await ctx.db.query.pendingSimilarProfiles.findMany();
+
+      if (similarProfileQueries.length > 0) {
+        return;
+      }
       const sqsClient = new SQSClient({ region: "us-east-1" });
 
       const queueUrl =
@@ -185,8 +191,11 @@ export const outboundRouter = createTRPCRouter({
       }
     }),
   findFirstPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
-    const pendingSimilarProfiles =
-      await ctx.db.query.pendingSimilarProfiles.findFirst();
+    const pendingSimilarProfiles = await ctx.db
+      .select()
+      .from(schema.pendingSimilarProfiles);
+
+    console.log("pendingSimilarProfiles", pendingSimilarProfiles);
 
     return pendingSimilarProfiles;
   }),
