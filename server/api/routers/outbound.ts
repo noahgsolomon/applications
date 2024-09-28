@@ -13,22 +13,12 @@ import {
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  exists,
-  gt,
-  inArray,
-  InferSelectModel,
-  or,
-} from "drizzle-orm";
+import { desc, eq, exists, inArray, InferSelectModel, or } from "drizzle-orm";
 import { InferResultType } from "@/utils/infer";
 import { jsonArrayContainsAny } from "@/lib/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
-
-// const client = new SQSClient();
+import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import { Resource } from "sst";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -156,6 +146,44 @@ async function querySimilarJobTitles(job: string) {
 }
 
 export const outboundRouter = createTRPCRouter({
+  insertIntoQueue: publicProcedure
+    .input(
+      z.object({
+        payload: z.any(),
+        profileType: z.enum(["linkedin", "github"]),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { payload, profileType } = input;
+
+      const sqsClient = new SQSClient({ region: "us-east-1" });
+
+      const queueUrl =
+        profileType === "linkedin"
+          ? Resource.findSimilarProfilesLinkedinQueue.url
+          : Resource.findSimilarProfilesLinkedinQueue.url;
+
+      if (!queueUrl) {
+        throw new Error("Queue URL not configured");
+      }
+
+      try {
+        const command = new SendMessageCommand({
+          QueueUrl: queueUrl,
+          MessageBody: JSON.stringify(payload),
+        });
+
+        const response = await sqsClient.send(command);
+
+        return {
+          success: true,
+          messageId: response.MessageId,
+        };
+      } catch (error) {
+        console.error("Error sending message to SQS:", error);
+        throw new Error("Error sending message to SQS");
+      }
+    }),
   findFirstPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
     const pendingSimilarProfiles =
       await ctx.db.query.pendingSimilarProfiles.findFirst();

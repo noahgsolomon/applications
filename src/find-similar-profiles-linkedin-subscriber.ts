@@ -12,10 +12,14 @@ import OpenAI from "openai";
 import axios from "axios";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
+import dotenv from "dotenv";
+
+dotenv.config({
+  path: "../.env",
+});
 
 const pool = new Pool({ connectionString: process.env.DB_URL });
-
-const db = drizzle(pool, {
+export const db = drizzle(pool, {
   schema,
 });
 

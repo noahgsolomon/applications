@@ -44,7 +44,6 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const toPascalCase = (str: string) => {
   return str
@@ -52,8 +51,6 @@ const toPascalCase = (str: string) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 };
-
-const client = new SQSClient();
 
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
@@ -119,6 +116,18 @@ export default function ScrapedDialog() {
       onSuccess: (data) => {},
       onError: () => {},
     });
+
+  const insertIntoQueueMutation = api.outbound.insertIntoQueue.useMutation({
+    onSuccess: (data) => {
+      setLoading(false);
+      toast.success("Message sent successfully");
+    },
+    onError: (error) => {
+      setLoading(false);
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    },
+  });
 
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
@@ -319,25 +328,17 @@ export default function ScrapedDialog() {
 
   const findSimilarProfiles = async (profileUrls: string[]) => {
     setLoading(true);
-    if (profileType === "linkedin") {
-      await client.send(
-        new SendMessageCommand({
-          QueueUrl: process.env.NEXT_PUBLIC_LINKEDIN_QUEUE_URL,
-          MessageBody: JSON.stringify({
-            profileUrls,
-          }),
-        }),
-      );
-    } else {
-      await client.send(
-        new SendMessageCommand({
-          QueueUrl: process.env.NEXT_PUBLIC_GITHUB_QUEUE_URL,
-          MessageBody: JSON.stringify({
-            githubUrls: profileUrls,
-          }),
-        }),
-      );
-    }
+
+    const payload =
+      profileType === "linkedin"
+        ? { profileUrls }
+        : { githubUrls: profileUrls };
+
+    insertIntoQueueMutation.mutate({
+      payload,
+      profileType,
+    });
+    findFirstPendingSimilarProfilesQuery.refetch();
   };
 
   const handleProfileSearch = () => {
