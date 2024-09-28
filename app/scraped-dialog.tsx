@@ -54,9 +54,9 @@ const toPascalCase = (str: string) => {
 
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
-  const [loading, setLoading] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(0);
+  const loading = loadingCount > 0;
   const [sorting, setSorting] = useState(false);
-  const [searchMode, setSearchMode] = useState<"query" | "profile">("query");
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<string[]>([]);
@@ -98,7 +98,7 @@ export default function ScrapedDialog() {
       getPendingSimilarProfilesQuery.data &&
       getPendingSimilarProfilesQuery.data[0]
     ) {
-      setLoading(true);
+      setLoadingCount((prev) => prev + 1);
     }
     if (
       getPendingSimilarProfilesQuery.data &&
@@ -111,7 +111,7 @@ export default function ScrapedDialog() {
         id: getPendingSimilarProfilesQuery.data[0].id,
       });
 
-      setLoading(false);
+      setLoadingCount((prev) => prev - 1);
     } else if (
       getPendingSimilarProfilesQuery.data &&
       getPendingSimilarProfilesQuery.data[0] &&
@@ -120,7 +120,7 @@ export default function ScrapedDialog() {
       toast.success("Search completed!");
 
       setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
-      setLoading(false);
+      setLoadingCount((prev) => prev - 1);
 
       deletePendingSimilarProfilesMutation.mutate({
         id: getPendingSimilarProfilesQuery.data[0].id,
@@ -140,16 +140,16 @@ export default function ScrapedDialog() {
 
   const insertIntoQueueMutation = api.outbound.insertIntoQueue.useMutation({
     onSuccess: (data) => {
+      setLoadingCount((prev) => prev - 1);
       if (data?.success) {
         toast.success("Message sent successfully");
       } else {
-        setLoading(false);
         console.error("Error sending message:", error);
         toast.error("Failed to send message");
       }
     },
     onError: (error) => {
-      setLoading(false);
+      setLoadingCount((prev) => prev - 1);
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
     },
@@ -161,18 +161,15 @@ export default function ScrapedDialog() {
         console.log(data);
         setCandidateMatches(data.candidates);
         setAllMatchingSkills(data.skills.map((s) => s.technology));
-        setLoading(false);
+        setLoadingCount((prev) => prev - 1);
         toast.success("outbound search completed");
       },
       onError: () => {
         setOpen(false);
-        setLoading(false);
+        setLoadingCount((prev) => prev - 1);
         toast.error("Internal server error");
       },
     });
-
-  // const sendCookdScoringRequestMutation =
-  //   api.outbound.sendCookdScoringRequest.useMutation({});
 
   const pollCookdScoringRequestQuery =
     api.outbound.pollCookdScoringRequest.useQuery(
@@ -206,7 +203,7 @@ export default function ScrapedDialog() {
 
   const companyFilterMutation = api.outbound.companyFilter.useMutation({
     onSuccess: (data: CompanyFilterReturnType) => {
-      setLoading(false);
+      setLoadingCount((prev) => prev - 1);
       if (!data.valid) {
         setError(data.message);
       }
@@ -220,6 +217,9 @@ export default function ScrapedDialog() {
         setFilters(data);
       }
     },
+    onError: () => {
+      setLoadingCount((prev) => prev - 1);
+    },
   });
 
   const handleFilter = () => {
@@ -227,7 +227,7 @@ export default function ScrapedDialog() {
       setError("Search query cannot be empty.");
       return;
     }
-    setLoading(true);
+    setLoadingCount((prev) => prev + 1);
 
     setError("");
     companyFilterMutation.mutate({
@@ -316,15 +316,13 @@ export default function ScrapedDialog() {
   };
 
   const handleSearch = () => {
-    setLoading(true);
+    setLoadingCount((prev) => prev + 1);
 
     setError("");
     findFilteredCandidatesMutation.mutate({
       query,
       searchInternet: false,
-      relevantRoleId:
-        // filters?.relevantRole?.id,
-        undefined,
+      relevantRoleId: undefined,
       companyIds: filters?.companies.map((company) => company.id) ?? [],
       job: filters?.job,
       skills: filters?.skills,
@@ -353,7 +351,7 @@ export default function ScrapedDialog() {
   };
 
   const findSimilarProfiles = async (profileUrls: string[]) => {
-    setLoading(true);
+    setError("");
 
     const payload =
       profileType === "linkedin"
@@ -372,14 +370,9 @@ export default function ScrapedDialog() {
       setError("No LinkedIn or GitHub URLs loaded.");
       return;
     }
-    const normalizeUrl = (url: string) => {
-      if (!url.startsWith("http://") && !url.startsWith("https://")) {
-        return `https://${url}`;
-      }
-      return url;
-    };
-    const normalizedUrls = profileUrls.map(normalizeUrl);
-    findSimilarProfiles(normalizedUrls);
+    setError("");
+    setLoadingCount((prev) => prev + 1);
+    findSimilarProfiles(profileUrls);
   };
 
   return (
@@ -415,178 +408,145 @@ export default function ScrapedDialog() {
             Enter the details for the candidate search.
           </DialogDescription>
           <Flex direction="column" gap="3">
-            <Flex gap="3" justify="start" mt="4">
-              <Button
-                variant={searchMode === "query" ? "soft" : "surface"}
-                color={searchMode === "query" ? "red" : "gray"}
-                onClick={() => setSearchMode("query")}
-              >
-                Query Search
-              </Button>
-              <Button
-                color={searchMode === "profile" ? "red" : "gray"}
-                variant={searchMode === "profile" ? "soft" : "surface"}
-                onClick={() => setSearchMode("profile")}
-              >
-                Profile Search
-              </Button>
-            </Flex>
-            {searchMode === "query" ? (
-              <label>
-                <Text as="div" mb="1" size="2" weight="bold">
-                  Search Query
-                </Text>
-                <TextFieldInput
-                  placeholder="Enter search query"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                {filters && filters.valid && filters.companies.length > 0 && (
-                  <div className="pt-2 flex flex-wrap gap-1">
-                    {filters.companies.map((company) => (
-                      <Avatar
-                        key={company.id}
-                        color="blue"
-                        size="2"
-                        fallback={company.name.charAt(0).toUpperCase()}
-                        src={company.logo ?? ""}
-                      />
-                    ))}
-                    {filters.job !== "" && (
-                      <Badge
-                        variant="surface"
-                        color="amber"
-                        className="h-[33px]"
-                      >
-                        <Building2 className="size-4" />
-                        <Text>{toPascalCase(filters.job)}</Text>
-                      </Badge>
-                    )}
-                    {filters.skills.map((skill: string) => (
-                      <Badge
-                        key={skill}
-                        variant="surface"
-                        color="blue"
-                        className="h-[33px]"
-                      >
-                        <Text>{toPascalCase(skill)}</Text>
-                      </Badge>
-                    ))}
-                    {filters.skills.length > 0 && (
-                      <Badge
-                        variant="surface"
-                        color={filters.Or ? "yellow" : "red"}
-                        className="h-[33px]"
-                      >
-                        <Text>{filters.Or ? "OR" : "AND"}</Text>
-                      </Badge>
-                    )}
-
-                    <Badge
-                      style={{ cursor: "pointer" }}
-                      className={`h-[33px]`}
-                      variant="surface"
-                      color={nearBrooklyn ? "green" : "red"}
-                      onClick={() => handleToggle("nearBrooklyn")}
-                    >
-                      {nearBrooklyn ? (
-                        <Check className="size-4 text-green-500" />
-                      ) : (
-                        <X className="size-4 text-red-500" />
-                      )}
-                      <Text>Near Brooklyn</Text>
+            <label>
+              <Text as="div" mb="1" size="2" weight="bold">
+                Search Query
+              </Text>
+              <TextFieldInput
+                placeholder="Enter search query"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {filters && filters.valid && filters.companies.length > 0 && (
+                <div className="pt-2 flex flex-wrap gap-1">
+                  {filters.companies.map((company) => (
+                    <Avatar
+                      key={company.id}
+                      color="blue"
+                      size="2"
+                      fallback={company.name.charAt(0).toUpperCase()}
+                      src={company.logo ?? ""}
+                    />
+                  ))}
+                  {filters.job !== "" && (
+                    <Badge variant="surface" color="amber" className="h-[33px]">
+                      <Building2 className="size-4" />
+                      <Text>{toPascalCase(filters.job)}</Text>
                     </Badge>
-
+                  )}
+                  {filters.skills.map((skill: string) => (
                     <Badge
-                      style={{ cursor: "pointer" }}
-                      className={`h-[33px]`}
+                      key={skill}
                       variant="surface"
-                      color={"gray"}
-                      onClick={() => setFilters(null)}
+                      color="blue"
+                      className="h-[33px]"
                     >
-                      <Text>Clear Filters</Text>
+                      <Text>{toPascalCase(skill)}</Text>
                     </Badge>
-                  </div>
-                )}
-              </label>
-            ) : (
-              <>
-                <Text as="div" mb="1" size="2" weight="bold">
-                  Enter Linkedin or Github URLs (not both)
-                </Text>
-                <Text color="red" as="div" mb="1" size="1" weight="bold">
-                  If it gives an error, refresh the page and try again.
-                </Text>
-                <TextArea
-                  placeholder="Paste LinkedIn URLs here (one per line)"
-                  value={manualUrls}
-                  onChange={handleManualUrlsChange}
-                  style={{ minHeight: "100px" }}
-                />
-                <Text
-                  as="div"
-                  mb="1"
-                  size="2"
-                  weight="bold"
-                  style={{ marginTop: "1rem" }}
-                >
-                  Or Upload File
-                </Text>
-                <div
-                  className={`border-dashed p-4 py-6 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
-                  flex flex-col gap-2 items-center justify-center opacity-60`}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onDrop={handleFileDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="size-6" />
-                  <p className={`text-sm text-center`}>
-                    {
-                      "Drag and drop your file here (.txt, .csv)\nor click to upload"
-                    }
-                  </p>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    accept=".txt,.csv"
-                    style={{ display: "none" }}
-                  />
-                </div>
-                {error && (
-                  <Text
-                    as="div"
-                    size="2"
-                    color="red"
-                    style={{ marginTop: "10px" }}
+                  ))}
+                  {/* {filters.skills.length > 0 && ( */}
+                  {/*   <Badge */}
+                  {/*     variant="surface" */}
+                  {/*     color={filters.Or ? "yellow" : "red"} */}
+                  {/*     className="h-[33px]" */}
+                  {/*   > */}
+                  {/*     <Text>{filters.Or ? "OR" : "AND"}</Text> */}
+                  {/*   </Badge> */}
+                  {/* )} */}
+
+                  <Badge
+                    style={{ cursor: "pointer" }}
+                    className={`h-[33px]`}
+                    variant="surface"
+                    color={nearBrooklyn ? "green" : "red"}
+                    onClick={() => handleToggle("nearBrooklyn")}
                   >
-                    {error}
-                  </Text>
-                )}
-                {profileUrls.length > 0 && (
-                  <div className="mt-4">
-                    <Text as="div" size="2" style={{ marginBottom: "10px" }}>
-                      {profileUrls.length} unique{" "}
-                      {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
-                      loaded
-                    </Text>
-                    <div className="flex flex-wrap gap-2">
-                      {profileUrls.map((url, index) => (
-                        <Badge
-                          key={index}
-                          variant="surface"
-                          color={profileType === "linkedin" ? "blue" : "green"}
-                        >
-                          {url.split("/").pop()}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
+                    {nearBrooklyn ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : (
+                      <X className="size-4 text-red-500" />
+                    )}
+                    <Text>Near Brooklyn</Text>
+                  </Badge>
+
+                  <Badge
+                    style={{ cursor: "pointer" }}
+                    className={`h-[33px]`}
+                    variant="surface"
+                    color={"gray"}
+                    onClick={() => setFilters(null)}
+                  >
+                    <Text>Clear Filters</Text>
+                  </Badge>
+                </div>
+              )}
+            </label>
+            <Text as="div" mb="1" size="2" weight="bold">
+              Enter LinkedIn or GitHub URLs (not both)
+            </Text>
+            <TextArea
+              placeholder="Paste LinkedIn URLs here (one per line)"
+              value={manualUrls}
+              onChange={handleManualUrlsChange}
+              style={{ minHeight: "100px" }}
+            />
+            <Text
+              as="div"
+              mb="1"
+              size="2"
+              weight="bold"
+              style={{ marginTop: "1rem" }}
+            >
+              Or Upload File
+            </Text>
+            <div
+              className={`border-dashed p-4 py-6 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
+                      flex flex-col gap-2 items-center justify-center opacity-60`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="size-6" />
+              <p className={`text-sm text-center`}>
+                {
+                  "Drag and drop your file here (.txt, .csv)\nor click to upload"
+                }
+              </p>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept=".txt,.csv"
+                style={{ display: "none" }}
+              />
+            </div>
+            {error && (
+              <Text as="div" size="2" color="red" style={{ marginTop: "10px" }}>
+                {error}
+              </Text>
+            )}
+            {profileUrls.length > 0 && (
+              <div className="mt-4">
+                <Text as="div" size="2" style={{ marginBottom: "10px" }}>
+                  {profileUrls.length} unique{" "}
+                  {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
+                  loaded
+                </Text>
+                <div className="flex flex-wrap gap-2">
+                  {profileUrls.map((url, index) => (
+                    <Badge
+                      key={index}
+                      variant="surface"
+                      color={profileType === "linkedin" ? "blue" : "green"}
+                    >
+                      {url.split("/").pop()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             )}
           </Flex>
           <Flex gap="3" justify="end" mt="4">
@@ -598,38 +558,37 @@ export default function ScrapedDialog() {
             <Button
               disabled={
                 loading ||
-                (searchMode === "profile" && profileUrls.length === 0)
+                (query.trim() === "" && profileUrls.length === 0 && !filters)
               }
               variant="classic"
               onClick={() => {
-                console.log(searchMode);
-                if (searchMode === "query") {
-                  if (
-                    filters?.valid &&
-                    filters.companies.length > 0 &&
-                    query === filters.query
-                  ) {
+                if (loading) return;
+                if (
+                  query.trim() === "" &&
+                  profileUrls.length === 0 &&
+                  !filters
+                ) {
+                  setError("Please enter a search query or profile URLs.");
+                  return;
+                }
+                setError("");
+                if (query || filters || profileUrls.length > 0) {
+                  if (filters) {
                     handleSearch();
-                  } else {
+                  } else if (profileUrls.length > 0) {
+                    handleProfileSearch();
+                  } else if (query) {
                     handleFilter();
                   }
-                } else {
-                  handleProfileSearch();
                 }
               }}
             >
               {loading ? (
                 <Loader className="size-4 animate-spin" />
-              ) : searchMode === "query" ? (
-                filters?.valid &&
-                filters.companies.length > 0 &&
-                query === filters.query ? (
-                  "Search"
-                ) : (
-                  "Filter"
-                )
+              ) : filters || profileUrls.length > 0 ? (
+                "Search"
               ) : (
-                "Find Similar Profiles"
+                "Filter"
               )}
             </Button>
           </Flex>
