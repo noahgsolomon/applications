@@ -99,7 +99,6 @@ export default function ScrapedDialog() {
       getPendingSimilarProfilesQuery.data[0]
     ) {
       setLoading(true);
-      setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
     }
     if (
       getPendingSimilarProfilesQuery.data &&
@@ -119,7 +118,13 @@ export default function ScrapedDialog() {
       getPendingSimilarProfilesQuery.data[0]?.success
     ) {
       toast.success("Search completed!");
+
+      setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
       setLoading(false);
+
+      deletePendingSimilarProfilesMutation.mutate({
+        id: getPendingSimilarProfilesQuery.data[0].id,
+      });
     }
   }, [
     getPendingSimilarProfilesQuery.data,
