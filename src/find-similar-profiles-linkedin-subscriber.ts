@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "../server/db/schemas/users/schema";
 import { z } from "zod";
@@ -13,6 +13,9 @@ import axios from "axios";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 
 dotenv.config({
   path: "../.env",
