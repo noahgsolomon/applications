@@ -10,6 +10,7 @@ import {
   pendingSimilarProfiles,
   relevantRoles,
 } from "@/server/db/schemas/users/schema";
+import * as schema from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
