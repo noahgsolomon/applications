@@ -26,12 +26,14 @@ export default $config({
     findSimilarProfilesLinkedinQueue.subscribe({
       handler: "src/find-similar-profiles-linkedin-subscriber.handler",
       environment: SubscriberEnv,
+      memory: "10240 MB",
       timeout: "10 minutes",
     });
 
     findSimilarProfilesGithubQueue.subscribe({
       handler: "src/find-similar-profiles-github-subscriber.handler",
       environment: SubscriberEnv,
+      memory: "10240 MB",
       timeout: "10 minutes",
     });
 

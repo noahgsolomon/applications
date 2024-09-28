@@ -811,7 +811,7 @@ export async function handler(event: any) {
     console.log(`Fetched ${allCandidates.length} candidates.`);
 
     // Process candidates in batches
-    const processBatchSize = 100000;
+    const processBatchSize = 10000;
     console.log(`Processing candidates in batches of ${processBatchSize}...`);
     for (let i = 0; i < allCandidates.length; i += processBatchSize) {
       const batch = allCandidates.slice(i, i + processBatchSize);
