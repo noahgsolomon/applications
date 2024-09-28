@@ -7,7 +7,6 @@ import {
   outboundCandidates,
   pendingCompanyOutbound,
   pendingOutbound,
-  pendingSimilarProfiles,
   relevantRoles,
 } from "@/server/db/schemas/users/schema";
 import * as schema from "@/server/db/schemas/users/schema";
@@ -157,8 +156,7 @@ export const outboundRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { payload, profileType } = input;
 
-      const similarProfileQueries =
-        await ctx.db.query.pendingSimilarProfiles.findMany();
+      const similarProfileQueries = await ctx.db.query.profileQueue.findMany();
 
       if (similarProfileQueries.length > 0) {
         return;
@@ -191,11 +189,13 @@ export const outboundRouter = createTRPCRouter({
         throw new Error("Error sending message to SQS");
       }
     }),
-  findFirstPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
+  getPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
+    console.log("FIRST");
     const pendingSimilarProfiles = await ctx.db
       .select()
-      .from(schema.pendingSimilarProfiles);
+      .from(schema.profileQueue);
 
+    console.log("I AM HERE");
     console.log("pendingSimilarProfiles", pendingSimilarProfiles);
 
     return pendingSimilarProfiles;
@@ -204,8 +204,8 @@ export const outboundRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input: { id } }) => {
       await ctx.db
-        .delete(pendingSimilarProfiles)
-        .where(eq(pendingSimilarProfiles.id, id));
+        .delete(schema.profileQueue)
+        .where(eq(schema.profileQueue.id, id));
     }),
   findFilteredCandidates: publicProcedure
     .input(

@@ -14,6 +14,20 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+export const profileQueue = pgTable("profile_queue", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  type: varchar("type", { length: 255 }).notNull(),
+  urls: json("urls").$type<string[]>().notNull(),
+  progress: integer("progress").default(0),
+  message: text("message"),
+  response: json("response").$type<any[]>(),
+  error: boolean("error").default(false),
+  success: boolean("success").default(false),
+});
+
 export const users = pgTable("user", {
   id: varchar("id", { length: 255 })
     .notNull()
@@ -42,20 +56,6 @@ export const pendingOutbound = pgTable("pendingOutbound", {
   company: varchar("company", { length: 255 }).notNull(),
   booleanSearch: text("boolean_search").notNull(),
   logs: text("logs").notNull(),
-});
-
-export const pendingSimilarProfiles = pgTable("pending_similar_profiles", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  type: varchar("type", { length: 255 }).notNull(),
-  urls: json("urls").$type<string[]>().notNull(),
-  progress: integer("progress").default(0),
-  message: text("message"),
-  response: json("response").$type<any[]>(),
-  error: boolean("error").default(false),
-  success: boolean("success").default(false),
 });
 
 export const pendingCompanyOutbound = pgTable("pending_company_outbound", {
@@ -371,7 +371,7 @@ export const whopTwitterFollowers = pgTable(
   },
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
-    unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
+    // unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
   }),
 );
 
@@ -391,6 +391,6 @@ export const whopTwitterFollowing = pgTable(
   },
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
-    unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
+    // unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
   }),
 );

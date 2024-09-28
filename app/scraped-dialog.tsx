@@ -84,8 +84,8 @@ export default function ScrapedDialog() {
     | null
   >(null);
 
-  const findFirstPendingSimilarProfilesQuery =
-    api.outbound.findFirstPendingSimilarProfiles.useQuery(undefined, {
+  const getPendingSimilarProfilesQuery =
+    api.outbound.getPendingSimilarProfiles.useQuery(undefined, {
       refetchInterval: 5000,
     });
 
@@ -93,40 +93,38 @@ export default function ScrapedDialog() {
     if (cookdSorting) {
       setCookdSorting(false);
     }
-    console.log("here it is" + findFirstPendingSimilarProfilesQuery.data);
+    console.log("here it is" + getPendingSimilarProfilesQuery.data);
     if (
-      findFirstPendingSimilarProfilesQuery.data &&
-      findFirstPendingSimilarProfilesQuery.data[0]
+      getPendingSimilarProfilesQuery.data &&
+      getPendingSimilarProfilesQuery.data[0]
     ) {
       setLoading(true);
-      setCandidateMatches(
-        findFirstPendingSimilarProfilesQuery.data[0].response,
-      );
+      setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
     }
     if (
-      findFirstPendingSimilarProfilesQuery.data &&
-      findFirstPendingSimilarProfilesQuery.data[0] &&
-      findFirstPendingSimilarProfilesQuery.data[0]?.error
+      getPendingSimilarProfilesQuery.data &&
+      getPendingSimilarProfilesQuery.data[0] &&
+      getPendingSimilarProfilesQuery.data[0]?.error
     ) {
       toast.error("Internal Server Error");
 
       deletePendingSimilarProfilesMutation.mutate({
-        id: findFirstPendingSimilarProfilesQuery.data[0].id,
+        id: getPendingSimilarProfilesQuery.data[0].id,
       });
 
       setLoading(false);
     } else if (
-      findFirstPendingSimilarProfilesQuery.data &&
-      findFirstPendingSimilarProfilesQuery.data[0] &&
-      findFirstPendingSimilarProfilesQuery.data[0]?.success
+      getPendingSimilarProfilesQuery.data &&
+      getPendingSimilarProfilesQuery.data[0] &&
+      getPendingSimilarProfilesQuery.data[0]?.success
     ) {
       toast.success("Search completed!");
       setLoading(false);
     }
   }, [
-    findFirstPendingSimilarProfilesQuery.data,
-    findFirstPendingSimilarProfilesQuery.isFetched,
-    findFirstPendingSimilarProfilesQuery.status,
+    getPendingSimilarProfilesQuery.data,
+    getPendingSimilarProfilesQuery.isFetched,
+    getPendingSimilarProfilesQuery.status,
   ]);
 
   const deletePendingSimilarProfilesMutation =
@@ -361,7 +359,7 @@ export default function ScrapedDialog() {
       payload,
       profileType,
     });
-    findFirstPendingSimilarProfilesQuery.refetch();
+    getPendingSimilarProfilesQuery.refetch();
   };
 
   const handleProfileSearch = () => {

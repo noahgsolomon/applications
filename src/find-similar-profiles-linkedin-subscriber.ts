@@ -2,10 +2,7 @@ import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "../server/db/schemas/users/schema";
 import { z } from "zod";
-import {
-  candidates,
-  pendingSimilarProfiles,
-} from "@/server/db/schemas/users/schema";
+import { candidates, profileQueue } from "@/server/db/schemas/users/schema";
 import { eq, InferSelectModel } from "drizzle-orm";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
@@ -663,7 +660,7 @@ export async function handler(event: any) {
 
   try {
     const insert = await db
-      .insert(schema.pendingSimilarProfiles)
+      .insert(schema.profileQueue)
       .values({
         type: "LINKEDIN",
         urls: body.profileUrls,
@@ -723,9 +720,9 @@ export async function handler(event: any) {
     if (inputCandidates.length === 0) {
       console.log("No matching input candidates found");
       await db
-        .update(pendingSimilarProfiles)
+        .update(profileQueue)
         .set({ error: true })
-        .where(eq(pendingSimilarProfiles.id, insertId));
+        .where(eq(profileQueue.id, insertId));
     }
 
     console.log(`Found ${inputCandidates.length} matching input candidates.`);
@@ -786,9 +783,9 @@ export async function handler(event: any) {
     ) {
       console.error("All vector DB queries failed");
       await db
-        .update(pendingSimilarProfiles)
+        .update(profileQueue)
         .set({ error: true })
-        .where(eq(pendingSimilarProfiles.id, insertId));
+        .where(eq(profileQueue.id, insertId));
     }
 
     const combinedScores: Record<string, number> = {};
@@ -885,9 +882,9 @@ export async function handler(event: any) {
     console.log(`Selected ${topCandidates.length} top candidates.`);
 
     await db
-      .update(pendingSimilarProfiles)
+      .update(profileQueue)
       .set({ response: topCandidates, success: true })
-      .where(eq(pendingSimilarProfiles.id, insertId));
+      .where(eq(profileQueue.id, insertId));
   } catch (error) {
     console.error("Error inserting row:", error);
   }
