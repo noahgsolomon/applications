@@ -30,26 +30,34 @@ export default function CandidateCard({
   return (
     <Card
       style={{
-        borderColor: candidate.cookdReviewed
-          ? candidate.cookdData.result === "PASS"
-            ? "#22c55e"
-            : "#ef4444"
-          : undefined,
-        borderWidth: candidate.cookdReviewed
-          ? candidate.cookdData.result === "PASS"
-            ? "1px"
-            : "1px"
-          : undefined,
-        borderStyle: candidate.cookdReviewed
-          ? candidate.cookdData.result === "PASS"
-            ? "solid"
-            : "solid"
-          : undefined,
-        backgroundColor: candidate.cookdReviewed
-          ? candidate.cookdData.result === "PASS"
-            ? "rgba(34, 197, 94, 0.1)"
-            : "rgba(239, 68, 68, 0.1)"
-          : undefined,
+        borderColor:
+          // candidate.cookdReviewed
+          //   ? candidate.cookdData.result === "PASS"
+          //     ? "#22c55e"
+          //     : "#ef4444"
+          //   :
+          undefined,
+        borderWidth:
+          // candidate.cookdReviewed
+          //   ? candidate.cookdData.result === "PASS"
+          //     ? "1px"
+          //     : "1px"
+          //   :
+          undefined,
+        borderStyle:
+          // candidate.cookdReviewed
+          //   ? candidate.cookdData.result === "PASS"
+          //     ? "solid"
+          //     : "solid"
+          // :
+          undefined,
+        backgroundColor:
+          // candidate.cookdReviewed
+          //   ? candidate.cookdData.result === "PASS"
+          //     ? "rgba(34, 197, 94, 0.1)"
+          //     : "rgba(239, 68, 68, 0.1)"
+          //   :
+          undefined,
       }}
     >
       <div className="flex flex-row gap-2 pb-4">
@@ -100,13 +108,13 @@ export default function CandidateCard({
                 <SquareArrowOutUpRight className="size-4" />
               </Link>
             </div>
-            {(candidate.cookdScore ?? 0) > 0 && (
-              <Badge
-                color={candidate.cookdData.result === "PASS" ? "green" : "red"}
-              >
-                {candidate.cookdScore ?? 0}
-              </Badge>
-            )}
+            {/* {(candidate.cookdScore ?? 0) > 0 && ( */}
+            {/*   <Badge */}
+            {/*     color={candidate.cookdData.result === "PASS" ? "green" : "red"} */}
+            {/*   > */}
+            {/*     {candidate.cookdScore ?? 0} */}
+            {/*   </Badge> */}
+            {/* )} */}
           </div>
           <div className="flex flex-row gap-1">
             <Text>

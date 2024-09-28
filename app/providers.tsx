@@ -25,7 +25,6 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
       dangerColor="red"
     >
       {children}
-
       <Toaster richColors />
     </Theme>
   );

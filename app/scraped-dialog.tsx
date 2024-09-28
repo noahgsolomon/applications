@@ -33,7 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import CandidateCard from "./candidate-card";
 import { InferSelectModel } from "drizzle-orm";
 import {
@@ -211,11 +211,13 @@ export default function ScrapedDialog() {
       } else {
         setFilters(data);
       }
+      setQuery("");
       setLoading(false);
     },
     onError: () => {
       toast.error("Internal server error");
       setLoading(false);
+      setQuery("");
     },
   });
 
@@ -400,6 +402,7 @@ export default function ScrapedDialog() {
             maxWidth: 450,
           }}
         >
+          <Toaster richColors className="z-[99999]" />
           <DialogTitle>Candidate search</DialogTitle>
           <DialogDescription>
             Enter the details for the candidate search.
@@ -473,7 +476,10 @@ export default function ScrapedDialog() {
                     color={"gray"}
                     onClick={() => setFilters(null)}
                   >
-                    <Text>Clear Filters</Text>
+                    <Text className="flex flex-row gap-1 items-center">
+                      <X className="size-4" />
+                      Clear
+                    </Text>
                   </Badge>
                 </div>
               )}
@@ -542,6 +548,18 @@ export default function ScrapedDialog() {
                       {url.split("/").pop()}
                     </Badge>
                   ))}
+                  <Badge
+                    style={{ cursor: "pointer" }}
+                    className={`h-[20px]`}
+                    variant="surface"
+                    color={"gray"}
+                    onClick={() => setProfileUrls([])}
+                  >
+                    <Text className="flex flex-row gap-1 items-center">
+                      <X className="size-4" />
+                      Clear
+                    </Text>
+                  </Badge>
                 </div>
               </div>
             )}
@@ -570,7 +588,7 @@ export default function ScrapedDialog() {
                 }
                 setError("");
                 if (query || filters || profileUrls.length > 0) {
-                  if (filters) {
+                  if (filters && !query) {
                     handleSearch();
                   } else if (profileUrls.length > 0) {
                     handleProfileSearch();
@@ -582,7 +600,7 @@ export default function ScrapedDialog() {
             >
               {loading ? (
                 <Loader className="size-4 animate-spin" />
-              ) : filters || profileUrls.length > 0 ? (
+              ) : (filters && !query) || profileUrls.length > 0 ? (
                 "Search"
               ) : (
                 "Filter"
