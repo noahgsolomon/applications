@@ -54,8 +54,7 @@ const toPascalCase = (str: string) => {
 
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
-  const [loadingCount, setLoadingCount] = useState(0);
-  const loading = loadingCount > 0;
+  const [loading, setLoading] = useState(false);
   const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
@@ -98,7 +97,7 @@ export default function ScrapedDialog() {
       getPendingSimilarProfilesQuery.data &&
       getPendingSimilarProfilesQuery.data[0]
     ) {
-      setLoadingCount((prev) => prev + 1);
+      setLoading(true);
     }
     if (
       getPendingSimilarProfilesQuery.data &&
@@ -111,7 +110,7 @@ export default function ScrapedDialog() {
         id: getPendingSimilarProfilesQuery.data[0].id,
       });
 
-      setLoadingCount((prev) => prev - 1);
+      setLoading(false);
     } else if (
       getPendingSimilarProfilesQuery.data &&
       getPendingSimilarProfilesQuery.data[0] &&
@@ -120,7 +119,7 @@ export default function ScrapedDialog() {
       toast.success("Search completed!");
 
       setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
-      setLoadingCount((prev) => prev - 1);
+      setLoading(false);
 
       deletePendingSimilarProfilesMutation.mutate({
         id: getPendingSimilarProfilesQuery.data[0].id,
@@ -140,7 +139,6 @@ export default function ScrapedDialog() {
 
   const insertIntoQueueMutation = api.outbound.insertIntoQueue.useMutation({
     onSuccess: (data) => {
-      setLoadingCount((prev) => prev - 1);
       if (data?.success) {
         toast.success("Message sent successfully");
       } else {
@@ -149,7 +147,6 @@ export default function ScrapedDialog() {
       }
     },
     onError: (error) => {
-      setLoadingCount((prev) => prev - 1);
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
     },
@@ -161,13 +158,12 @@ export default function ScrapedDialog() {
         console.log(data);
         setCandidateMatches(data.candidates);
         setAllMatchingSkills(data.skills.map((s) => s.technology));
-        setLoadingCount((prev) => prev - 1);
         toast.success("outbound search completed");
+        setLoading(false);
       },
       onError: () => {
-        setOpen(false);
-        setLoadingCount((prev) => prev - 1);
         toast.error("Internal server error");
+        setLoading(false);
       },
     });
 
@@ -203,7 +199,6 @@ export default function ScrapedDialog() {
 
   const companyFilterMutation = api.outbound.companyFilter.useMutation({
     onSuccess: (data: CompanyFilterReturnType) => {
-      setLoadingCount((prev) => prev - 1);
       if (!data.valid) {
         setError(data.message);
       }
@@ -216,9 +211,11 @@ export default function ScrapedDialog() {
       } else {
         setFilters(data);
       }
+      setLoading(false);
     },
     onError: () => {
-      setLoadingCount((prev) => prev - 1);
+      toast.error("Internal server error");
+      setLoading(false);
     },
   });
 
@@ -227,7 +224,7 @@ export default function ScrapedDialog() {
       setError("Search query cannot be empty.");
       return;
     }
-    setLoadingCount((prev) => prev + 1);
+    setLoading(true);
 
     setError("");
     companyFilterMutation.mutate({
@@ -316,7 +313,7 @@ export default function ScrapedDialog() {
   };
 
   const handleSearch = () => {
-    setLoadingCount((prev) => prev + 1);
+    setLoading(true);
 
     setError("");
     findFilteredCandidatesMutation.mutate({
@@ -371,7 +368,7 @@ export default function ScrapedDialog() {
       return;
     }
     setError("");
-    setLoadingCount((prev) => prev + 1);
+    setLoading(true);
     findSimilarProfiles(profileUrls);
   };
 
