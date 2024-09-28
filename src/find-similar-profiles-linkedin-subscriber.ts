@@ -666,7 +666,7 @@ export async function handler(event: any) {
       .insert(schema.pendingSimilarProfiles)
       .values({
         type: "LINKEDIN",
-        urls: body.urls,
+        urls: body.profileUrls,
         progress: 0,
         message: "Beginning search.",
       })

@@ -119,7 +119,6 @@ export default function ScrapedDialog() {
 
   const insertIntoQueueMutation = api.outbound.insertIntoQueue.useMutation({
     onSuccess: (data) => {
-      setLoading(false);
       toast.success("Message sent successfully");
     },
     onError: (error) => {

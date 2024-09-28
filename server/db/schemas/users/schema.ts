@@ -49,7 +49,7 @@ export const pendingSimilarProfiles = pgTable("pending_similar_profiles", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  type: varchar("type", ["GITHUB", "LINKEDIN"]),
+  type: varchar("type", { length: 255 }).notNull(),
   urls: json("urls").$type<string[]>().notNull(),
   progress: integer("progress").default(0),
   message: text("message"),
