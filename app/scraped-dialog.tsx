@@ -33,7 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/trpc/react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import CandidateCard from "./candidate-card";
 import { InferSelectModel } from "drizzle-orm";
 import {
@@ -44,6 +44,7 @@ import {
   CompanyFilterReturnType,
   useScrapedDialogStore,
 } from "./store/filter-store";
+import { Toaster } from "@/components/ui/sonner";
 
 const toPascalCase = (str: string) => {
   return str
@@ -133,7 +134,9 @@ export default function ScrapedDialog() {
 
   const deletePendingSimilarProfilesMutation =
     api.outbound.deletePendingSimilarProfiles.useMutation({
-      onSuccess: (data) => {},
+      onSuccess: (data) => {
+        getPendingSimilarProfilesQuery.refetch();
+      },
       onError: () => {},
     });
 
@@ -142,12 +145,14 @@ export default function ScrapedDialog() {
       if (data?.success) {
         toast.success("Message sent successfully");
       } else {
+        setLoading(false);
         console.error("Error sending message:", error);
         toast.error("Failed to send message");
       }
     },
     onError: (error) => {
       console.error("Error sending message:", error);
+      setLoading(false);
       toast.error("Failed to send message");
     },
   });
@@ -361,7 +366,6 @@ export default function ScrapedDialog() {
       payload,
       profileType,
     });
-    getPendingSimilarProfilesQuery.refetch();
   };
 
   const handleProfileSearch = () => {
@@ -566,15 +570,36 @@ export default function ScrapedDialog() {
           </Flex>
           <Flex gap="3" justify="end" mt="4">
             <DialogClose>
-              <Button color="gray" variant="soft">
+              <Button style={{ cursor: "pointer" }} color="gray" variant="soft">
                 Cancel
               </Button>
             </DialogClose>
+
+            {getPendingSimilarProfilesQuery.data &&
+              getPendingSimilarProfilesQuery.data[0] && (
+                <Button
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setLoading(true);
+                    for (const profileQuery of getPendingSimilarProfilesQuery.data) {
+                      deletePendingSimilarProfilesMutation.mutate({
+                        id: profileQuery.id,
+                      });
+                    }
+                    setLoading(false);
+                  }}
+                  color="red"
+                  variant="classic"
+                >
+                  Flush Queue
+                </Button>
+              )}
             <Button
               disabled={
                 loading ||
                 (query.trim() === "" && profileUrls.length === 0 && !filters)
               }
+              style={{ cursor: "pointer" }}
               variant="classic"
               onClick={() => {
                 if (loading) return;
