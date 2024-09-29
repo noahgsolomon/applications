@@ -39,6 +39,7 @@ import {
   Trash2,
   Building,
   Briefcase,
+  TreePalm,
 } from "lucide-react";
 import {
   Tooltip,
@@ -60,6 +61,8 @@ import {
 } from "./store/filter-store";
 import { Toaster } from "@/components/ui/sonner";
 import CompaniesView from "./companies-view";
+import WhopLogo from "./WhopLogo";
+import Image from "next/image";
 
 const toPascalCase = (str: string) => {
   return str
@@ -86,6 +89,8 @@ export default function ScrapedDialog() {
 
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
+  const [activeGithub, setActiveGithub] = useState(false);
+  const [whopUser, setWhopUser] = useState(false);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
   const [cookdSorting, setCookdSorting] = useState(true);
   const [candidateMatches, setCandidateMatches] = useState<
@@ -208,11 +213,17 @@ export default function ScrapedDialog() {
     }
   }, [pollCookdScoringRequestQuery.data, candidateMatches]);
 
-  const handleToggle = (type: "nearBrooklyn" | "searchInternet") => {
+  const handleToggle = (
+    type: "nearBrooklyn" | "searchInternet" | "activeGithub" | "whopUser",
+  ) => {
     if (type === "nearBrooklyn") {
       setNearBrooklyn((prev) => !prev);
     } else if (type === "searchInternet") {
       setSearchInternet((prev) => !prev);
+    } else if (type === "activeGithub") {
+      setActiveGithub((prev) => !prev);
+    } else if (type === "whopUser") {
+      setWhopUser((prev) => !prev);
     }
   };
 
@@ -346,11 +357,14 @@ export default function ScrapedDialog() {
       query,
       searchInternet: false,
       relevantRoleId: undefined,
-      companyIds: filters?.companies.map((company) => company.id) ?? [],
+      companyIds: (filters?.companies ?? []).map((company) => company.id) ?? [],
       job: filters?.job ?? "",
       skills: filters?.skills ?? [],
       booleanSearch: "",
       nearBrooklyn,
+      location: filters?.location,
+      activeGithub: activeGithub,
+      whopUser: whopUser,
     });
   };
 
@@ -372,22 +386,39 @@ export default function ScrapedDialog() {
   const findSimilarProfiles = async (profileUrls: string[]) => {
     setError("");
 
-    const payload =
-      profileType === "linkedin"
-        ? { profileUrls }
-        : { githubUrls: profileUrls };
-
-    insertIntoQueueMutation.mutate({
-      payload,
-      profileType,
-    });
+    if (profileUrls.length > 0) {
+      // Insert into queue with profileUrls
+      insertIntoQueueMutation.mutate({
+        payload: { profileUrls },
+        profileType,
+      });
+    } else if (filters) {
+      // Insert into queue with filterCriteria
+      insertIntoQueueMutation.mutate({
+        payload: {
+          query,
+          searchInternet: false,
+          relevantRoleId: undefined,
+          companyIds:
+            (filters?.companies ?? []).map((company) => company.id) ?? [],
+          job: filters?.job ?? "",
+          skills: filters?.skills ?? [],
+          booleanSearch: "",
+          nearBrooklyn,
+          location: filters?.location,
+          activeGithub: activeGithub,
+          whopUser: whopUser,
+        },
+        profileType: "linkedin",
+      });
+    }
   };
 
   const handleProfileSearch = () => {
-    if (profileUrls.length === 0) {
-      setError("No LinkedIn or GitHub URLs loaded.");
-      return;
-    }
+    // if (profileUrls.length === 0) {
+    //   setError("No LinkedIn or GitHub URLs loaded.");
+    //   return;
+    // }
     setError("");
     setLoading(true);
     findSimilarProfiles(profileUrls);
@@ -469,7 +500,12 @@ export default function ScrapedDialog() {
                 </DialogContent>
               </DialogRoot>
               {filters && filters.job && (
-                <Button color="orange" variant="surface">
+                <Button
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setFilters({ ...filters, job: "" })}
+                  color="orange"
+                  variant="surface"
+                >
                   <Text className="items-center flex flex-row gap-2">
                     <Briefcase className="size-4" />
                     {filters.job
@@ -485,39 +521,84 @@ export default function ScrapedDialog() {
               {filters &&
                 (filters.skills?.length ?? 0) > 0 &&
                 filters?.skills.map((skill: string) => (
-                  <Button color="sky" key={skill} variant="surface">
+                  <Button
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      setFilters({
+                        ...filters,
+                        skills: filters.skills.filter(
+                          (s: string) => s !== skill,
+                        ),
+                      })
+                    }
+                    color="sky"
+                    key={skill}
+                    variant="surface"
+                  >
                     <Text>{toPascalCase(skill)}</Text>
                   </Button>
                 ))}
-            </Flex>
 
-            {filters && filters.valid && (
-              <Flex gap="2" mt="2">
-                <Button
-                  variant="surface"
-                  size="2"
-                  style={{ cursor: "pointer" }}
-                  color={nearBrooklyn ? "green" : "red"}
-                  onClick={() => handleToggle("nearBrooklyn")}
-                >
-                  {nearBrooklyn ? (
-                    <Check className="size-4 text-green-500" />
-                  ) : (
-                    <X className="size-4 text-red-500" />
-                  )}
-                  Near Brooklyn
-                </Button>
-                <Button
-                  variant="surface"
-                  color="gray"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setFilters(null)}
-                >
-                  <X className="size-4" />
-                  Clear filters
-                </Button>
-              </Flex>
-            )}
+              {filters && (
+                <>
+                  {filters.location ? (
+                    <Button
+                      variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color={nearBrooklyn ? "green" : "red"}
+                      onClick={() => {
+                        console.log(filters);
+
+                        //@ts-ignore
+                        setFilters({ ...filters, location: "" });
+                      }}
+                    >
+                      <TreePalm className="size-4" />
+                      Near {filters.location}
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={activeGithub ? "green" : "red"}
+                    onClick={() => handleToggle("activeGithub")}
+                  >
+                    {activeGithub ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : (
+                      <X className="size-4 text-red-500" />
+                    )}
+                    Active Github
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={whopUser ? "green" : "red"}
+                    onClick={() => handleToggle("whopUser")}
+                  >
+                    <Image
+                      src={"/whop.png"}
+                      width={30}
+                      height={30}
+                      alt="whop logo"
+                    />
+                    Whop User
+                  </Button>
+                  <Button
+                    variant="surface"
+                    color="gray"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setFilters(null)}
+                  >
+                    <X className="size-4" />
+                    Clear filters
+                  </Button>
+                </>
+              )}
+            </Flex>
           </Flex>
 
           <Separator />
@@ -527,7 +608,7 @@ export default function ScrapedDialog() {
             <AccordionItem value="urls">
               <AccordionTrigger>
                 <Text size="2" weight="bold">
-                  Upload LinkedIn or GitHub URLs
+                  Upload Ideal LinkedIn or GitHub Candidate URLs
                 </Text>
               </AccordionTrigger>
               <AccordionContent>
@@ -642,7 +723,7 @@ export default function ScrapedDialog() {
                 }
                 setError("");
                 if (filters && !query) {
-                  handleSearch();
+                  handleProfileSearch();
                 } else if (profileUrls.length > 0) {
                   handleProfileSearch();
                 } else if (query) {
