@@ -109,7 +109,7 @@ export default function ScrapedDialog() {
 
   const getPendingSimilarProfilesQuery =
     api.outbound.getPendingSimilarProfiles.useQuery(undefined, {
-      refetchInterval: 5000,
+      refetchInterval: 2500,
     });
 
   useEffect(() => {
@@ -417,6 +417,7 @@ export default function ScrapedDialog() {
   };
 
   const handleProfileSearch = () => {
+    setCandidateMatches(null);
     // if (profileUrls.length === 0) {
     //   setError("No LinkedIn or GitHub URLs loaded.");
     //   return;
