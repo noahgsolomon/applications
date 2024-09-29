@@ -159,6 +159,7 @@ export const candidates = pgTable("candidates", {
     false,
   ),
   isFeatureAvgInVectorDB: boolean("is_feature_avg_in_vector_db").default(false),
+  processed: boolean("processed").default(false),
 });
 
 export const candidatesRelations = relations(candidates, ({ one }) => ({
@@ -343,6 +344,7 @@ export const githubUsers = pgTable("github_users", {
   isUpsertedInAllBios: boolean("is_upserted_in_all_bios").default(false),
   isWhopUser: boolean("is_whop_user"),
   isWhopCreator: boolean("is_whop_creator"),
+  processed: boolean("processed").default(false),
 });
 
 export const whopTwitterAccounts = pgTable("whop_twitter_accounts", {
@@ -353,6 +355,7 @@ export const whopTwitterAccounts = pgTable("whop_twitter_accounts", {
   twitterId: varchar("twitter_id", { length: 255 }).notNull().unique(),
   username: varchar("username", { length: 255 }).notNull().unique(),
   twitterData: jsonb("twitter_data").$type<any>(),
+  processed: boolean("processed").default(false),
 });
 
 export const whopTwitterFollowers = pgTable(
@@ -368,6 +371,7 @@ export const whopTwitterFollowers = pgTable(
       .references(() => whopTwitterAccounts.twitterId),
     username: varchar("username", { length: 255 }).notNull(),
     twitterData: jsonb("twitter_data").$type<any>(),
+    processed: boolean("processed").default(false),
   },
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
@@ -388,9 +392,104 @@ export const whopTwitterFollowing = pgTable(
       .references(() => whopTwitterAccounts.twitterId),
     username: varchar("username", { length: 255 }).notNull(),
     twitterData: jsonb("twitter_data").$type<any>(),
+    processed: boolean("processed").default(false),
   },
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
     // unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
+  }),
+);
+
+export const people = pgTable(
+  "people",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+
+    // Common fields
+    name: varchar("name", { length: 255 }),
+    email: varchar("email", { length: 255 }),
+    image: varchar("image", { length: 255 }),
+
+    // LinkedIn data (from candidates table)
+    linkedinUrl: text("linkedin_url"),
+    linkedinData: jsonb("linkedin_data"),
+
+    // GitHub data (from githubUsers table)
+    githubLogin: varchar("github_login", { length: 255 }),
+    githubId: varchar("github_id", { length: 255 }),
+    githubData: jsonb("github_data"),
+
+    // Twitter data (from whopTwitterAccounts, whopTwitterFollowers, whopTwitterFollowing)
+    twitterUsername: varchar("twitter_username", { length: 255 }),
+    twitterId: varchar("twitter_id", { length: 255 }),
+    twitterData: jsonb("twitter_data"),
+
+    // Additional fields from candidates
+    summary: text("summary"),
+    miniSummary: text("mini_summary"),
+    workedInBigTech: boolean("worked_in_big_tech").default(false),
+    livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
+    companyIds: jsonb("company_ids").$type<string[]>().default([]),
+    cookdData: jsonb("cookd_data").$type<any>().default({}),
+    cookdScore: integer("cookd_score").default(0),
+    cookdReviewed: boolean("cookd_reviewed").default(false),
+    topTechnologies: jsonb("top_technologies").$type<string[]>().default([]),
+    jobTitles: jsonb("job_titles").$type<string[]>().default([]),
+    topFeatures: jsonb("top_features").$type<string[]>().default([]),
+    isEngineer: boolean("is_engineer").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+
+    // Additional fields from githubUsers
+    followers: integer("followers"),
+    following: integer("following"),
+    followerToFollowingRatio: real("follower_to_following_ratio"),
+    contributionYears: jsonb("contribution_years").$type<number[]>(),
+    totalCommits: integer("total_commits"),
+    restrictedContributions: integer("restricted_contributions"),
+    totalRepositories: integer("total_repositories"),
+    totalStars: integer("total_stars"),
+    totalForks: integer("total_forks"),
+    githubLanguages:
+      jsonb("github_languages").$type<
+        Record<string, { repoCount: number; stars: number }>
+      >(),
+    uniqueTopics: jsonb("unique_topics").$type<string[]>(),
+    externalContributions: integer("external_contributions"),
+    totalExternalCommits: integer("total_external_commits"),
+    sponsorsCount: integer("sponsors_count"),
+    sponsoredProjects: jsonb("sponsored_projects").$type<string[]>(),
+    organizations: jsonb("organizations").$type<
+      Array<{
+        name: string;
+        login: string;
+        description: string;
+        membersCount: number;
+      }>
+    >(),
+    location: text("location"),
+    normalizedLocation: text("normalized_location"),
+    websiteUrl: text("website_url"),
+    isNearNyc: boolean("is_near_nyc"),
+    twitterFollowerCount: integer("twitter_follower_count"),
+    twitterFollowingCount: integer("twitter_following_count"),
+    twitterFollowerToFollowingRatio: real(
+      "twitter_follower_to_following_ratio",
+    ),
+    twitterBio: text("twitter_bio"),
+    tweets: jsonb("tweets").$type<any[]>(),
+    isUpsertedInAllBios: boolean("is_upserted_in_all_bios").default(false),
+    isWhopUser: boolean("is_whop_user"),
+    isWhopCreator: boolean("is_whop_creator"),
+    // Indicate the source tables (for traceability)
+    sourceTables: jsonb("source_tables").$type<string[]>().default([]),
+  },
+  (table) => ({
+    // Adding unique constraints
+    githubIdUnique: unique().on(table.githubId),
+    linkedinUrlUnique: unique().on(table.linkedinUrl),
+    twitterIdUnique: unique().on(table.twitterId),
   }),
 );
