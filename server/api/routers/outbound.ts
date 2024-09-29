@@ -165,8 +165,8 @@ export const outboundRouter = createTRPCRouter({
 
       const queueUrl =
         profileType === "linkedin"
-          ? Resource.findSimilarProfilesLinkedinQueue.url
-          : Resource.findSimilarProfilesLinkedinQueue.url;
+          ? Resource.FindSimilarProfilesLinkedinQueue.url
+          : Resource.FindSimilarProfilesLinkedinQueue.url;
 
       if (!queueUrl) {
         throw new Error("Queue URL not configured");
@@ -905,16 +905,6 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         logs: "",
         relevantRoleId: input.relevantRoleId ?? undefined,
       });
-
-      // await client.send(
-      //   new SendMessageCommand({
-      //     QueueUrl: Resource.WhopQueue.url,
-      //     MessageBody: JSON.stringify({
-      //       pendingCompanyOutboundId: uuidId,
-      //       type: "COMPANY",
-      //     }),
-      //   }),
-      // );
     }),
   sendCookdScoringRequest: publicProcedure
     .input(z.object({ ids: z.array(z.string()) }))
