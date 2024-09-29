@@ -386,34 +386,37 @@ export default function ScrapedDialog() {
   const findSimilarProfiles = async (profileUrls: string[]) => {
     setError("");
 
+    const payload: any = {};
     if (profileUrls.length > 0) {
-      // Insert into queue with profileUrls
-      insertIntoQueueMutation.mutate({
-        payload: { profileUrls },
-        profileType,
-      });
-    } else if (filters) {
-      // Insert into queue with filterCriteria
-      insertIntoQueueMutation.mutate({
-        payload: {
-          filterCriteria: {
-            query,
-            searchInternet: false,
-            relevantRoleId: undefined,
-            companyIds:
-              (filters?.companies ?? []).map((company) => company.id) ?? [],
-            job: filters?.job ?? "",
-            skills: filters?.skills ?? [],
-            booleanSearch: "",
-            nearBrooklyn,
-            location: filters?.location,
-            activeGithub: activeGithub,
-            whopUser: whopUser,
-          },
-        },
-        profileType: "linkedin",
-      });
+      payload.profileUrls = profileUrls;
     }
+
+    if (filters) {
+      payload.filterCriteria = {
+        query,
+        searchInternet: false,
+        relevantRoleId: undefined,
+        companyIds:
+          (filters?.companies ?? []).map((company) => company.id) ?? [],
+        job: filters?.job ?? "",
+        skills: filters?.skills ?? [],
+        booleanSearch: "",
+        nearBrooklyn,
+        location: filters?.location,
+        activeGithub: activeGithub,
+        whopUser: whopUser,
+      };
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setError("Please provide profile URLs or filters.");
+      return;
+    }
+
+    insertIntoQueueMutation.mutate({
+      payload,
+      profileType: profileType,
+    });
   };
 
   const handleProfileSearch = () => {

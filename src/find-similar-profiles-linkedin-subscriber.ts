@@ -878,6 +878,8 @@ async function processProfileUrls(profileUrls: string[]) {
     .update(profileQueue)
     .set({ response: topCandidates, success: true })
     .where(eq(profileQueue.id, insertId));
+
+  return topCandidates;
 }
 
 async function querySimilarTechnologies(skill: string) {
@@ -1092,26 +1094,88 @@ async function processFilterCriteria(filterCriteria: {
     .set({ response: topCandidates, success: true })
     .where(eq(schema.profileQueue.id, insertId));
 
-  console.log("Filter criteria processing completed.");
+  console.log("Filter  return topCandidates;criteria processing completed.");
+  return topCandidates;
+}
+
+function mergeResults(results1: any[], results2: any[]): any[] {
+  const idSet = new Set();
+  const mergedResults: any[] = [];
+
+  for (const item of [...results1, ...results2]) {
+    if (!idSet.has(item.id)) {
+      idSet.add(item.id);
+      mergedResults.push(item);
+    }
+  }
+
+  return mergedResults;
 }
 
 export async function handler(event: any) {
   console.log("Queue handler invoked.");
   const body = JSON.parse(event.Records[0].body);
 
+  // Insert into profileQueue
+  const insert = await db
+    .insert(schema.profileQueue)
+    .values({
+      type: "LINKEDIN",
+      urls: body.profileUrls || [],
+      progress: 0,
+      message: "Beginning search.",
+    })
+    .returning();
+
+  const insertId = insert[0].id;
+
   try {
-    // Check the input type and handle accordingly
+    let resultsFromProfileUrls: any[] = [];
+    let resultsFromFilterCriteria: any[] = [];
+
     if (body.profileUrls && body.profileUrls.length > 0) {
-      // Existing logic for processing profile URLs
-      await processProfileUrls(body.profileUrls);
-    } else if (body.filterCriteria) {
-      // New logic for handling filter criteria (from findFilteredCandidates)
-      await processFilterCriteria(body.filterCriteria);
-    } else {
-      console.error("Invalid input data.");
-      return;
+      try {
+        console.log("Processing profile URLs...");
+        resultsFromProfileUrls = await processProfileUrls(body.profileUrls);
+      } catch (error) {
+        console.error("Error processing profile URLs:", error);
+        // Optionally handle the error or continue
+      }
     }
+
+    if (body.filterCriteria) {
+      try {
+        console.log("Processing filter criteria...");
+        resultsFromFilterCriteria = await processFilterCriteria(
+          body.filterCriteria,
+        );
+      } catch (error) {
+        console.error("Error processing filter criteria:", error);
+        // Optionally handle the error or continue
+      }
+    }
+
+    // Merge the results
+    const mergedResults = mergeResults(
+      resultsFromProfileUrls,
+      resultsFromFilterCriteria,
+    );
+
+    if (mergedResults.length === 0) {
+      throw new Error("No matching candidates found.");
+    }
+
+    // Update the profileQueue with the merged results
+    await db
+      .update(schema.profileQueue)
+      .set({ response: mergedResults, success: true })
+      .where(eq(schema.profileQueue.id, insertId));
   } catch (error) {
     console.error("Error processing queue item:", error);
+    // Update the profileQueue with error
+    await db
+      .update(schema.profileQueue)
+      .set({ error: true })
+      .where(eq(schema.profileQueue.id, insertId));
   }
 }
