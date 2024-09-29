@@ -655,20 +655,8 @@ async function insertCandidate(profileData: any) {
   return candidateId;
 }
 
-async function processProfileUrls(profileUrls: string[]) {
+async function processProfileUrls(profileUrls: string[], insertId: string) {
   console.log("Processing profile URLs...");
-
-  const insert = await db
-    .insert(schema.profileQueue)
-    .values({
-      type: "LINKEDIN",
-      urls: profileUrls,
-      progress: 0,
-      message: "Beginning search.",
-    })
-    .returning();
-
-  const insertId = insert[0].id;
 
   console.log("Row inserted successfully into profileQueue");
 
@@ -713,10 +701,7 @@ async function processProfileUrls(profileUrls: string[]) {
 
   if (inputCandidates.length === 0) {
     console.log("No matching input candidates found");
-    await db
-      .update(profileQueue)
-      .set({ error: true })
-      .where(eq(profileQueue.id, insertId));
+    return [];
   }
 
   console.log(`Found ${inputCandidates.length} matching input candidates.`);
@@ -775,10 +760,7 @@ async function processProfileUrls(profileUrls: string[]) {
     jobTitleMatches.length === 0
   ) {
     console.error("All vector DB queries failed");
-    await db
-      .update(profileQueue)
-      .set({ error: true })
-      .where(eq(profileQueue.id, insertId));
+    return [];
   }
 
   const combinedScores: Record<string, number> = {};
@@ -873,11 +855,6 @@ async function processProfileUrls(profileUrls: string[]) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 100);
   console.log(`Selected ${topCandidates.length} top candidates.`);
-
-  await db
-    .update(profileQueue)
-    .set({ response: topCandidates, success: true })
-    .where(eq(profileQueue.id, insertId));
 
   return topCandidates;
 }
@@ -987,32 +964,23 @@ async function querySimilarJobTitles(job: string) {
   }
 }
 
-async function processFilterCriteria(filterCriteria: {
-  query: string;
-  job: string;
-  relevantRoleId?: string;
-  nearBrooklyn: boolean;
-  searchInternet: boolean;
-  skills: string[];
-  booleanSearch?: string;
-  companyIds: string[];
-  location?: string;
-  activeGithub?: boolean;
-  whopUser?: boolean;
-}) {
+async function processFilterCriteria(
+  filterCriteria: {
+    query: string;
+    job: string;
+    relevantRoleId?: string;
+    nearBrooklyn: boolean;
+    searchInternet: boolean;
+    skills: string[];
+    booleanSearch?: string;
+    companyIds: string[];
+    location?: string;
+    activeGithub?: boolean;
+    whopUser?: boolean;
+  },
+  insertId: string,
+) {
   console.log("Processing filter criteria...");
-
-  const insert = await db
-    .insert(schema.profileQueue)
-    .values({
-      type: "LINKEDIN",
-      urls: [],
-      progress: 0,
-      message: "Beginning search.",
-    })
-    .returning();
-
-  const insertId = insert[0].id;
 
   // Extract similar technologies and job titles
   const similarTechnologiesArrays = await Promise.all(
@@ -1088,12 +1056,6 @@ async function processFilterCriteria(filterCriteria: {
   // Optionally perform additional processing, such as scoring candidates
   // ...
 
-  // Update the queue or database with the results
-  await db
-    .update(schema.profileQueue)
-    .set({ response: topCandidates, success: true })
-    .where(eq(schema.profileQueue.id, insertId));
-
   console.log("Filter  return topCandidates;criteria processing completed.");
   return topCandidates;
 }
@@ -1136,7 +1098,10 @@ export async function handler(event: any) {
     if (body.profileUrls && body.profileUrls.length > 0) {
       try {
         console.log("Processing profile URLs...");
-        resultsFromProfileUrls = await processProfileUrls(body.profileUrls);
+        resultsFromProfileUrls = await processProfileUrls(
+          body.profileUrls,
+          insertId,
+        );
       } catch (error) {
         console.error("Error processing profile URLs:", error);
         // Optionally handle the error or continue
@@ -1148,6 +1113,7 @@ export async function handler(event: any) {
         console.log("Processing filter criteria...");
         resultsFromFilterCriteria = await processFilterCriteria(
           body.filterCriteria,
+          insertId,
         );
       } catch (error) {
         console.error("Error processing filter criteria:", error);
@@ -1162,7 +1128,11 @@ export async function handler(event: any) {
     );
 
     if (mergedResults.length === 0) {
-      throw new Error("No matching candidates found.");
+      await db
+        .update(schema.profileQueue)
+        .set({ response: mergedResults, error: true })
+        .where(eq(schema.profileQueue.id, insertId));
+      return;
     }
 
     // Update the profileQueue with the merged results
