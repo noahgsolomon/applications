@@ -396,18 +396,20 @@ export default function ScrapedDialog() {
       // Insert into queue with filterCriteria
       insertIntoQueueMutation.mutate({
         payload: {
-          query,
-          searchInternet: false,
-          relevantRoleId: undefined,
-          companyIds:
-            (filters?.companies ?? []).map((company) => company.id) ?? [],
-          job: filters?.job ?? "",
-          skills: filters?.skills ?? [],
-          booleanSearch: "",
-          nearBrooklyn,
-          location: filters?.location,
-          activeGithub: activeGithub,
-          whopUser: whopUser,
+          filterCriteria: {
+            query,
+            searchInternet: false,
+            relevantRoleId: undefined,
+            companyIds:
+              (filters?.companies ?? []).map((company) => company.id) ?? [],
+            job: filters?.job ?? "",
+            skills: filters?.skills ?? [],
+            booleanSearch: "",
+            nearBrooklyn,
+            location: filters?.location,
+            activeGithub: activeGithub,
+            whopUser: whopUser,
+          },
         },
         profileType: "linkedin",
       });
