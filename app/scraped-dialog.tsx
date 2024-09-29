@@ -1,3 +1,4 @@
+// ScrapedDialog.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +18,16 @@ import {
   ScrollArea,
   TextArea,
   Link,
+  Heading,
+  Separator,
+  Card,
 } from "frosted-ui";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import {
   Building2,
   Check,
@@ -25,6 +35,10 @@ import {
   Upload,
   UserRoundSearch,
   X,
+  Info,
+  Trash2,
+  Building,
+  Briefcase,
 } from "lucide-react";
 import {
   Tooltip,
@@ -45,6 +59,7 @@ import {
   useScrapedDialogStore,
 } from "./store/filter-store";
 import { Toaster } from "@/components/ui/sonner";
+import CompaniesView from "./companies-view";
 
 const toPascalCase = (str: string) => {
   return str
@@ -56,11 +71,14 @@ const toPascalCase = (str: string) => {
 export default function ScrapedDialog() {
   const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
+  const [filtersLoading, setFiltersLoading] = useState(false);
   const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<string[]>([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
+
+  const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
 
   const [profileType, setProfileType] = useState<"linkedin" | "github">(
     "linkedin",
@@ -93,7 +111,7 @@ export default function ScrapedDialog() {
     if (cookdSorting) {
       setCookdSorting(false);
     }
-    console.log("here it is" + getPendingSimilarProfilesQuery.data);
+
     if (
       getPendingSimilarProfilesQuery.data &&
       getPendingSimilarProfilesQuery.data[0]
@@ -102,7 +120,6 @@ export default function ScrapedDialog() {
     }
     if (
       getPendingSimilarProfilesQuery.data &&
-      getPendingSimilarProfilesQuery.data[0] &&
       getPendingSimilarProfilesQuery.data[0]?.error
     ) {
       toast.error("Internal Server Error");
@@ -114,7 +131,6 @@ export default function ScrapedDialog() {
       setLoading(false);
     } else if (
       getPendingSimilarProfilesQuery.data &&
-      getPendingSimilarProfilesQuery.data[0] &&
       getPendingSimilarProfilesQuery.data[0]?.success
     ) {
       toast.success("Search completed!");
@@ -134,7 +150,7 @@ export default function ScrapedDialog() {
 
   const deletePendingSimilarProfilesMutation =
     api.outbound.deletePendingSimilarProfiles.useMutation({
-      onSuccess: (data) => {
+      onSuccess: () => {
         getPendingSimilarProfilesQuery.refetch();
       },
       onError: () => {},
@@ -160,10 +176,9 @@ export default function ScrapedDialog() {
   const findFilteredCandidatesMutation =
     api.outbound.findFilteredCandidates.useMutation({
       onSuccess: (data) => {
-        console.log(data);
         setCandidateMatches(data.candidates);
         setAllMatchingSkills(data.skills.map((s) => s.technology));
-        toast.success("outbound search completed");
+        toast.success("Outbound search completed");
         setLoading(false);
       },
       onError: () => {
@@ -183,7 +198,6 @@ export default function ScrapedDialog() {
 
   useEffect(() => {
     if (pollCookdScoringRequestQuery.data) {
-      console.log("poll query", pollCookdScoringRequestQuery.data.length);
       const data = pollCookdScoringRequestQuery.data;
       setSortedCandidateMatches(data);
       if (data.length >= (candidateMatches?.length ?? 0) - 1) {
@@ -207,21 +221,26 @@ export default function ScrapedDialog() {
       if (!data.valid) {
         setError(data.message);
       }
-      if ((filters?.companies.length ?? 0) > 0) {
+      if (
+        !filters?.companies ||
+        filters.companies.length === 0 ||
+        filters.companies.length === allActiveCompanies?.length ||
+        data.companies.length < (allActiveCompanies?.length ?? 0)
+      ) {
+        setFilters(data);
+      } else {
+        //@ts-ignore
         setFilters({
           ...data,
-          //@ts-ignore
           companies: filters?.companies,
         });
-      } else {
-        setFilters(data);
       }
       setQuery("");
-      setLoading(false);
+      setFiltersLoading(false);
     },
     onError: () => {
       toast.error("Internal server error");
-      setLoading(false);
+      setFiltersLoading(false);
       setQuery("");
     },
   });
@@ -231,7 +250,7 @@ export default function ScrapedDialog() {
       setError("Search query cannot be empty.");
       return;
     }
-    setLoading(true);
+    setFiltersLoading(true);
 
     setError("");
     companyFilterMutation.mutate({
@@ -347,10 +366,6 @@ export default function ScrapedDialog() {
       setSortedCandidateMatches(
         candidateMatches?.filter((c) => c.cookdReviewed),
       );
-      // actually wait we optimistically do this in the filtered candidates endpoint
-      // sendCookdScoringRequestMutation.mutate({
-      //   ids: unreviewedCandidates.map((c) => c.id),
-      // });
     }
   };
 
@@ -379,206 +394,227 @@ export default function ScrapedDialog() {
   };
 
   return (
-    <>
-      <DialogRoot open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <TooltipProvider delayDuration={500}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  style={{ cursor: "pointer", padding: "2rem" }}
-                  size={"4"}
-                  onClick={() => setOpen(true)}
-                  variant="surface"
-                >
-                  <div className="items-center flex flex-row gap-2">
-                    <UserRoundSearch className="size-10" />
-                  </div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Search for Candidates</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </DialogTrigger>
-        <DialogContent
-          size="3"
-          style={{
-            maxWidth: 450,
-          }}
-        >
-          <Toaster richColors className="z-[99999]" />
-          <DialogTitle>Candidate search</DialogTitle>
-          <DialogDescription>
-            Enter the details for the candidate search.
-          </DialogDescription>
-          <Flex direction="column" gap="3">
-            <label>
-              <Text as="div" mb="1" size="2" weight="bold">
+    <ScrollArea>
+      <Card
+        size="5"
+        className="my-36 p-4 w-[90%] sm:w-[75%] lg:w-[800px] mx-auto shadow-md"
+      >
+        <Toaster richColors className="z-[99999]" />
+        <Heading size={"6"}>Candidate Search</Heading>
+        <Text className="text-primary/60">
+          Provide details to search for candidates.
+        </Text>
+        <Separator />
+
+        <Flex direction="column" gap="4" mt="4">
+          {/* Search Query Section */}
+          <Flex direction="column" gap="2">
+            <Flex align="center">
+              <Text as="div" size="2" weight="bold">
                 Search Query
               </Text>
-              <TextFieldInput
-                placeholder="Enter search query"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {filters && filters.valid && filters.companies.length > 0 && (
-                <div className="pt-2 flex flex-wrap gap-1">
-                  {filters.companies.map((company) => (
-                    <Avatar
-                      key={company.id}
-                      color="blue"
-                      size="2"
-                      fallback={company.name.charAt(0).toUpperCase()}
-                      src={company.logo ?? ""}
-                    />
-                  ))}
-                  {filters.job !== "" && (
-                    <Badge variant="surface" color="amber" className="h-[33px]">
-                      <Building2 className="size-4" />
-                      <Text>{toPascalCase(filters.job)}</Text>
-                    </Badge>
-                  )}
-                  {filters.skills.map((skill: string) => (
-                    <Badge
-                      key={skill}
-                      variant="surface"
-                      color="blue"
-                      className="h-[33px]"
-                    >
-                      <Text>{toPascalCase(skill)}</Text>
-                    </Badge>
-                  ))}
-                  {/* {filters.skills.length > 0 && ( */}
-                  {/*   <Badge */}
-                  {/*     variant="surface" */}
-                  {/*     color={filters.Or ? "yellow" : "red"} */}
-                  {/*     className="h-[33px]" */}
-                  {/*   > */}
-                  {/*     <Text>{filters.Or ? "OR" : "AND"}</Text> */}
-                  {/*   </Badge> */}
-                  {/* )} */}
-
-                  <Badge
-                    style={{ cursor: "pointer" }}
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={nearBrooklyn ? "green" : "red"}
-                    onClick={() => handleToggle("nearBrooklyn")}
-                  >
-                    {nearBrooklyn ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500" />
-                    )}
-                    <Text>Near Brooklyn</Text>
-                  </Badge>
-
-                  <Badge
-                    style={{ cursor: "pointer" }}
-                    className={`h-[33px]`}
-                    variant="surface"
-                    color={"gray"}
-                    onClick={() => setFilters(null)}
-                  >
-                    <Text className="flex flex-row gap-1 items-center">
-                      <X className="size-4" />
-                      Clear
-                    </Text>
-                  </Badge>
-                </div>
-              )}
-            </label>
-            <Text as="div" mb="1" size="2" weight="bold">
-              Enter LinkedIn or GitHub URLs (not both)
-            </Text>
-            <TextArea
-              placeholder="Paste LinkedIn URLs here (one per line)"
-              value={manualUrls}
-              onChange={handleManualUrlsChange}
-              style={{ minHeight: "100px" }}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="size-4 ml-1 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Enter job title, companies, and/or skills to search for
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Flex>
+            <TextFieldInput
+              placeholder="e.g., Software Engineer, Google"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              disabled={loading}
             />
-            <Text
-              as="div"
-              mb="1"
+            <Button
+              variant="classic"
               size="2"
-              weight="bold"
-              style={{ marginTop: "1rem" }}
+              onClick={handleFilter}
+              disabled={filtersLoading || !query.trim()}
+              style={{ alignSelf: "flex-start", cursor: "pointer" }}
             >
-              Or Upload File
-            </Text>
-            <div
-              className={`border-dashed p-4 py-6 bg-secondary cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
-                      flex flex-col gap-2 items-center justify-center opacity-60`}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onDrop={handleFileDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="size-6" />
-              <p className={`text-sm text-center`}>
-                {
-                  "Drag and drop your file here (.txt, .csv)\nor click to upload"
-                }
-              </p>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                accept=".txt,.csv"
-                style={{ display: "none" }}
-              />
-            </div>
-            {error && (
-              <Text as="div" size="2" color="red" style={{ marginTop: "10px" }}>
-                {error}
-              </Text>
-            )}
-            {profileUrls.length > 0 && (
-              <div className="mt-4">
-                <Text as="div" size="2" style={{ marginBottom: "10px" }}>
-                  {profileUrls.length} unique{" "}
-                  {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
-                  loaded
-                </Text>
-                <div className="flex flex-wrap gap-2">
-                  {profileUrls.map((url, index) => (
-                    <Badge
-                      key={index}
-                      variant="surface"
-                      color={profileType === "linkedin" ? "blue" : "green"}
-                    >
-                      {url.split("/").pop()}
-                    </Badge>
-                  ))}
-                  <Badge
+              {filtersLoading ? (
+                <Loader className="size-4 animate-spin" />
+              ) : (
+                "Generate Filters"
+              )}
+            </Button>
+
+            <Flex wrap="wrap" gap="2" mt="2">
+              <DialogRoot>
+                <DialogTrigger>
+                  <Button
                     style={{ cursor: "pointer" }}
-                    className={`h-[20px]`}
                     variant="surface"
-                    color={"gray"}
-                    onClick={() => setProfileUrls([])}
+                    color="yellow"
                   >
-                    <Text className="flex flex-row gap-1 items-center">
-                      <X className="size-4" />
-                      Clear
-                    </Text>
-                  </Badge>
-                </div>
-              </div>
+                    <div className="items-center flex flex-row gap-2">
+                      <Building className="size-4" />
+                      Companies List
+                    </div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <CompaniesView />
+
+                  <DialogClose>
+                    <Button style={{ cursor: "pointer" }} variant="soft" mt="4">
+                      Close
+                    </Button>
+                  </DialogClose>
+                </DialogContent>
+              </DialogRoot>
+              {filters && filters.job && (
+                <Button color="orange" variant="surface">
+                  <Text className="items-center flex flex-row gap-2">
+                    <Briefcase className="size-4" />
+                    {filters.job
+                      .split(" ")
+                      .map(
+                        (word: string) =>
+                          word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(" ")}
+                  </Text>
+                </Button>
+              )}
+              {filters &&
+                (filters.skills?.length ?? 0) > 0 &&
+                filters?.skills.map((skill: string) => (
+                  <Button color="sky" key={skill} variant="surface">
+                    <Text>{toPascalCase(skill)}</Text>
+                  </Button>
+                ))}
+            </Flex>
+
+            {filters && filters.valid && (
+              <Flex gap="2" mt="2">
+                <Button
+                  variant="surface"
+                  size="2"
+                  style={{ cursor: "pointer" }}
+                  color={nearBrooklyn ? "green" : "red"}
+                  onClick={() => handleToggle("nearBrooklyn")}
+                >
+                  {nearBrooklyn ? (
+                    <Check className="size-4 text-green-500" />
+                  ) : (
+                    <X className="size-4 text-red-500" />
+                  )}
+                  Near Brooklyn
+                </Button>
+                <Button
+                  variant="surface"
+                  color="gray"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setFilters(null)}
+                >
+                  <X className="size-4" />
+                  Clear filters
+                </Button>
+              </Flex>
             )}
           </Flex>
-          <Flex gap="3" justify="end" mt="4">
-            <DialogClose>
-              <Button style={{ cursor: "pointer" }} color="gray" variant="soft">
-                Cancel
-              </Button>
-            </DialogClose>
 
+          <Separator />
+
+          {/* Profile URLs Section */}
+          <Accordion type="single" collapsible>
+            <AccordionItem value="urls">
+              <AccordionTrigger>
+                <Text size="2" weight="bold">
+                  Upload LinkedIn or GitHub URLs
+                </Text>
+              </AccordionTrigger>
+              <AccordionContent>
+                <TextArea
+                  placeholder="Paste URLs here (one per line)"
+                  value={manualUrls}
+                  onChange={handleManualUrlsChange}
+                  style={{ minHeight: "100px" }}
+                  disabled={loading}
+                />
+                <Flex align="center" gap="2" mt="2">
+                  <div
+                    className={`border-dashed p-4 py-6 bg-secondary/60 cursor-pointer rounded-lg border-2 transition-all duration-300 ease-in-out
+                          flex flex-col gap-2 items-center text-primary/60 justify-center w-full`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={handleFileDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="size-6" />
+                    <p className={`text-sm text-center`}>
+                      Drag and drop your file here (.txt, .csv)
+                      <br />
+                      or click to upload
+                    </p>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept=".txt,.csv"
+                      style={{ display: "none" }}
+                    />
+                  </div>
+                </Flex>
+                {profileUrls.length > 0 && (
+                  <Flex direction="column" gap="2" mt="2">
+                    <Text size="2">
+                      {profileUrls.length} unique{" "}
+                      {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
+                      loaded
+                    </Text>
+                    <Flex wrap="wrap" gap="2">
+                      {profileUrls.map((url, index) => (
+                        <Button
+                          key={index}
+                          variant="surface"
+                          color={profileType === "linkedin" ? "blue" : "green"}
+                        >
+                          {url.split("/").pop()}
+                        </Button>
+                      ))}
+
+                      <Button
+                        variant="surface"
+                        color="gray"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setProfileUrls([])}
+                      >
+                        <X className="size-4" />
+                        Clear URLs
+                      </Button>
+                    </Flex>
+                  </Flex>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          {/* Error Message */}
+          {error && (
+            <Text size="2" color="red" mt="2">
+              {error}
+            </Text>
+          )}
+
+          <Separator />
+
+          {/* Action Buttons */}
+          <Flex justify="end" gap="2">
             {getPendingSimilarProfilesQuery.data &&
               getPendingSimilarProfilesQuery.data[0] && (
                 <Button
-                  style={{ cursor: "pointer" }}
+                  variant="classic"
+                  size="2"
+                  color="red"
                   onClick={() => {
                     setLoading(true);
                     for (const profileQuery of getPendingSimilarProfilesQuery.data) {
@@ -588,19 +624,15 @@ export default function ScrapedDialog() {
                     }
                     setLoading(false);
                   }}
-                  color="red"
-                  variant="classic"
+                  disabled={loading}
                 >
                   Flush Queue
                 </Button>
               )}
             <Button
-              disabled={
-                loading ||
-                (query.trim() === "" && profileUrls.length === 0 && !filters)
-              }
-              style={{ cursor: "pointer" }}
               variant="classic"
+              size="2"
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 if (loading) return;
                 if (
@@ -612,110 +644,100 @@ export default function ScrapedDialog() {
                   return;
                 }
                 setError("");
-                if (query || filters || profileUrls.length > 0) {
-                  if (filters && !query) {
-                    handleSearch();
-                  } else if (profileUrls.length > 0) {
-                    handleProfileSearch();
-                  } else if (query) {
-                    handleFilter();
-                  }
+                if (filters && !query) {
+                  handleSearch();
+                } else if (profileUrls.length > 0) {
+                  handleProfileSearch();
+                } else if (query) {
+                  handleFilter();
                 }
               }}
+              disabled={loading || (profileUrls.length === 0 && !filters)}
             >
-              {loading ? (
-                <Loader className="size-4 animate-spin" />
-              ) : (filters && !query) || profileUrls.length > 0 ? (
-                "Search"
-              ) : (
-                "Filter"
-              )}
+              {loading ? <Loader className="size-4 animate-spin" /> : "Search"}
             </Button>
           </Flex>
-          {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
-            <DialogRoot>
-              <DialogTrigger>
-                <Button
-                  style={{ margin: "1rem 0", cursor: "pointer" }}
-                  variant="classic"
-                >
-                  View Candidates
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogTitle>Candidates</DialogTitle>
-                <DialogDescription className="font-bold text-2xl italic">
-                  List of candidates sorted by weight.
-                </DialogDescription>
-                {candidateMatches ? (
-                  <>
-                    {candidateMatches.filter((c) => c.cookdReviewed).length <
-                      candidateMatches.length - 1 && cookdSorting ? (
-                      <Button
-                        onClick={handleSort}
-                        disabled={sorting || true} // disabled indefinitely right now because waiting on custom signals
-                        variant="classic"
-                        style={{ cursor: "pointer" }}
-                      >
-                        {sorting ? (
-                          <Loader className="size-4 animate-spin" />
-                        ) : (
-                          "Sort (disabled rn)"
-                        )}
-                      </Button>
-                    ) : null}
-                  </>
-                ) : matchedGithubUrls ? (
-                  <div className="flex flex-col gap-2 ">
-                    {matchedGithubUrls.map((url) => (
-                      <Link href={url} target="_blank" key={url}>
-                        {url}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-                {sorting && (
-                  <Text
-                    as="div"
-                    size="2"
-                    color="blue"
-                    style={{ marginTop: "0.5rem" }}
-                  >
-                    Sorting candidates based on relevance. this will take a
-                    couple minutes...
-                  </Text>
-                )}
-                <ScrollArea className="py-4">
-                  <Flex className="py-2" direction="column" gap="2">
-                    {candidateMatches?.length === 0
-                      ? "No matches 😲"
-                      : (sorting
-                          ? sortedCandidateMatches ?? []
-                          : candidateMatches
+        </Flex>
+
+        {/* Candidate List Dialog */}
+        {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
+          <DialogRoot>
+            <DialogTrigger>
+              <Button variant="classic" mt="4">
+                View Candidates
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Candidates</DialogTitle>
+              <DialogDescription>
+                List of candidates sorted by relevance.
+              </DialogDescription>
+              <Separator />
+              {candidateMatches ? (
+                <>
+                  {candidateMatches.filter((c) => c.cookdReviewed).length <
+                    candidateMatches.length - 1 && cookdSorting ? (
+                    <Button
+                      onClick={handleSort}
+                      disabled={sorting || true} // disabled indefinitely right now
+                      variant="classic"
+                      mt="2"
+                    >
+                      {sorting ? (
+                        <Loader className="size-4 animate-spin" />
+                      ) : (
+                        "Sort Candidates"
+                      )}
+                    </Button>
+                  ) : null}
+                </>
+              ) : matchedGithubUrls ? (
+                <Flex direction="column" gap="2" mt="2">
+                  {matchedGithubUrls.map((url) => (
+                    <Link href={url} target="_blank" key={url}>
+                      {url}
+                    </Link>
+                  ))}
+                </Flex>
+              ) : null}
+              {sorting && (
+                <Text size="2" color="blue" mt="2">
+                  Sorting candidates based on relevance. This will take a few
+                  minutes...
+                </Text>
+              )}
+              <ScrollArea className="py-4">
+                <Flex direction="column" gap="2">
+                  {candidateMatches?.length === 0
+                    ? "No matches found."
+                    : (sorting
+                        ? sortedCandidateMatches ?? []
+                        : candidateMatches
+                      )
+                        ?.sort((a, b) =>
+                          cookdSorting
+                            ? (b.cookdScore ?? 0) - (a.cookdScore ?? 0)
+                            : 0,
                         )
-                          ?.sort((a, b) =>
-                            cookdSorting
-                              ? (b.cookdScore ?? 0) - (a.cookdScore ?? 0)
-                              : 0,
-                          )
-                          .map((candidate) => (
-                            <CandidateCard
-                              key={candidate.id}
-                              candidate={candidate!}
-                              allMatchingSkills={allMatchingSkills}
-                              company={candidate.company!}
-                            />
-                          ))}
-                  </Flex>
-                </ScrollArea>
-                <DialogClose>
-                  <Button variant="classic">Close</Button>
-                </DialogClose>
-              </DialogContent>
-            </DialogRoot>
-          )}
-        </DialogContent>
-      </DialogRoot>
-    </>
+                        .map((candidate) => (
+                          <CandidateCard
+                            key={candidate.id}
+                            candidate={candidate!}
+                            allMatchingSkills={allMatchingSkills}
+                            company={candidate.company!}
+                          />
+                        ))}
+                </Flex>
+              </ScrollArea>
+              <DialogClose>
+                <Button style={{ cursor: "pointer" }} variant="soft" mt="4">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogContent>
+          </DialogRoot>
+        )}
+      </Card>
+    </ScrollArea>
   );
 }
