@@ -78,7 +78,9 @@ export default function ScrapedDialog() {
   const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
-  const [profileUrls, setProfileUrls] = useState<string[]>([]);
+  const [profileUrls, setProfileUrls] = useState<
+    { mode: "MANUAL" | "UPLOAD"; url: string }[]
+  >([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
@@ -311,7 +313,15 @@ export default function ScrapedDialog() {
     setManualUrls(e.target.value);
     const { type, urls } = extractUrls(e.target.value);
     setProfileType(type);
-    setProfileUrls(urls);
+    setProfileUrls(
+      [
+        ...profileUrls.filter((url) => url.mode === "UPLOAD"),
+        ...urls.map((url) => ({ mode: "MANUAL" as "UPLOAD" | "MANUAL", url })),
+      ].filter(
+        (url, index, self) =>
+          index === self.findIndex((t) => t.url === url.url),
+      ),
+    );
   };
 
   const handleFileProcessing = async (file: File) => {
@@ -322,7 +332,9 @@ export default function ScrapedDialog() {
       const { type, urls } = extractUrls(content);
       if (urls.length > 0) {
         setProfileType(type);
-        setProfileUrls(urls);
+        setProfileUrls(
+          urls.map((url) => ({ mode: "UPLOAD" as "UPLOAD" | "MANUAL", url })),
+        );
       } else {
         setError("No valid LinkedIn or GitHub URLs found in the file.");
       }
@@ -427,7 +439,7 @@ export default function ScrapedDialog() {
     // }
     setError("");
     setLoading(true);
-    findSimilarProfiles(profileUrls);
+    findSimilarProfiles(profileUrls.map((url) => url.url));
   };
 
   return (
@@ -665,7 +677,7 @@ export default function ScrapedDialog() {
                           variant="surface"
                           color={profileType === "linkedin" ? "blue" : "green"}
                         >
-                          {url.split("/").pop()}
+                          {url.url.split("/").pop()}
                         </Button>
                       ))}
 
@@ -673,7 +685,10 @@ export default function ScrapedDialog() {
                         variant="surface"
                         color="gray"
                         style={{ cursor: "pointer" }}
-                        onClick={() => setProfileUrls([])}
+                        onClick={() => {
+                          setProfileUrls([]);
+                          setManualUrls("");
+                        }}
                       >
                         <X className="size-4" />
                         Clear URLs
