@@ -616,15 +616,12 @@ export default function ScrapedDialog() {
                   size="2"
                   color="red"
                   onClick={() => {
-                    setLoading(true);
                     for (const profileQuery of getPendingSimilarProfilesQuery.data) {
                       deletePendingSimilarProfilesMutation.mutate({
                         id: profileQuery.id,
                       });
                     }
-                    setLoading(false);
                   }}
-                  disabled={loading}
                 >
                   Flush Queue
                 </Button>
@@ -711,7 +708,7 @@ export default function ScrapedDialog() {
                   {candidateMatches?.length === 0
                     ? "No matches found."
                     : (sorting
-                        ? sortedCandidateMatches ?? []
+                        ? (sortedCandidateMatches ?? [])
                         : candidateMatches
                       )
                         ?.sort((a, b) =>

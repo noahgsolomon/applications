@@ -11,13 +11,13 @@ export default $config({
   },
   async run() {
     const findSimilarProfilesLinkedinQueue = new sst.aws.Queue(
-      "findSimilarProfilesLinkedinQueue",
+      "FindSimilarProfilesLinkedinQueue",
       {
         visibilityTimeout: "10 minutes",
       },
     );
     const findSimilarProfilesGithubQueue = new sst.aws.Queue(
-      "findSimilarProfilesGithubQueue",
+      "FindSimilarProfilesGithubQueue",
       {
         visibilityTimeout: "10 minutes",
       },

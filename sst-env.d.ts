@@ -5,16 +5,16 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
+    "FindSimilarProfilesGithubQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "FindSimilarProfilesLinkedinQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "WhopApplications": {
       "type": "sst.aws.Nextjs"
-      "url": string
-    }
-    "findSimilarProfilesGithubQueue": {
-      "type": "sst.aws.Queue"
-      "url": string
-    }
-    "findSimilarProfilesLinkedinQueue": {
-      "type": "sst.aws.Queue"
       "url": string
     }
   }
