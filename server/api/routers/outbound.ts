@@ -354,20 +354,33 @@ export const outboundRouter = createTRPCRouter({
   findRelevantCompanies: publicProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const companies = await ctx.db.query.company.findMany({
+        where: (company, { exists, eq }) =>
+          exists(
+            ctx.db
+              .select()
+              .from(candidates)
+              .where(eq(candidates.companyId, company.id)),
+          ),
+      });
+
+      const companyNames = companies.map((company) => company.name);
+
       // Step 1: Standardize the input query to technologies, specialties, and features
       const completion = await openai.chat.completions.create({
         messages: [
           {
             role: "system",
             content: `
-You will be provided with a technology term. Your task is to standardize it into three categories: technologies, specialties, and features.
+You will be provided with multiple technology terms and or specialties/features. OR, you will be provided a list of company names. If any company is mentioned, find the company names from the following list: ${companyNames.join(", ")}. 
+        If no company in this list is in their query or if their query has no mention of a company, then your task is to standardize it into three categories: technologies, specialties, and features.
 - Technologies are specific programming languages, frameworks, or tools (e.g., "JavaScript", "Ruby on Rails", "Next.js").
 - Specialties describe the type of company or domain (e.g., "Version control", "Web browser", "Open source project hosting").
 - Features are technical features being queried, such as "live messaging", "notifications", or "tab management".
 
 If the input is already standardized, return it as is.
 
-Respond only with a JSON object that has three fields: "standardizedTechs", "standardizedSpecialties", and "standardizedFeatures". Each should be an array of standardized terms.
+Respond only with a JSON object that has four fields: "standardizedTechs", "standardizedSpecialties", and "standardizedFeatures", "companyNames". Each should be an array of standardized terms.
         `,
           },
           {
@@ -384,10 +397,12 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
       const standardizedResponse = JSON.parse(
         completion.choices[0].message.content ?? "{}",
       );
+
       console.log(
         "Standardized response:",
         JSON.stringify(standardizedResponse, null, 2),
       );
+
       const standardizedTechs: string[] =
         standardizedResponse.standardizedTechs?.map((tech: string) =>
           tech.toLowerCase(),
@@ -408,6 +423,28 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           (specialty: string) => specialty.toLowerCase(),
         ),
       ];
+
+      const companiesDB = await ctx.db.query.company.findMany({
+        where: inArray(companyTable.name, standardizedResponse.companyNames),
+      });
+
+      if (
+        companiesDB.length > 0 &&
+        standardizedTechs.length === 0 &&
+        standardizedSpecialties.length === 0 &&
+        standardizedFeatures.length === 0
+      ) {
+        return {
+          valid: true,
+          companies: companiesDB.map((company) => ({
+            id: company.id,
+            name: company.name,
+            linkedinUrl: company.linkedinUrl,
+            logo: company.logo,
+          })),
+          filters: [],
+        };
+      }
 
       console.log(
         "Standardized technologies:",
@@ -467,12 +504,6 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
       // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
-        const companyDb = await ctx.db.query.company.findFirst({
-          where: eq(companyTable.id, company.id),
-        });
-
-        if (!companyDb) continue;
-
         let score = 0;
         let matchesAllTechs = true;
 
@@ -480,7 +511,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
         for (const similarTechnologies of allTechnologiesToSearch) {
           const hasMatchingTechnology = similarTechnologies.some(
             ({ technology, score: techScore }) =>
-              companyDb.topTechnologies?.includes(technology),
+              company.topTechnologies?.includes(technology),
           );
 
           if (!hasMatchingTechnology) {
@@ -489,7 +520,7 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           } else {
             similarTechnologies
               .filter(({ technology }) =>
-                companyDb.topTechnologies?.includes(technology),
+                company.topTechnologies?.includes(technology),
               )
               .map((res) => (score += res.score)) ?? 0;
           }
@@ -501,15 +532,13 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           let hasHadMatchingFeature = false;
           for (const similarFeatures of allFeaturesToSearch) {
             const hasMatchingFeature = similarFeatures.some(({ feature }) =>
-              companyDb.topFeatures?.includes(feature),
+              company.topFeatures?.includes(feature),
             );
 
             if (hasMatchingFeature) {
               hasHadMatchingFeature = true;
               similarFeatures
-                .filter(({ feature }) =>
-                  companyDb.topFeatures?.includes(feature),
-                )
+                .filter(({ feature }) => company.topFeatures?.includes(feature))
                 .map((res) => (score += res.score)) ?? 0;
             }
           }
@@ -524,14 +553,14 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
           let hasHadMatchingSpecialty = false;
           for (const similarSpecialties of allSpecialtiesToSearch) {
             const hasMatchingSpecialty = similarSpecialties.some(
-              ({ specialty }) => companyDb.specialties?.includes(specialty),
+              ({ specialty }) => company.specialties?.includes(specialty),
             );
 
             if (hasMatchingSpecialty) {
               hasHadMatchingSpecialty = true;
               similarSpecialties
                 .filter(({ specialty }) =>
-                  companyDb.specialties?.includes(specialty),
+                  company.specialties?.includes(specialty),
                 )
                 .map((res) => (score += res.score)) ?? 0;
             }
@@ -543,8 +572,8 @@ Respond only with a JSON object that has three fields: "standardizedTechs", "sta
 
         // Add company only if it matches all criteria
         if (matchesAllTechs && (matchesAllFeatures || matchesAllSpecialties)) {
-          matchingCompanies.push(companyDb);
-          companyScores[companyDb.id] = score;
+          matchingCompanies.push(company);
+          companyScores[company.id] = score;
         }
       }
 

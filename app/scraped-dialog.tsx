@@ -347,8 +347,8 @@ export default function ScrapedDialog() {
       searchInternet: false,
       relevantRoleId: undefined,
       companyIds: filters?.companies.map((company) => company.id) ?? [],
-      job: filters?.job,
-      skills: filters?.skills,
+      job: filters?.job ?? "",
+      skills: filters?.skills ?? [],
       booleanSearch: "",
       nearBrooklyn,
     });

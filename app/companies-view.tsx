@@ -144,8 +144,8 @@ export default function CompaniesView() {
                   <Info className="size-4 ml-1 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  Enter tech or features central to the company you are looking
-                  for.
+                  Enter company name(s), or tech(s) and feature(s) central to
+                  the company you are looking for.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
