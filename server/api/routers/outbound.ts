@@ -218,6 +218,9 @@ export const outboundRouter = createTRPCRouter({
         skills: z.array(z.string()),
         booleanSearch: z.string().optional(),
         companyIds: z.array(z.string()),
+        location: z.string().optional(),
+        activeGithub: z.boolean().optional(),
+        whopUser: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -618,6 +621,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
       console.log("Input received:", input);
 
       try {
+        // Fetch all company names from the database
         const companies = await ctx.db.query.company.findMany({
           where: (company, { exists, eq }) =>
             exists(
@@ -635,19 +639,28 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
             {
               role: "system",
               content: `
-        Given the search query, find the company names from the following list: ${companyNames.join(", ")}. 
-        If no company in this list is in their query or if their query has no mention of a company, return valid as false (note this doesnt mean the input is invalid, I just consider this valid false as a signal to do something else so fill our the rest of the fields). 
-        Also, extract the job title and an array of skills mentioned in the query. for the skills, you should normalize them because they might come in as slang (e.g. rails should be Ruby on Rails). Any technology mentioned can be considered a skill. The Or field determines if the skills are all of just one of them. So if the query includes Next.js react or rails Or should be true. Otherwise make Or false.
-        Return the result as a JSON object with the following structure: 
-        { 
-          "companyNames": string[], 
-          "job": string, 
-          "skills": string[], 
-          "valid": boolean, 
-          "message": string 
-          "Or": boolean
-        }.
-      `,
+Given the search query, find the company names from the following list: ${companyNames.join(", ")}.
+
+Also, extract the job title, an array of skills, location, and the minimum GitHub stars count mentioned in the query.
+
+- For the **skills**, normalize them because they might be slang (e.g., "rails" should be "Ruby on Rails"). Any technology mentioned can be considered a skill.
+- The **Or** field determines if the skills are any of them (true) or all of them (false). If the query includes "Next.js, React, or Rails," set **Or** to true. Otherwise, set it to false.
+- For the **location**, extract any location mentioned in the query.
+- For the **minGithubStars**, extract any minimum GitHub stars count mentioned.
+
+Return the result as a JSON object with the following structure:
+{
+  "companyNames": string[],
+  "job": string,
+  "skills": string[],
+  "location": string,
+  "minGithubStars": number,
+  "valid": boolean,
+  "message": string,
+  "Or": boolean
+}.
+If no company in the list is in their query or if their query has no mention of a company, set **valid** to false.
+`,
             },
             {
               role: "user",
@@ -660,19 +673,22 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           max_tokens: 512,
         });
 
+        // Second completion: Determine the relevant role
         const secondCompletion = await openai.chat.completions.create({
           messages: [
             {
               role: "system",
               content: `
-        Given the relevant role from the user's input and the following list of possible roles: 
-        Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement.
-        Determine which role from this list best matches the user's relevantRole input.
-        Return the result as a JSON object with the following structure: 
-        { 
-          "relevantRole": string 
-        }.
-      `,
+Given the job title from the user's input and the following list of possible roles:
+Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement.
+
+Determine which role from this list best matches the user's job title input.
+
+Return the result as a JSON object with the following structure:
+{
+  "relevantRole": string
+}.
+`,
             },
             {
               role: "user",
@@ -685,9 +701,19 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           max_tokens: 512,
         });
 
+        // Parse the responses
         const firstResponse = JSON.parse(
           firstCompletion.choices[0].message.content ??
-            '{ "valid": false, "message": "No response", "companyNames": [], "job": "", "skills": [], "Or": false }',
+            `{
+            "valid": false,
+            "message": "No response",
+            "companyNames": [],
+            "job": "",
+            "skills": [],
+            "location": "",
+            "minGithubStars": 0,
+            "Or": false
+          }`,
         );
 
         const secondResponse = JSON.parse(
@@ -695,11 +721,13 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
             '{ "relevantRole": "" }',
         );
 
+        // Combine responses
         const response = {
           ...firstResponse,
           ...secondResponse,
         };
 
+        // Find the relevant role in the database
         const relevantRole = await ctx.db.query.relevantRoles.findFirst({
           where: eq(relevantRoles.jobTitle, response.relevantRole),
         });
@@ -713,6 +741,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           responseCompanyNames = companyNames;
         }
 
+        // Fetch companies from the database based on the extracted company names
         const companiesDB = await ctx.db.query.company.findMany({
           where: inArray(companyTable.name, responseCompanyNames),
         });
@@ -728,6 +757,8 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
             relevantRole: undefined,
             job: "",
             skills: [],
+            location: "",
+            minGithubStars: 0,
             Or: false,
           };
         }
@@ -740,6 +771,8 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           companies: companiesDB,
           job: response.job,
           skills: response.skills,
+          location: response.location,
+          minGithubStars: response.minGithubStars,
           query: input.query,
           Or: response.Or,
         };
