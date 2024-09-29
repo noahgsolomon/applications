@@ -1,13 +1,13 @@
-import { candidates } from "@/server/db/schemas/users/schema";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import axios from "axios";
-import * as schema from "@/server/db/schemas/users/schema";
+import * as schema from "../server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
+import { and, eq, isNotNull, ne, not, exists, inArray } from "drizzle-orm";
 
 dotenv.config({ path: "../.env" });
 
@@ -340,32 +340,32 @@ async function insertCandidate(profileData: any) {
   return candidateId;
 }
 
-import { URL } from "url";
-import { and, eq, isNotNull, ne, not, exists, inArray } from "drizzle-orm";
-
 function validateAndNormalizeLinkedInUrl(url: string): string | null {
   try {
-    const parsedUrl = new URL(url);
+    // Simple regex to extract hostname and pathname
+    const match = url.match(/^(https?:\/\/)?([^\/]+)(\/.*)?$/i);
+    if (!match) return null;
 
-    if (!parsedUrl.hostname.endsWith("linkedin.com")) {
+    let [, protocol, hostname, pathname] = match;
+
+    if (!hostname.endsWith("linkedin.com")) {
       return null;
     }
 
-    parsedUrl.protocol = "https:";
+    protocol = "https://";
 
-    if (parsedUrl.hostname === "linkedin.com") {
-      parsedUrl.hostname = "www.linkedin.com";
+    if (hostname === "linkedin.com") {
+      hostname = "www.linkedin.com";
     }
 
-    if (!parsedUrl.pathname.startsWith("/in/")) {
+    pathname = pathname || "";
+    if (!pathname.startsWith("/in/")) {
       return null;
     }
 
-    parsedUrl.pathname = parsedUrl.pathname.replace(/\/$/, "");
-    parsedUrl.search = "";
-    parsedUrl.hash = "";
+    pathname = pathname.replace(/\/$/, "");
 
-    return parsedUrl.toString();
+    return `${protocol}${hostname}${pathname}`;
   } catch (error) {
     console.error(`Invalid URL: ${url}`);
     return null;
