@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
-import { eq, isNull } from "drizzle-orm/expressions";
+import { eq, isNull, or, and, not, exists } from "drizzle-orm/expressions";
 import {
   people,
   jobTitles,
@@ -21,29 +21,6 @@ const db = drizzle(pool, {
 });
 
 const API_KEY = process.env.SOCIAL_DATA_API_KEY;
-
-async function fetchUserProfile(username: string): Promise<any> {
-  console.log(`[fetchUserProfile] Fetching data for username: ${username}`);
-  const url = `https://api.socialdata.tools/twitter/user/${username}`;
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${API_KEY}`,
-      Accept: "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    console.error(
-      `[fetchUserProfile] Error fetching user profile for ${username}: ${response.statusText}`,
-    );
-    return null;
-  }
-
-  console.log(
-    `[fetchUserProfile] Successfully fetched data for username: ${username}`,
-  );
-  return await response.json();
-}
 
 async function getEmbedding(text: string): Promise<number[]> {
   const input = text.replace(/\n/g, " ");
@@ -163,7 +140,24 @@ async function updateMissingVectors() {
   const unprocessedPeople = await db
     .select()
     .from(people)
-    .where(isNull(people.locationVector));
+    .where(
+      and(
+        isNull(people.locationVector),
+        not(
+          exists(
+            db
+              .select()
+              .from(jobTitles)
+              .where(eq(jobTitles.personId, people.id)),
+          ),
+        ),
+        not(
+          exists(
+            db.select().from(skills).where(eq(skills.personId, people.id)),
+          ),
+        ),
+      ),
+    );
 
   console.log(
     `[updateMissingVectors] Found ${unprocessedPeople.length} people without locationVector`,
