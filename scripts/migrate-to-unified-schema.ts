@@ -365,8 +365,8 @@ async function migrateData() {
           // Determine location to use
           await updateLocationVector(
             personId,
-            personData.normalizedLocation,
-            personData.location,
+            personData.normalizedLocation ?? null,
+            personData.location ?? null,
             personData.linkedinData,
           );
 
@@ -471,8 +471,8 @@ async function migrateData() {
           // Determine location to use
           await updateLocationVector(
             personId,
-            personData.normalizedLocation,
-            personData.location,
+            personData.normalizedLocation ?? null,
+            personData.location ?? null,
             personData.linkedinData,
           );
 
