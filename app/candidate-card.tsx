@@ -29,6 +29,7 @@ export default function CandidateCard({
 }) {
   return (
     <Card
+      className="shadow-md"
       style={{
         borderColor:
           // candidate.cookdReviewed
