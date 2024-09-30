@@ -507,6 +507,7 @@ export default function ScrapedDialog() {
                 <Button
                   style={{ cursor: "pointer" }}
                   onClick={() => setFilters({ ...filters, job: "" })}
+                  className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                   color="orange"
                   variant="surface"
                 >
@@ -527,6 +528,7 @@ export default function ScrapedDialog() {
                 filters?.skills.map((skill: string) => (
                   <Button
                     style={{ cursor: "pointer" }}
+                    className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                     onClick={() =>
                       setFilters({
                         ...filters,
@@ -550,7 +552,8 @@ export default function ScrapedDialog() {
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
-                      color={nearBrooklyn ? "green" : "red"}
+                      color={"iris"}
+                      className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                       onClick={() => {
                         console.log(filters);
 
@@ -666,11 +669,26 @@ export default function ScrapedDialog() {
                           key={index}
                           variant="surface"
                           color={urlObj.type === "linkedin" ? "blue" : "green"}
+                          style={{ cursor: "pointer" }}
+                          className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                          onClick={() => {
+                            setProfileUrls(
+                              profileUrls.filter((u) => u !== urlObj),
+                            );
+                            setManualUrls(
+                              manualUrls
+                                .replace(urlObj.url, "")
+                                .replace(
+                                  urlObj.url.replace("https://", ""),
+                                  "",
+                                ),
+                            );
+                          }}
                         >
                           {urlObj.type === "linkedin" ? (
-                            <Linkedin className="size-4" />
+                            <Linkedin className="size-4 mr-1" />
                           ) : (
-                            <Github className="size-4" />
+                            <Github className="size-4 mr-1" />
                           )}
                           {urlObj.url.split("/").pop()}
                         </Button>
@@ -712,6 +730,7 @@ export default function ScrapedDialog() {
                   variant="classic"
                   size="2"
                   color="red"
+                  style={{ cursor: "pointer" }}
                   onClick={() => {
                     for (const profileQuery of getPendingSimilarProfilesQuery.data) {
                       deletePendingSimilarProfilesMutation.mutate({
@@ -751,7 +770,7 @@ export default function ScrapedDialog() {
         {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
           <DialogRoot>
             <DialogTrigger>
-              <Button variant="classic" mt="4">
+              <Button style={{ cursor: "pointer" }} variant="classic" mt="4">
                 View Candidates
               </Button>
             </DialogTrigger>
