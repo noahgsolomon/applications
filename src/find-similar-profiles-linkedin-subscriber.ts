@@ -982,6 +982,11 @@ async function processFilterCriteria(
 ) {
   console.log("Processing filter criteria...");
 
+  let locationEmbedding = null;
+  if (filterCriteria.location) {
+    locationEmbedding = await getEmbedding(filterCriteria.location);
+  }
+
   // Extract similar technologies and job titles
   const similarTechnologiesArrays = await Promise.all(
     filterCriteria.skills.map((skill) => querySimilarTechnologies(skill)),

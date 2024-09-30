@@ -8,6 +8,7 @@ import {
   pgEnum,
   pgTable,
   real,
+  serial,
   text,
   timestamp,
   unique,
@@ -487,8 +488,7 @@ export const people = pgTable(
     isWhopCreator: boolean("is_whop_creator"),
     // Indicate the source tables (for traceability)
     sourceTables: jsonb("source_tables").$type<string[]>().default([]),
-    locationVector: vector("location_vector", { dimensions: 3072 }),
-    jobTitleVector: vector("job_title_vector", { dimensions: 3072 }),
+    locationVector: vector("location_vector", { dimensions: 1536 }),
   },
   (table) => ({
     // Adding unique constraints
@@ -499,9 +499,44 @@ export const people = pgTable(
       "hnsw",
       table.locationVector.op("vector_cosine_ops"),
     ),
-    jobTitleVectorIndex: index("job_title_vector_index").using(
+  }),
+);
+
+export const jobTitles = pgTable(
+  "job_titles",
+  {
+    id: serial("id").primaryKey(),
+    personId: varchar("person_id", { length: 255 })
+      .notNull()
+      .references(() => people.id),
+
+    title: varchar("title", { length: 255 }).notNull(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    uniqueTitlePerPerson: unique().on(table.personId, table.title),
+    vectorIndex: index("job_titles_vector_index").using(
       "hnsw",
-      table.locationVector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const skills = pgTable(
+  "skills",
+  {
+    id: serial("id").primaryKey(),
+    personId: varchar("person_id", { length: 255 })
+      .notNull()
+      .references(() => people.id),
+    skill: varchar("skill", { length: 255 }).notNull(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    uniqueSkillPerPerson: unique().on(table.personId, table.skill),
+    vectorIndex: index("skills_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
     ),
   }),
 );
