@@ -175,10 +175,20 @@ async function migrateData() {
     console.log(
       `[migrateData] Inserting/Updating person record for GitHub user: ${githubUser.login}`,
     );
-    await db.insert(people).values(personData).onConflictDoUpdate({
-      target: people.githubId,
-      set: personData,
-    });
+    try {
+      await db.insert(people).values(personData).onConflictDoUpdate({
+        target: people.githubId,
+        set: personData,
+      });
+      console.log(
+        `[migrateData] Successfully inserted/updated person record for GitHub user: ${githubUser.login}`,
+      );
+    } catch (error) {
+      console.error(
+        `[migrateData] Error inserting/updating person record for GitHub user ${githubUser.login}:`,
+        error,
+      );
+    }
 
     // Mark githubUser as processed
     await db
@@ -232,10 +242,20 @@ async function migrateData() {
     console.log(
       `[migrateData] Inserting/Updating person record for candidate: ${candidate.url}`,
     );
-    await db.insert(people).values(personData).onConflictDoUpdate({
-      target: people.linkedinUrl,
-      set: personData,
-    });
+    try {
+      await db.insert(people).values(personData).onConflictDoUpdate({
+        target: people.linkedinUrl,
+        set: personData,
+      });
+      console.log(
+        `[migrateData] Successfully inserted/updated person record for candidate: ${candidate.url}`,
+      );
+    } catch (error) {
+      console.error(
+        `[migrateData] Error inserting/updating person record for candidate ${candidate.url}:`,
+        error,
+      );
+    }
 
     // Mark candidate as processed
     await db
@@ -281,10 +301,20 @@ async function migrateData() {
       console.log(
         `[processTwitterAccounts] Inserting/Updating person record for Twitter account: ${twitterAccount.username}`,
       );
-      await db.insert(people).values(personData).onConflictDoUpdate({
-        target: people.twitterId,
-        set: personData,
-      });
+      try {
+        await db.insert(people).values(personData).onConflictDoUpdate({
+          target: people.twitterId,
+          set: personData,
+        });
+        console.log(
+          `[processTwitterAccounts] Successfully inserted/updated person record for Twitter account: ${twitterAccount.username}`,
+        );
+      } catch (error) {
+        console.error(
+          `[processTwitterAccounts] Error inserting/updating person record for Twitter account ${twitterAccount.username}:`,
+          error,
+        );
+      }
 
       // Mark Twitter account as processed
       await db
