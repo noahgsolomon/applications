@@ -655,7 +655,7 @@ async function insertCandidate(profileData: any) {
   return candidateId;
 }
 
-async function processProfileUrls(profileUrls: string[], insertId: string) {
+async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   console.log("Processing profile URLs...");
 
   console.log("Row inserted successfully into profileQueue");
@@ -1065,14 +1065,16 @@ async function processFilterCriteria(
   return topCandidates;
 }
 
-function mergeResults(results1: any[], results2: any[]): any[] {
+function mergeResults(...resultsArrays: any[][]): any[] {
   const idSet = new Set();
   const mergedResults: any[] = [];
 
-  for (const item of [...results1, ...results2]) {
-    if (!idSet.has(item.id)) {
-      idSet.add(item.id);
-      mergedResults.push(item);
+  for (const resultsArray of resultsArrays) {
+    for (const item of resultsArray) {
+      if (!idSet.has(item.id)) {
+        idSet.add(item.id);
+        mergedResults.push(item);
+      }
     }
   }
 
@@ -1082,6 +1084,7 @@ function mergeResults(results1: any[], results2: any[]): any[] {
 export async function handler(event: any) {
   console.log("Queue handler invoked.");
   const body = JSON.parse(event.Records[0].body);
+  console.log("Queue item:", JSON.stringify(body, null, 2));
 
   // Insert into profileQueue
   const insert = await db
@@ -1097,26 +1100,33 @@ export async function handler(event: any) {
   const insertId = insert[0].id;
 
   try {
-    let resultsFromProfileUrls: any[] = [];
+    let resultsFromLinkedinUrls: any[] = [];
+    let resultsFromGithubUrls: any[] = [];
     let resultsFromFilterCriteria: any[] = [];
 
-    if (body.profileUrls && body.profileUrls.length > 0) {
+    if (body.linkedinUrls && body.linkedinUrls.length > 0) {
       try {
-        console.log("Processing profile URLs...");
-        resultsFromProfileUrls = await processProfileUrls(
-          body.profileUrls.filter((url: string) =>
-            url.includes("linkedin.com"),
-          ),
+        console.log("Processing Linkedin URLs...");
+        resultsFromLinkedinUrls = await processLinkedinUrls(
+          body.linkedinUrls,
           insertId,
         );
-        // resultsFromProfileUrls = await processGithubProfileUrls(
-        //   body.profileUrls.filter((url: string) => url.includes("github.com")),
-        //   insertId,
-        // );
       } catch (error) {
         console.error("Error processing profile URLs:", error);
-        // Optionally handle the error or continue
       }
+    }
+
+    if (body.githubUrls && body.githubUrls.length > 0) {
+      console.log("Processing GitHub URLs...");
+      // try {
+      //   console.log("Processing profile URLs...");
+      //   resultsFromGithubUrls = await processProfileUrls(
+      //     body.githubUrls,
+      //     insertId,
+      //   );
+      // } catch (error) {
+      //   console.error("Error processing profile URLs:", error);
+      // }
     }
 
     if (body.filterCriteria) {
@@ -1134,7 +1144,8 @@ export async function handler(event: any) {
 
     // Merge the results
     const mergedResults = mergeResults(
-      resultsFromProfileUrls,
+      resultsFromLinkedinUrls,
+      resultsFromGithubUrls,
       resultsFromFilterCriteria,
     );
 
