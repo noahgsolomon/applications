@@ -150,11 +150,10 @@ export const outboundRouter = createTRPCRouter({
     .input(
       z.object({
         payload: z.any(),
-        profileType: z.enum(["linkedin", "github"]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { payload, profileType } = input;
+      const { payload } = input;
 
       const similarProfileQueries = await ctx.db.query.profileQueue.findMany();
 
@@ -163,10 +162,7 @@ export const outboundRouter = createTRPCRouter({
       }
       const sqsClient = new SQSClient({ region: "us-east-1" });
 
-      const queueUrl =
-        profileType === "linkedin"
-          ? Resource.FindSimilarProfilesLinkedinQueue.url
-          : Resource.FindSimilarProfilesLinkedinQueue.url;
+      const queueUrl = Resource.FindSimilarProfilesLinkedinQueue.url;
 
       if (!queueUrl) {
         throw new Error("Queue URL not configured");

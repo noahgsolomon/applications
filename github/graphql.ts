@@ -102,26 +102,13 @@ export async function isNearNYC(user: any): Promise<boolean> {
 }
 
 const organizations = [
-  // "google",
-  // "microsoft",
-  // "apple",
-  // "facebook",
-  // "amazon",
-  "tesla",
-  "spacex",
-  "nvidia",
-  "adobe",
-  "intel",
-  "ibm",
-  "oracle",
-  "samsung",
-  "tencent",
-  "baidu",
-  "alibaba",
-  "bytedance",
-  "zoom",
-  "shopify",
-  "twilio",
+  "gitlab",
+  "atlassian",
+  "slack",
+  "twitter",
+  "linkedin",
+  "pinterest",
+  "spotify",
 ];
 
 const fetchOrganizationMembers = async (orgName: string) => {

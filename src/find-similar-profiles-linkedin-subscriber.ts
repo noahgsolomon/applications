@@ -1099,9 +1099,15 @@ export async function handler(event: any) {
       try {
         console.log("Processing profile URLs...");
         resultsFromProfileUrls = await processProfileUrls(
-          body.profileUrls,
+          body.profileUrls.filter((url: string) =>
+            url.includes("linkedin.com"),
+          ),
           insertId,
         );
+        // resultsFromProfileUrls = await processGithubProfileUrls(
+        //   body.profileUrls.filter((url: string) => url.includes("github.com")),
+        //   insertId,
+        // );
       } catch (error) {
         console.error("Error processing profile URLs:", error);
         // Optionally handle the error or continue
