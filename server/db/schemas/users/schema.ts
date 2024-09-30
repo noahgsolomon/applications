@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
   json,
   jsonb,
@@ -12,6 +13,7 @@ import {
   unique,
   uniqueIndex,
   varchar,
+  vector,
 } from "drizzle-orm/pg-core";
 
 export const profileQueue = pgTable("profile_queue", {
@@ -485,11 +487,21 @@ export const people = pgTable(
     isWhopCreator: boolean("is_whop_creator"),
     // Indicate the source tables (for traceability)
     sourceTables: jsonb("source_tables").$type<string[]>().default([]),
+    locationVector: vector("location_vector", { dimensions: 3072 }),
+    jobTitleVector: vector("job_title_vector", { dimensions: 3072 }),
   },
   (table) => ({
     // Adding unique constraints
     githubIdUnique: unique().on(table.githubId),
     linkedinUrlUnique: unique().on(table.linkedinUrl),
     twitterIdUnique: unique().on(table.twitterId),
+    locationVectorIndex: index("location_vector_index").using(
+      "hnsw",
+      table.locationVector.op("vector_cosine_ops"),
+    ),
+    jobTitleVectorIndex: index("job_title_vector_index").using(
+      "hnsw",
+      table.locationVector.op("vector_cosine_ops"),
+    ),
   }),
 );
