@@ -42,59 +42,6 @@ export const users = pgTable("user", {
   image: varchar("image", { length: 255 }),
 });
 
-export const pendingOutbound = pgTable("pendingOutbound", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  progress: integer("progress").default(0),
-  userId: varchar("user_id", { length: 255 })
-    .notNull()
-    .references(() => users.id),
-  outboundId: varchar("outbound_id", { length: 255 }).notNull(),
-  query: text("query").notNull(),
-  job: varchar("job", { length: 255 }).notNull(),
-  nearBrooklyn: boolean("near_brooklyn").notNull(),
-  status: varchar("status", { length: 255 }).notNull(),
-  company: varchar("company", { length: 255 }).notNull(),
-  booleanSearch: text("boolean_search").notNull(),
-  logs: text("logs").notNull(),
-});
-
-export const pendingCompanyOutbound = pgTable("pending_company_outbound", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  progress: integer("progress").default(0),
-  userId: varchar("user_id", { length: 255 })
-    .notNull()
-    .references(() => users.id),
-  outboundId: varchar("outbound_id", { length: 255 }).notNull(),
-  query: text("query").notNull(),
-  job: varchar("job", { length: 255 }).notNull(),
-  relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
-    () => relevantRoles.id,
-  ),
-  skills: json("skills").$type<string[]>().notNull(),
-  nearBrooklyn: boolean("near_brooklyn").notNull(),
-  searchInternet: boolean("search_internet").notNull(),
-  status: varchar("status", { length: 255 }).notNull(),
-  companyIds: json("company_ids").$type<string[]>().notNull(),
-  booleanSearch: text("boolean_search").notNull(),
-  logs: text("logs").notNull(),
-});
-
-export const pendingCompanyOutboundRelations = relations(
-  pendingCompanyOutbound,
-  ({ one }) => ({
-    relevantRole: one(relevantRoles, {
-      fields: [pendingCompanyOutbound.relevantRoleId],
-      references: [relevantRoles.id],
-    }),
-  }),
-);
-
 // id: uuidId,
 // job: input.job,
 // companyIds: input.companyIds,
@@ -108,30 +55,6 @@ export const pendingCompanyOutboundRelations = relations(
 // booleanSearch:
 //   input.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
 // logs: "",
-
-export const typeEnum = pgEnum("type", ["OUTBOUND", "COMPANY"]);
-
-export const outbound = pgTable("outbound", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  userId: varchar("user_id", { length: 255 })
-    .notNull()
-    .references(() => users.id),
-  query: text("query").notNull(),
-  job: varchar("job", { length: 255 }).notNull(),
-  nearBrooklyn: boolean("near_brooklyn").notNull(),
-  company: varchar("company", { length: 255 }).notNull(),
-  createdAt: timestamp("createdAt"),
-  type: typeEnum("type").default("OUTBOUND").notNull(),
-  relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
-    () => relevantRoles.id,
-  ),
-  searchInternet: boolean("search_internet").default(true),
-  companyIds: json("company_ids").$type<string[]>().default([]),
-  recommended: boolean("recommended").default(false),
-});
 
 export const candidates = pgTable("candidates", {
   id: varchar("id", { length: 255 })
@@ -171,82 +94,6 @@ export const candidatesRelations = relations(candidates, ({ one }) => ({
     references: [company.id],
   }),
 }));
-
-export const outboundCandidates = pgTable(
-  "outbound_candidates",
-  {
-    id: varchar("id", { length: 255 })
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    candidateId: varchar("candidate_id", { length: 255 })
-      .notNull()
-      .references(() => candidates.id),
-    outboundId: varchar("outbound_id", { length: 255 }).notNull(),
-    workedInPosition: boolean("worked_in_position").notNull(),
-    workedAtRelevant: boolean("worked_at_relevant").notNull(),
-    similarity: real("similarity").notNull(),
-    weight: real("weight").notNull(),
-    matched: boolean("matched").default(false),
-    relevantSkills: json("relevant_skills").$type<string[]>().default([]),
-    notRelevantSkills: json("not_relevant_skills")
-      .$type<string[]>()
-      .default([]),
-    relevantRoleId: varchar("relevant_role_id", { length: 255 }).references(
-      () => relevantRoles.id,
-    ),
-  },
-
-  (t) => ({
-    outboundCandidateIdx: uniqueIndex("outbound_candidate_idx").on(
-      t.candidateId,
-      t.outboundId,
-    ),
-  }),
-);
-
-export const outboundCompanies = pgTable(
-  "outbound_company_candidates",
-  {
-    id: varchar("id", { length: 255 })
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    outboundId: varchar("outbound_candidate_id", { length: 255 }).notNull(),
-    companyId: varchar("company_id", { length: 255 })
-      .notNull()
-      .references(() => company.id),
-  },
-  (t) => ({
-    outboundCompanyIdx: uniqueIndex("outbound_company_idx").on(
-      t.companyId,
-      t.outboundId,
-    ),
-  }),
-);
-
-export const relevantRoles = pgTable("relevantRoles", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  jobTitle: varchar("job_title", { length: 255 }).notNull(),
-  jobDescription: text("job_description").notNull(),
-});
-
-export const outboundCandidatesRelations = relations(
-  outboundCandidates,
-  ({ one }) => ({
-    outbound: one(outbound, {
-      fields: [outboundCandidates.outboundId],
-      references: [outbound.id],
-    }),
-    candidate: one(candidates, {
-      fields: [outboundCandidates.candidateId],
-      references: [candidates.id],
-    }),
-  }),
-);
 
 export const company = pgTable("company", {
   id: varchar("id", { length: 255 })
@@ -489,6 +336,10 @@ export const people = pgTable(
     // Indicate the source tables (for traceability)
     sourceTables: jsonb("source_tables").$type<string[]>().default([]),
     locationVector: vector("location_vector", { dimensions: 1536 }),
+    averageSkillVector: vector("average_skill_vector", { dimensions: 1536 }),
+    averageJobTitleVector: vector("average_job_title_vector", {
+      dimensions: 1536,
+    }),
   },
   (table) => ({
     // Adding unique constraints
@@ -498,6 +349,14 @@ export const people = pgTable(
     locationVectorIndex: index("location_vector_index").using(
       "hnsw",
       table.locationVector.op("vector_cosine_ops"),
+    ),
+    averageSkillVectorIndex: index("average_skill_vector_idx").using(
+      "hnsw",
+      table.averageSkillVector.op("vector_cosine_ops"),
+    ),
+    averageJobTitleVectorIndex: index("average_job_title_vector_idx").using(
+      "hnsw",
+      table.averageJobTitleVector.op("vector_cosine_ops"),
     ),
   }),
 );

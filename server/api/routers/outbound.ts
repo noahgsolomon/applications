@@ -3,11 +3,6 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   candidates,
   company as companyTable,
-  outbound,
-  outboundCandidates,
-  pendingCompanyOutbound,
-  pendingOutbound,
-  relevantRoles,
 } from "@/server/db/schemas/users/schema";
 import * as schema from "@/server/db/schemas/users/schema";
 //@ts-ignore
@@ -602,13 +597,6 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         ],
       };
     }),
-  deletePendingCompanyOutbound: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .delete(pendingCompanyOutbound)
-        .where(eq(pendingCompanyOutbound.id, input.id));
-    }),
 
   companyFilter: publicProcedure
     .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
@@ -723,11 +711,6 @@ Return the result as a JSON object with the following structure:
           ...secondResponse,
         };
 
-        // Find the relevant role in the database
-        const relevantRole = await ctx.db.query.relevantRoles.findFirst({
-          where: eq(relevantRoles.jobTitle, response.relevantRole),
-        });
-
         let responseCompanyNames = response.companyNames;
 
         if (!response.valid) {
@@ -763,7 +746,6 @@ Return the result as a JSON object with the following structure:
         return {
           valid: true,
           message: "Company found.",
-          relevantRole: relevantRole ?? undefined,
           companies: companiesDB,
           job: response.job,
           skills: response.skills,
@@ -795,175 +777,6 @@ Return the result as a JSON object with the following structure:
       logo: company.logo,
     }));
   }),
-  deletePendingOutbound: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .delete(pendingOutbound)
-        .where(eq(pendingOutbound.id, input.id));
-    }),
-  searches: publicProcedure
-    .input(z.object({ recommended: z.boolean() }).optional())
-    .query(async ({ ctx, input }) => {
-      const result: (InferSelectModel<typeof outbound> & {
-        candidates: (InferSelectModel<typeof candidates> & {
-          workedInPosition: boolean;
-          workedAtRelevant: boolean;
-          similarity: number;
-          weight: number;
-          matched: boolean;
-          relevantSkills: string[];
-          notRelevantSkills: string[];
-        })[];
-        matches: (InferSelectModel<typeof candidates> & {
-          workedInPosition: boolean;
-          workedAtRelevant: boolean;
-          similarity: number;
-          weight: number;
-          matched: boolean;
-          relevantSkills: string[];
-          notRelevantSkills: string[];
-        })[];
-      })[] = [];
-
-      let outboundEntries: InferSelectModel<typeof outbound>[];
-
-      if (input?.recommended) {
-        outboundEntries = await ctx.db.query.outbound.findMany({
-          orderBy: [desc(outbound.createdAt)],
-          where: eq(outbound.recommended, true),
-        });
-      } else {
-        outboundEntries = await ctx.db.query.outbound.findMany({
-          orderBy: [desc(outbound.createdAt)],
-        });
-      }
-      // Fetch all outbound entries
-
-      for (const o of outboundEntries) {
-        // Fetch related candidates through the junction table
-        const outboundCandidatesEntries =
-          await ctx.db.query.outboundCandidates.findMany({
-            with: {
-              candidate: true,
-            },
-            where: eq(outboundCandidates.outboundId, o.id),
-          });
-
-        // Combine candidate details with outboundCandidates details
-        const candidates = outboundCandidatesEntries.map((entry) => ({
-          ...entry.candidate,
-          workedInPosition: entry.workedInPosition,
-          workedAtRelevant: entry.workedAtRelevant,
-          similarity: entry.similarity,
-          weight: entry.weight,
-          matched: entry.matched ?? false, // Default to false if null
-          relevantSkills: entry.relevantSkills ?? [],
-          notRelevantSkills: entry.notRelevantSkills ?? [],
-        }));
-
-        const matchedCandidates = candidates.filter(
-          (candidate) => candidate.matched,
-        );
-
-        result.push({
-          ...o,
-          // no need for candidates and it literally exceeds lamdbas allowable return size LOL
-          candidates: [],
-          matches: matchedCandidates,
-        });
-      }
-
-      return result;
-    }),
-  pollPendingOutbound: publicProcedure
-    .input(z.object({ existingPendingOutboundId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const pendingOutboundRecord = await ctx.db
-        .select()
-        .from(pendingOutbound)
-        .where(eq(pendingOutbound.id, input.existingPendingOutboundId))
-        .then((results) => results[0]);
-
-      if (!pendingOutboundRecord) {
-        throw new Error("Pending outbound not found.");
-      }
-
-      return pendingOutboundRecord;
-    }),
-  pollPendingCompanyOutbound: publicProcedure.mutation(
-    async ({ ctx, input }) => {
-      let pendingCompanyOutboundDB =
-        await ctx.db.query.pendingCompanyOutbound.findMany({
-          with: {
-            relevantRole: true,
-          },
-        });
-
-      if (!pendingCompanyOutboundDB) {
-        throw new Error("Pending company outbound not found.");
-      }
-
-      // Map over the pendingCompanyOutboundDB array to add the companies
-      const result = await Promise.all(
-        pendingCompanyOutboundDB.map(async (pendingCompanyOutbound) => {
-          const companies = await ctx.db.query.company.findMany({
-            where: inArray(companyTable.id, pendingCompanyOutbound.companyIds),
-          });
-
-          // Attach the companies to the current pendingCompanyOutbound object
-          return {
-            ...pendingCompanyOutbound,
-            companies,
-          };
-        }),
-      );
-
-      return result;
-    },
-  ),
-  existingPendingOutbound: publicProcedure.query(async ({ ctx }) => {
-    const existingPendingOutbound = await ctx.db.select().from(pendingOutbound);
-    return {
-      existing: existingPendingOutbound.length > 0,
-      id:
-        existingPendingOutbound.length > 0 ? existingPendingOutbound[0].id : -1,
-    };
-  }),
-
-  addCompanyRequest: publicProcedure
-    .input(
-      z.object({
-        query: z.string(),
-        job: z.string(),
-        relevantRoleId: z.string().optional(),
-        nearBrooklyn: z.boolean(),
-        searchInternet: z.boolean(),
-        skills: z.array(z.string()),
-        booleanSearch: z.string().optional(),
-        companyIds: z.array(z.string()),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const uuidId = uuid();
-      await ctx.db.insert(pendingCompanyOutbound).values({
-        id: uuidId,
-        job: input.job,
-        companyIds: input.companyIds,
-        query: input.query,
-        progress: 0,
-        status: "Starting scrape",
-        userId: "random (no longer needed)",
-        outboundId: uuid(),
-        skills: input.skills,
-        nearBrooklyn: input.nearBrooklyn,
-        searchInternet: input.searchInternet,
-        booleanSearch:
-          input.booleanSearch + (input.nearBrooklyn ? " AND New York" : ""),
-        logs: "",
-        relevantRoleId: input.relevantRoleId ?? undefined,
-      });
-    }),
   sendCookdScoringRequest: publicProcedure
     .input(z.object({ ids: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
