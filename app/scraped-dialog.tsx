@@ -1,4 +1,3 @@
-// ScrapedDialog.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -40,6 +39,8 @@ import {
   Building,
   Briefcase,
   TreePalm,
+  Github,
+  Linkedin,
 } from "lucide-react";
 import {
   Tooltip,
@@ -64,6 +65,12 @@ import CompaniesView from "./companies-view";
 import WhopLogo from "./WhopLogo";
 import Image from "next/image";
 
+interface ProfileUrl {
+  type: "linkedin" | "github";
+  mode: "MANUAL" | "UPLOAD";
+  url: string;
+}
+
 const toPascalCase = (str: string) => {
   return str
     .split(" ")
@@ -78,16 +85,10 @@ export default function ScrapedDialog() {
   const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
-  const [profileUrls, setProfileUrls] = useState<
-    { mode: "MANUAL" | "UPLOAD"; url: string }[]
-  >([]);
+  const [profileUrls, setProfileUrls] = useState<ProfileUrl[]>([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
-
-  const [profileType, setProfileType] = useState<"linkedin" | "github">(
-    "linkedin",
-  );
 
   const [nearBrooklyn, setNearBrooklyn] = useState(true);
   const [searchInternet, setSearchInternet] = useState(false);
@@ -180,19 +181,8 @@ export default function ScrapedDialog() {
     },
   });
 
-  const findFilteredCandidatesMutation =
-    api.outbound.findFilteredCandidates.useMutation({
-      onSuccess: (data) => {
-        setCandidateMatches(data.candidates);
-        setAllMatchingSkills(data.skills.map((s) => s.technology));
-        toast.success("Outbound search completed");
-        setLoading(false);
-      },
-      onError: () => {
-        toast.error("Internal server error");
-        setLoading(false);
-      },
-    });
+  // This mutation is no longer needed since we're handling everything via the queue
+  // const findFilteredCandidatesMutation = ...
 
   const pollCookdScoringRequestQuery =
     api.outbound.pollCookdScoringRequest.useQuery(
@@ -285,7 +275,7 @@ export default function ScrapedDialog() {
 
   const extractUrls = (
     content: string,
-  ): { type: "linkedin" | "github"; urls: string[] } => {
+  ): { linkedinUrls: string[]; githubUrls: string[] } => {
     const linkedinRegex =
       /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-%.]+/g;
     const githubRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9-]+/g;
@@ -293,33 +283,39 @@ export default function ScrapedDialog() {
     const linkedinMatches = content.match(linkedinRegex) || [];
     const githubMatches = content.match(githubRegex) || [];
 
-    if (linkedinMatches.length > 0) {
-      return {
-        type: "linkedin",
-        urls: [...new Set(linkedinMatches)].map(normalizeUrl),
-      };
-    } else if (githubMatches.length > 0) {
-      return {
-        type: "github",
-        urls: [...new Set(githubMatches)].map(normalizeUrl),
-      };
-    }
-
-    return { type: "linkedin", urls: [] };
+    return {
+      linkedinUrls: [...new Set(linkedinMatches)].map(normalizeUrl),
+      githubUrls: [...new Set(githubMatches)].map(normalizeUrl),
+    };
   };
+
   const handleManualUrlsChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     setManualUrls(e.target.value);
-    const { type, urls } = extractUrls(e.target.value);
-    setProfileType(type);
-    setProfileUrls(
+    const { linkedinUrls, githubUrls } = extractUrls(e.target.value);
+
+    const newProfileUrls: ProfileUrl[] = [
+      ...linkedinUrls.map((url) => ({
+        type: "linkedin" as const,
+        mode: "MANUAL" as const,
+        url,
+      })),
+      ...githubUrls.map((url) => ({
+        type: "github" as const,
+        mode: "MANUAL" as const,
+        url,
+      })),
+    ];
+
+    setProfileUrls((prev) =>
       [
-        ...profileUrls.filter((url) => url.mode === "UPLOAD"),
-        ...urls.map((url) => ({ mode: "MANUAL" as "UPLOAD" | "MANUAL", url })),
+        ...prev.filter((url) => url.mode === "UPLOAD"),
+        ...newProfileUrls,
       ].filter(
         (url, index, self) =>
-          index === self.findIndex((t) => t.url === url.url),
+          index ===
+          self.findIndex((t) => t.url === url.url && t.type === url.type),
       ),
     );
   };
@@ -329,11 +325,26 @@ export default function ScrapedDialog() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      const { type, urls } = extractUrls(content);
-      if (urls.length > 0) {
-        setProfileType(type);
-        setProfileUrls(
-          urls.map((url) => ({ mode: "UPLOAD" as "UPLOAD" | "MANUAL", url })),
+      const { linkedinUrls, githubUrls } = extractUrls(content);
+      if (linkedinUrls.length > 0 || githubUrls.length > 0) {
+        const newProfileUrls: ProfileUrl[] = [
+          ...linkedinUrls.map((url) => ({
+            type: "linkedin" as const,
+            mode: "UPLOAD" as const,
+            url,
+          })),
+          ...githubUrls.map((url) => ({
+            type: "github" as const,
+            mode: "UPLOAD" as const,
+            url,
+          })),
+        ];
+        setProfileUrls((prev) =>
+          [...prev, ...newProfileUrls].filter(
+            (url, index, self) =>
+              index ===
+              self.findIndex((t) => t.url === url.url && t.type === url.type),
+          ),
         );
       } else {
         setError("No valid LinkedIn or GitHub URLs found in the file.");
@@ -361,46 +372,23 @@ export default function ScrapedDialog() {
     }
   };
 
-  const handleSearch = () => {
-    setLoading(true);
-
+  const findSimilarProfiles = async (profileUrls: ProfileUrl[]) => {
     setError("");
-    findFilteredCandidatesMutation.mutate({
-      query,
-      searchInternet: false,
-      relevantRoleId: undefined,
-      companyIds: (filters?.companies ?? []).map((company) => company.id) ?? [],
-      job: filters?.job ?? "",
-      skills: filters?.skills ?? [],
-      booleanSearch: "",
-      nearBrooklyn,
-      location: filters?.location,
-      activeGithub: activeGithub,
-      whopUser: whopUser,
-    });
-  };
 
-  const handleSort = () => {
-    const unreviewedCandidates =
-      candidateMatches?.filter((c) => !c.cookdReviewed) ?? [];
-    if (
-      candidateMatches &&
-      candidateMatches.length > unreviewedCandidates.length &&
-      !sorting
-    ) {
-      setSorting(true);
-      setSortedCandidateMatches(
-        candidateMatches?.filter((c) => c.cookdReviewed),
-      );
-    }
-  };
-
-  const findSimilarProfiles = async (profileUrls: string[]) => {
-    setError("");
+    const linkedinUrls = profileUrls
+      .filter((url) => url.type === "linkedin")
+      .map((url) => url.url);
+    const githubUrls = profileUrls
+      .filter((url) => url.type === "github")
+      .map((url) => url.url);
 
     const payload: any = {};
-    if (profileUrls.length > 0) {
-      payload.profileUrls = profileUrls;
+    if (linkedinUrls.length > 0) {
+      payload.linkedinUrls = linkedinUrls;
+    }
+
+    if (githubUrls.length > 0) {
+      payload.githubUrls = githubUrls;
     }
 
     if (filters) {
@@ -420,26 +408,24 @@ export default function ScrapedDialog() {
       };
     }
 
-    if (Object.keys(payload).length === 0) {
+    if (
+      Object.keys(payload).length === 0 ||
+      (!linkedinUrls.length && !githubUrls.length && !payload.filterCriteria)
+    ) {
       setError("Please provide profile URLs or filters.");
       return;
     }
 
     insertIntoQueueMutation.mutate({
       payload,
-      profileType: profileType,
     });
   };
 
   const handleProfileSearch = () => {
     setCandidateMatches(null);
-    // if (profileUrls.length === 0) {
-    //   setError("No LinkedIn or GitHub URLs loaded.");
-    //   return;
-    // }
     setError("");
     setLoading(true);
-    findSimilarProfiles(profileUrls.map((url) => url.url));
+    findSimilarProfiles(profileUrls);
   };
 
   return (
@@ -597,6 +583,11 @@ export default function ScrapedDialog() {
                     color={whopUser ? "green" : "red"}
                     onClick={() => handleToggle("whopUser")}
                   >
+                    {whopUser ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : (
+                      <X className="size-4 text-red-500" />
+                    )}
                     <Image
                       src={"/whop.png"}
                       width={30}
@@ -666,18 +657,22 @@ export default function ScrapedDialog() {
                 {profileUrls.length > 0 && (
                   <Flex direction="column" gap="2" mt="2">
                     <Text size="2">
-                      {profileUrls.length} unique{" "}
-                      {profileType === "linkedin" ? "LinkedIn" : "GitHub"} URLs
+                      {profileUrls.length} unique LinkedIn and GitHub URLs
                       loaded
                     </Text>
                     <Flex wrap="wrap" gap="2">
-                      {profileUrls.map((url, index) => (
+                      {profileUrls.map((urlObj, index) => (
                         <Button
                           key={index}
                           variant="surface"
-                          color={profileType === "linkedin" ? "blue" : "green"}
+                          color={urlObj.type === "linkedin" ? "blue" : "green"}
                         >
-                          {url.url.split("/").pop()}
+                          {urlObj.type === "linkedin" ? (
+                            <Linkedin className="size-4" />
+                          ) : (
+                            <Github className="size-4" />
+                          )}
+                          {urlObj.url.split("/").pop()}
                         </Button>
                       ))}
 
@@ -743,13 +738,7 @@ export default function ScrapedDialog() {
                   return;
                 }
                 setError("");
-                if (filters && !query) {
-                  handleProfileSearch();
-                } else if (profileUrls.length > 0) {
-                  handleProfileSearch();
-                } else if (query) {
-                  handleFilter();
-                }
+                handleProfileSearch();
               }}
               disabled={loading || (profileUrls.length === 0 && !filters)}
             >
@@ -777,8 +766,8 @@ export default function ScrapedDialog() {
                   {candidateMatches.filter((c) => c.cookdReviewed).length <
                     candidateMatches.length - 1 && cookdSorting ? (
                     <Button
-                      onClick={handleSort}
-                      disabled={sorting || true} // disabled indefinitely right now
+                      // onClick={handleSort}
+                      disabled={sorting || true}
                       variant="classic"
                       mt="2"
                     >
