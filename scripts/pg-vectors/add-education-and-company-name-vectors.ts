@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
-import { eq, isNotNull, or } from "drizzle-orm/expressions";
+import { and, eq, isNotNull, or } from "drizzle-orm/expressions";
 import {
   people,
   companiesVector,
@@ -23,6 +23,15 @@ const db = drizzle(pool, {
   schema: { people, companiesVector, education },
 });
 
+// Utility function to chunk an array into smaller arrays of a specified size
+function chunkArray<T>(array: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}
+
 // Function to fetch embeddings for a given text
 async function getEmbedding(text: string): Promise<number[]> {
   const response = await openai.embeddings.create({
@@ -40,12 +49,16 @@ async function getEmbedding(text: string): Promise<number[]> {
 // Function to extract structured data from bio using OpenAI
 async function extractStructuredData(bio: string) {
   const prompt = `
-    Extract information from the following bio. Return an object in the format:
+    Extract information from the following bio. Return an object in the JSON format:
     {
       companies: string[],
       education: { schoolName: string, fieldOfStudy: string }[]
     }
-    Ensure the array 'companies' is empty if no companies are mentioned. Each 'education' entry must have a non-null 'schoolName' or 'fieldOfStudy'. If none are mentioned, return an empty array for 'education'.
+    Ensure the array 'companies' is empty if no companies are mentioned. Each 'education' entry must have a non-null 'schoolName' or 'fieldOfStudy'. If none are mentioned, return an empty array for 'education'. Remember, ALWAYS return in valid JSON format. Example output if (more likely than not), their bio does not contain companies or education:
+{
+companies: [],
+education: []
+}
 
     Bio: "${bio}"
   `;
@@ -58,6 +71,8 @@ async function extractStructuredData(bio: string) {
         content: prompt,
       },
     ],
+    temperature: 0,
+    response_format: { type: "json_object" },
   });
 
   try {
@@ -130,88 +145,140 @@ async function insertEducationEmbedding(
 async function processLinkedInAndBiosData() {
   console.log("[processLinkedInAndBiosData] Starting processing...");
 
-  // Fetch people with LinkedIn data or Twitter/GitHub bios
-  const peopleWithLinkedInDataOrBios = await db
-    .select()
-    .from(people)
-    .where(
-      or(
-        isNotNull(people.linkedinData),
-        isNotNull(people.twitterBio),
-        isNotNull(people.githubBio),
-      ),
+  try {
+    // Step 1: Fetch all people with LinkedIn data or Twitter/GitHub bios
+    const allPeople = await db
+      .select()
+      .from(people)
+      .where(
+        and(
+          or(
+            isNotNull(people.linkedinData),
+            isNotNull(people.twitterBio),
+            isNotNull(people.githubBio),
+            isNotNull(people.githubCompany),
+            isNotNull(people.organizations),
+          ),
+          eq(people.isEducationChecked, false),
+        ),
+      );
+
+    console.log(
+      `[processLinkedInAndBiosData] Found ${allPeople.length} people with data.`,
     );
 
-  console.log(
-    `[processLinkedInAndBiosData] Found ${peopleWithLinkedInDataOrBios.length} people with data.`,
-  );
-
-  for (const person of peopleWithLinkedInDataOrBios) {
-    const { id: personId, linkedinData, twitterBio, githubData } = person;
-    let companies: string[] = [];
-    if (person.githubCompany) {
-      companies.push(person.githubCompany);
-    }
-    if (person.organizations) {
-      for (const org of person.organizations) {
-        companies.push(org.name);
-      }
-    }
-    let education: { schoolName: string; fieldOfStudy: string }[] = [];
-
-    // Extract companies and education from LinkedIn data
-    if ((linkedinData as any)?.positions?.positionHistory) {
-      for (const position of (linkedinData as any).positions.positionHistory) {
-        const companyName = position.companyName;
-        if (companyName) {
-          companies.push(companyName);
-        }
-      }
+    if (allPeople.length === 0) {
+      console.log("[processLinkedInAndBiosData] No people found to process.");
+      return;
     }
 
-    if ((linkedinData as any)?.schools?.educationHistory) {
-      for (const school of (linkedinData as any).schools.educationHistory) {
-        const schoolName = school.schoolName;
-        const fieldOfStudy = school.fieldOfStudy;
-        if (schoolName || fieldOfStudy) {
-          education.push({ schoolName, fieldOfStudy });
-        }
-      }
+    // Step 2: Chunk the people into manageable batches (e.g., 1000 per batch)
+    const batchSize = 1000;
+    const batches = chunkArray(allPeople, batchSize);
+
+    console.log(
+      `[processLinkedInAndBiosData] Processing ${batches.length} batches of up to ${batchSize} people each.`,
+    );
+
+    // Step 3: Process each batch sequentially
+    for (const [batchIndex, batch] of batches.entries()) {
+      console.log(
+        `[processLinkedInAndBiosData] Processing batch ${batchIndex + 1} of ${batches.length}...`,
+      );
+
+      // Process all people in the current batch concurrently
+      await Promise.all(
+        batch.map(async (person) => {
+          const { id: personId, linkedinData, twitterBio, githubData } = person;
+          let companies: string[] = [];
+          if (person.githubCompany) {
+            companies.push(person.githubCompany);
+          }
+          if (person.organizations) {
+            for (const org of person.organizations) {
+              companies.push(org.name);
+            }
+          }
+          let educationData: { schoolName: string; fieldOfStudy: string }[] =
+            [];
+
+          // Extract companies and education from LinkedIn data
+          if ((linkedinData as any)?.positions?.positionHistory) {
+            for (const position of (linkedinData as any).positions
+              .positionHistory) {
+              const companyName = position.companyName;
+              if (companyName) {
+                companies.push(companyName);
+              }
+            }
+          }
+
+          if ((linkedinData as any)?.schools?.educationHistory) {
+            for (const school of (linkedinData as any).schools
+              .educationHistory) {
+              const schoolName = school.schoolName;
+              const fieldOfStudy = school.fieldOfStudy;
+              if (schoolName || fieldOfStudy) {
+                educationData.push({ schoolName, fieldOfStudy });
+              }
+            }
+          }
+
+          let bio = "";
+          if (twitterBio) bio += twitterBio + " ";
+          if (githubData && (githubData as any).bio) {
+            bio += (githubData as any).bio;
+          }
+
+          // Extract companies and education from Twitter/GitHub bio
+          if (bio.trim() !== "") {
+            const data = await extractStructuredData(bio);
+            companies = companies.concat(data.companies);
+            educationData = educationData.concat(data.education);
+          }
+
+          // Remove duplicate companies
+          companies = Array.from(new Set(companies));
+
+          // Insert company embeddings
+          for (const company of companies) {
+            await insertCompanyEmbedding(personId, company);
+          }
+
+          // Insert education embeddings
+          for (const edu of educationData) {
+            if (edu.schoolName) {
+              await insertEducationEmbedding(
+                personId,
+                edu.schoolName,
+                edu.fieldOfStudy,
+              );
+            }
+          }
+
+          await db
+            .update(people)
+            .set({ isEducationChecked: true })
+            .where(eq(people.id, personId));
+
+          console.log(
+            `[insertEducationEmbedding] Updated person ID: ${personId} to set isEducationChecked to true`,
+          );
+        }),
+      );
+
+      console.log(
+        `[processLinkedInAndBiosData] Completed batch ${batchIndex + 1} of ${batches.length}.`,
+      );
     }
 
-    // Extract companies and education from Twitter bio
-    if (twitterBio) {
-      const twitterData = await extractStructuredData(twitterBio);
-      companies = companies.concat(twitterData.companies);
-      education = education.concat(twitterData.education);
-    }
-
-    // Extract companies and education from GitHub bio
-    if ((githubData as any)?.bio) {
-      const githubBio = (githubData as any).bio;
-      const githubDataExtracted = await extractStructuredData(githubBio);
-      companies = companies.concat(githubDataExtracted.companies);
-      education = education.concat(githubDataExtracted.education);
-    }
-
-    // Insert company embeddings
-    for (const company of companies) {
-      await insertCompanyEmbedding(personId, company);
-    }
-
-    // Insert education embeddings
-    for (const edu of education) {
-      if (edu.schoolName) {
-        await insertEducationEmbedding(
-          personId,
-          edu.schoolName,
-          edu.fieldOfStudy,
-        );
-      }
-    }
+    console.log("[processLinkedInAndBiosData] Processing completed.");
+  } catch (error) {
+    console.error(
+      "[processLinkedInAndBiosData] Error during processing:",
+      error,
+    );
   }
-
-  console.log("[processLinkedInAndBiosData] Processing completed.");
 }
 
 // Execute the main function
