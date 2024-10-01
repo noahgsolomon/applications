@@ -48,7 +48,7 @@ async function getEmbedding(text: string) {
 }
 
 // Compare example texts
-compareText("Microsoft", "Google")
+compareText("Nextjs", "Ruby on Rails")
   .then(() => {
     console.log("Comparison completed.");
     process.exit(0);
