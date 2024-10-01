@@ -271,6 +271,9 @@ export const people = pgTable(
     githubLogin: varchar("github_login", { length: 255 }),
     githubId: varchar("github_id", { length: 255 }),
     githubData: jsonb("github_data"),
+    githubBio: text("github_bio"),
+    githubCompany: text("github_company"),
+    isGithubCompanyChecked: boolean("is_github_company_checked").default(false),
 
     // Twitter data (from whopTwitterAccounts, whopTwitterFollowers, whopTwitterFollowing)
     twitterUsername: varchar("twitter_username", { length: 255 }),
@@ -377,6 +380,55 @@ export const jobTitles = pgTable(
     vectorIndex: index("job_titles_vector_index").using(
       "hnsw",
       table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const companiesVector = pgTable(
+  "companies_vectors",
+  {
+    id: serial("id").primaryKey(),
+    personId: varchar("person_id", { length: 255 })
+      .notNull()
+      .references(() => people.id),
+
+    company: varchar("title", { length: 255 }).notNull(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    uniqueCompanyPerPerson: unique().on(table.personId, table.company),
+    vectorIndex: index("companiess_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const education = pgTable(
+  "education",
+  {
+    id: serial("id").primaryKey(),
+    personId: varchar("person_id", { length: 255 })
+      .notNull()
+      .references(() => people.id),
+    schoolVector: vector("vector", { dimensions: 1536 }),
+    fieldOfStudyVector: vector("field_of_study_vector", { dimensions: 1536 }),
+    school: varchar("school", { length: 255 }),
+    fieldOfStudy: varchar("field_of_study", { length: 255 }),
+  },
+  (table) => ({
+    uniqueSchoolPerPerson: unique().on(
+      table.personId,
+      table.school,
+      table.fieldOfStudy,
+    ),
+    schoolVectorIndex: index("school_vector_index").using(
+      "hnsw",
+      table.schoolVector.op("vector_cosine_ops"),
+    ),
+    fieldOfStudyVectorIndex: index("field_of_study_vector_index").using(
+      "hnsw",
+      table.fieldOfStudyVector.op("vector_cosine_ops"),
     ),
   }),
 );
