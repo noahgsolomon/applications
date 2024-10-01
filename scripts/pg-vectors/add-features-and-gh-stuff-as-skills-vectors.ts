@@ -80,18 +80,22 @@ async function upsertSkillsAndFeatures() {
 
   // Step 1: Select people where githubLanguages, uniqueTopics, topFeatures are not null OR linkedinData.skills is not null
   const targetPeople = await db
-    .select()
+    .select({
+      id: people.id,
+      githubLanguages: people.githubLanguages,
+      uniqueTopics: people.uniqueTopics,
+      topFeatures: people.topFeatures,
+      linkedinData: people.linkedinData,
+    })
     .from(people)
     .where(
       or(
         isNotNull(people.githubLanguages),
         isNotNull(people.uniqueTopics),
         isNotNull(people.topFeatures),
-        // Assuming linkedinData is a JSONB column and skills is an array within it
         isNotNull(people.linkedinData),
       ),
-    )
-    .execute();
+    );
 
   console.log(
     `[upsertSkillsAndFeatures] Found ${targetPeople.length} people to process.`,
