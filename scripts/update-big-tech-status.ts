@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
-import { eq, or, and, isNotNull } from "drizzle-orm/expressions";
+import { eq, or, and, isNotNull, isNull } from "drizzle-orm/expressions";
 import { people } from "../server/db/schemas/users/schema";
 import dotenv from "dotenv";
 import OpenAI from "openai";
@@ -67,6 +67,7 @@ async function updateBigTechStatus() {
       and(
         eq(people.workedInBigTech, false),
         or(isNotNull(people.twitterBio), isNotNull(people.organizations)),
+        isNull(people.linkedinData),
       ),
     );
 
