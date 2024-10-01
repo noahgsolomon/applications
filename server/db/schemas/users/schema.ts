@@ -274,6 +274,7 @@ export const people = pgTable(
     githubBio: text("github_bio"),
     githubCompany: text("github_company"),
     isGithubCompanyChecked: boolean("is_github_company_checked").default(false),
+    isEducationChecked: boolean("is_education_checked").default(false),
 
     // Twitter data (from whopTwitterAccounts, whopTwitterFollowers, whopTwitterFollowing)
     twitterUsername: varchar("twitter_username", { length: 255 }),
@@ -446,6 +447,69 @@ export const skills = pgTable(
   (table) => ({
     uniqueSkillPerPerson: unique().on(table.personId, table.skill),
     vectorIndex: index("skills_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const skillsNews = pgTable(
+  "skills_new",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    skill: varchar("skill", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("skills_new_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+export const companiesVectorNew = pgTable(
+  "companies_vector_new",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    company: varchar("company", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("companies_vector_new_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const schools = pgTable(
+  "schools",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    school: varchar("school", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("schools_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const fieldsOfStudy = pgTable(
+  "fields_of_study",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    fieldOfStudy: varchar("field_of_study", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("fields_of_study_vector_index").using(
       "hnsw",
       table.vector.op("vector_cosine_ops"),
     ),

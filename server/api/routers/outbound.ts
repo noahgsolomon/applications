@@ -181,12 +181,10 @@ export const outboundRouter = createTRPCRouter({
       }
     }),
   getPendingSimilarProfiles: publicProcedure.query(async ({ ctx }) => {
-    console.log("FIRST");
     const pendingSimilarProfiles = await ctx.db
       .select()
       .from(schema.profileQueue);
 
-    console.log("I AM HERE");
     console.log("pendingSimilarProfiles", pendingSimilarProfiles);
 
     return pendingSimilarProfiles;
@@ -628,50 +626,20 @@ Given the search query, find the company names from the following list: ${compan
 Also, extract the job title, an array of skills, location, and the minimum GitHub stars count mentioned in the query.
 
 - For the **skills**, normalize them because they might be slang (e.g., "rails" should be "Ruby on Rails"). Any technology mentioned can be considered a skill.
-- The **Or** field determines if the skills are any of them (true) or all of them (false). If the query includes "Next.js, React, or Rails," set **Or** to true. Otherwise, set it to false.
 - For the **location**, extract any location mentioned in the query.
 - For the **minGithubStars**, extract any minimum GitHub stars count mentioned.
 
 Return the result as a JSON object with the following structure:
 {
   "companyNames": string[],
+  "otherCompanyNames": string[],
   "job": string,
   "skills": string[],
   "location": string,
   "minGithubStars": number,
-  "valid": boolean,
-  "message": string,
-  "Or": boolean
 }.
-If no company in the list is in their query or if their query has no mention of a company, set **valid** to false.
-`,
-            },
-            {
-              role: "user",
-              content: input.query,
-            },
-          ],
-          response_format: { type: "json_object" },
-          model: "gpt-4o",
-          temperature: 0,
-          max_tokens: 512,
-        });
 
-        // Second completion: Determine the relevant role
-        const secondCompletion = await openai.chat.completions.create({
-          messages: [
-            {
-              role: "system",
-              content: `
-Given the job title from the user's input and the following list of possible roles:
-Senior Design Engineer, Senior Frontend Engineer, Senior Fullstack Engineer, Senior iOS Engineer, Staff Frontend Engineer, Staff Infrastructure Engineer, Staff iOS Engineer, Staff Rails Engineer, Creator Partnerships Lead, Customer Support Specialist, Head of New Verticals, Senior Growth Data Analyst, Senior Lifecycle Marketing Manager, Senior Product Marketing Manager, Consumer, Senior Product Marketing Manager, Creator, Social Media Lead, Accounting Manager, Executive Assistant, Office Manager, Senior Brand Designer, Senior Product Designer, Creators, Senior Product Designer, User Growth & Engagement.
-
-Determine which role from this list best matches the user's job title input.
-
-Return the result as a JSON object with the following structure:
-{
-  "relevantRole": string
-}.
+If no company they mentioned is in the list, return an empty array for "companyNames". For the companies mentioned not in the list, put those in "otherCompanyNames".
 `,
             },
             {
@@ -686,7 +654,7 @@ Return the result as a JSON object with the following structure:
         });
 
         // Parse the responses
-        const firstResponse = JSON.parse(
+        const response = JSON.parse(
           firstCompletion.choices[0].message.content ??
             `{
             "valid": false,
@@ -700,25 +668,10 @@ Return the result as a JSON object with the following structure:
           }`,
         );
 
-        const secondResponse = JSON.parse(
-          secondCompletion.choices[0].message.content ??
-            '{ "relevantRole": "" }',
-        );
-
-        // Combine responses
-        const response = {
-          ...firstResponse,
-          ...secondResponse,
-        };
-
-        let responseCompanyNames = response.companyNames;
-
-        if (!response.valid) {
-          console.log(
-            "No valid company found in the query. Defaulting to all company names.",
-          );
-          responseCompanyNames = companyNames;
-        }
+        let responseCompanyNames =
+          response.companyNames.length > 0
+            ? response.companyNames
+            : companyNames;
 
         // Fetch companies from the database based on the extracted company names
         const companiesDB = await ctx.db.query.company.findMany({
@@ -738,7 +691,6 @@ Return the result as a JSON object with the following structure:
             skills: [],
             location: "",
             minGithubStars: 0,
-            Or: false,
           };
         }
 
@@ -747,12 +699,12 @@ Return the result as a JSON object with the following structure:
           valid: true,
           message: "Company found.",
           companies: companiesDB,
+          otherCompanyNames: response.otherCompanyNames,
           job: response.job,
           skills: response.skills,
           location: response.location,
           minGithubStars: response.minGithubStars,
           query: input.query,
-          Or: response.Or,
         };
       } catch (error) {
         console.error("Error during mutation:", error);
