@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your migration script
-MIGRATION_SCRIPT="migrate-to-unified-schema.ts"
+SCRIPT="add-github-company.ts"
 
 # Maximum execution time for the migration script (in seconds)
 TIMEOUT_DURATION=600 # 10 minutes
@@ -15,7 +15,7 @@ while true; do
 
   # Run the migration script using Bun with a timeout
   # If the script runs longer than TIMEOUT_DURATION, it will be terminated
-  timeout "$TIMEOUT_DURATION" bun run "$MIGRATION_SCRIPT" >/dev/null 2>&1
+  timeout "$TIMEOUT_DURATION" bun run "$SCRIPT" >/dev/null 2>&1
 
   # Capture the exit code of the migration script
   EXIT_CODE=$?
