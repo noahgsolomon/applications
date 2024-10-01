@@ -2,8 +2,25 @@ import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "../server/db/schemas/users/schema";
 import { z } from "zod";
-import { candidates, profileQueue } from "@/server/db/schemas/users/schema";
-import { eq, exists, InferSelectModel } from "drizzle-orm";
+import {
+  candidates,
+  jobTitles,
+  people,
+  profileQueue,
+  skills,
+} from "@/server/db/schemas/users/schema";
+import {
+  and,
+  cosineDistance,
+  desc,
+  eq,
+  exists,
+  gte,
+  inArray,
+  InferSelectModel,
+  not,
+  sql,
+} from "drizzle-orm";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import axios from "axios";
@@ -24,23 +41,13 @@ export const db = drizzle(pool, {
   schema,
 });
 
-const inputSchema = z.object({
-  profileUrls: z.array(z.string().url()),
-});
-
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY || "",
-});
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-const index = pinecone.Index("whop");
-
 async function getEmbedding(text: string) {
   const response = await openai.embeddings.create({
-    model: "text-embedding-3-large",
+    model: "text-embedding-ada-002",
     input: text,
     encoding_format: "float",
   });
@@ -76,16 +83,7 @@ const generateEmbeddingsWithLogging = async (data: string[], type: string) => {
 
 function calculateExperienceBounds(
   candidates: Array<{
-    linkedinData: {
-      positions?: {
-        positionHistory: Array<{
-          startEndDate?: {
-            start?: { year: number };
-            end?: { year: number };
-          };
-        }>;
-      };
-    };
+    linkedinData: any;
   }>,
 ): {
   lowerBound: number;
@@ -101,15 +99,17 @@ function calculateExperienceBounds(
     let latestEndYear = 0;
 
     if (candidate.linkedinData?.positions?.positionHistory) {
-      candidate.linkedinData.positions.positionHistory.forEach((position) => {
-        const startYear = position.startEndDate?.start?.year;
-        const endYear = position.startEndDate?.end?.year || currentYear;
+      candidate.linkedinData.positions.positionHistory.forEach(
+        (position: any) => {
+          const startYear = position.startEndDate?.start?.year;
+          const endYear = position.startEndDate?.end?.year || currentYear;
 
-        if (startYear) {
-          earliestStartYear = Math.min(earliestStartYear, startYear);
-        }
-        latestEndYear = Math.max(latestEndYear, endYear);
-      });
+          if (startYear) {
+            earliestStartYear = Math.min(earliestStartYear, startYear);
+          }
+          latestEndYear = Math.max(latestEndYear, endYear);
+        },
+      );
     }
 
     const totalExperience = latestEndYear - earliestStartYear;
@@ -139,16 +139,7 @@ function calculateExperienceBounds(
 
 function calculateExperienceScore(
   candidate: {
-    linkedinData: {
-      positions?: {
-        positionHistory: Array<{
-          startEndDate?: {
-            start?: { year: number };
-            end?: { year: number };
-          };
-        }>;
-      };
-    };
+    linkedinData: any;
   },
   mean: number,
   stdDev: number,
@@ -161,14 +152,16 @@ function calculateExperienceScore(
   let latestEndYear = 0;
 
   if (candidate.linkedinData?.positions?.positionHistory) {
-    candidate.linkedinData.positions.positionHistory.forEach((position) => {
-      const startYear = position.startEndDate?.start?.year;
-      const endYear = position.startEndDate?.end?.year || currentYear;
-      if (startYear) {
-        earliestStartYear = Math.min(earliestStartYear, startYear);
-      }
-      latestEndYear = Math.max(latestEndYear, endYear);
-    });
+    candidate.linkedinData.positions.positionHistory.forEach(
+      (position: any) => {
+        const startYear = position.startEndDate?.start?.year;
+        const endYear = position.startEndDate?.end?.year || currentYear;
+        if (startYear) {
+          earliestStartYear = Math.min(earliestStartYear, startYear);
+        }
+        latestEndYear = Math.max(latestEndYear, endYear);
+      },
+    );
   }
 
   const totalExperience = latestEndYear - earliestStartYear;
@@ -186,13 +179,7 @@ function calculateExperienceScore(
 
 function analyzeCompanies(
   candidates: Array<{
-    linkedinData: {
-      positions: {
-        positionHistory: Array<{
-          companyName: string;
-        }>;
-      };
-    };
+    linkedinData: any;
   }>,
 ): Record<string, number> {
   const companyFrequency: Record<string, number> = {};
@@ -201,9 +188,9 @@ function analyzeCompanies(
   candidates.forEach((candidate) => {
     const uniqueCompanies = new Set(
       candidate.linkedinData.positions.positionHistory.map(
-        (position) => position.companyName,
+        (position: any) => position.companyName,
       ),
-    );
+    ) as Set<string>;
     totalUniqueCandidateCompanies += uniqueCompanies.size;
     uniqueCompanies.forEach((company) => {
       companyFrequency[company] = (companyFrequency[company] || 0) + 1;
@@ -223,13 +210,7 @@ function analyzeCompanies(
 
 function analyzeEducation(
   candidates: Array<{
-    linkedinData: {
-      schools: {
-        educationHistory: Array<{
-          schoolName: string;
-        }>;
-      };
-    };
+    linkedinData: any;
   }>,
 ): Record<string, number> {
   const educationFrequency: Record<string, number> = {};
@@ -237,10 +218,10 @@ function analyzeEducation(
 
   candidates.forEach((candidate) => {
     const schools = candidate.linkedinData.schools.educationHistory.map(
-      (education) => education.schoolName,
+      (education: any) => education.schoolName,
     );
     totalEducations += schools.length;
-    schools.forEach((school) => {
+    schools.forEach((school: any) => {
       educationFrequency[school] = (educationFrequency[school] || 0) + 1;
     });
   });
@@ -295,59 +276,6 @@ async function computeAverageEmbedding(
       acc.map((val, i) => val + embedding[i] / embeddings.length),
     new Array(embeddings[0].length).fill(0),
   );
-}
-
-async function queryVectorDb(
-  namespace: string,
-  queryVector: number[],
-  topK: number,
-  retries = 3,
-): Promise<Array<{ id: string; score: number }>> {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      console.log(
-        `Attempting to query Pinecone (attempt ${attempt}/${retries})...`,
-      );
-      const queryResponse = await index.namespace(namespace).query({
-        topK,
-        vector: queryVector,
-        includeMetadata: true,
-        includeValues: false,
-      });
-
-      console.log("Success");
-
-      if (!queryResponse || !queryResponse.matches) {
-        console.error("Invalid response from Pinecone:", queryResponse);
-        if (attempt < retries) {
-          console.log(`Retrying in 5 seconds...`);
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          continue;
-        }
-        return [];
-      }
-
-      return queryResponse.matches.map((match) => ({
-        id: match.id,
-        score: match.score || 0,
-      }));
-    } catch (error) {
-      console.error(
-        `Error querying vector DB (namespace: ${namespace}, attempt: ${attempt}):`,
-        error,
-      );
-      if (attempt < retries) {
-        console.log(`Retrying in 5 seconds...`);
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      } else {
-        console.error(
-          `All ${retries} attempts failed. Returning empty result.`,
-        );
-        return [];
-      }
-    }
-  }
-  return [];
 }
 
 async function scrapeLinkedInProfile(linkedinUrl: string) {
@@ -480,71 +408,20 @@ async function generateSummary(profileData: any) {
   return completion.choices[0].message.content;
 }
 
-async function upsertToVectorDB(
-  id: string,
-  namespace: string,
-  items: string[],
-  candidateId: string,
-  name: string,
-) {
-  for (const item of items) {
-    if (/^[\x00-\x7F]*$/.test(item)) {
-      const embedding = await getEmbedding(item);
-      await index.namespace(namespace).upsert([
-        {
-          id: id,
-          values: embedding,
-          metadata: {
-            candidateId,
-            [name]: item,
-          },
-        },
-      ]);
-    } else {
-      console.log(`Skipping non-ASCII item: ${item}`);
-    }
-  }
-}
+async function insertPersonFromLinkedin(profileData: any) {
+  console.log("Inserting person into the database...");
 
-async function computeAndStoreAverage(
-  id: string,
-  namespace: string,
-  items: string[],
-  candidateId: string,
-  name: string,
-) {
-  if (items.length === 0) return;
-
-  const embeddings = await Promise.all(items.map(getEmbedding));
-  const averageEmbedding = embeddings.reduce(
-    (acc, embedding) =>
-      acc.map((val, i) => val + embedding[i] / embeddings.length),
-    new Array(embeddings[0].length).fill(0),
-  );
-
-  await index.namespace(namespace).upsert([
-    {
-      id: id,
-      values: averageEmbedding,
-      metadata: {
-        userId: candidateId,
-        [name]: items,
-      },
-    },
-  ]);
-}
-
-async function insertCandidate(profileData: any) {
-  console.log("Inserting candidate into the database...");
+  // Generate summaries and gather skills
   const miniSummary = await generateMiniSummary(profileData);
   const { tech, features, isEngineer } = await gatherTopSkills(profileData);
 
   // Extract job titles
-  const jobTitles = profileData.positions.positionHistory.map(
+  const jobTitlesList = profileData.positions.positionHistory.map(
     (position: any) => position.title,
-  );
+  ) as string[];
 
-  console.log("Checking additional conditions for candidate...");
+  // Check additional conditions
+  console.log("Checking additional conditions for person...");
   const workedInBigTech = await askCondition(
     `Has this person worked in big tech? ${JSON.stringify(
       profileData.positions.positionHistory.map(
@@ -563,171 +440,192 @@ async function insertCandidate(profileData: any) {
     }`,
   );
 
+  // Generate detailed summary
   const summary = await generateSummary(profileData);
-  const candidateId = uuid();
+  const personId = uuid();
 
-  // Insert into database
-  await db
-    .insert(schema.candidates)
-    .values({
-      id: candidateId,
-      url: profileData.linkedInUrl as string,
-      linkedinData: profileData,
-      miniSummary,
-      summary,
-      topTechnologies: tech,
-      topFeatures: features,
-      jobTitles,
-      isEngineer,
-      workedInBigTech,
-      livesNearBrooklyn,
-      createdAt: new Date(),
-    })
-    .onConflictDoNothing();
+  // Compute location vector if location is provided
+  let locationVector: number[] | null = null;
+  if (profileData.location) {
+    locationVector = await getEmbedding(profileData.location);
+  }
 
-  console.log(
-    `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
-  );
+  // Insert into `people` table
+  try {
+    await db
+      .insert(people)
+      .values({
+        id: personId,
+        linkedinUrl: profileData.linkedInUrl as string,
+        linkedinData: profileData,
+        name: `${profileData.firstName} ${profileData.lastName}`.trim(),
+        miniSummary,
+        summary,
+        topTechnologies: tech,
+        topFeatures: features,
+        jobTitles: jobTitlesList,
+        isEngineer,
+        workedInBigTech,
+        livesNearBrooklyn,
+        createdAt: new Date(),
+        locationVector,
+      })
+      .onConflictDoNothing();
 
-  // Upsert individual items to vector DB
-
-  if (tech.length > 0) {
-    await upsertToVectorDB(
-      candidateId,
-      "technologies",
-      tech,
-      candidateId,
-      "technology",
+    console.log(
+      `Person ${profileData.firstName} ${profileData.lastName} inserted into the database. Person ID: ${personId}`,
+    );
+  } catch (e) {
+    console.log(
+      `Failed to insert person ${profileData.firstName} ${profileData.lastName} into the database.`,
     );
   }
 
-  if (jobTitles.length > 0) {
-    await upsertToVectorDB(
-      candidateId,
-      "job-titles",
-      jobTitles,
-      candidateId,
-      "jobTitle",
+  // Insert skills with embeddings
+  if (tech.length > 0 || features.length > 0) {
+    await Promise.all(
+      [...tech, ...features].map(async (skill) => {
+        try {
+          const skillVector = await getEmbedding(skill);
+          await db.insert(skills).values({
+            personId: personId,
+            skill: skill,
+            vector: skillVector,
+          });
+          console.log(
+            `[insertSkill] Inserted skill "${skill}" for person ID: ${personId}`,
+          );
+        } catch (error) {
+          console.error(
+            `[insertSkill] Failed to insert skill "${skill}" for person ID: ${personId}`,
+            error,
+          );
+        }
+      }),
     );
   }
 
-  // Compute and store averages
-  if (tech.length > 0) {
-    await computeAndStoreAverage(
-      candidateId,
-      "candidate-skill-average",
-      tech,
-      candidateId,
-      "skills",
+  // Insert job titles with embeddings
+  if (jobTitlesList.length > 0) {
+    await Promise.all(
+      jobTitlesList.map(async (title) => {
+        try {
+          const titleVector = await getEmbedding(title);
+          await db.insert(jobTitles).values({
+            personId: personId,
+            title: title,
+            vector: titleVector,
+          });
+          console.log(
+            `[insertJobTitle] Inserted job title "${title}" for person ID: ${personId}`,
+          );
+        } catch (error) {
+          console.error(
+            `[insertJobTitle] Failed to insert job title "${title}" for person ID: ${personId}`,
+            error,
+          );
+        }
+      }),
     );
   }
 
-  if (features.length > 0) {
-    await computeAndStoreAverage(
-      candidateId,
-      "candidate-feature-average",
-      features,
-      candidateId,
-      "features",
-    );
-  }
+  return personId;
+}
 
-  if (jobTitles.length > 0) {
-    await computeAndStoreAverage(
-      candidateId,
-      "candidate-job-title-average",
-      jobTitles,
-      candidateId,
-      "jobTitles",
-    );
-  }
-
-  // Update flags in the database
-  await db
-    .update(schema.candidates)
-    .set({
-      isSkillAvgInVectorDB: true,
-      isFeatureAvgInVectorDB: true,
-      isJobTitleAvgInVectorDB: true,
-    })
-    .where(eq(schema.candidates.id, candidateId));
-
-  return candidateId;
+function cosineSimilarity(vecA: number[], vecB: number[]): number {
+  const dotProduct = vecA.reduce((sum, a, idx) => sum + a * vecB[idx], 0);
+  const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
+  const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
+  return magnitudeA && magnitudeB ? dotProduct / (magnitudeA * magnitudeB) : 0;
 }
 
 async function processLinkedinUrls(profileUrls: string[], insertId: string) {
-  console.log("Processing profile URLs...");
+  console.log("Processing LinkedIn URLs...");
 
-  console.log("Row inserted successfully into profileQueue");
+  // Insert a new entry into `profileQueue`
+  await db
+    .insert(profileQueue)
+    .values({
+      id: insertId, // Assuming `insertId` is used as the primary key
+      type: "LINKEDIN",
+      urls: profileUrls,
+      progress: 0,
+      message: "Beginning search.",
+    })
+    .onConflictDoNothing(); // Prevent duplicate entries if necessary
 
-  const inputCandidates: InferSelectModel<typeof schema.candidates>[] = [];
+  const inputPeople: InferSelectModel<typeof people>[] = [];
   const batchSize = 50;
 
+  // Process URLs in batches
   for (let i = 0; i < profileUrls.length; i += batchSize) {
     const batch = profileUrls.slice(i, i + batchSize);
     const batchResults = await Promise.all(
       batch.map(async (profileUrl) => {
-        let candidate = await db.query.candidates.findFirst({
-          where: eq(schema.candidates.url, profileUrl),
+        let person = await db.query.people.findFirst({
+          where: eq(people.linkedinUrl, profileUrl),
         });
 
-        if (!candidate) {
+        if (!person) {
           console.log(
-            `Candidate not found for URL: ${profileUrl}. Scraping and inserting.`,
+            `Person not found for URL: ${profileUrl}. Scraping and inserting.`,
           );
           const scrapedData = await scrapeLinkedInProfile(profileUrl);
           if (scrapedData && scrapedData.success) {
-            const candidateId = await insertCandidate(scrapedData.person);
-            candidate = await db.query.candidates.findFirst({
-              where: eq(schema.candidates.id, candidateId),
+            const personId = await insertPersonFromLinkedin(scrapedData.person);
+            person = await db.query.people.findFirst({
+              where: eq(people.id, personId),
             });
           } else {
             console.error(
-              `Failed to scrape or insert candidate for URL: ${profileUrl}`,
+              `Failed to scrape or insert person for URL: ${profileUrl}`,
             );
           }
         }
 
-        return candidate;
+        return person;
       }),
     );
 
-    inputCandidates.push(
+    inputPeople.push(
       ...batchResults.filter(
-        (c): c is InferSelectModel<typeof schema.candidates> => c !== undefined,
+        (p): p is InferSelectModel<typeof people> => p !== undefined,
       ),
     );
   }
 
-  if (inputCandidates.length === 0) {
-    console.log("No matching input candidates found");
+  if (inputPeople.length === 0) {
+    console.log("No matching input people found");
     return [];
   }
 
-  console.log(`Found ${inputCandidates.length} matching input candidates.`);
+  console.log(`Found ${inputPeople.length} matching input people.`);
 
   // Calculate experience bounds
-  const { mean, stdDev } = calculateExperienceBounds(inputCandidates);
+  const { mean, stdDev } = calculateExperienceBounds(inputPeople);
 
-  const inputCandidateIds = new Set(inputCandidates.map((c) => c.id));
+  const inputPersonIds = new Set(inputPeople.map((p) => p.id));
 
-  // Analyze input candidates
-  const companyWeights = analyzeCompanies(inputCandidates);
-  const educationWeights = analyzeEducation(inputCandidates);
-  const shouldApplyNYCWeight = analyzeNYCProximity(inputCandidates);
+  // Analyze input people
+  const companyWeights = analyzeCompanies(inputPeople);
+  const educationWeights = analyzeEducation(inputPeople);
+  const shouldApplyNYCWeight = analyzeNYCProximity(inputPeople);
 
-  // Generate embeddings
+  // Generate embeddings for skills, features, and job titles
+  const allSkills = inputPeople.flatMap((p) => p.topTechnologies || []);
+  const allFeatures = inputPeople.flatMap((p) => p.topFeatures || []);
+  const allJobTitles = inputPeople.flatMap((p) => p.jobTitles || []);
 
   const skillEmbeddings = await generateEmbeddingsWithLogging(
-    inputCandidates.flatMap((c) => c.topTechnologies || []),
+    allSkills,
     "skill",
   );
   const featureEmbeddings = await generateEmbeddingsWithLogging(
-    inputCandidates.flatMap((c) => c.topFeatures || []),
+    allFeatures,
     "feature",
   );
   const jobTitleEmbeddings = await generateEmbeddingsWithLogging(
-    inputCandidates.flatMap((c) => c.jobTitles || []),
+    allJobTitles,
     "job title",
   );
 
@@ -737,121 +635,105 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   const avgJobTitleEmbedding =
     await computeAverageEmbedding(jobTitleEmbeddings);
 
-  // Query vector DB
-  const skillMatches = await queryVectorDb(
-    "candidate-skill-average",
-    avgSkillEmbedding,
-    10_000,
-  );
-  const featureMatches = await queryVectorDb(
-    "candidate-feature-average",
-    avgFeatureEmbedding,
-    10_000,
-  );
-  const jobTitleMatches = await queryVectorDb(
-    "candidate-job-title-average",
-    avgJobTitleEmbedding,
-    10_000,
-  );
+  // Fetch all people excluding input people
+  console.log("Fetching all people...");
+  const allPeople = await db.query.people.findMany({
+    where: not(inArray(people.id, Array.from(inputPersonIds))),
+  });
+  console.log(`Fetched ${allPeople.length} people.`);
 
-  if (
-    skillMatches.length === 0 &&
-    featureMatches.length === 0 &&
-    jobTitleMatches.length === 0
-  ) {
-    console.error("All vector DB queries failed");
-    return [];
-  }
-
+  // Initialize combined scores
   const combinedScores: Record<string, number> = {};
 
-  // Combine scores from vector DB matches
-  console.log("Combining scores from vector DB matches...");
-  [skillMatches, featureMatches, jobTitleMatches].forEach((matches) => {
-    matches.forEach((match) => {
-      if (!inputCandidateIds.has(match.id)) {
-        combinedScores[match.id] =
-          (combinedScores[match.id] || 0) + match.score;
-      }
-    });
-  });
-  console.log("Vector DB scores combined.");
+  // Compute similarity scores using average vectors stored in `people` table
+  console.log("Computing similarity scores...");
+  await Promise.all(
+    allPeople.map(async (person) => {
+      let score = 0;
 
-  // Fetch all candidates
-  console.log("Fetching all candidates...");
-  const allCandidates = await db.query.candidates.findMany();
-  console.log(`Fetched ${allCandidates.length} candidates.`);
-
-  // Process candidates in batches
-  const processBatchSize = 10000;
-  console.log(`Processing candidates in batches of ${processBatchSize}...`);
-  for (let i = 0; i < allCandidates.length; i += processBatchSize) {
-    const batch = allCandidates.slice(i, i + processBatchSize);
-    console.log(`Processing batch ${i / processBatchSize + 1}...`);
-
-    batch.forEach((candidate) => {
-      if (!inputCandidateIds.has(candidate.id)) {
-        const { experienceScore } = calculateExperienceScore(
-          candidate,
-          mean,
-          stdDev,
-        );
-        const experienceWeight = 0.2;
-        combinedScores[candidate.id] =
-          (combinedScores[candidate.id] || 0) +
-          experienceScore * experienceWeight;
-
-        // Add company and education scores
-        if (candidate.linkedinData?.positions?.positionHistory) {
-          const companies =
-            candidate.linkedinData.positions.positionHistory.map(
-              (position: any) => position.companyName,
-            );
-          const companyScore = companies.reduce(
-            (score: number, company: any) =>
-              score + (companyWeights[company] || 0),
-            0,
-          );
-          combinedScores[candidate.id] += companyScore;
-        }
-
-        if (candidate.linkedinData?.schools?.educationHistory) {
-          const schools = candidate.linkedinData.schools.educationHistory.map(
-            (education: any) => education.schoolName,
-          );
-          const educationScore = schools.reduce(
-            (score: number, school: any) =>
-              score + (educationWeights[school] || 0),
-            0,
-          );
-          combinedScores[candidate.id] += educationScore;
-        }
-        // Apply NYC proximity weighting
-        if (shouldApplyNYCWeight && candidate.livesNearBrooklyn) {
-          combinedScores[candidate.id] *= 1.2; // 20% boost for NYC proximity
-        }
-      }
-    });
-    console.log(`Batch ${i / processBatchSize + 1} processed.`);
-  }
-
-  // Sort and select top candidates
-  console.log("Sorting and selecting top candidates...");
-  const topCandidates = allCandidates
-    .filter((candidate) => !inputCandidateIds.has(candidate.id))
-    .map((candidate) => {
-      const { experienceScore, totalExperience } = calculateExperienceScore(
-        candidate,
+      // Experience Score
+      const { experienceScore } = calculateExperienceScore(
+        person,
         mean,
         stdDev,
       );
-      return {
-        ...candidate,
-        score: combinedScores[candidate.id] || 0,
-        experienceScore,
-        totalExperience,
-      };
-    })
+      const experienceWeight = 0.2;
+      score += experienceScore * experienceWeight;
+
+      // Company Score
+      if ((person.linkedinData as any)?.positions?.positionHistory) {
+        const companies = (
+          person.linkedinData as any
+        ).positions.positionHistory.map(
+          (position: any) => position.companyName,
+        );
+        const companyScore = companies.reduce(
+          (s: number, company: string) => s + (companyWeights[company] || 0),
+          0,
+        );
+        score += companyScore;
+      }
+
+      // Education Score
+      if ((person.linkedinData as any)?.schools?.educationHistory) {
+        const schools = (
+          person.linkedinData as any
+        ).schools.educationHistory.map(
+          (education: any) => education.schoolName,
+        );
+        const educationScore = schools.reduce(
+          (s: number, school: string) => s + (educationWeights[school] || 0),
+          0,
+        );
+        score += educationScore;
+      }
+
+      // NYC Proximity Weighting
+      if (shouldApplyNYCWeight && person.livesNearBrooklyn) {
+        score *= 1.2; // 20% boost for NYC proximity
+      }
+
+      // Skills Similarity
+      if (person.averageSkillVector) {
+        const similarity = cosineSimilarity(
+          avgSkillEmbedding,
+          person.averageSkillVector,
+        );
+        score += similarity;
+      }
+
+      // Job Titles Similarity
+      if (person.averageJobTitleVector) {
+        const similarity = cosineSimilarity(
+          avgJobTitleEmbedding,
+          person.averageJobTitleVector,
+        );
+        score += similarity;
+      }
+
+      // Location Similarity
+      if (
+        person.locationVector &&
+        avgSkillEmbedding.length === person.locationVector.length
+      ) {
+        const locationSimilarity = cosineSimilarity(
+          avgSkillEmbedding,
+          person.locationVector,
+        );
+        score += locationSimilarity;
+      }
+
+      combinedScores[person.id] = (combinedScores[person.id] || 0) + score;
+    }),
+  );
+
+  // Sort and select top candidates
+  console.log("Sorting and selecting top candidates...");
+  const topCandidates = allPeople
+    .map((person) => ({
+      ...person,
+      score: combinedScores[person.id] || 0,
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 100);
   console.log(`Selected ${topCandidates.length} top candidates.`);
@@ -859,110 +741,111 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   return topCandidates;
 }
 
-async function querySimilarTechnologies(skill: string) {
+export const querySimilarTechnologies = async (
+  inputSkill: string,
+  topK: number = 250,
+) => {
   try {
-    console.log(`Getting embedding for skill: ${skill}`);
-    const skillEmbedding = await getEmbedding(skill);
-    console.log(`Got embedding for skill: ${skill}`);
+    console.log(
+      `[1] Starting search for similar technologies to: "${inputSkill}"`,
+    );
 
-    const queryResponse = await index.namespace("technologies").query({
-      topK: 200,
-      vector: skillEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
+    // Step 1: Generate embedding for the input skill
+    const embedding = await getEmbedding(inputSkill);
+    console.log(`[2] Embedding generated for: "${inputSkill}"`);
 
-    const similarTechnologies = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.7)
-      .map((match) => ({
-        technology: match.metadata?.technology as string,
-        score: match.score ?? 0,
-      }));
-    return similarTechnologies;
+    // Step 2: Perform similarity search directly in PostgreSQL
+    const similarity = sql<number>`1 - (${cosineDistance(skills.vector, embedding)})`;
+
+    const similarSkills = await db
+      .select({
+        technology: skills.skill,
+        similarity,
+      })
+      .from(schema.skillsNews)
+      .orderBy(cosineDistance(schema.skillsNews.vector, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarSkills.length} similar technologies after similarity search.`,
+    );
+
+    // Optional: Filter based on a threshold if necessary
+    /*
+    const threshold = 0.7;
+    const filteredSimilarities = similarSkills.filter(s => s.similarity >= threshold);
+    console.log(`[4] Found ${filteredSimilarities.length} similar technologies after filtering.`);
+    */
+
+    // Return the similar technologies with similarity scores
+    const result = similarSkills.map((s) => ({
+      technology: s.technology,
+      score: parseFloat(s.similarity.toFixed(6)),
+    }));
+
+    console.log(`[5] Returning ${result.length} similar technologies.`);
+    return result;
   } catch (error) {
     console.error("Error querying similar technologies:", error);
     return [];
   }
-}
+};
 
-async function querySimilarFeatures(feature: string) {
+export const querySimilarJobTitles = async (
+  inputJobTitle: string,
+  topK: number = 500,
+) => {
   try {
-    console.log(`Getting embedding for feature: ${feature}`);
-    const featureEmbedding = await getEmbedding(feature);
-    console.log(`Got embedding for feature: ${feature}`);
+    console.log(
+      `[1] Starting search for similar job titles to: ${inputJobTitle}`,
+    );
+    const embedding = await getEmbedding(inputJobTitle);
+    console.log(`[2] Embedding generated for: ${inputJobTitle}`);
 
-    const queryResponse = await index.namespace("company-features").query({
-      topK: 400,
-      vector: featureEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
+    // Fetch all job titles from the 'jobTitles' table
+    const allJobTitles = await db.select().from(jobTitles).execute();
+    console.log(
+      `[3] Retrieved ${allJobTitles.length} job titles from the database.`,
+    );
 
-    const similarFeatures = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.6)
-      .map((match) => ({
-        feature: match.metadata?.feature as string,
-        score: match.score ?? 0,
-        companyId: match.metadata?.companyId as string,
+    // Compute cosine similarity between input job title and each job title in the database
+    const similarities: { jobTitle: string; similarity: number }[] =
+      allJobTitles.map((jt) => ({
+        jobTitle: jt.title,
+        similarity: cosineSimilarity(embedding, jt.vector),
       }));
 
-    return similarFeatures;
-  } catch (error) {
-    console.error("Error querying similar features:", error);
-    return [];
-  }
-}
+    // Filter based on similarity threshold
+    const threshold = 0.7;
+    const filteredSimilarities = similarities.filter(
+      (s) => s.similarity >= threshold,
+    );
+    console.log(
+      `[4] Found ${filteredSimilarities.length} similar job titles after filtering.`,
+    );
 
-async function querySimilarSpecialties(specialty: string) {
-  try {
-    console.log(`Getting embedding for specialty: ${specialty}`);
-    const specialtyEmbedding = await getEmbedding(specialty);
-    console.log(`Got embedding for specialty: ${specialty}`);
+    // Sort by similarity descending
+    filteredSimilarities.sort((a, b) => b.similarity - a.similarity);
 
-    const queryResponse = await index.namespace("company-specialties").query({
-      topK: 400,
-      vector: specialtyEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
+    // Take top K
+    const topSimilarJobTitles = filteredSimilarities.slice(0, topK);
+    console.log(
+      `[5] Selected top ${topSimilarJobTitles.length} similar job titles.`,
+    );
 
-    const similarSpecialties = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.6)
-      .map((match) => ({
-        specialty: match.metadata?.specialty as string,
-        score: match.score ?? 0,
-        companyId: match.metadata?.companyId as string,
-      }));
+    // Return the similar job titles with similarity scores
+    const result = topSimilarJobTitles.map((s) => ({
+      jobTitle: s.jobTitle,
+      score: s.similarity,
+    }));
 
-    return similarSpecialties;
-  } catch (error) {
-    console.error("Error querying similar specialties:", error);
-    return [];
-  }
-}
-async function querySimilarJobTitles(job: string) {
-  try {
-    console.log(`Getting embedding for job: ${job}`);
-    const jobEmbedding = await getEmbedding(job);
-
-    const queryResponse = await index.namespace("job-titles").query({
-      topK: 500,
-      vector: jobEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
-
-    const similarJobTitles = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.7)
-      .map((match) => match.metadata?.jobTitle) as string[];
-
-    console.log(`SIMILAR JOB TITLES LENGTH: ${similarJobTitles.length}`);
-    return similarJobTitles;
+    console.log(`[6] Returning ${result.length} similar job titles.`);
+    return result;
   } catch (error) {
     console.error("Error querying similar job titles:", error);
     return [];
   }
-}
+};
 
 async function processFilterCriteria(
   filterCriteria: {
@@ -972,6 +855,7 @@ async function processFilterCriteria(
     nearBrooklyn: boolean;
     searchInternet: boolean;
     skills: string[];
+    // features: string[];
     booleanSearch?: string;
     companyIds: string[];
     location?: string;
@@ -992,14 +876,15 @@ async function processFilterCriteria(
     filterCriteria.skills.map((skill) => querySimilarTechnologies(skill)),
   );
 
+  console.log("Expanded skills:", similarTechnologiesArrays);
+
   let similarJobTitlesArray: string[] = [];
   if (filterCriteria.job && filterCriteria.job !== "") {
-    similarJobTitlesArray = await querySimilarJobTitles(filterCriteria.job);
+    const similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
+    similarJobTitlesArray = similarJobTitles.map((jt) => jt.jobTitle);
   }
 
   const allSimilarTechnologies = similarTechnologiesArrays.flat();
-
-  console.log("Expanded skills:", allSimilarTechnologies);
 
   // Fetch candidates based on the filter criteria
   const candidatesFiltered = await db.query.candidates.findMany({
@@ -1009,9 +894,6 @@ async function processFilterCriteria(
         eq(candidate.livesNearBrooklyn, true),
         eq(candidate.livesNearBrooklyn, false),
       );
-      if (filterCriteria.nearBrooklyn) {
-        condition = eq(candidate.livesNearBrooklyn, true);
-      }
       let skillCondition = undefined;
       if (filterCriteria.skills.length > 0) {
         skillCondition = jsonArrayContainsAny(
@@ -1048,7 +930,7 @@ async function processFilterCriteria(
   // Sort candidates based on the number of matching skills
   const sortedCandidates = candidatesFiltered
     .map((candidate) => {
-      const matchingSkillsCount = allSimilarTechnologies.filter((tech) =>
+      const matchingSkillsCount = allSimilarTechnologies.filter((tech: any) =>
         candidate.topTechnologies?.includes(tech.technology),
       ).length;
       return { ...candidate, matchingSkillsCount };
