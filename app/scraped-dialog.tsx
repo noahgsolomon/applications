@@ -64,6 +64,7 @@ import { Toaster } from "@/components/ui/sonner";
 import CompaniesView from "./companies-view";
 import WhopLogo from "./WhopLogo";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProfileUrl {
   type: "linkedin" | "github";
@@ -96,6 +97,7 @@ export default function ScrapedDialog() {
   const [whopUser, setWhopUser] = useState(false);
   const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
   const [cookdSorting, setCookdSorting] = useState(true);
+  const [flushing, setFlushing] = useState(false);
   const [candidateMatches, setCandidateMatches] = useState<
     | (InferSelectModel<typeof candidates> & {
         company?: InferSelectModel<typeof companyTable> | null;
@@ -374,6 +376,7 @@ export default function ScrapedDialog() {
 
   const findSimilarProfiles = async (profileUrls: ProfileUrl[]) => {
     setError("");
+    setFlushing(false);
 
     const linkedinUrls = profileUrls
       .filter((url) => url.type === "linkedin")
@@ -725,7 +728,8 @@ export default function ScrapedDialog() {
           {/* Action Buttons */}
           <Flex justify="end" gap="2">
             {getPendingSimilarProfilesQuery.data &&
-              getPendingSimilarProfilesQuery.data[0] && (
+              getPendingSimilarProfilesQuery.data[0] &&
+              !flushing && (
                 <Button
                   variant="classic"
                   size="2"
@@ -737,6 +741,8 @@ export default function ScrapedDialog() {
                         id: profileQuery.id,
                       });
                     }
+                    setLoading(false);
+                    setFlushing(true);
                   }}
                 >
                   Flush Queue
