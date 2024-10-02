@@ -10,165 +10,210 @@ import {
   people,
   company as companyTable,
 } from "@/server/db/schemas/users/schema";
-import { InferResultType } from "@/utils/infer";
 import { InferSelectModel } from "drizzle-orm";
-import { Card, Heading, Text, Link, Avatar, Badge } from "frosted-ui";
-import { SquareArrowOutUpRight } from "lucide-react";
+import {
+  Card,
+  Heading,
+  Text,
+  Link,
+  Avatar,
+  Badge,
+  Flex,
+  Separator,
+  Progress,
+} from "frosted-ui";
+import { Linkedin, Github, Twitter, Building } from "lucide-react";
 
 export default function CandidateCard({
   candidate,
-  allMatchingSkills,
-  allMatchingJobTitles,
+  bigTech,
+  activeGithub,
+  whopUser,
   company,
 }: {
-  candidate:
-    | InferResultType<"people", { company: true }>
-    | InferSelectModel<typeof people>;
-  allMatchingSkills?: string[];
-  allMatchingJobTitles?: string[];
+  candidate: {
+    data: InferSelectModel<typeof people>;
+    score: number;
+    matchedSkills?: { score: number; skill: string }[];
+    matchedJobTitle?: { score: number; jobTitle: string };
+    matchedLocation?: { score: number; location: string };
+  };
+  bigTech: boolean;
+  activeGithub: boolean;
+  whopUser: boolean;
   company?: InferSelectModel<typeof companyTable>;
 }) {
-  // Select profile picture
+  const { data, score, matchedLocation, matchedSkills, matchedJobTitle } =
+    candidate;
   const imageUrl =
-    candidate.image ||
-    (candidate.twitterData &&
-      (candidate.twitterData as any).profile_image_url_https) ||
-    (candidate.linkedinData && (candidate.linkedinData as any).photoUrl) ||
+    data.image ||
+    (data.twitterData && (data.twitterData as any).profile_image_url_https) ||
+    (data.linkedinData && (data.linkedinData as any).photoUrl) ||
     "";
 
   return (
-    <Card className="shadow-md">
-      <div className="flex flex-row gap-2 pb-4">
-        <div>
-          <div className="relative">
-            <Avatar
-              size={"5"}
-              color="blue"
-              fallback={(candidate.name || "N").charAt(0).toUpperCase()}
-              src={imageUrl}
-            />
-            {company && (
-              <TooltipProvider key={company.id} delayDuration={500}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link target="_blank" href={company.linkedinUrl}>
-                      <Avatar
-                        className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all absolute -right-0 -bottom-4"
-                        color="blue"
-                        size="2"
-                        fallback={company.name.charAt(0).toUpperCase()}
-                        src={company.logo ?? ""}
-                      />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>{company.name}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
+    <Card className="shadow-md p-6">
+      <Flex direction="row" gap="4" align="start">
+        <div className="relative">
+          <Avatar
+            size="7"
+            color="blue"
+            fallback={(data.name || "N").charAt(0).toUpperCase()}
+            src={imageUrl}
+          />
+          {company && (
+            <TooltipProvider key={company.id} delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link target="_blank" href={company.linkedinUrl}>
+                    <Avatar
+                      className="cursor-pointer shadow-md hover:scale-105 active:scale-95 transition-all absolute -right-2 -bottom-2"
+                      color="blue"
+                      size="2"
+                      fallback={company.name.charAt(0).toUpperCase()}
+                      src={company.logo ?? ""}
+                    />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>{company.name}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
-        <div className="flex flex-col w-full">
-          <div className="flex flex-row gap-2 items-center justify-between">
-            <Heading>{candidate.name}</Heading>
-          </div>
-
-          {/* LinkedIn Section */}
-          {candidate.linkedinUrl && (
-            <div className="mt-2">
-              <Heading size="2">LinkedIn</Heading>
-              <Link href={candidate.linkedinUrl} target="_blank">
-                <SquareArrowOutUpRight className="size-4" />
-              </Link>
-              <Text>
-                {(candidate.linkedinData as any)?.positions
-                  ?.positionHistory?.[0]?.companyName || ""}
-              </Text>
-              <Text>
-                {(candidate.linkedinData as any)?.positions
-                  ?.positionHistory?.[0]?.title || ""}
-              </Text>
-            </div>
-          )}
-
-          {/* GitHub Section */}
-          {candidate.githubLogin && (
-            <div className="mt-2">
-              <Heading size="2">GitHub</Heading>
-              <Link
-                href={`https://github.com/${candidate.githubLogin}`}
-                target="_blank"
-              >
-                <SquareArrowOutUpRight className="size-4" />
-              </Link>
-              <Text>{candidate.githubBio || ""}</Text>
-              <Text>{candidate.githubCompany || ""}</Text>
-            </div>
-          )}
-
-          {/* Twitter Section */}
-          {candidate.twitterUsername && (
-            <div className="mt-2">
-              <Heading size="2">Twitter</Heading>
-              <Link
-                href={`https://twitter.com/${candidate.twitterUsername}`}
-                target="_blank"
-              >
-                <SquareArrowOutUpRight className="size-4" />
-              </Link>
-              <Text>{candidate.twitterBio || ""}</Text>
-              <Text>
-                {candidate.twitterFollowerCount
-                  ? `Followers: ${candidate.twitterFollowerCount}`
-                  : ""}
-              </Text>
-            </div>
-          )}
-
-          {/* Summary */}
-          <Text className="italic text-sm text-primary/60 mt-2">
-            {candidate.miniSummary || ""}
+        <Flex direction="column" gap="2" className="flex-grow">
+          <Flex justify="between" align="center">
+            <Flex gap="2">
+              {data.linkedinUrl && (
+                <Link href={data.linkedinUrl} target="_blank">
+                  <Linkedin className="size-5 text-blue-600 " />
+                </Link>
+              )}
+              {data.githubLogin && (
+                <Link
+                  href={`https://github.com/${data.githubLogin}`}
+                  target="_blank"
+                >
+                  <Github className="size-5 text-gray-700 " />
+                </Link>
+              )}
+              {data.twitterUsername && (
+                <Link
+                  href={`https://twitter.com/${data.twitterUsername}`}
+                  target="_blank"
+                >
+                  <Twitter className="size-5 text-sky-500 " />
+                </Link>
+              )}
+            </Flex>
+          </Flex>
+          <Text className="text-primary/80">
+            {(data.linkedinData as any)?.positions?.positionHistory?.[0]
+              ?.title || ""}
           </Text>
-        </div>
-      </div>
+          {(data.linkedinData as any)?.positions?.positionHistory?.[0]
+            ?.companyName && (
+            <Flex align="center" gap="2" className="text-primary/60">
+              <Building className="size-4" />
+              <Text>
+                {(data.linkedinData as any)?.positions?.positionHistory?.[0]
+                  ?.companyName || ""}
+              </Text>
+            </Flex>
+          )}
+          {data.miniSummary && (
+            <Text className="italic text-sm text-primary/60 mt-2">
+              {data.miniSummary}
+            </Text>
+          )}
+        </Flex>
+      </Flex>
 
-      {/* Badges */}
-      <div className="flex flex-wrap gap-2 pb-4">
-        {/* <Badge */}
-        {/*   variant="surface" */}
-        {/*   color={candidate.livesNearBrooklyn ? "green" : "red"} */}
-        {/* > */}
-        {/*   Brooklyn */}
-        {/* </Badge> */}
-        <Badge
-          variant="surface"
-          color={candidate.workedInBigTech ? "green" : "red"}
-        >
-          Big Tech
-        </Badge>
-        {[
-          ...(candidate.topTechnologies ?? []),
-          ...(candidate.topFeatures ?? []),
-          ...(candidate.uniqueTopics ?? []),
-          ...Object.keys(candidate.githubLanguages ?? {}),
-        ]?.map((skill) => (
-          <>
-            {allMatchingSkills?.includes(skill) ? (
-              <Badge key={skill} variant="surface" color={"pink"}>
-                {skill}
-              </Badge>
-            ) : null}
-          </>
-        ))}
-        {[...(candidate.jobTitles ?? [])]?.map((jt) => (
-          <>
-            {allMatchingJobTitles?.includes(jt) ? (
-              <Badge key={jt} variant="surface" color={"yellow"}>
-                {jt}
-              </Badge>
-            ) : null}
-          </>
-        ))}
-      </div>
+      <Separator className="my-4" />
+
+      <Flex direction="column" gap="4">
+        {data.githubBio && (
+          <Flex
+            className="italic text-sm text-primary/60"
+            direction="column"
+            gap="1"
+          >
+            <Heading size="2">GitHub Bio</Heading>
+            <Text>{data.githubBio}</Text>
+          </Flex>
+        )}
+
+        {data.twitterBio && (
+          <Flex
+            className="italic text-sm text-primary/60"
+            direction="column"
+            gap="1"
+          >
+            <Heading size="2">Twitter Bio</Heading>
+            <Text>{data.twitterBio}</Text>
+            {data.twitterFollowerCount && (
+              <Text size="1" className="text-primary/60">
+                Followers: {data.twitterFollowerCount.toLocaleString()}
+              </Text>
+            )}
+          </Flex>
+        )}
+        <Flex wrap="wrap" gap="2">
+          <Badge
+            variant="surface"
+            color={score >= 0.75 ? "green" : score >= 0.5 ? "yellow" : "red"}
+          >
+            {score}
+          </Badge>
+          {bigTech && (
+            <Badge
+              variant="surface"
+              color={data.workedInBigTech ? "green" : "red"}
+            >
+              {data.workedInBigTech ? "Big Tech" : "Non-Big Tech"}
+            </Badge>
+          )}
+          {matchedSkills &&
+            matchedSkills.length > 0.75 &&
+            matchedSkills
+              .filter((skill) => skill.score > 0)
+              .map((skill) => (
+                <TooltipProvider key={skill.skill}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="surface" color="pink">
+                        {skill.skill}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>{skill.score}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+          {matchedJobTitle && matchedJobTitle.score > 0.75 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant="surface" color="yellow">
+                    {matchedJobTitle.jobTitle}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>{matchedJobTitle.score}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {matchedLocation && matchedLocation.score > 0.75 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant="surface" color="green">
+                    {matchedLocation.location}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>{matchedLocation.score}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </Flex>
+      </Flex>
     </Card>
   );
 }
