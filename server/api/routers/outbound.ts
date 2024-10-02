@@ -637,6 +637,8 @@ Return the result as a JSON object with the following structure:
   "skills": string[],
   "location": string,
   "minGithubStars": number,
+  "school": string,
+  "fieldOfStudy": string
 }.
 
 If no company they mentioned is in the list, return an empty array for "companyNames". For the companies mentioned not in the list, put those in "otherCompanyNames".
@@ -664,6 +666,8 @@ If no company they mentioned is in the list, return an empty array for "companyN
             "skills": [],
             "location": "",
             "minGithubStars": 0,
+            "school": "",
+            "fieldOfStudy": "",
             "Or": false
           }`,
         );
@@ -691,6 +695,8 @@ If no company they mentioned is in the list, return an empty array for "companyN
             skills: [],
             location: "",
             minGithubStars: 0,
+            school: "",
+            fieldOfStudy: "",
           };
         }
 
@@ -704,6 +710,8 @@ If no company they mentioned is in the list, return an empty array for "companyN
           skills: response.skills,
           location: response.location,
           minGithubStars: response.minGithubStars,
+          school: response.school,
+          fieldOfStudy: response.fieldOfStudy,
           query: input.query,
         };
       } catch (error) {

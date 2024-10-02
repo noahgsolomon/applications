@@ -27,6 +27,8 @@ export const profileQueue = pgTable("profile_queue", {
   progress: integer("progress").default(0),
   message: text("message"),
   response: json("response").$type<any[]>(),
+  skills: json("skills").$type<string[]>().default([]),
+  jobTitles: json("job_titles").$type<string[]>().default([]),
   error: boolean("error").default(false),
   success: boolean("success").default(false),
 });
@@ -453,7 +455,7 @@ export const skills = pgTable(
   }),
 );
 
-export const skillsNews = pgTable(
+export const skillsNew = pgTable(
   "skills_new",
   {
     id: serial("id").primaryKey(),
@@ -510,6 +512,22 @@ export const fieldsOfStudy = pgTable(
   },
   (table) => ({
     vectorIndex: index("fields_of_study_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const jobTitlesVectorNew = pgTable(
+  "job_titles_vector_new",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    jobTitle: varchar("job_title", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("job_titles_vector_new_index").using(
       "hnsw",
       table.vector.op("vector_cosine_ops"),
     ),
