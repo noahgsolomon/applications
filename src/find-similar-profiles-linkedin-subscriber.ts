@@ -755,15 +755,16 @@ export const querySimilarTechnologies = async (
     console.log(`[2] Embedding generated for: "${inputSkill}"`);
 
     // Step 2: Perform similarity search directly in PostgreSQL
-    const similarity = sql<number>`1 - (${cosineDistance(skills.vector, embedding)})`;
+    const similarity = sql<number>`1 - (${cosineDistance(schema.skillsNew.vector, embedding)})`;
 
     const similarSkills = await db
       .select({
-        technology: skills.skill,
+        technology: schema.skillsNew.skill,
         similarity,
+        personIds: schema.skillsNew.personIds,
       })
-      .from(schema.skillsNews)
-      .orderBy(cosineDistance(schema.skillsNews.vector, embedding))
+      .from(schema.skillsNew)
+      .orderBy(cosineDistance(schema.skillsNew.vector, embedding))
       .limit(topK);
 
     console.log(
@@ -781,9 +782,13 @@ export const querySimilarTechnologies = async (
     const result = similarSkills.map((s) => ({
       technology: s.technology,
       score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
     }));
 
     console.log(`[5] Returning ${result.length} similar technologies.`);
+    console.log(
+      `Number of matches users: ${similarSkills.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+    );
     return result;
   } catch (error) {
     console.error("Error querying similar technologies:", error);
@@ -797,49 +802,51 @@ export const querySimilarJobTitles = async (
 ) => {
   try {
     console.log(
-      `[1] Starting search for similar job titles to: ${inputJobTitle}`,
+      `[1] Starting search for similar job titles to: "${inputJobTitle}"`,
     );
+
+    // Step 1: Generate embedding for the input job title
     const embedding = await getEmbedding(inputJobTitle);
-    console.log(`[2] Embedding generated for: ${inputJobTitle}`);
+    console.log(`[2] Embedding generated for: "${inputJobTitle}"`);
 
-    // Fetch all job titles from the 'jobTitles' table
-    const allJobTitles = await db.select().from(jobTitles).execute();
+    // Step 2: Perform similarity search directly in PostgreSQL
+    const similarity = sql<number>`1 - (${cosineDistance(schema.jobTitlesVectorNew.vector, embedding)})`;
+
+    const similarJobTitles = await db
+      .select({
+        jobTitle: schema.jobTitlesVectorNew.jobTitle,
+        similarity,
+        personIds: schema.jobTitlesVectorNew.personIds,
+      })
+      .from(schema.jobTitlesVectorNew)
+      .orderBy(cosineDistance(schema.jobTitlesVectorNew.vector, embedding))
+      .limit(topK);
+
     console.log(
-      `[3] Retrieved ${allJobTitles.length} job titles from the database.`,
+      `[3] Retrieved ${similarJobTitles.length} similar job titles after similarity search.`,
     );
 
-    // Compute cosine similarity between input job title and each job title in the database
-    const similarities: { jobTitle: string; similarity: number }[] =
-      allJobTitles.map((jt) => ({
-        jobTitle: jt.title,
-        similarity: cosineSimilarity(embedding, jt.vector),
-      }));
-
-    // Filter based on similarity threshold
+    // Optional: Filter based on a threshold if necessary
+    /*
     const threshold = 0.7;
-    const filteredSimilarities = similarities.filter(
-      (s) => s.similarity >= threshold,
-    );
-    console.log(
-      `[4] Found ${filteredSimilarities.length} similar job titles after filtering.`,
-    );
-
-    // Sort by similarity descending
-    filteredSimilarities.sort((a, b) => b.similarity - a.similarity);
-
-    // Take top K
-    const topSimilarJobTitles = filteredSimilarities.slice(0, topK);
-    console.log(
-      `[5] Selected top ${topSimilarJobTitles.length} similar job titles.`,
-    );
+    const filteredSimilarities = similarJobTitles.filter(s => s.similarity >= threshold);
+    console.log(`[4] Found ${filteredSimilarities.length} similar job titles after filtering.`);
+    */
 
     // Return the similar job titles with similarity scores
-    const result = topSimilarJobTitles.map((s) => ({
-      jobTitle: s.jobTitle,
-      score: s.similarity,
-    }));
 
-    console.log(`[6] Returning ${result.length} similar job titles.`);
+    const result = similarJobTitles
+      .filter((s) => s.personIds !== null && s.personIds.length > 0)
+      .map((s) => ({
+        jobTitle: s.jobTitle,
+        score: parseFloat(s.similarity.toFixed(6)),
+        personIds: s.personIds!,
+      }));
+
+    console.log(`[5] Returning ${result.length} similar job titles.`);
+    console.log(
+      `Number of matching users: ${similarJobTitles.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+    );
     return result;
   } catch (error) {
     console.error("Error querying similar job titles:", error);
@@ -861,6 +868,8 @@ async function processFilterCriteria(
     location?: string;
     activeGithub?: boolean;
     whopUser?: boolean;
+    school?: string;
+    fieldOfStudy?: string;
   },
   insertId: string,
 ) {
@@ -871,80 +880,109 @@ async function processFilterCriteria(
     locationEmbedding = await getEmbedding(filterCriteria.location);
   }
 
+  const mostSimilarPeople: {
+    score: number;
+    data: InferSelectModel<typeof people>;
+  }[] = [];
+
   // Extract similar technologies and job titles
   const similarTechnologiesArrays = await Promise.all(
     filterCriteria.skills.map((skill) => querySimilarTechnologies(skill)),
   );
 
-  console.log("Expanded skills:", similarTechnologiesArrays);
+  // Flatten the array and extract unique personIds
+  const similarTechnologiesPersonIds = Array.from(
+    new Set(
+      similarTechnologiesArrays.flatMap((arr) =>
+        arr.flatMap((item) => item.personIds || []),
+      ),
+    ),
+  );
 
-  let similarJobTitlesArray: string[] = [];
-  if (filterCriteria.job && filterCriteria.job !== "") {
-    const similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
-    similarJobTitlesArray = similarJobTitles.map((jt) => jt.jobTitle);
-  }
-
-  const allSimilarTechnologies = similarTechnologiesArrays.flat();
-
-  // Fetch candidates based on the filter criteria
-  const candidatesFiltered = await db.query.candidates.findMany({
-    with: { company: true },
-    where: (candidate, { and, eq, inArray, or }) => {
-      let condition = or(
-        eq(candidate.livesNearBrooklyn, true),
-        eq(candidate.livesNearBrooklyn, false),
-      );
-      let skillCondition = undefined;
-      if (filterCriteria.skills.length > 0) {
-        skillCondition = jsonArrayContainsAny(
-          candidate.topTechnologies,
-          allSimilarTechnologies.map((tech) => tech.technology),
-        );
-      }
-      let jobTitleCondition = undefined;
-      if (similarJobTitlesArray.length > 0) {
-        jobTitleCondition = jsonArrayContainsAny(
-          candidate.jobTitles,
-          similarJobTitlesArray,
-        );
-      }
-      return and(
-        condition,
-        skillCondition,
-        exists(
-          db
-            .select()
-            .from(schema.company)
-            .where(
-              and(
-                inArray(schema.company.id, filterCriteria.companyIds),
-                eq(candidate.companyId, schema.company.id),
-              ),
-            ),
-        ),
-        jobTitleCondition,
-      );
-    },
+  // Fetch users from the database
+  const usersFromSimilarTechnologiesArray = await db.query.people.findMany({
+    where: inArray(people.id, similarTechnologiesPersonIds),
   });
 
-  // Sort candidates based on the number of matching skills
-  const sortedCandidates = candidatesFiltered
-    .map((candidate) => {
-      const matchingSkillsCount = allSimilarTechnologies.filter((tech: any) =>
-        candidate.topTechnologies?.includes(tech.technology),
-      ).length;
-      return { ...candidate, matchingSkillsCount };
-    })
-    .sort((a, b) => b.matchingSkillsCount - a.matchingSkillsCount);
+  // Add users from similar technologies array to mostSimilarPeople
+  usersFromSimilarTechnologiesArray.forEach((user) => {
+    const userScore = Math.max(
+      ...similarTechnologiesArrays.map((techArray) => {
+        const matchingTech = techArray.find((tech) =>
+          tech.personIds?.includes(user.id),
+        );
+        return matchingTech?.score || 0;
+      }),
+    );
+    const existingEntry = mostSimilarPeople.find(
+      (entry) => entry.data.id === user.id,
+    );
+    if (existingEntry) {
+      existingEntry.score += userScore;
+    } else {
+      mostSimilarPeople.push({
+        score: userScore,
+        data: user,
+      });
+    }
+  });
 
-  // Truncate to 100 candidates
-  const topCandidates = sortedCandidates.slice(0, 100);
+  let similarJobTitlesArray: {
+    jobTitle: string;
+    score: number;
+    personIds: string[];
+  }[] = [];
+  if (filterCriteria.job && filterCriteria.job !== "") {
+    const similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
+    similarJobTitlesArray = similarJobTitles;
 
-  // Optionally perform additional processing, such as scoring candidates
-  // ...
+    // Extract unique personIds from similar job titles
+    const similarJobTitlesPersonIds = Array.from(
+      new Set(similarJobTitles.flatMap((item) => item.personIds || [])),
+    );
 
-  console.log("Filter  return topCandidates;criteria processing completed.");
-  return topCandidates;
+    // Fetch users from the database for similar job titles
+    const usersFromSimilarJobTitlesArray = await db.query.people.findMany({
+      where: inArray(people.id, similarJobTitlesPersonIds),
+    });
+
+    // Add users from similar job titles array to mostSimilarPeople
+    usersFromSimilarJobTitlesArray.forEach((user) => {
+      const userScore = Math.max(
+        ...similarJobTitles.map((jobTitle) => {
+          const matchingJobTitle = jobTitle.personIds?.includes(user.id);
+          return matchingJobTitle ? jobTitle.score : 0;
+        }),
+      );
+      const existingEntry = mostSimilarPeople.find(
+        (entry) => entry.data.id === user.id,
+      );
+      if (existingEntry) {
+        existingEntry.score += userScore;
+      } else {
+        mostSimilarPeople.push({
+          score: userScore,
+          data: user,
+        });
+      }
+    });
+  }
+  // Sort candidates by score in descending order
+  const sortedCandidates = mostSimilarPeople.sort((a, b) => b.score - a.score);
+
+  // Truncate to 100 candidates and extract only the data
+  const topCandidates = sortedCandidates
+    .slice(0, 100)
+    .map((candidate) => candidate.data);
+
+  console.log("Filter criteria processing completed.");
+  return {
+    candidates: topCandidates,
+    allMatchingSkills: similarTechnologiesArrays
+      .flat()
+      .map((t) => t.technology),
+    allMatchingJobTitles: similarJobTitlesArray.map((j) => j.jobTitle),
+  };
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
@@ -986,6 +1024,9 @@ export async function handler(event: any) {
     let resultsFromGithubUrls: any[] = [];
     let resultsFromFilterCriteria: any[] = [];
 
+    let allMatchingSkills: string[] = [];
+    let allMatchingJobTitles: string[] = [];
+
     if (body.linkedinUrls && body.linkedinUrls.length > 0) {
       try {
         console.log("Processing Linkedin URLs...");
@@ -1014,10 +1055,13 @@ export async function handler(event: any) {
     if (body.filterCriteria) {
       try {
         console.log("Processing filter criteria...");
-        resultsFromFilterCriteria = await processFilterCriteria(
+        const filterCriteria = await processFilterCriteria(
           body.filterCriteria,
           insertId,
         );
+        resultsFromFilterCriteria = filterCriteria.candidates;
+        allMatchingSkills = filterCriteria.allMatchingSkills;
+        allMatchingJobTitles = filterCriteria.allMatchingJobTitles;
       } catch (error) {
         console.error("Error processing filter criteria:", error);
         // Optionally handle the error or continue
@@ -1042,7 +1086,12 @@ export async function handler(event: any) {
     // Update the profileQueue with the merged results
     await db
       .update(schema.profileQueue)
-      .set({ response: mergedResults, success: true })
+      .set({
+        response: mergedResults,
+        success: true,
+        skills: allMatchingSkills,
+        jobTitles: allMatchingJobTitles,
+      })
       .where(eq(schema.profileQueue.id, insertId));
   } catch (error) {
     console.error("Error processing queue item:", error);
