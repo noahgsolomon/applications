@@ -533,3 +533,19 @@ export const jobTitlesVectorNew = pgTable(
     ),
   }),
 );
+
+export const locationsVector = pgTable(
+  "locations_vector",
+  {
+    id: serial("id").primaryKey(),
+    personIds: jsonb("person_ids").$type<string[]>().default([]),
+    location: text("location").notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("locations_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops"),
+    ),
+  }),
+);
