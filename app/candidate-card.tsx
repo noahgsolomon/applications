@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  candidates,
+  people,
   company as companyTable,
 } from "@/server/db/schemas/users/schema";
 import { InferResultType } from "@/utils/infer";
@@ -18,59 +18,34 @@ import { SquareArrowOutUpRight } from "lucide-react";
 export default function CandidateCard({
   candidate,
   allMatchingSkills,
+  allMatchingJobTitles,
   company,
 }: {
   candidate:
-    | InferResultType<"candidates", { company: true }>
-    | InferSelectModel<typeof candidates>;
-  outbound?: Outbound;
+    | InferResultType<"people", { company: true }>
+    | InferSelectModel<typeof people>;
   allMatchingSkills?: string[];
+  allMatchingJobTitles?: string[];
   company?: InferSelectModel<typeof companyTable>;
 }) {
+  // Select profile picture
+  const imageUrl =
+    candidate.image ||
+    (candidate.twitterData &&
+      (candidate.twitterData as any).profile_image_url_https) ||
+    (candidate.linkedinData && (candidate.linkedinData as any).photoUrl) ||
+    "";
+
   return (
-    <Card
-      className="shadow-md"
-      style={{
-        borderColor:
-          // candidate.cookdReviewed
-          //   ? candidate.cookdData.result === "PASS"
-          //     ? "#22c55e"
-          //     : "#ef4444"
-          //   :
-          undefined,
-        borderWidth:
-          // candidate.cookdReviewed
-          //   ? candidate.cookdData.result === "PASS"
-          //     ? "1px"
-          //     : "1px"
-          //   :
-          undefined,
-        borderStyle:
-          // candidate.cookdReviewed
-          //   ? candidate.cookdData.result === "PASS"
-          //     ? "solid"
-          //     : "solid"
-          // :
-          undefined,
-        backgroundColor:
-          // candidate.cookdReviewed
-          //   ? candidate.cookdData.result === "PASS"
-          //     ? "rgba(34, 197, 94, 0.1)"
-          //     : "rgba(239, 68, 68, 0.1)"
-          //   :
-          undefined,
-      }}
-    >
+    <Card className="shadow-md">
       <div className="flex flex-row gap-2 pb-4">
         <div>
           <div className="relative">
             <Avatar
               size={"5"}
               color="blue"
-              fallback={candidate.linkedinData.firstName
-                .toUpperCase()
-                .charAt(0)}
-              src={candidate.linkedinData.photoUrl ?? ""}
+              fallback={(candidate.name || "N").charAt(0).toUpperCase()}
+              src={imageUrl}
             />
             {company && (
               <TooltipProvider key={company.id} delayDuration={500}>
@@ -78,7 +53,7 @@ export default function CandidateCard({
                   <TooltipTrigger asChild>
                     <Link target="_blank" href={company.linkedinUrl}>
                       <Avatar
-                        className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all absolute -right-0 -bottom-4 "
+                        className="cursor-pointer shadow-md hover:scale-[101%] active:scale-[99%] transition-all absolute -right-0 -bottom-4"
                         color="blue"
                         size="2"
                         fallback={company.name.charAt(0).toUpperCase()}
@@ -92,75 +67,106 @@ export default function CandidateCard({
             )}
           </div>
         </div>
-        <div className="flex flex-col ">
+        <div className="flex flex-col w-full">
           <div className="flex flex-row gap-2 items-center justify-between">
-            <div className="flex flex-row gap-2 items-center">
-              <Heading>
-                {candidate.linkedinData.firstName +
-                  " " +
-                  candidate.linkedinData.lastName}
-              </Heading>
+            <Heading>{candidate.name}</Heading>
+          </div>
+
+          {/* LinkedIn Section */}
+          {candidate.linkedinUrl && (
+            <div className="mt-2">
+              <Heading size="2">LinkedIn</Heading>
+              <Link href={candidate.linkedinUrl} target="_blank">
+                <SquareArrowOutUpRight className="size-4" />
+              </Link>
+              <Text>
+                {(candidate.linkedinData as any)?.positions
+                  ?.positionHistory?.[0]?.companyName || ""}
+              </Text>
+              <Text>
+                {(candidate.linkedinData as any)?.positions
+                  ?.positionHistory?.[0]?.title || ""}
+              </Text>
+            </div>
+          )}
+
+          {/* GitHub Section */}
+          {candidate.githubLogin && (
+            <div className="mt-2">
+              <Heading size="2">GitHub</Heading>
               <Link
-                href={candidate.url!}
+                href={`https://github.com/${candidate.githubLogin}`}
                 target="_blank"
-                className="cursor-pointer"
-                key={candidate.id}
               >
                 <SquareArrowOutUpRight className="size-4" />
               </Link>
+              <Text>{candidate.githubBio || ""}</Text>
+              <Text>{candidate.githubCompany || ""}</Text>
             </div>
-            {/* {(candidate.cookdScore ?? 0) > 0 && ( */}
-            {/*   <Badge */}
-            {/*     color={candidate.cookdData.result === "PASS" ? "green" : "red"} */}
-            {/*   > */}
-            {/*     {candidate.cookdScore ?? 0} */}
-            {/*   </Badge> */}
-            {/* )} */}
-          </div>
-          <div className="flex flex-row gap-1">
-            <Text>
-              {candidate.linkedinData.positions.positionHistory[0].companyName}{" "}
-            </Text>
-            <Text>
-              {candidate.linkedinData.positions.positionHistory[0].title}
-            </Text>
-          </div>
-          <Text className="italic text-sm text-primary/60">
-            {candidate.miniSummary}
+          )}
+
+          {/* Twitter Section */}
+          {candidate.twitterUsername && (
+            <div className="mt-2">
+              <Heading size="2">Twitter</Heading>
+              <Link
+                href={`https://twitter.com/${candidate.twitterUsername}`}
+                target="_blank"
+              >
+                <SquareArrowOutUpRight className="size-4" />
+              </Link>
+              <Text>{candidate.twitterBio || ""}</Text>
+              <Text>
+                {candidate.twitterFollowerCount
+                  ? `Followers: ${candidate.twitterFollowerCount}`
+                  : ""}
+              </Text>
+            </div>
+          )}
+
+          {/* Summary */}
+          <Text className="italic text-sm text-primary/60 mt-2">
+            {candidate.miniSummary || ""}
           </Text>
         </div>
       </div>
+
+      {/* Badges */}
       <div className="flex flex-wrap gap-2 pb-4">
-        <Badge
-          variant="surface"
-          color={candidate.livesNearBrooklyn ? "green" : "red"}
-        >
-          Brooklyn
-        </Badge>
+        {/* <Badge */}
+        {/*   variant="surface" */}
+        {/*   color={candidate.livesNearBrooklyn ? "green" : "red"} */}
+        {/* > */}
+        {/*   Brooklyn */}
+        {/* </Badge> */}
         <Badge
           variant="surface"
           color={candidate.workedInBigTech ? "green" : "red"}
         >
           Big Tech
         </Badge>
-        {/* <Badge */}
-        {/*   variant="surface" */}
-        {/*   color={candidate.workedAtRelevant ? "green" : "red"} */}
-        {/* > */}
-        {/*   {outbound.company} */}
-        {/* </Badge> */}
-        {candidate.topTechnologies?.map((skill) => (
-          <Badge
-            key={skill}
-            variant="surface"
-            color={
-              allMatchingSkills && allMatchingSkills.includes(skill)
-                ? "pink"
-                : "gray"
-            }
-          >
-            {skill}
-          </Badge>
+        {[
+          ...(candidate.topTechnologies ?? []),
+          ...(candidate.topFeatures ?? []),
+          ...(candidate.uniqueTopics ?? []),
+          ...Object.keys(candidate.githubLanguages ?? {}),
+        ]?.map((skill) => (
+          <>
+            {allMatchingSkills?.includes(skill) ? (
+              <Badge key={skill} variant="surface" color={"pink"}>
+                {skill}
+              </Badge>
+            ) : null}
+          </>
+        ))}
+        {[...(candidate.jobTitles ?? [])]?.map((jt) => (
+          <>
+            {allMatchingJobTitles?.includes(jt) ? (
+              <Badge key={jt} variant="surface" color={"yellow"}>
+                {jt}
+              </Badge>
+            ) : null}
+          </>
         ))}
       </div>
     </Card>
