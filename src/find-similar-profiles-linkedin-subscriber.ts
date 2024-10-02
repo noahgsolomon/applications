@@ -15,6 +15,7 @@ import {
   desc,
   eq,
   exists,
+  gt,
   gte,
   inArray,
   InferSelectModel,
@@ -764,6 +765,7 @@ export const querySimilarTechnologies = async (
         personIds: schema.skillsNew.personIds,
       })
       .from(schema.skillsNew)
+      .where(gt(similarity, 0.5))
       .orderBy(cosineDistance(schema.skillsNew.vector, embedding))
       .limit(topK);
 
@@ -796,6 +798,52 @@ export const querySimilarTechnologies = async (
   }
 };
 
+export const querySimilarLocations = async (
+  inputLocation: string,
+  topK: number = 500,
+) => {
+  try {
+    console.log(
+      `[1] Starting search for similar locations to: "${inputLocation}"`,
+    );
+
+    const embedding = await getEmbedding(inputLocation);
+    console.log(`[2] Embedding generated for: "${inputLocation}"`);
+
+    const similarity = sql<number>`1 - (${cosineDistance(schema.locationsVector.vector, embedding)})`;
+
+    const similarLocations = await db
+      .select({
+        location: schema.locationsVector.location,
+        similarity,
+        personIds: schema.locationsVector.personIds,
+      })
+      .from(schema.locationsVector)
+      .where(gt(similarity, 0.5))
+      .orderBy(cosineDistance(schema.locationsVector.vector, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarLocations.length} similar technologies after similarity search.`,
+    );
+
+    const result = similarLocations.map((s) => ({
+      location: s.location,
+      score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
+    }));
+
+    console.log(`[5] Returning ${result.length} similar locations.`);
+    console.log(
+      `Number of matches users: ${similarLocations.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+    );
+    return result;
+  } catch (error) {
+    console.error("Error querying similar locations:", error);
+    return [];
+  }
+};
+
 export const querySimilarJobTitles = async (
   inputJobTitle: string,
   topK: number = 500,
@@ -819,6 +867,7 @@ export const querySimilarJobTitles = async (
         personIds: schema.jobTitlesVectorNew.personIds,
       })
       .from(schema.jobTitlesVectorNew)
+      .where(gt(similarity, 0.5))
       .orderBy(cosineDistance(schema.jobTitlesVectorNew.vector, embedding))
       .limit(topK);
 
@@ -862,12 +911,12 @@ async function processFilterCriteria(
     nearBrooklyn: boolean;
     searchInternet: boolean;
     skills: string[];
-    // features: string[];
     booleanSearch?: string;
     companyIds: string[];
     location?: string;
     activeGithub?: boolean;
     whopUser?: boolean;
+    bigTech?: boolean;
     school?: string;
     fieldOfStudy?: string;
   },
@@ -875,14 +924,22 @@ async function processFilterCriteria(
 ) {
   console.log("Processing filter criteria...");
 
-  let locationEmbedding = null;
+  let similarLocations: {
+    location: string;
+    score: number;
+    personIds: string[] | null;
+  }[] = [];
+
   if (filterCriteria.location) {
-    locationEmbedding = await getEmbedding(filterCriteria.location);
+    similarLocations = await querySimilarLocations(filterCriteria.location);
   }
 
   const mostSimilarPeople: {
     score: number;
     data: InferSelectModel<typeof people>;
+    matchedSkills: { skill: string; score: number }[];
+    matchedJobTitle: { jobTitle: string; score: number } | null;
+    matchedLocation: { location: string; score: number } | null;
   }[] = [];
 
   // Extract similar technologies and job titles
@@ -899,30 +956,85 @@ async function processFilterCriteria(
     ),
   );
 
-  // Fetch users from the database
+  // Fetch users from the database based on similar technologies
   const usersFromSimilarTechnologiesArray = await db.query.people.findMany({
     where: inArray(people.id, similarTechnologiesPersonIds),
   });
 
-  // Add users from similar technologies array to mostSimilarPeople
+  const skillScores: number[] = [];
   usersFromSimilarTechnologiesArray.forEach((user) => {
-    const userScore = Math.max(
-      ...similarTechnologiesArrays.map((techArray) => {
-        const matchingTech = techArray.find((tech) =>
-          tech.personIds?.includes(user.id),
+    const matchedSkills: { skill: string; score: number }[] = [];
+    let skillScoreSum = 0;
+
+    // Iterate through each skill cluster and add the max score from that cluster
+    similarTechnologiesArrays.forEach((techArray) => {
+      const matchedTechs = techArray.filter((tech) =>
+        tech.personIds?.includes(user.id),
+      );
+      if (matchedTechs.length > 0) {
+        // Find the tech with the max score in this cluster
+        const maxTech = matchedTechs.reduce((max, tech) =>
+          tech.score > max.score ? tech : max,
         );
-        return matchingTech?.score || 0;
-      }),
-    );
+        skillScoreSum += maxTech.score || 0;
+        matchedSkills.push({ skill: maxTech.technology, score: maxTech.score });
+      }
+    });
+
+    // Store the skill score sum for normalization later
+    skillScores.push(skillScoreSum);
+
+    mostSimilarPeople.push({
+      score: 0, // Placeholder, will be calculated later
+      data: user,
+      matchedSkills,
+      matchedJobTitle: null,
+      matchedLocation: null,
+    });
+  });
+
+  // Process similar locations
+  const similarLocationPersonIds = Array.from(
+    new Set(similarLocations.flatMap((location) => location.personIds || [])),
+  );
+
+  const usersFromSimilarLocationsArray = await db.query.people.findMany({
+    where: inArray(people.id, similarLocationPersonIds),
+  });
+
+  const locationScores: number[] = [];
+  usersFromSimilarLocationsArray.forEach((user) => {
+    let maxLocationScore = 0;
+    let matchedLocation: { location: string; score: number } | null = null;
+
+    similarLocations.forEach((location) => {
+      if (
+        location.personIds?.includes(user.id) &&
+        location.score > maxLocationScore
+      ) {
+        maxLocationScore = location.score;
+        matchedLocation = {
+          location: location.location,
+          score: location.score,
+        };
+      }
+    });
+
+    // Store the location score for normalization later
+    locationScores.push(maxLocationScore);
+
     const existingEntry = mostSimilarPeople.find(
       (entry) => entry.data.id === user.id,
     );
     if (existingEntry) {
-      existingEntry.score += userScore;
+      existingEntry.matchedLocation = matchedLocation;
     } else {
       mostSimilarPeople.push({
-        score: userScore,
+        score: 0, // Placeholder, will be calculated later
         data: user,
+        matchedSkills: [],
+        matchedJobTitle: null,
+        matchedLocation,
       });
     }
   });
@@ -932,6 +1044,7 @@ async function processFilterCriteria(
     score: number;
     personIds: string[];
   }[] = [];
+
   if (filterCriteria.job && filterCriteria.job !== "") {
     const similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
     similarJobTitlesArray = similarJobTitles;
@@ -946,43 +1059,104 @@ async function processFilterCriteria(
       where: inArray(people.id, similarJobTitlesPersonIds),
     });
 
-    // Add users from similar job titles array to mostSimilarPeople
+    const jobTitleScores: number[] = [];
     usersFromSimilarJobTitlesArray.forEach((user) => {
-      const userScore = Math.max(
-        ...similarJobTitles.map((jobTitle) => {
-          const matchingJobTitle = jobTitle.personIds?.includes(user.id);
-          return matchingJobTitle ? jobTitle.score : 0;
-        }),
-      );
+      let maxJobTitleScore = 0;
+      let matchedJobTitle: { jobTitle: string; score: number } | null = null;
+
+      similarJobTitles.forEach((jobTitle) => {
+        if (
+          jobTitle.personIds?.includes(user.id) &&
+          jobTitle.score > maxJobTitleScore
+        ) {
+          maxJobTitleScore = jobTitle.score;
+          matchedJobTitle = {
+            jobTitle: jobTitle.jobTitle,
+            score: jobTitle.score,
+          };
+        }
+      });
+
+      // Store the job title score for normalization later
+      jobTitleScores.push(maxJobTitleScore);
+
       const existingEntry = mostSimilarPeople.find(
         (entry) => entry.data.id === user.id,
       );
       if (existingEntry) {
-        existingEntry.score += userScore;
+        existingEntry.matchedJobTitle = matchedJobTitle;
       } else {
         mostSimilarPeople.push({
-          score: userScore,
+          score: 0, // Placeholder, will be calculated later
           data: user,
+          matchedSkills: [],
+          matchedJobTitle,
+          matchedLocation: null,
         });
       }
     });
+
+    // Calculate max, mean, and standard deviation for normalization
+    const calculateStats = (scores: number[]) => {
+      const maxScore = Math.max(...scores);
+      const minScore = Math.min(...scores);
+      return { maxScore, minScore };
+    };
+
+    // Normalize skills, location, and job title scores
+    const skillStats = calculateStats(skillScores);
+    const locationStats = calculateStats(locationScores);
+    const jobTitleStats = calculateStats(jobTitleScores);
+
+    mostSimilarPeople.forEach((person) => {
+      let finalScore = 0;
+
+      // Normalize skill score to [0, 1]
+      if (person.matchedSkills.length > 0) {
+        const skillSum = person.matchedSkills.reduce(
+          (sum, skill) => sum + skill.score,
+          0,
+        );
+        finalScore +=
+          (skillSum - skillStats.minScore) /
+          (skillStats.maxScore - skillStats.minScore);
+      }
+
+      // Normalize location score to [0, 1]
+      if (person.matchedLocation) {
+        const locationScore = person.matchedLocation.score;
+        finalScore +=
+          (locationScore - locationStats.minScore) /
+          (locationStats.maxScore - locationStats.minScore);
+      }
+
+      // Normalize job title score to [0, 1]
+      if (person.matchedJobTitle) {
+        const jobTitleScore = person.matchedJobTitle.score;
+        finalScore +=
+          (jobTitleScore - jobTitleStats.minScore) /
+          (jobTitleStats.maxScore - jobTitleStats.minScore);
+      }
+
+      // Update person's final score
+      person.score = finalScore;
+    });
   }
+
   // Sort candidates by score in descending order
   const sortedCandidates = mostSimilarPeople.sort((a, b) => b.score - a.score);
 
   // Truncate to 100 candidates and extract only the data
-  const topCandidates = sortedCandidates
-    .slice(0, 100)
-    .map((candidate) => candidate.data);
+  const topCandidates = sortedCandidates.slice(0, 100).map((candidate) => ({
+    data: candidate.data,
+    score: candidate.score,
+    matchedSkills: candidate.matchedSkills,
+    matchedJobTitle: candidate.matchedJobTitle,
+    matchedLocation: candidate.matchedLocation,
+  }));
 
   console.log("Filter criteria processing completed.");
-  return {
-    candidates: topCandidates,
-    allMatchingSkills: similarTechnologiesArrays
-      .flat()
-      .map((t) => t.technology),
-    allMatchingJobTitles: similarJobTitlesArray.map((j) => j.jobTitle),
-  };
+  return topCandidates;
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
@@ -991,12 +1165,14 @@ function mergeResults(...resultsArrays: any[][]): any[] {
 
   for (const resultsArray of resultsArrays) {
     for (const item of resultsArray) {
-      if (!idSet.has(item.id)) {
-        idSet.add(item.id);
+      if (!idSet.has(item.data.id)) {
+        idSet.add(item.data.id);
         mergedResults.push(item);
       }
     }
   }
+
+  mergedResults.sort((a, b) => b.score - a.score);
 
   return mergedResults;
 }
@@ -1023,9 +1199,6 @@ export async function handler(event: any) {
     let resultsFromLinkedinUrls: any[] = [];
     let resultsFromGithubUrls: any[] = [];
     let resultsFromFilterCriteria: any[] = [];
-
-    let allMatchingSkills: string[] = [];
-    let allMatchingJobTitles: string[] = [];
 
     if (body.linkedinUrls && body.linkedinUrls.length > 0) {
       try {
@@ -1059,9 +1232,7 @@ export async function handler(event: any) {
           body.filterCriteria,
           insertId,
         );
-        resultsFromFilterCriteria = filterCriteria.candidates;
-        allMatchingSkills = filterCriteria.allMatchingSkills;
-        allMatchingJobTitles = filterCriteria.allMatchingJobTitles;
+        resultsFromFilterCriteria = filterCriteria;
       } catch (error) {
         console.error("Error processing filter criteria:", error);
         // Optionally handle the error or continue
@@ -1089,8 +1260,6 @@ export async function handler(event: any) {
       .set({
         response: mergedResults,
         success: true,
-        skills: allMatchingSkills,
-        jobTitles: allMatchingJobTitles,
       })
       .where(eq(schema.profileQueue.id, insertId));
   } catch (error) {
