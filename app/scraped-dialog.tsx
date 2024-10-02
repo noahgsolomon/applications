@@ -41,6 +41,8 @@ import {
   TreePalm,
   Github,
   Linkedin,
+  School,
+  GraduationCap,
 } from "lucide-react";
 import {
   Tooltip,
@@ -55,6 +57,7 @@ import { InferSelectModel } from "drizzle-orm";
 import {
   candidates,
   company as companyTable,
+  people,
 } from "@/server/db/schemas/users/schema";
 import {
   CompanyFilterReturnType,
@@ -88,6 +91,10 @@ export default function ScrapedDialog() {
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<ProfileUrl[]>([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
+  const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
+  const [allMatchingJobTitles, setAllMatchingJobTitles] = useState<string[]>(
+    [],
+  );
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
 
@@ -95,21 +102,14 @@ export default function ScrapedDialog() {
   const [searchInternet, setSearchInternet] = useState(false);
   const [activeGithub, setActiveGithub] = useState(false);
   const [whopUser, setWhopUser] = useState(false);
-  const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
   const [cookdSorting, setCookdSorting] = useState(true);
   const [flushing, setFlushing] = useState(false);
   const [candidateMatches, setCandidateMatches] = useState<
-    | (InferSelectModel<typeof candidates> & {
-        company?: InferSelectModel<typeof companyTable> | null;
-      })[]
-    | null
+    InferSelectModel<typeof people>[] | null
   >(null);
 
   const [sortedCandidateMatches, setSortedCandidateMatches] = useState<
-    | (InferSelectModel<typeof candidates> & {
-        company?: InferSelectModel<typeof companyTable> | null;
-      })[]
-    | null
+    InferSelectModel<typeof people>[] | null
   >(null);
 
   const getPendingSimilarProfilesQuery =
@@ -146,6 +146,10 @@ export default function ScrapedDialog() {
       toast.success("Search completed!");
 
       setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
+      setAllMatchingSkills(getPendingSimilarProfilesQuery.data[0].skills ?? []);
+      setAllMatchingJobTitles(
+        getPendingSimilarProfilesQuery.data[0].jobTitles ?? [],
+      );
       setLoading(false);
 
       deletePendingSimilarProfilesMutation.mutate({
@@ -185,27 +189,6 @@ export default function ScrapedDialog() {
 
   // This mutation is no longer needed since we're handling everything via the queue
   // const findFilteredCandidatesMutation = ...
-
-  const pollCookdScoringRequestQuery =
-    api.outbound.pollCookdScoringRequest.useQuery(
-      { ids: candidateMatches?.map((c) => c.id) ?? [] },
-      {
-        enabled: sorting,
-        refetchInterval: 10000,
-      },
-    );
-
-  useEffect(() => {
-    if (pollCookdScoringRequestQuery.data) {
-      const data = pollCookdScoringRequestQuery.data;
-      setSortedCandidateMatches(data);
-      if (data.length >= (candidateMatches?.length ?? 0) - 1) {
-        setSorting(false);
-        setCandidateMatches(data);
-        setSortedCandidateMatches(null);
-      }
-    }
-  }, [pollCookdScoringRequestQuery.data, candidateMatches]);
 
   const handleToggle = (
     type: "nearBrooklyn" | "searchInternet" | "activeGithub" | "whopUser",
@@ -408,6 +391,8 @@ export default function ScrapedDialog() {
         location: filters?.location,
         activeGithub: activeGithub,
         whopUser: whopUser,
+        school: filters?.school ?? "",
+        fieldOfStudy: filters?.fieldOfStudy ?? "",
       };
     }
 
@@ -558,14 +543,41 @@ export default function ScrapedDialog() {
                       color={"iris"}
                       className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                       onClick={() => {
-                        console.log(filters);
-
-                        //@ts-ignore
                         setFilters({ ...filters, location: "" });
                       }}
                     >
                       <TreePalm className="size-4" />
                       Near {filters.location}
+                    </Button>
+                  ) : null}
+                  {filters.school ? (
+                    <Button
+                      variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color={"amber"}
+                      className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                      onClick={() => {
+                        setFilters({ ...filters, school: "" });
+                      }}
+                    >
+                      <School className="size-4" />
+                      {filters.school}
+                    </Button>
+                  ) : null}
+                  {filters.fieldOfStudy ? (
+                    <Button
+                      variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color={"cyan"}
+                      className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                      onClick={() => {
+                        setFilters({ ...filters, fieldOfStudy: "" });
+                      }}
+                    >
+                      <GraduationCap className="size-4" />
+                      {filters.fieldOfStudy}
                     </Button>
                   ) : null}
                   <Button
@@ -837,7 +849,8 @@ export default function ScrapedDialog() {
                             key={candidate.id}
                             candidate={candidate!}
                             allMatchingSkills={allMatchingSkills}
-                            company={candidate.company!}
+                            allMatchingJobTitles={allMatchingJobTitles}
+                            // company={candidate.company!}
                           />
                         ))}
                 </Flex>
