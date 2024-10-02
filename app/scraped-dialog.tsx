@@ -91,10 +91,6 @@ export default function ScrapedDialog() {
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<ProfileUrl[]>([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
-  const [allMatchingSkills, setAllMatchingSkills] = useState<string[]>([]);
-  const [allMatchingJobTitles, setAllMatchingJobTitles] = useState<string[]>(
-    [],
-  );
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
 
@@ -102,14 +98,18 @@ export default function ScrapedDialog() {
   const [searchInternet, setSearchInternet] = useState(false);
   const [activeGithub, setActiveGithub] = useState(false);
   const [whopUser, setWhopUser] = useState(false);
+  const [bigTech, setBigTech] = useState(false);
   const [cookdSorting, setCookdSorting] = useState(true);
   const [flushing, setFlushing] = useState(false);
   const [candidateMatches, setCandidateMatches] = useState<
-    InferSelectModel<typeof people>[] | null
-  >(null);
-
-  const [sortedCandidateMatches, setSortedCandidateMatches] = useState<
-    InferSelectModel<typeof people>[] | null
+    | {
+        data: InferSelectModel<typeof people>;
+        score: number;
+        matchedSkills?: { score: number; skill: string }[];
+        matchedJobTitle?: { score: number; jobTitle: string };
+        matchedLocation?: { score: number; location: string };
+      }[]
+    | null
   >(null);
 
   const getPendingSimilarProfilesQuery =
@@ -145,10 +145,13 @@ export default function ScrapedDialog() {
     ) {
       toast.success("Search completed!");
 
-      setCandidateMatches(getPendingSimilarProfilesQuery.data[0].response);
-      setAllMatchingSkills(getPendingSimilarProfilesQuery.data[0].skills ?? []);
-      setAllMatchingJobTitles(
-        getPendingSimilarProfilesQuery.data[0].jobTitles ?? [],
+      setCandidateMatches(
+        getPendingSimilarProfilesQuery.data[0].response as
+          | {
+              data: InferSelectModel<typeof people>;
+              score: number;
+            }[]
+          | null,
       );
       setLoading(false);
 
@@ -191,7 +194,12 @@ export default function ScrapedDialog() {
   // const findFilteredCandidatesMutation = ...
 
   const handleToggle = (
-    type: "nearBrooklyn" | "searchInternet" | "activeGithub" | "whopUser",
+    type:
+      | "bigTech"
+      | "nearBrooklyn"
+      | "searchInternet"
+      | "activeGithub"
+      | "whopUser",
   ) => {
     if (type === "nearBrooklyn") {
       setNearBrooklyn((prev) => !prev);
@@ -201,6 +209,8 @@ export default function ScrapedDialog() {
       setActiveGithub((prev) => !prev);
     } else if (type === "whopUser") {
       setWhopUser((prev) => !prev);
+    } else if (type === "bigTech") {
+      setBigTech((prev) => !prev);
     }
   };
 
@@ -391,6 +401,7 @@ export default function ScrapedDialog() {
         location: filters?.location,
         activeGithub: activeGithub,
         whopUser: whopUser,
+        bigTech: bigTech,
         school: filters?.school ?? "",
         fieldOfStudy: filters?.fieldOfStudy ?? "",
       };
@@ -598,6 +609,20 @@ export default function ScrapedDialog() {
                     variant="surface"
                     size="2"
                     style={{ cursor: "pointer" }}
+                    color={bigTech ? "green" : "red"}
+                    onClick={() => handleToggle("bigTech")}
+                  >
+                    {bigTech ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : (
+                      <X className="size-4 text-red-500" />
+                    )}
+                    Big Tech
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
                     color={whopUser ? "green" : "red"}
                     onClick={() => handleToggle("whopUser")}
                   >
@@ -798,33 +823,6 @@ export default function ScrapedDialog() {
                 List of candidates sorted by relevance.
               </DialogDescription>
               <Separator />
-              {candidateMatches ? (
-                <>
-                  {candidateMatches.filter((c) => c.cookdReviewed).length <
-                    candidateMatches.length - 1 && cookdSorting ? (
-                    <Button
-                      // onClick={handleSort}
-                      disabled={sorting || true}
-                      variant="classic"
-                      mt="2"
-                    >
-                      {sorting ? (
-                        <Loader className="size-4 animate-spin" />
-                      ) : (
-                        "Sort Candidates"
-                      )}
-                    </Button>
-                  ) : null}
-                </>
-              ) : matchedGithubUrls ? (
-                <Flex direction="column" gap="2" mt="2">
-                  {matchedGithubUrls.map((url) => (
-                    <Link href={url} target="_blank" key={url}>
-                      {url}
-                    </Link>
-                  ))}
-                </Flex>
-              ) : null}
               {sorting && (
                 <Text size="2" color="blue" mt="2">
                   Sorting candidates based on relevance. This will take a few
@@ -835,21 +833,15 @@ export default function ScrapedDialog() {
                 <Flex direction="column" gap="2">
                   {candidateMatches?.length === 0
                     ? "No matches found."
-                    : (sorting
-                        ? (sortedCandidateMatches ?? [])
-                        : candidateMatches
-                      )
-                        ?.sort((a, b) =>
-                          cookdSorting
-                            ? (b.cookdScore ?? 0) - (a.cookdScore ?? 0)
-                            : 0,
-                        )
+                    : candidateMatches
+                        ?.sort((a, b) => b.score - a.score)
                         .map((candidate) => (
                           <CandidateCard
-                            key={candidate.id}
+                            key={candidate.data.id}
+                            bigTech={bigTech}
+                            activeGithub={activeGithub}
+                            whopUser={whopUser}
                             candidate={candidate!}
-                            allMatchingSkills={allMatchingSkills}
-                            allMatchingJobTitles={allMatchingJobTitles}
                             // company={candidate.company!}
                           />
                         ))}
