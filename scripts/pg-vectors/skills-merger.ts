@@ -1,4 +1,4 @@
-import { skills, skillsNews } from "../../server/db/schemas/users/schema";
+import { skills, skillsNew } from "../../server/db/schemas/users/schema";
 import * as userSchema from "../../server/db/schemas/users/schema";
 import { gt, sql, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-serverless";
@@ -56,10 +56,10 @@ async function migrateSkills() {
     for (const [skill, data] of Object.entries(groupedSkills)) {
       // Check if the skill already exists
       const existingSkill = await db
-        .select({ id: skillsNews.id, personIds: skillsNews.personIds })
-        .from(skillsNews)
+        .select({ id: skillsNew.id, personIds: skillsNew.personIds })
+        .from(skillsNew)
         .where(
-          sql`LOWER(TRIM(${skillsNews.skill})) = ${skill.toLowerCase().trim()}`,
+          sql`LOWER(TRIM(${skillsNew.skill})) = ${skill.toLowerCase().trim()}`,
         )
         .limit(1);
 
@@ -84,7 +84,7 @@ async function migrateSkills() {
 
     // Perform batch insert
     if (insertBatch.length > 0) {
-      await db.insert(skillsNews).values(insertBatch);
+      await db.insert(skillsNew).values(insertBatch);
     }
 
     // Perform batch update
@@ -92,7 +92,7 @@ async function migrateSkills() {
       await db.transaction(async (tx) => {
         for (const update of updateBatch) {
           await tx
-            .update(skillsNews)
+            .update(skillsNew)
             .set({ personIds: update.personIds })
             .where(sql`id = ${update.id}`);
         }
