@@ -1459,20 +1459,20 @@ async function processFilterCriteria(
     person.score = finalScore;
   });
 
-  // Step 11: Sort and slice to get top 500 candidates
-  const top500Candidates = mostSimilarPeople
+  // Step 11: Sort and slice to get top 100 candidates
+  const top100Candidates = mostSimilarPeople
     .sort((a, b) => b.score - a.score)
-    .slice(0, 500);
+    .slice(0, 100);
 
-  // Step 12: Fetch user data for the top 500 candidates
-  const top500PersonIds = top500Candidates.map((candidate) => candidate.id);
-  const top500Users = await db.query.people.findMany({
-    where: inArray(people.id, top500PersonIds),
+  // Step 12: Fetch user data for the top 100 candidates
+  const top100PersonIds = top100Candidates.map((candidate) => candidate.id);
+  const top100Users = await db.query.people.findMany({
+    where: inArray(people.id, top100PersonIds),
   });
 
-  // Step 13: Map user data back to top 500 candidates
-  const topCandidatesWithData = top500Candidates.map((candidate) => {
-    const userData = top500Users.find((user) => user.id === candidate.id);
+  // Step 13: Map user data back to top 100 candidates
+  const topCandidatesWithData = top100Candidates.map((candidate) => {
+    const userData = top100Users.find((user) => user.id === candidate.id);
     return {
       data: userData,
       score: candidate.score,

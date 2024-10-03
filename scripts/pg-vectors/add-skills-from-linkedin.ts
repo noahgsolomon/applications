@@ -17,7 +17,7 @@ dotenv.config({ path: "../../.env" });
 // Utility function to chunk array into smaller arrays
 function chunk<T>(array: T[], size: number): T[][] {
   return Array.from({ length: Math.ceil(array.length / size) }, (_, index) =>
-    array.slice(index * size, index * size + size),
+    array.slice(index * size, index * size + size)
   );
 }
 
@@ -61,7 +61,7 @@ async function upsertSkillEmbedding(personId: string, skill: string) {
     if (existingSkill.length > 0) {
       const currentPersonIds = existingSkill[0].personIds || [];
       const updatedPersonIds = Array.from(
-        new Set([...currentPersonIds, personId]),
+        new Set([...currentPersonIds, personId])
       );
 
       if (
@@ -69,7 +69,7 @@ async function upsertSkillEmbedding(personId: string, skill: string) {
         updatedPersonIds.every((id, index) => id === currentPersonIds[index])
       ) {
         console.log(
-          `[upsertSkillEmbedding] No changes for skill "${normalizedSkill}". Skipping update.`,
+          `[upsertSkillEmbedding] No changes for skill "${normalizedSkill}". Skipping update.`
         );
         return;
       }
@@ -80,7 +80,7 @@ async function upsertSkillEmbedding(personId: string, skill: string) {
         .where(eq(skillsNew.skill, normalizedSkill));
 
       console.log(
-        `[upsertSkillEmbedding] Updated skill "${normalizedSkill}" with person ID: ${personId}`,
+        `[upsertSkillEmbedding] Updated skill "${normalizedSkill}" with person ID: ${personId}`
       );
     } else {
       const skillVector = await getEmbedding(normalizedSkill);
@@ -95,13 +95,13 @@ async function upsertSkillEmbedding(personId: string, skill: string) {
         .onConflictDoNothing();
 
       console.log(
-        `[upsertSkillEmbedding] Inserted new skill "${normalizedSkill}" with person ID: ${personId}`,
+        `[upsertSkillEmbedding] Inserted new skill "${normalizedSkill}" with person ID: ${personId}`
       );
     }
   } catch (error) {
     console.error(
       `[upsertSkillEmbedding] Error processing skill "${skill}" for person ID: ${personId}`,
-      error,
+      error
     );
   }
 }
@@ -118,7 +118,7 @@ async function processLinkedInData() {
       .where(isNotNull(people.linkedinData));
 
     console.log(
-      `[processLinkedInData] Found ${allPeople.length} people with LinkedIn data.`,
+      `[processLinkedInData] Found ${allPeople.length} people with LinkedIn data.`
     );
 
     if (allPeople.length === 0) {
@@ -132,7 +132,7 @@ async function processLinkedInData() {
     // Process each batch
     for (let i = 0; i < batches.length; i++) {
       console.log(
-        `[processLinkedInData] Processing batch ${i + 1} of ${batches.length}`,
+        `[processLinkedInData] Processing batch ${i + 1} of ${batches.length}`
       );
       const batch = batches[i];
 
@@ -148,9 +148,9 @@ async function processLinkedInData() {
 
           // Insert or update skill embeddings
           await Promise.all(
-            skills.map((skill: any) => upsertSkillEmbedding(personId, skill)),
+            skills.map((skill: any) => upsertSkillEmbedding(personId, skill))
           );
-        }),
+        })
       );
 
       console.log(`[processLinkedInData] Completed processing batch ${i + 1}`);
