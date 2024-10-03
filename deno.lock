@@ -7332,6 +7332,7 @@
         "npm:next-themes@0.3",
         "npm:next@14.0.4",
         "npm:openai@^4.55.5",
+        "npm:p-limit@^6.1.0",
         "npm:pdf-parse-debugging-disabled@^1.1.1",
         "npm:pdf-parse@^1.1.1",
         "npm:pdfjs-dist@^4.6.82",
