@@ -20,9 +20,23 @@ import {
   Badge,
   Flex,
   Separator,
-  Progress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+  Button,
 } from "frosted-ui";
-import { Linkedin, Github, Twitter, Building } from "lucide-react";
+import {
+  Linkedin,
+  Github,
+  Twitter,
+  Building,
+  TreePalm,
+  GraduationCap,
+  Book,
+  Info as InfoIcon,
+} from "lucide-react";
 
 export default function CandidateCard({
   candidate,
@@ -37,18 +51,29 @@ export default function CandidateCard({
     matchedSkills?: { score: number; skill: string }[];
     matchedJobTitle?: { score: number; jobTitle: string };
     matchedLocation?: { score: number; location: string };
+    matchedCompanies?: { score: number; company: string }[];
+    matchedSchools?: { score: number; school: string }[]; // Changed from matchedSchool
+    matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[]; // Changed from matchedFieldOfStudy
   };
   bigTech: boolean;
   activeGithub: boolean;
   whopUser: boolean;
   company?: InferSelectModel<typeof companyTable>;
 }) {
-  const { data, score, matchedLocation, matchedSkills, matchedJobTitle } =
-    candidate;
+  const {
+    data,
+    score,
+    matchedLocation,
+    matchedSkills,
+    matchedJobTitle,
+    matchedSchools,
+    matchedFieldsOfStudy,
+  } = candidate;
   const imageUrl =
     data.image ||
-    (data.twitterData && (data.twitterData as any).profile_image_url_https) ||
     (data.linkedinData && (data.linkedinData as any).photoUrl) ||
+    data.githubImage ||
+    (data.twitterData && (data.twitterData as any).profile_image_url_https) ||
     "";
 
   return (
@@ -111,7 +136,7 @@ export default function CandidateCard({
               ?.title || ""}
           </Text>
           {(data.linkedinData as any)?.positions?.positionHistory?.[0]
-            ?.companyName && (
+            ?.companyName ? (
             <Flex align="center" gap="2" className="text-primary/60">
               <Building className="size-4" />
               <Text>
@@ -119,7 +144,12 @@ export default function CandidateCard({
                   ?.companyName || ""}
               </Text>
             </Flex>
-          )}
+          ) : data.githubCompany ? (
+            <Flex align="center" gap="2" className="text-primary/60">
+              <Building className="size-4" />
+              <Text>{data.githubCompany}</Text>
+            </Flex>
+          ) : null}
           {data.miniSummary && (
             <Text className="italic text-sm text-primary/60 mt-2">
               {data.miniSummary}
@@ -162,7 +192,7 @@ export default function CandidateCard({
             variant="surface"
             color={score >= 0.75 ? "green" : score >= 0.5 ? "yellow" : "red"}
           >
-            {score}
+            {score.toFixed(2)}
           </Badge>
           {bigTech && (
             <Badge
@@ -173,45 +203,103 @@ export default function CandidateCard({
             </Badge>
           )}
           {matchedSkills &&
-            matchedSkills.length > 0.75 &&
+            matchedSkills.length > 0 &&
             matchedSkills
               .filter((skill) => skill.score > 0)
               .map((skill) => (
-                <TooltipProvider key={skill.skill}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Badge variant="surface" color="pink">
-                        {skill.skill}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>{skill.score}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Badge key={skill.skill} variant="surface" color="pink">
+                  {skill.skill}
+                </Badge>
               ))}
-          {matchedJobTitle && matchedJobTitle.score > 0.75 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Badge variant="surface" color="yellow">
-                    {matchedJobTitle.jobTitle}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>{matchedJobTitle.score}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          {matchedJobTitle && (
+            <Badge variant="surface" color="yellow">
+              {matchedJobTitle.jobTitle}
+            </Badge>
           )}
-          {matchedLocation && matchedLocation.score > 0.75 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Badge variant="surface" color="green">
-                    {matchedLocation.location}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>{matchedLocation.score}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          {matchedLocation && (
+            <Badge variant="surface" color="iris">
+              <TreePalm className="size-4" />
+              {matchedLocation.location.slice(0, 1).toUpperCase() +
+                matchedLocation.location.slice(1).toLowerCase()}
+            </Badge>
           )}
+          {candidate.matchedCompanies &&
+            candidate.matchedCompanies.length > 0 &&
+            candidate.matchedCompanies.map((company) => (
+              <Badge key={company.company} variant="surface" color="blue">
+                <Building className="size-4 mr-1" />
+                {company.company}
+              </Badge>
+            ))}
+          {matchedSchools &&
+            matchedSchools.length > 0 &&
+            matchedSchools.map((school, index) => (
+              <Badge key={index} variant="surface" color="green">
+                <GraduationCap className="size-4 mr-1" />
+                {school.school}
+              </Badge>
+            ))}
+          {matchedFieldsOfStudy &&
+            matchedFieldsOfStudy.length > 0 &&
+            matchedFieldsOfStudy.map((field, index) => (
+              <Badge key={index} variant="surface" color="orange">
+                <Book className="size-4 mr-1" />
+                {field.fieldOfStudy}
+              </Badge>
+            ))}
+          {/* {matchedSkills && matchedSkills.length > 0 && (
+            <TableRow>
+              <TableCell>Skills</TableCell>
+              <TableCell>
+                {matchedSkills
+                  .reduce((sum, skill) => sum + skill.score, 0)
+                  .toFixed(2)}
+              </TableCell>
+            </TableRow>
+          )}
+          {matchedJobTitle && (
+            <TableRow>
+              <TableCell>Job Title</TableCell>
+              <TableCell>{matchedJobTitle.score.toFixed(2)}</TableCell>
+            </TableRow>
+          )}
+          {matchedLocation && (
+            <TableRow>
+              <TableCell>Location</TableCell>
+              <TableCell>{matchedLocation.score.toFixed(2)}</TableCell>
+            </TableRow>
+          )}
+          {candidate.matchedCompanies &&
+            candidate.matchedCompanies.length > 0 && (
+              <TableRow>
+                <TableCell>Companies</TableCell>
+                <TableCell>
+                  {candidate.matchedCompanies
+                    .reduce((sum, company) => sum + company.score, 0)
+                    .toFixed(2)}
+                </TableCell>
+              </TableRow>
+            )}
+          {matchedSchools && matchedSchools.length > 0 && (
+            <TableRow>
+              <TableCell>Schools</TableCell>
+              <TableCell>
+                {matchedSchools
+                  .reduce((sum, school) => sum + school.score, 0)
+                  .toFixed(2)}
+              </TableCell>
+            </TableRow>
+          )}
+          {matchedFieldsOfStudy && matchedFieldsOfStudy.length > 0 && (
+            <TableRow>
+              <TableCell>Fields of Study</TableCell>
+              <TableCell>
+                {matchedFieldsOfStudy
+                  .reduce((sum, field) => sum + field.score, 0)
+                  .toFixed(2)}
+              </TableCell>
+            </TableRow>
+          )} */}
         </Flex>
       </Flex>
     </Card>
