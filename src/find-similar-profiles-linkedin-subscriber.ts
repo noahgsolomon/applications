@@ -62,21 +62,21 @@ const generateEmbeddingsWithLogging = async (data: string[], type: string) => {
     data.map(async (item, index) => {
       try {
         console.log(
-          `Generating ${type} embedding for item ${index + 1}/${data.length}`,
+          `Generating ${type} embedding for item ${index + 1}/${data.length}`
         );
         const embedding = await getEmbedding(item);
         console.log(
-          `Successfully generated ${type} embedding for item ${index + 1}`,
+          `Successfully generated ${type} embedding for item ${index + 1}`
         );
         return embedding;
       } catch (error) {
         console.error(
           `Error generating ${type} embedding for item ${index + 1}:`,
-          error,
+          error
         );
         throw error;
       }
-    }),
+    })
   );
   console.log(`Finished generating ${type} embeddings`);
   return embeddings;
@@ -85,7 +85,7 @@ const generateEmbeddingsWithLogging = async (data: string[], type: string) => {
 function calculateExperienceBounds(
   candidates: Array<{
     linkedinData: any;
-  }>,
+  }>
 ): {
   lowerBound: number;
   upperBound: number;
@@ -109,7 +109,7 @@ function calculateExperienceBounds(
             earliestStartYear = Math.min(earliestStartYear, startYear);
           }
           latestEndYear = Math.max(latestEndYear, endYear);
-        },
+        }
       );
     }
 
@@ -129,10 +129,12 @@ function calculateExperienceBounds(
   const upperBound = Math.round(mean + 2 * stdDev);
 
   console.log(
-    `Experience statistics: Mean = ${mean.toFixed(2)}, StdDev = ${stdDev.toFixed(2)}`,
+    `Experience statistics: Mean = ${mean.toFixed(
+      2
+    )}, StdDev = ${stdDev.toFixed(2)}`
   );
   console.log(
-    `Experience bounds: Lower = ${lowerBound} years, Upper = ${upperBound} years`,
+    `Experience bounds: Lower = ${lowerBound} years, Upper = ${upperBound} years`
   );
 
   return { lowerBound, upperBound, mean, stdDev };
@@ -143,7 +145,7 @@ function calculateExperienceScore(
     linkedinData: any;
   },
   mean: number,
-  stdDev: number,
+  stdDev: number
 ): {
   experienceScore: number;
   totalExperience: number;
@@ -161,7 +163,7 @@ function calculateExperienceScore(
           earliestStartYear = Math.min(earliestStartYear, startYear);
         }
         latestEndYear = Math.max(latestEndYear, endYear);
-      },
+      }
     );
   }
 
@@ -181,7 +183,7 @@ function calculateExperienceScore(
 function analyzeCompanies(
   candidates: Array<{
     linkedinData: any;
-  }>,
+  }>
 ): Record<string, number> {
   const companyFrequency: Record<string, number> = {};
   let totalUniqueCandidateCompanies = 0;
@@ -189,8 +191,8 @@ function analyzeCompanies(
   candidates.forEach((candidate) => {
     const uniqueCompanies = new Set(
       candidate.linkedinData.positions.positionHistory.map(
-        (position: any) => position.companyName,
-      ),
+        (position: any) => position.companyName
+      )
     ) as Set<string>;
     totalUniqueCandidateCompanies += uniqueCompanies.size;
     uniqueCompanies.forEach((company) => {
@@ -212,14 +214,14 @@ function analyzeCompanies(
 function analyzeEducation(
   candidates: Array<{
     linkedinData: any;
-  }>,
+  }>
 ): Record<string, number> {
   const educationFrequency: Record<string, number> = {};
   let totalEducations = 0;
 
   candidates.forEach((candidate) => {
     const schools = candidate.linkedinData.schools.educationHistory.map(
-      (education: any) => education.schoolName,
+      (education: any) => education.schoolName
     );
     totalEducations += schools.length;
     schools.forEach((school: any) => {
@@ -235,7 +237,7 @@ function analyzeEducation(
 
   const totalSignificantEducations = significantSchools.reduce(
     (sum, [, freq]) => sum + freq,
-    0,
+    0
   );
 
   const educationWeights = significantSchools.reduce<Record<string, number>>(
@@ -243,18 +245,18 @@ function analyzeEducation(
       acc[school] = frequency / totalSignificantEducations;
       return acc;
     },
-    {},
+    {}
   );
 
   console.log(
     `Education weights (minimum frequency: ${minFrequencyThreshold}):`,
-    educationWeights,
+    educationWeights
   );
   return educationWeights;
 }
 
 function analyzeNYCProximity(
-  candidates: Array<{ livesNearBrooklyn: boolean | null }>,
+  candidates: Array<{ livesNearBrooklyn: boolean | null }>
 ): boolean {
   const nycCount = candidates.filter((c) => c.livesNearBrooklyn).length;
   const nycRatio = nycCount / candidates.length;
@@ -267,7 +269,7 @@ function analyzeNYCProximity(
 }
 
 async function computeAverageEmbedding(
-  embeddings: number[][],
+  embeddings: number[][]
 ): Promise<number[]> {
   if (embeddings.length === 0) {
     throw new Error("No embeddings provided to compute average");
@@ -275,7 +277,7 @@ async function computeAverageEmbedding(
   return embeddings.reduce(
     (acc, embedding) =>
       acc.map((val, i) => val + embedding[i] / embeddings.length),
-    new Array(embeddings[0].length).fill(0),
+    new Array(embeddings[0].length).fill(0)
   );
 }
 
@@ -380,7 +382,7 @@ async function askCondition(condition: string) {
   });
 
   const result = JSON.parse(
-    completion.choices[0].message.content ?? '{ "condition": false }',
+    completion.choices[0].message.content ?? '{ "condition": false }'
   ).condition as boolean;
 
   return result;
@@ -418,7 +420,7 @@ async function insertPersonFromLinkedin(profileData: any) {
 
   // Extract job titles
   const jobTitlesList = profileData.positions.positionHistory.map(
-    (position: any) => position.title,
+    (position: any) => position.title
   ) as string[];
 
   // Check additional conditions
@@ -426,19 +428,25 @@ async function insertPersonFromLinkedin(profileData: any) {
   const workedInBigTech = await askCondition(
     `Has this person worked in big tech? ${JSON.stringify(
       profileData.positions.positionHistory.map(
-        (experience: any) => experience.companyName,
+        (experience: any) => experience.companyName
       ),
       null,
-      2,
-    )} ${profileData.summary} ${profileData.headline}`,
+      2
+    )} ${profileData.summary} ${profileData.headline}`
   );
 
   const livesNearBrooklyn = await askCondition(
-    `Does this person live within 50 miles of Brooklyn, New York, USA? Their location: ${profileData.location ?? "unknown location"} ${
+    `Does this person live within 50 miles of Brooklyn, New York, USA? Their location: ${
+      profileData.location ?? "unknown location"
+    } ${
       profileData.positions.positionHistory.length > 0
-        ? `or ${JSON.stringify(profileData.positions.positionHistory[0], null, 2)}`
+        ? `or ${JSON.stringify(
+            profileData.positions.positionHistory[0],
+            null,
+            2
+          )}`
         : ""
-    }`,
+    }`
   );
 
   // Generate detailed summary
@@ -474,11 +482,11 @@ async function insertPersonFromLinkedin(profileData: any) {
       .onConflictDoNothing();
 
     console.log(
-      `Person ${profileData.firstName} ${profileData.lastName} inserted into the database. Person ID: ${personId}`,
+      `Person ${profileData.firstName} ${profileData.lastName} inserted into the database. Person ID: ${personId}`
     );
   } catch (e) {
     console.log(
-      `Failed to insert person ${profileData.firstName} ${profileData.lastName} into the database.`,
+      `Failed to insert person ${profileData.firstName} ${profileData.lastName} into the database.`
     );
   }
 
@@ -494,15 +502,15 @@ async function insertPersonFromLinkedin(profileData: any) {
             vector: skillVector,
           });
           console.log(
-            `[insertSkill] Inserted skill "${skill}" for person ID: ${personId}`,
+            `[insertSkill] Inserted skill "${skill}" for person ID: ${personId}`
           );
         } catch (error) {
           console.error(
             `[insertSkill] Failed to insert skill "${skill}" for person ID: ${personId}`,
-            error,
+            error
           );
         }
-      }),
+      })
     );
   }
 
@@ -518,15 +526,15 @@ async function insertPersonFromLinkedin(profileData: any) {
             vector: titleVector,
           });
           console.log(
-            `[insertJobTitle] Inserted job title "${title}" for person ID: ${personId}`,
+            `[insertJobTitle] Inserted job title "${title}" for person ID: ${personId}`
           );
         } catch (error) {
           console.error(
             `[insertJobTitle] Failed to insert job title "${title}" for person ID: ${personId}`,
-            error,
+            error
           );
         }
-      }),
+      })
     );
   }
 
@@ -569,7 +577,7 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
         if (!person) {
           console.log(
-            `Person not found for URL: ${profileUrl}. Scraping and inserting.`,
+            `Person not found for URL: ${profileUrl}. Scraping and inserting.`
           );
           const scrapedData = await scrapeLinkedInProfile(profileUrl);
           if (scrapedData && scrapedData.success) {
@@ -579,19 +587,19 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             });
           } else {
             console.error(
-              `Failed to scrape or insert person for URL: ${profileUrl}`,
+              `Failed to scrape or insert person for URL: ${profileUrl}`
             );
           }
         }
 
         return person;
-      }),
+      })
     );
 
     inputPeople.push(
       ...batchResults.filter(
-        (p): p is InferSelectModel<typeof people> => p !== undefined,
-      ),
+        (p): p is InferSelectModel<typeof people> => p !== undefined
+      )
     );
   }
 
@@ -619,22 +627,23 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   const skillEmbeddings = await generateEmbeddingsWithLogging(
     allSkills,
-    "skill",
+    "skill"
   );
   const featureEmbeddings = await generateEmbeddingsWithLogging(
     allFeatures,
-    "feature",
+    "feature"
   );
   const jobTitleEmbeddings = await generateEmbeddingsWithLogging(
     allJobTitles,
-    "job title",
+    "job title"
   );
 
   // Compute average embeddings
   const avgSkillEmbedding = await computeAverageEmbedding(skillEmbeddings);
   const avgFeatureEmbedding = await computeAverageEmbedding(featureEmbeddings);
-  const avgJobTitleEmbedding =
-    await computeAverageEmbedding(jobTitleEmbeddings);
+  const avgJobTitleEmbedding = await computeAverageEmbedding(
+    jobTitleEmbeddings
+  );
 
   // Fetch all people excluding input people
   console.log("Fetching all people...");
@@ -656,7 +665,7 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       const { experienceScore } = calculateExperienceScore(
         person,
         mean,
-        stdDev,
+        stdDev
       );
       const experienceWeight = 0.2;
       score += experienceScore * experienceWeight;
@@ -666,11 +675,11 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
         const companies = (
           person.linkedinData as any
         ).positions.positionHistory.map(
-          (position: any) => position.companyName,
+          (position: any) => position.companyName
         );
         const companyScore = companies.reduce(
           (s: number, company: string) => s + (companyWeights[company] || 0),
-          0,
+          0
         );
         score += companyScore;
       }
@@ -680,11 +689,11 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
         const schools = (
           person.linkedinData as any
         ).schools.educationHistory.map(
-          (education: any) => education.schoolName,
+          (education: any) => education.schoolName
         );
         const educationScore = schools.reduce(
           (s: number, school: string) => s + (educationWeights[school] || 0),
-          0,
+          0
         );
         score += educationScore;
       }
@@ -698,7 +707,7 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       if (person.averageSkillVector) {
         const similarity = cosineSimilarity(
           avgSkillEmbedding,
-          person.averageSkillVector,
+          person.averageSkillVector
         );
         score += similarity;
       }
@@ -707,7 +716,7 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       if (person.averageJobTitleVector) {
         const similarity = cosineSimilarity(
           avgJobTitleEmbedding,
-          person.averageJobTitleVector,
+          person.averageJobTitleVector
         );
         score += similarity;
       }
@@ -719,13 +728,13 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       ) {
         const locationSimilarity = cosineSimilarity(
           avgSkillEmbedding,
-          person.locationVector,
+          person.locationVector
         );
         score += locationSimilarity;
       }
 
       combinedScores[person.id] = (combinedScores[person.id] || 0) + score;
-    }),
+    })
   );
 
   // Sort and select top candidates
@@ -744,11 +753,11 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
 export const querySimilarTechnologies = async (
   inputSkill: string,
-  topK: number = 250,
+  topK: number = 250
 ) => {
   try {
     console.log(
-      `[1] Starting search for similar technologies to: "${inputSkill}"`,
+      `[1] Starting search for similar technologies to: "${inputSkill}"`
     );
 
     // Step 1: Generate embedding for the input skill
@@ -756,7 +765,10 @@ export const querySimilarTechnologies = async (
     console.log(`[2] Embedding generated for: "${inputSkill}"`);
 
     // Step 2: Perform similarity search directly in PostgreSQL
-    const similarity = sql<number>`1 - (${cosineDistance(schema.skillsNew.vector, embedding)})`;
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.skillsNew.vector,
+      embedding
+    )})`;
 
     const similarSkills = await db
       .select({
@@ -770,7 +782,7 @@ export const querySimilarTechnologies = async (
       .limit(topK);
 
     console.log(
-      `[3] Retrieved ${similarSkills.length} similar technologies after similarity search.`,
+      `[3] Retrieved ${similarSkills.length} similar technologies after similarity search.`
     );
 
     // Optional: Filter based on a threshold if necessary
@@ -789,7 +801,10 @@ export const querySimilarTechnologies = async (
 
     console.log(`[5] Returning ${result.length} similar technologies.`);
     console.log(
-      `Number of matches users: ${similarSkills.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+      `Number of matches users: ${similarSkills.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
     );
     return result;
   } catch (error) {
@@ -800,17 +815,20 @@ export const querySimilarTechnologies = async (
 
 export const querySimilarLocations = async (
   inputLocation: string,
-  topK: number = 500,
+  topK: number = 500
 ) => {
   try {
     console.log(
-      `[1] Starting search for similar locations to: "${inputLocation}"`,
+      `[1] Starting search for similar locations to: "${inputLocation}"`
     );
 
     const embedding = await getEmbedding(inputLocation);
     console.log(`[2] Embedding generated for: "${inputLocation}"`);
 
-    const similarity = sql<number>`1 - (${cosineDistance(schema.locationsVector.vector, embedding)})`;
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.locationsVector.vector,
+      embedding
+    )})`;
 
     const similarLocations = await db
       .select({
@@ -819,12 +837,12 @@ export const querySimilarLocations = async (
         personIds: schema.locationsVector.personIds,
       })
       .from(schema.locationsVector)
-      .where(gt(similarity, 0.5))
+      .where(gt(similarity, 0.9))
       .orderBy(cosineDistance(schema.locationsVector.vector, embedding))
       .limit(topK);
 
     console.log(
-      `[3] Retrieved ${similarLocations.length} similar technologies after similarity search.`,
+      `[3] Retrieved ${similarLocations.length} similar technologies after similarity search.`
     );
 
     const result = similarLocations.map((s) => ({
@@ -835,7 +853,10 @@ export const querySimilarLocations = async (
 
     console.log(`[5] Returning ${result.length} similar locations.`);
     console.log(
-      `Number of matches users: ${similarLocations.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+      `Number of matches users: ${similarLocations.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
     );
     return result;
   } catch (error) {
@@ -844,13 +865,66 @@ export const querySimilarLocations = async (
   }
 };
 
-export const querySimilarJobTitles = async (
-  inputJobTitle: string,
-  topK: number = 500,
+export const querySimilarCompanies = async (
+  inputCompany: string,
+  topK: number = 500
 ) => {
   try {
     console.log(
-      `[1] Starting search for similar job titles to: "${inputJobTitle}"`,
+      `[1] Starting search for similar locations to: "${inputCompany}"`
+    );
+
+    const embedding = await getEmbedding(inputCompany);
+    console.log(`[2] Embedding generated for: "${inputCompany}"`);
+
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.companiesVectorNew.vector,
+      embedding
+    )})`;
+
+    const similarCompanies = await db
+      .select({
+        company: schema.companiesVectorNew.company,
+        similarity,
+        personIds: schema.companiesVectorNew.personIds,
+      })
+      .from(schema.companiesVectorNew)
+      .where(gt(similarity, 0.95))
+      .orderBy(cosineDistance(schema.companiesVectorNew.vector, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarCompanies.length} similar companies after similarity search.`
+    );
+
+    const result = similarCompanies.map((s) => ({
+      company: s.company,
+      score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
+    }));
+
+    console.log(`[5] Returning ${result.length} similar companies.`);
+
+    console.log(
+      `Number of matches users: ${similarCompanies.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error querying similar companies:", error);
+    return [];
+  }
+};
+
+export const querySimilarJobTitles = async (
+  inputJobTitle: string,
+  topK: number = 500
+) => {
+  try {
+    console.log(
+      `[1] Starting search for similar job titles to: "${inputJobTitle}"`
     );
 
     // Step 1: Generate embedding for the input job title
@@ -858,7 +932,10 @@ export const querySimilarJobTitles = async (
     console.log(`[2] Embedding generated for: "${inputJobTitle}"`);
 
     // Step 2: Perform similarity search directly in PostgreSQL
-    const similarity = sql<number>`1 - (${cosineDistance(schema.jobTitlesVectorNew.vector, embedding)})`;
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.jobTitlesVectorNew.vector,
+      embedding
+    )})`;
 
     const similarJobTitles = await db
       .select({
@@ -872,7 +949,7 @@ export const querySimilarJobTitles = async (
       .limit(topK);
 
     console.log(
-      `[3] Retrieved ${similarJobTitles.length} similar job titles after similarity search.`,
+      `[3] Retrieved ${similarJobTitles.length} similar job titles after similarity search.`
     );
 
     // Optional: Filter based on a threshold if necessary
@@ -894,11 +971,116 @@ export const querySimilarJobTitles = async (
 
     console.log(`[5] Returning ${result.length} similar job titles.`);
     console.log(
-      `Number of matching users: ${similarJobTitles.reduce((acc, curr) => acc + (curr.personIds?.length ?? 0), 0)}`,
+      `Number of matching users: ${similarJobTitles.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
     );
     return result;
   } catch (error) {
     console.error("Error querying similar job titles:", error);
+    return [];
+  }
+};
+
+export const querySimilarSchools = async (
+  inputSchool: string,
+  topK: number = 500
+) => {
+  try {
+    console.log(`[1] Starting search for similar schools to: "${inputSchool}"`);
+
+    const embedding = await getEmbedding(inputSchool);
+    console.log(`[2] Embedding generated for: "${inputSchool}"`);
+
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.schools.vector,
+      embedding
+    )})`;
+
+    const similarSchools = await db
+      .select({
+        school: schema.schools.school,
+        similarity,
+        personIds: schema.schools.personIds,
+      })
+      .from(schema.schools)
+      .where(gt(similarity, 0.8))
+      .orderBy(cosineDistance(schema.schools.vector, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarSchools.length} similar schools after similarity search.`
+    );
+
+    const result = similarSchools.map((s) => ({
+      school: s.school,
+      score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
+    }));
+
+    console.log(`[4] Returning ${result.length} similar schools.`);
+    console.log(
+      `Number of matching users: ${similarSchools.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error querying similar schools:", error);
+    return [];
+  }
+};
+
+export const querySimilarFieldsOfStudy = async (
+  inputFieldOfStudy: string,
+  topK: number = 500
+) => {
+  try {
+    console.log(
+      `[1] Starting search for similar fields of study to: "${inputFieldOfStudy}"`
+    );
+
+    const embedding = await getEmbedding(inputFieldOfStudy);
+    console.log(`[2] Embedding generated for: "${inputFieldOfStudy}"`);
+
+    const similarity = sql<number>`1 - (${cosineDistance(
+      schema.fieldsOfStudy.vector,
+      embedding
+    )})`;
+
+    const similarFieldsOfStudy = await db
+      .select({
+        fieldOfStudy: schema.fieldsOfStudy.fieldOfStudy,
+        similarity,
+        personIds: schema.fieldsOfStudy.personIds,
+      })
+      .from(schema.fieldsOfStudy)
+      .where(gt(similarity, 0.9))
+      .orderBy(cosineDistance(schema.fieldsOfStudy.vector, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarFieldsOfStudy.length} similar fields of study after similarity search.`
+    );
+
+    const result = similarFieldsOfStudy.map((s) => ({
+      fieldOfStudy: s.fieldOfStudy,
+      score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
+    }));
+
+    console.log(`[4] Returning ${result.length} similar fields of study.`);
+    console.log(
+      `Number of matching users: ${similarFieldsOfStudy.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error querying similar fields of study:", error);
     return [];
   }
 };
@@ -911,252 +1093,403 @@ async function processFilterCriteria(
     nearBrooklyn: boolean;
     searchInternet: boolean;
     skills: string[];
-    booleanSearch?: string;
     companyIds: string[];
+    otherCompanyNames: string[];
     location?: string;
     activeGithub?: boolean;
     whopUser?: boolean;
     bigTech?: boolean;
-    school?: string;
-    fieldOfStudy?: string;
+    schools: string[];
+    fieldsOfStudy: string[];
   },
-  insertId: string,
+  insertId: string
 ) {
   console.log("Processing filter criteria...");
 
+  let companyIds =
+    filterCriteria.companyIds.length > 0 ? filterCriteria.companyIds : ["NONE"];
+
+  // Step 1: Retrieve LinkedIn employees for the provided companies
+  const linkedinCompanyEmployees = await db.query.people.findMany({
+    columns: {
+      id: true,
+      companyIds: true,
+    },
+    where: jsonArrayContainsAny(schema.people.companyIds, companyIds),
+  });
+
+  // Step 2: Fetch company names based on the provided company IDs
+  const companies = await db.query.company.findMany({
+    where: inArray(schema.company.id, companyIds),
+  });
+  const companyNames = companies.map((company) => company.name);
+
+  // Step 3 and Step 6: Parallelize queries for similar technologies and companies
+  const [similarTechnologiesArrays, similarCompanies] = await Promise.all([
+    filterCriteria.skills.length > 0
+      ? Promise.all(
+          filterCriteria.skills.map((skill) => querySimilarTechnologies(skill))
+        )
+      : Promise.resolve([]),
+    Promise.all(
+      companyNames.map((companyName) => querySimilarCompanies(companyName))
+    ),
+  ]);
+
+  // Combine LinkedIn employees with similar companies
+  const combinedCompanyMatches = [...similarCompanies.flat()];
+  linkedinCompanyEmployees.forEach((employee) => {
+    employee.companyIds?.forEach((companyId) => {
+      const company = companies.find((c) => c.id === companyId);
+      if (company) {
+        const existingMatch = combinedCompanyMatches.find(
+          (match) => match.company === company.name
+        );
+        if (existingMatch) {
+          existingMatch.personIds = [
+            ...new Set([...(existingMatch.personIds ?? []), employee.id]),
+          ];
+        } else {
+          combinedCompanyMatches.push({
+            company: company.name,
+            score: 1.0,
+            personIds: [employee.id],
+          });
+        }
+      }
+    });
+  });
+
+  const similarTechnologiesPersonIds = Array.from(
+    new Set(
+      similarTechnologiesArrays.flatMap((arr) =>
+        arr.flatMap((item) => item.personIds || [])
+      )
+    )
+  );
+
+  // Step 4: Get similar location IDs if location is provided
   let similarLocations: {
     location: string;
     score: number;
     personIds: string[] | null;
   }[] = [];
-
   if (filterCriteria.location) {
     similarLocations = await querySimilarLocations(filterCriteria.location);
   }
 
-  const mostSimilarPeople: {
+  const similarLocationPersonIds = Array.from(
+    new Set(similarLocations.flatMap((location) => location.personIds || []))
+  );
+
+  // Step 5: Get similar job title IDs if job title is provided
+  let similarJobTitles: {
+    jobTitle: string;
     score: number;
-    data: InferSelectModel<typeof people>;
+    personIds: string[] | null;
+  }[] = [];
+  if (filterCriteria.job && filterCriteria.job !== "") {
+    similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
+  }
+
+  const similarJobTitlesPersonIds = Array.from(
+    new Set(similarJobTitles.flatMap((item) => item.personIds || []))
+  );
+
+  // Query similar schools
+  let similarSchools: {
+    school: string;
+    score: number;
+    personIds: string[] | null;
+  }[] = [];
+  if (filterCriteria.schools.length > 0) {
+    similarSchools = (
+      await Promise.all(
+        filterCriteria.schools.map((school) => querySimilarSchools(school))
+      )
+    ).flat();
+  }
+
+  const similarSchoolPersonIds = Array.from(
+    new Set(similarSchools.flatMap((school) => school.personIds || []))
+  );
+
+  // Query similar fields of study
+  let similarFieldsOfStudy: {
+    fieldOfStudy: string;
+    score: number;
+    personIds: string[] | null;
+  }[] = [];
+  if (filterCriteria.fieldsOfStudy.length > 0) {
+    similarFieldsOfStudy = (
+      await Promise.all(
+        filterCriteria.fieldsOfStudy.map((field) =>
+          querySimilarFieldsOfStudy(field)
+        )
+      )
+    ).flat();
+  }
+
+  const similarFieldOfStudyPersonIds = Array.from(
+    new Set(similarFieldsOfStudy.flatMap((field) => field.personIds || []))
+  );
+
+  // Step 7: Combine all person IDs into a set to avoid duplicates
+  const combinedPersonIds = Array.from(
+    new Set([
+      ...similarTechnologiesPersonIds,
+      ...similarLocationPersonIds,
+      ...similarJobTitlesPersonIds,
+      ...similarSchoolPersonIds,
+      ...similarFieldOfStudyPersonIds,
+    ])
+  );
+
+  // Step 8: Create an array to store scores without fetching user data
+  const mostSimilarPeople: {
+    id: string;
+    score: number;
     matchedSkills: { skill: string; score: number }[];
     matchedJobTitle: { jobTitle: string; score: number } | null;
     matchedLocation: { location: string; score: number } | null;
+    matchedCompanies: { company: string; score: number }[];
+    matchedSchools: { school: string; score: number }[];
+    matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[];
   }[] = [];
 
-  // Extract similar technologies and job titles
-  const similarTechnologiesArrays = await Promise.all(
-    filterCriteria.skills.map((skill) => querySimilarTechnologies(skill)),
-  );
-
-  // Flatten the array and extract unique personIds
-  const similarTechnologiesPersonIds = Array.from(
-    new Set(
-      similarTechnologiesArrays.flatMap((arr) =>
-        arr.flatMap((item) => item.personIds || []),
-      ),
-    ),
-  );
-
-  // Fetch users from the database based on similar technologies
-  const usersFromSimilarTechnologiesArray = await db.query.people.findMany({
-    where: inArray(people.id, similarTechnologiesPersonIds),
-  });
-
   const skillScores: number[] = [];
-  usersFromSimilarTechnologiesArray.forEach((user) => {
-    const matchedSkills: { skill: string; score: number }[] = [];
+  const locationScores: number[] = [];
+  const jobTitleScores: number[] = [];
+  const companyScores: number[] = [];
+  const schoolScores: number[] = [];
+  const fieldOfStudyScores: number[] = [];
+  // Step 9: Calculate scores based on criteria for each person ID
+  combinedPersonIds.forEach((personId) => {
     let skillScoreSum = 0;
+    const matchedSkills: { skill: string; score: number }[] = [];
+    let matchedJobTitle: { jobTitle: string; score: number } | null = null;
+    let matchedLocation: { location: string; score: number } | null = null;
+    const matchedCompanies: { company: string; score: number }[] = [];
+    let matchedSchools: { school: string; score: number }[] = [];
+    let matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[] = [];
 
-    // Iterate through each skill cluster and add the max score from that cluster
+    // Add skill scores
     similarTechnologiesArrays.forEach((techArray) => {
       const matchedTechs = techArray.filter((tech) =>
-        tech.personIds?.includes(user.id),
+        tech.personIds?.includes(personId)
       );
       if (matchedTechs.length > 0) {
-        // Find the tech with the max score in this cluster
         const maxTech = matchedTechs.reduce((max, tech) =>
-          tech.score > max.score ? tech : max,
+          tech.score > max.score ? tech : max
         );
         skillScoreSum += maxTech.score || 0;
         matchedSkills.push({ skill: maxTech.technology, score: maxTech.score });
       }
     });
-
-    // Store the skill score sum for normalization later
     skillScores.push(skillScoreSum);
 
-    mostSimilarPeople.push({
-      score: 0, // Placeholder, will be calculated later
-      data: user,
-      matchedSkills,
-      matchedJobTitle: null,
-      matchedLocation: null,
-    });
-  });
-
-  // Process similar locations
-  const similarLocationPersonIds = Array.from(
-    new Set(similarLocations.flatMap((location) => location.personIds || [])),
-  );
-
-  const usersFromSimilarLocationsArray = await db.query.people.findMany({
-    where: inArray(people.id, similarLocationPersonIds),
-  });
-
-  const locationScores: number[] = [];
-  usersFromSimilarLocationsArray.forEach((user) => {
+    // Add location scores
     let maxLocationScore = 0;
-    let matchedLocation: { location: string; score: number } | null = null;
-
     similarLocations.forEach((location) => {
-      if (
-        location.personIds?.includes(user.id) &&
-        location.score > maxLocationScore
-      ) {
-        maxLocationScore = location.score;
+      if (location.personIds?.includes(personId)) {
+        maxLocationScore = Math.max(maxLocationScore, location.score);
         matchedLocation = {
           location: location.location,
           score: location.score,
         };
       }
     });
-
-    // Store the location score for normalization later
     locationScores.push(maxLocationScore);
 
-    const existingEntry = mostSimilarPeople.find(
-      (entry) => entry.data.id === user.id,
-    );
-    if (existingEntry) {
-      existingEntry.matchedLocation = matchedLocation;
-    } else {
-      mostSimilarPeople.push({
-        score: 0, // Placeholder, will be calculated later
-        data: user,
-        matchedSkills: [],
-        matchedJobTitle: null,
-        matchedLocation,
-      });
-    }
-  });
-
-  let similarJobTitlesArray: {
-    jobTitle: string;
-    score: number;
-    personIds: string[];
-  }[] = [];
-
-  if (filterCriteria.job && filterCriteria.job !== "") {
-    const similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
-    similarJobTitlesArray = similarJobTitles;
-
-    // Extract unique personIds from similar job titles
-    const similarJobTitlesPersonIds = Array.from(
-      new Set(similarJobTitles.flatMap((item) => item.personIds || [])),
-    );
-
-    // Fetch users from the database for similar job titles
-    const usersFromSimilarJobTitlesArray = await db.query.people.findMany({
-      where: inArray(people.id, similarJobTitlesPersonIds),
+    // Add job title scores
+    let maxJobTitleScore = 0;
+    similarJobTitles.forEach((jobTitle) => {
+      if (jobTitle.personIds?.includes(personId)) {
+        maxJobTitleScore = Math.max(maxJobTitleScore, jobTitle.score);
+        matchedJobTitle = {
+          jobTitle: jobTitle.jobTitle,
+          score: jobTitle.score,
+        };
+      }
     });
+    jobTitleScores.push(maxJobTitleScore);
 
-    const jobTitleScores: number[] = [];
-    usersFromSimilarJobTitlesArray.forEach((user) => {
-      let maxJobTitleScore = 0;
-      let matchedJobTitle: { jobTitle: string; score: number } | null = null;
-
-      similarJobTitles.forEach((jobTitle) => {
-        if (
-          jobTitle.personIds?.includes(user.id) &&
-          jobTitle.score > maxJobTitleScore
-        ) {
-          maxJobTitleScore = jobTitle.score;
-          matchedJobTitle = {
-            jobTitle: jobTitle.jobTitle,
-            score: jobTitle.score,
-          };
-        }
-      });
-
-      // Store the job title score for normalization later
-      jobTitleScores.push(maxJobTitleScore);
-
-      const existingEntry = mostSimilarPeople.find(
-        (entry) => entry.data.id === user.id,
-      );
-      if (existingEntry) {
-        existingEntry.matchedJobTitle = matchedJobTitle;
-      } else {
-        mostSimilarPeople.push({
-          score: 0, // Placeholder, will be calculated later
-          data: user,
-          matchedSkills: [],
-          matchedJobTitle,
-          matchedLocation: null,
+    // Add company scores
+    combinedCompanyMatches.forEach((company) => {
+      if (company.personIds?.includes(personId)) {
+        matchedCompanies.push({
+          company: company.company,
+          score: company.score,
         });
       }
     });
+    companyScores.push(Math.max(...matchedCompanies.map((c) => c.score), 0));
 
-    // Calculate max, mean, and standard deviation for normalization
-    const calculateStats = (scores: number[]) => {
-      const maxScore = Math.max(...scores);
-      const minScore = Math.min(...scores);
-      return { maxScore, minScore };
-    };
-
-    // Normalize skills, location, and job title scores
-    const skillStats = calculateStats(skillScores);
-    const locationStats = calculateStats(locationScores);
-    const jobTitleStats = calculateStats(jobTitleScores);
-
-    mostSimilarPeople.forEach((person) => {
-      let finalScore = 0;
-
-      // Normalize skill score to [0, 1]
-      if (person.matchedSkills.length > 0) {
-        const skillSum = person.matchedSkills.reduce(
-          (sum, skill) => sum + skill.score,
-          0,
-        );
-        finalScore +=
-          (skillSum - skillStats.minScore) /
-          (skillStats.maxScore - skillStats.minScore);
+    // Add school scores
+    let maxSchoolScore = 0;
+    similarSchools.forEach((school) => {
+      if (school.personIds?.includes(personId)) {
+        maxSchoolScore = Math.max(maxSchoolScore, school.score);
+        matchedSchools.push({
+          school: school.school,
+          score: school.score,
+        });
       }
-
-      // Normalize location score to [0, 1]
-      if (person.matchedLocation) {
-        const locationScore = person.matchedLocation.score;
-        finalScore +=
-          (locationScore - locationStats.minScore) /
-          (locationStats.maxScore - locationStats.minScore);
-      }
-
-      // Normalize job title score to [0, 1]
-      if (person.matchedJobTitle) {
-        const jobTitleScore = person.matchedJobTitle.score;
-        finalScore +=
-          (jobTitleScore - jobTitleStats.minScore) /
-          (jobTitleStats.maxScore - jobTitleStats.minScore);
-      }
-
-      // Update person's final score
-      person.score = finalScore;
     });
-  }
+    schoolScores.push(maxSchoolScore);
 
-  // Sort candidates by score in descending order
-  const sortedCandidates = mostSimilarPeople.sort((a, b) => b.score - a.score);
+    // Add field of study scores
+    let maxFieldOfStudyScore = 0;
+    similarFieldsOfStudy.forEach((field) => {
+      if (field.personIds?.includes(personId)) {
+        maxFieldOfStudyScore = Math.max(maxFieldOfStudyScore, field.score);
+        matchedFieldsOfStudy.push({
+          fieldOfStudy: field.fieldOfStudy,
+          score: field.score,
+        });
+      }
+    });
+    fieldOfStudyScores.push(maxFieldOfStudyScore);
 
-  // Truncate to 100 candidates and extract only the data
-  const topCandidates = sortedCandidates.slice(0, 100).map((candidate) => ({
-    data: candidate.data,
-    score: candidate.score,
-    matchedSkills: candidate.matchedSkills,
-    matchedJobTitle: candidate.matchedJobTitle,
-    matchedLocation: candidate.matchedLocation,
-  }));
+    mostSimilarPeople.push({
+      id: personId,
+      score: 0,
+      matchedSkills,
+      matchedJobTitle,
+      matchedLocation,
+      matchedCompanies,
+      matchedSchools,
+      matchedFieldsOfStudy,
+    });
+  });
+
+  // Step 10: Normalize scores
+  const calculateStats = (scores: number[]) => {
+    const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const variance =
+      scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+      scores.length;
+    const stdDev = Math.sqrt(variance);
+    return { mean, stdDev };
+  };
+
+  const normalizeScore = (score: number, mean: number, stdDev: number) => {
+    if (stdDev === 0) return score > 0 ? 1 : 0;
+    const zScore = (score - mean) / stdDev;
+    return 1 / (1 + Math.exp(-zScore)); // Sigmoid function, maps to (0, 1)
+  };
+
+  const skillStats = calculateStats(skillScores);
+  const locationStats = calculateStats(locationScores);
+  const jobTitleStats = calculateStats(jobTitleScores);
+  const companyStats = calculateStats(companyScores);
+  const schoolStats = calculateStats(schoolScores);
+  const fieldOfStudyStats = calculateStats(fieldOfStudyScores);
+
+  const criteriaWeights = {
+    skills: filterCriteria.skills.length > 0 ? 1 : 0,
+    location: filterCriteria.location ? 1 : 0,
+    job: filterCriteria.job && filterCriteria.job !== "" ? 1 : 0,
+    company: companyNames.length > 0 ? 1 : 0,
+    schools: filterCriteria.schools.length > 0 ? 1 : 0,
+    fieldsOfStudy: filterCriteria.fieldsOfStudy.length > 0 ? 1 : 0,
+  };
+
+  const totalWeight = Object.values(criteriaWeights).reduce((a, b) => a + b, 0);
+
+  mostSimilarPeople.forEach((person, index) => {
+    let finalScore = 0;
+
+    if (criteriaWeights.skills > 0) {
+      finalScore +=
+        (criteriaWeights.skills / totalWeight) *
+        normalizeScore(skillScores[index], skillStats.mean, skillStats.stdDev);
+    }
+
+    if (criteriaWeights.location > 0) {
+      finalScore +=
+        (criteriaWeights.location / totalWeight) *
+        normalizeScore(
+          locationScores[index],
+          locationStats.mean,
+          locationStats.stdDev
+        );
+    }
+
+    if (criteriaWeights.job > 0) {
+      finalScore +=
+        (criteriaWeights.job / totalWeight) *
+        normalizeScore(
+          jobTitleScores[index],
+          jobTitleStats.mean,
+          jobTitleStats.stdDev
+        );
+    }
+
+    if (criteriaWeights.company > 0) {
+      finalScore +=
+        (criteriaWeights.company / totalWeight) *
+        normalizeScore(
+          companyScores[index],
+          companyStats.mean,
+          companyStats.stdDev
+        );
+    }
+
+    if (criteriaWeights.schools > 0) {
+      finalScore +=
+        (criteriaWeights.schools / totalWeight) *
+        normalizeScore(
+          schoolScores[index],
+          schoolStats.mean,
+          schoolStats.stdDev
+        );
+    }
+
+    if (criteriaWeights.fieldsOfStudy > 0) {
+      finalScore +=
+        (criteriaWeights.fieldsOfStudy / totalWeight) *
+        normalizeScore(
+          fieldOfStudyScores[index],
+          fieldOfStudyStats.mean,
+          fieldOfStudyStats.stdDev
+        );
+    }
+
+    person.score = finalScore;
+  });
+
+  // Step 11: Sort and slice to get top 500 candidates
+  const top500Candidates = mostSimilarPeople
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 500);
+
+  // Step 12: Fetch user data for the top 500 candidates
+  const top500PersonIds = top500Candidates.map((candidate) => candidate.id);
+  const top500Users = await db.query.people.findMany({
+    where: inArray(people.id, top500PersonIds),
+  });
+
+  // Step 13: Map user data back to top 500 candidates
+  const topCandidatesWithData = top500Candidates.map((candidate) => {
+    const userData = top500Users.find((user) => user.id === candidate.id);
+    return {
+      data: userData,
+      score: candidate.score,
+      matchedSkills: candidate.matchedSkills,
+      matchedJobTitle: candidate.matchedJobTitle,
+      matchedLocation: candidate.matchedLocation,
+      matchedCompanies: candidate.matchedCompanies,
+      matchedSchools: candidate.matchedSchools,
+      matchedFieldsOfStudy: candidate.matchedFieldsOfStudy,
+    };
+  });
 
   console.log("Filter criteria processing completed.");
-  return topCandidates;
+  console.log(
+    `Scores: ${topCandidatesWithData.map((c) => c.score).join(", ")}`
+  );
+  return topCandidatesWithData;
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
@@ -1205,7 +1538,7 @@ export async function handler(event: any) {
         console.log("Processing Linkedin URLs...");
         resultsFromLinkedinUrls = await processLinkedinUrls(
           body.linkedinUrls,
-          insertId,
+          insertId
         );
       } catch (error) {
         console.error("Error processing profile URLs:", error);
@@ -1230,7 +1563,7 @@ export async function handler(event: any) {
         console.log("Processing filter criteria...");
         const filterCriteria = await processFilterCriteria(
           body.filterCriteria,
-          insertId,
+          insertId
         );
         resultsFromFilterCriteria = filterCriteria;
       } catch (error) {
@@ -1243,7 +1576,7 @@ export async function handler(event: any) {
     const mergedResults = mergeResults(
       resultsFromLinkedinUrls,
       resultsFromGithubUrls,
-      resultsFromFilterCriteria,
+      resultsFromFilterCriteria
     );
 
     if (mergedResults.length === 0) {
