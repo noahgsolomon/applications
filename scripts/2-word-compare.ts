@@ -48,7 +48,7 @@ async function getEmbedding(text: string) {
 }
 
 // Compare example texts
-compareText("CALIFORNIA", "SAN FRANCISCO")
+compareText("NYC", "FRANCE")
   .then(() => {
     console.log("Comparison completed.");
     process.exit(0);
