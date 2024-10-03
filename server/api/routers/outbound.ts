@@ -611,13 +611,9 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
       try {
         // Fetch all company names from the database
         const companies = await ctx.db.query.company.findMany({
-          where: (company, { exists, eq }) =>
-            exists(
-              ctx.db
-                .select()
-                .from(candidates)
-                .where(eq(candidates.companyId, company.id))
-            ),
+          columns: {
+            name: true,
+          },
         });
 
         const companyNames = companies.map((company) => company.name);
