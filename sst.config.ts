@@ -14,15 +14,8 @@ export default $config({
       "FindSimilarProfilesLinkedinQueue",
       {
         visibilityTimeout: "10 minutes",
-      },
+      }
     );
-    const findSimilarProfilesGithubQueue = new sst.aws.Queue(
-      "FindSimilarProfilesGithubQueue",
-      {
-        visibilityTimeout: "10 minutes",
-      },
-    );
-
     findSimilarProfilesLinkedinQueue.subscribe({
       handler: "src/find-similar-profiles-linkedin-subscriber.handler",
       environment: SubscriberEnv,
@@ -30,21 +23,13 @@ export default $config({
       timeout: "10 minutes",
     });
 
-    findSimilarProfilesGithubQueue.subscribe({
-      handler: "src/find-similar-profiles-github-subscriber.handler",
-      environment: SubscriberEnv,
-      memory: "10240 MB",
-      timeout: "10 minutes",
-    });
-
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
-      link: [findSimilarProfilesGithubQueue, findSimilarProfilesLinkedinQueue],
+      link: [findSimilarProfilesLinkedinQueue],
     });
 
     return {
       findSimilarProfilesLinkedinQueue: findSimilarProfilesLinkedinQueue.url,
-      findSimilarProfilesGithubQueue: findSimilarProfilesGithubQueue.url,
     };
   },
 });
