@@ -145,7 +145,7 @@ export const outboundRouter = createTRPCRouter({
     .input(
       z.object({
         payload: z.any(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const { payload } = input;
@@ -210,12 +210,12 @@ export const outboundRouter = createTRPCRouter({
         location: z.string().optional(),
         activeGithub: z.boolean().optional(),
         whopUser: z.boolean().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       console.log("Starting findFilteredCandidates mutation");
       const similarTechnologiesArrays = await Promise.all(
-        input.skills.map((skill) => querySimilarTechnologies(skill)),
+        input.skills.map((skill) => querySimilarTechnologies(skill))
       );
 
       let similarJobTitlesArray: string[] = [];
@@ -226,7 +226,7 @@ export const outboundRouter = createTRPCRouter({
       try {
         console.log(
           "Similar technologies arrays:",
-          similarTechnologiesArrays.flat(),
+          similarTechnologiesArrays.flat()
         );
 
         const allSimilarTechnologies = similarTechnologiesArrays.flat();
@@ -238,7 +238,7 @@ export const outboundRouter = createTRPCRouter({
           where: (candidate, { and, eq, inArray }) => {
             let condition = or(
               eq(candidate.livesNearBrooklyn, true),
-              eq(candidate.livesNearBrooklyn, false),
+              eq(candidate.livesNearBrooklyn, false)
             );
             if (input.nearBrooklyn) {
               condition = eq(candidate.livesNearBrooklyn, true);
@@ -247,14 +247,14 @@ export const outboundRouter = createTRPCRouter({
             if (input.skills.length > 0) {
               skillCondition = jsonArrayContainsAny(
                 candidate.topTechnologies,
-                allSimilarTechnologies.map((tech) => tech.technology),
+                allSimilarTechnologies.map((tech) => tech.technology)
               );
             }
             let jobTitleCondition = undefined;
             if (similarJobTitlesArray.length > 0) {
               jobTitleCondition = jsonArrayContainsAny(
                 candidate.jobTitles,
-                similarJobTitlesArray,
+                similarJobTitlesArray
               );
             }
             return and(
@@ -267,11 +267,11 @@ export const outboundRouter = createTRPCRouter({
                   .where(
                     and(
                       inArray(companyTable.id, input.companyIds),
-                      eq(candidate.companyId, companyTable.id),
-                    ),
-                  ),
+                      eq(candidate.companyId, companyTable.id)
+                    )
+                  )
               ),
-              jobTitleCondition,
+              jobTitleCondition
             );
           },
         });
@@ -280,7 +280,7 @@ export const outboundRouter = createTRPCRouter({
         const sortedCandidates = candidatesFiltered
           .map((candidate) => {
             const matchingSkillsCount = allSimilarTechnologies.filter((tech) =>
-              candidate.topTechnologies?.includes(tech.technology),
+              candidate.topTechnologies?.includes(tech.technology)
             ).length;
             return { ...candidate, matchingSkillsCount };
           })
@@ -322,7 +322,7 @@ export const outboundRouter = createTRPCRouter({
             } catch (error) {
               console.error(`Error scoring candidate ${candidate.id}:`, error);
             }
-          }),
+          })
         );
 
         return {
@@ -352,7 +352,7 @@ export const outboundRouter = createTRPCRouter({
             ctx.db
               .select()
               .from(candidates)
-              .where(eq(candidates.companyId, company.id)),
+              .where(eq(candidates.companyId, company.id))
           ),
       });
 
@@ -364,7 +364,9 @@ export const outboundRouter = createTRPCRouter({
           {
             role: "system",
             content: `
-You will be provided with multiple technology terms and or specialties/features. OR, you will be provided a list of company names. If any company is mentioned, find the company names from the following list: ${companyNames.join(", ")}. 
+You will be provided with multiple technology terms and or specialties/features. OR, you will be provided a list of company names. If any company is mentioned, find the company names from the following list: ${companyNames.join(
+              ", "
+            )}. 
         If no company in this list is in their query or if their query has no mention of a company, then your task is to standardize it into three categories: technologies, specialties, and features.
 - Technologies are specific programming languages, frameworks, or tools (e.g., "JavaScript", "Ruby on Rails", "Next.js").
 - Specialties describe the type of company or domain (e.g., "Version control", "Web browser", "Open source project hosting").
@@ -387,32 +389,32 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
       });
 
       const standardizedResponse = JSON.parse(
-        completion.choices[0].message.content ?? "{}",
+        completion.choices[0].message.content ?? "{}"
       );
 
       console.log(
         "Standardized response:",
-        JSON.stringify(standardizedResponse, null, 2),
+        JSON.stringify(standardizedResponse, null, 2)
       );
 
       const standardizedTechs: string[] =
         standardizedResponse.standardizedTechs?.map((tech: string) =>
-          tech.toLowerCase(),
+          tech.toLowerCase()
         ) ?? [];
       const standardizedSpecialties: string[] = [
         ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
-          feature.toLowerCase(),
+          feature.toLowerCase()
         ),
         ...standardizedResponse.standardizedSpecialties?.map(
-          (specialty: string) => specialty.toLowerCase(),
+          (specialty: string) => specialty.toLowerCase()
         ),
       ];
       const standardizedFeatures: string[] = [
         ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
-          feature.toLowerCase(),
+          feature.toLowerCase()
         ),
         ...standardizedResponse.standardizedSpecialties?.map(
-          (specialty: string) => specialty.toLowerCase(),
+          (specialty: string) => specialty.toLowerCase()
         ),
       ];
 
@@ -440,7 +442,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
 
       console.log(
         "Standardized technologies:",
-        JSON.stringify(standardizedTechs, null, 2),
+        JSON.stringify(standardizedTechs, null, 2)
       );
 
       // Step 2: Query Pinecone to get the most similar technologies, specialties, and features for each standardized term
@@ -449,12 +451,12 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         technology: string;
       }[][] = await Promise.all(
         standardizedTechs.map(
-          async (tech) => await querySimilarTechnologies(tech),
-        ),
+          async (tech) => await querySimilarTechnologies(tech)
+        )
       );
 
       console.log(
-        allTechnologiesToSearch.map((s) => s.map((t) => t.technology)),
+        allTechnologiesToSearch.map((s) => s.map((t) => t.technology))
       );
 
       const allFeaturesToSearch: {
@@ -462,8 +464,8 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         feature: string;
       }[][] = await Promise.all(
         standardizedFeatures.map(
-          async (feature) => await querySimilarFeatures(feature),
-        ),
+          async (feature) => await querySimilarFeatures(feature)
+        )
       );
 
       const allSpecialtiesToSearch: {
@@ -471,8 +473,8 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         specialty: string;
       }[][] = await Promise.all(
         standardizedSpecialties.map(
-          async (specialty) => await querySimilarSpecialties(specialty),
-        ),
+          async (specialty) => await querySimilarSpecialties(specialty)
+        )
       );
 
       // Step 3: Fetch all companies from the database without related candidates
@@ -484,14 +486,18 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
 
       console.log(
         `allTechnologiesToSearch: ${allTechnologiesToSearch.map((s) =>
-          s.map((t) => t.technology),
-        )}`,
+          s.map((t) => t.technology)
+        )}`
       );
       console.log(
-        `allFeaturesToSearch: ${JSON.stringify(allFeaturesToSearch, null, 2)}`,
+        `allFeaturesToSearch: ${JSON.stringify(allFeaturesToSearch, null, 2)}`
       );
       console.log(
-        `allSpecialtiesToSearch: ${JSON.stringify(allSpecialtiesToSearch, null, 2)}`,
+        `allSpecialtiesToSearch: ${JSON.stringify(
+          allSpecialtiesToSearch,
+          null,
+          2
+        )}`
       );
 
       // Step 4: Iterate over the companies list and fetch related candidates as needed
@@ -503,7 +509,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         for (const similarTechnologies of allTechnologiesToSearch) {
           const hasMatchingTechnology = similarTechnologies.some(
             ({ technology, score: techScore }) =>
-              company.topTechnologies?.includes(technology),
+              company.topTechnologies?.includes(technology)
           );
 
           if (!hasMatchingTechnology) {
@@ -512,7 +518,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           } else {
             similarTechnologies
               .filter(({ technology }) =>
-                company.topTechnologies?.includes(technology),
+                company.topTechnologies?.includes(technology)
               )
               .map((res) => (score += res.score)) ?? 0;
           }
@@ -524,7 +530,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           let hasHadMatchingFeature = false;
           for (const similarFeatures of allFeaturesToSearch) {
             const hasMatchingFeature = similarFeatures.some(({ feature }) =>
-              company.topFeatures?.includes(feature),
+              company.topFeatures?.includes(feature)
             );
 
             if (hasMatchingFeature) {
@@ -545,14 +551,14 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           let hasHadMatchingSpecialty = false;
           for (const similarSpecialties of allSpecialtiesToSearch) {
             const hasMatchingSpecialty = similarSpecialties.some(
-              ({ specialty }) => company.specialties?.includes(specialty),
+              ({ specialty }) => company.specialties?.includes(specialty)
             );
 
             if (hasMatchingSpecialty) {
               hasHadMatchingSpecialty = true;
               similarSpecialties
                 .filter(({ specialty }) =>
-                  company.specialties?.includes(specialty),
+                  company.specialties?.includes(specialty)
                 )
                 .map((res) => (score += res.score)) ?? 0;
             }
@@ -571,12 +577,12 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
 
       // Sort matching companies by score
       matchingCompanies.sort(
-        (a, b) => companyScores[b.id] - companyScores[a.id],
+        (a, b) => companyScores[b.id] - companyScores[a.id]
       );
 
       console.log(
         "Matching companies:",
-        matchingCompanies.map((c) => c.name + ` ${companyScores[c.id]}`),
+        matchingCompanies.map((c) => c.name + ` ${companyScores[c.id]}`)
       );
 
       return {
@@ -590,7 +596,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         filters: [
           ...standardizedTechs,
           ...Array.from(
-            new Set([...standardizedFeatures, ...standardizedSpecialties]),
+            new Set([...standardizedFeatures, ...standardizedSpecialties])
           ),
         ],
       };
@@ -610,7 +616,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
               ctx.db
                 .select()
                 .from(candidates)
-                .where(eq(candidates.companyId, company.id)),
+                .where(eq(candidates.companyId, company.id))
             ),
         });
 
@@ -621,13 +627,27 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
             {
               role: "system",
               content: `
-Given the search query, find the company names from the following list: ${companyNames.join(", ")}.
+Given the search query, find the company names from the following list: ${companyNames.join(
+                ", "
+              )}.
 
 Also, extract the job title, an array of skills, location, and the minimum GitHub stars count mentioned in the query.
 
 - For the **skills**, normalize them because they might be slang (e.g., "rails" should be "Ruby on Rails"). Any technology mentioned can be considered a skill.
 - For the **location**, extract any location mentioned in the query.
 - For the **minGithubStars**, extract any minimum GitHub stars count mentioned.
+
+Given a location, return the uppercase state name if it's a US location, or the uppercase country name if it's outside the US. If it's a city, return the state (for US) or country it's in. If unsure or the location is invalid, return "".
+Examples:
+- New York City -> NEW YORK
+- New York -> NEW YORK
+- London -> UNITED KINGDOM
+- California -> CALIFORNIA
+- Tokyo -> JAPAN
+- Paris, France -> FRANCE
+- Sydney -> AUSTRALIA
+- 90210 -> CALIFORNIA
+
 
 Return the result as a JSON object with the following structure:
 {
@@ -637,8 +657,8 @@ Return the result as a JSON object with the following structure:
   "skills": string[],
   "location": string,
   "minGithubStars": number,
-  "school": string,
-  "fieldOfStudy": string
+  "schools": string[],
+  "fieldsOfStudy": string[]
 }.
 
 If no company they mentioned is in the list, return an empty array for "companyNames". For the companies mentioned not in the list, put those in "otherCompanyNames".
@@ -662,14 +682,15 @@ If no company they mentioned is in the list, return an empty array for "companyN
             "valid": false,
             "message": "No response",
             "companyNames": [],
+            "otherCompanyNames": [],
             "job": "",
             "skills": [],
             "location": "",
             "minGithubStars": 0,
-            "school": "",
-            "fieldOfStudy": "",
+            "schools": [],
+            "fieldsOfStudy": [],
             "Or": false
-          }`,
+          }`
         );
 
         let responseCompanyNames =
@@ -684,19 +705,20 @@ If no company they mentioned is in the list, return an empty array for "companyN
 
         if (!companiesDB || companiesDB.length === 0) {
           console.error(
-            "No companies found or an error occurred during the DB query.",
+            "No companies found or an error occurred during the DB query."
           );
           return {
-            valid: false,
-            message: "Internal server error. Please try again.",
+            valid: true,
+            message: "",
             companies: [],
-            relevantRole: undefined,
-            job: "",
-            skills: [],
-            location: "",
-            minGithubStars: 0,
-            school: "",
-            fieldOfStudy: "",
+            otherCompanyNames: response.otherCompanyNames,
+            job: response.job,
+            skills: response.skills,
+            location: response.location,
+            minGithubStars: response.minGithubStars,
+            schools: response.schools,
+            fieldsOfStudy: response.fieldsOfStudy,
+            query: input.query,
           };
         }
 
@@ -710,8 +732,8 @@ If no company they mentioned is in the list, return an empty array for "companyN
           skills: response.skills,
           location: response.location,
           minGithubStars: response.minGithubStars,
-          school: response.school,
-          fieldOfStudy: response.fieldOfStudy,
+          schools: response.schools,
+          fieldsOfStudy: response.fieldsOfStudy,
           query: input.query,
         };
       } catch (error) {
@@ -726,7 +748,7 @@ If no company they mentioned is in the list, return an empty array for "companyN
           ctx.db
             .select()
             .from(candidates)
-            .where(eq(candidates.companyId, company.id)),
+            .where(eq(candidates.companyId, company.id))
         ),
     });
 
@@ -775,7 +797,7 @@ If no company they mentioned is in the list, return an empty array for "companyN
           } catch (error) {
             console.error(`Error scoring candidate ${candidate.id}:`, error);
           }
-        }),
+        })
       );
     }),
   pollCookdScoringRequest: publicProcedure
@@ -785,7 +807,7 @@ If no company they mentioned is in the list, return an empty array for "companyN
         where: (candidate, { and, inArray, eq }) =>
           and(
             inArray(candidate.id, input.ids),
-            eq(candidate.cookdReviewed, true),
+            eq(candidate.cookdReviewed, true)
           ),
       });
       return scoredCandidates;
