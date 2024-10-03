@@ -271,6 +271,7 @@ export const people = pgTable(
 
     // GitHub data (from githubUsers table)
     githubLogin: varchar("github_login", { length: 255 }),
+    githubImage: varchar("github_image", { length: 255 }),
     githubId: varchar("github_id", { length: 255 }),
     githubData: jsonb("github_data"),
     githubBio: text("github_bio"),
