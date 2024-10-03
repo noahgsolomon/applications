@@ -20,6 +20,7 @@ import {
   Heading,
   Separator,
   Card,
+  Checkbox,
 } from "frosted-ui";
 import {
   Accordion,
@@ -68,6 +69,7 @@ import CompaniesView from "./companies-view";
 import WhopLogo from "./WhopLogo";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useCompaniesViewStore } from "./companies-view-store";
 
 interface ProfileUrl {
   type: "linkedin" | "github";
@@ -91,6 +93,7 @@ export default function ScrapedDialog() {
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<ProfileUrl[]>([]);
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
+  const { setCompaniesRemoved } = useCompaniesViewStore();
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
 
@@ -108,6 +111,7 @@ export default function ScrapedDialog() {
         matchedSkills?: { score: number; skill: string }[];
         matchedJobTitle?: { score: number; jobTitle: string };
         matchedLocation?: { score: number; location: string };
+        matchedCompanies?: { score: number; company: string }[];
       }[]
     | null
   >(null);
@@ -151,7 +155,7 @@ export default function ScrapedDialog() {
               data: InferSelectModel<typeof people>;
               score: number;
             }[]
-          | null,
+          | null
       );
       setLoading(false);
 
@@ -199,7 +203,7 @@ export default function ScrapedDialog() {
       | "nearBrooklyn"
       | "searchInternet"
       | "activeGithub"
-      | "whopUser",
+      | "whopUser"
   ) => {
     if (type === "nearBrooklyn") {
       setNearBrooklyn((prev) => !prev);
@@ -226,6 +230,13 @@ export default function ScrapedDialog() {
         data.companies.length < (allActiveCompanies?.length ?? 0)
       ) {
         setFilters(data);
+        if (
+          data.companies &&
+          data.companies.length > 0 &&
+          data.companies.length < (allActiveCompanies?.length ?? 0)
+        ) {
+          setCompaniesRemoved(false);
+        }
       } else {
         //@ts-ignore
         setFilters({
@@ -269,7 +280,7 @@ export default function ScrapedDialog() {
   };
 
   const extractUrls = (
-    content: string,
+    content: string
   ): { linkedinUrls: string[]; githubUrls: string[] } => {
     const linkedinRegex =
       /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-%.]+/g;
@@ -285,7 +296,7 @@ export default function ScrapedDialog() {
   };
 
   const handleManualUrlsChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setManualUrls(e.target.value);
     const { linkedinUrls, githubUrls } = extractUrls(e.target.value);
@@ -310,8 +321,8 @@ export default function ScrapedDialog() {
       ].filter(
         (url, index, self) =>
           index ===
-          self.findIndex((t) => t.url === url.url && t.type === url.type),
-      ),
+          self.findIndex((t) => t.url === url.url && t.type === url.type)
+      )
     );
   };
 
@@ -338,8 +349,8 @@ export default function ScrapedDialog() {
           [...prev, ...newProfileUrls].filter(
             (url, index, self) =>
               index ===
-              self.findIndex((t) => t.url === url.url && t.type === url.type),
-          ),
+              self.findIndex((t) => t.url === url.url && t.type === url.type)
+          )
         );
       } else {
         setError("No valid LinkedIn or GitHub URLs found in the file.");
@@ -394,6 +405,7 @@ export default function ScrapedDialog() {
         relevantRoleId: undefined,
         companyIds:
           (filters?.companies ?? []).map((company) => company.id) ?? [],
+        otherCompanyNames: filters?.otherCompanyNames ?? [], // Add this line
         job: filters?.job ?? "",
         skills: filters?.skills ?? [],
         booleanSearch: "",
@@ -402,8 +414,8 @@ export default function ScrapedDialog() {
         activeGithub: activeGithub,
         whopUser: whopUser,
         bigTech: bigTech,
-        school: filters?.school ?? "",
-        fieldOfStudy: filters?.fieldOfStudy ?? "",
+        schools: filters?.schools ?? [],
+        fieldsOfStudy: filters?.fieldsOfStudy ?? [],
       };
     }
 
@@ -488,7 +500,7 @@ export default function ScrapedDialog() {
                   >
                     <div className="items-center flex flex-row gap-2">
                       <Building className="size-4" />
-                      Companies List
+                      Cracked Companies List
                     </div>
                   </Button>
                 </DialogTrigger>
@@ -516,7 +528,7 @@ export default function ScrapedDialog() {
                       .split(" ")
                       .map(
                         (word: string) =>
-                          word.charAt(0).toUpperCase() + word.slice(1),
+                          word.charAt(0).toUpperCase() + word.slice(1)
                       )
                       .join(" ")}
                   </Text>
@@ -532,7 +544,7 @@ export default function ScrapedDialog() {
                       setFilters({
                         ...filters,
                         skills: filters.skills.filter(
-                          (s: string) => s !== skill,
+                          (s: string) => s !== skill
                         ),
                       })
                     }
@@ -544,112 +556,167 @@ export default function ScrapedDialog() {
                   </Button>
                 ))}
 
-              {filters && (
-                <>
-                  {filters.location ? (
+              {filters &&
+                ((filters.companies &&
+                  filters.companies.length > 0 &&
+                  filters.companies.length !== allActiveCompanies?.length) ||
+                  filters.otherCompanyNames?.length > 0 ||
+                  filters.schools?.length > 0 ||
+                  filters.fieldsOfStudy?.length > 0 ||
+                  filters.location ||
+                  filters.skills?.length > 0) && (
+                  <>
+                    {filters.location ? (
+                      <Button
+                        variant="surface"
+                        size="2"
+                        style={{ cursor: "pointer" }}
+                        color={"iris"}
+                        className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                        onClick={() => {
+                          setFilters({ ...filters, location: "" });
+                        }}
+                      >
+                        <TreePalm className="size-4" />
+                        Near {filters.location}
+                      </Button>
+                    ) : null}
+                    {filters &&
+                      filters.schools &&
+                      filters.schools.length > 0 &&
+                      filters.schools.map((school: string, index: number) => (
+                        <Button
+                          key={index}
+                          variant="surface"
+                          size="2"
+                          style={{ cursor: "pointer" }}
+                          color={"cyan"}
+                          className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                          onClick={() => {
+                            setFilters({
+                              ...filters,
+                              schools: filters.schools.filter(
+                                (s: string) => s !== school
+                              ),
+                            });
+                          }}
+                        >
+                          <School className="size-4" />
+                          {school}
+                        </Button>
+                      ))}
+                    {filters &&
+                      filters.fieldsOfStudy &&
+                      filters.fieldsOfStudy.length > 0 &&
+                      filters.fieldsOfStudy.map(
+                        (field: string, index: number) => (
+                          <Button
+                            key={index}
+                            variant="surface"
+                            size="2"
+                            style={{ cursor: "pointer" }}
+                            color={"cyan"}
+                            className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                            onClick={() => {
+                              setFilters({
+                                ...filters,
+                                fieldsOfStudy: filters.fieldsOfStudy.filter(
+                                  (f: string) => f !== field
+                                ),
+                              });
+                            }}
+                          >
+                            <GraduationCap className="size-4" />
+                            {field}
+                          </Button>
+                        )
+                      )}
                     <Button
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
-                      color={"iris"}
-                      className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
-                      onClick={() => {
-                        setFilters({ ...filters, location: "" });
-                      }}
+                      color={activeGithub ? "green" : "red"}
+                      onClick={() => handleToggle("activeGithub")}
                     >
-                      <TreePalm className="size-4" />
-                      Near {filters.location}
+                      {activeGithub ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      Active Github
                     </Button>
-                  ) : null}
-                  {filters.school ? (
                     <Button
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
-                      color={"amber"}
-                      className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
-                      onClick={() => {
-                        setFilters({ ...filters, school: "" });
-                      }}
+                      color={bigTech ? "green" : "red"}
+                      onClick={() => handleToggle("bigTech")}
                     >
-                      <School className="size-4" />
-                      {filters.school}
+                      {bigTech ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      Big Tech
                     </Button>
-                  ) : null}
-                  {filters.fieldOfStudy ? (
                     <Button
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
-                      color={"cyan"}
+                      color={whopUser ? "green" : "red"}
+                      onClick={() => handleToggle("whopUser")}
+                    >
+                      {whopUser ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      <Image
+                        src={"/whop.png"}
+                        width={30}
+                        height={30}
+                        alt="whop logo"
+                      />
+                      Whop User
+                    </Button>
+                    <Button
+                      variant="surface"
+                      color="gray"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setFilters(null)}
+                    >
+                      <X className="size-4" />
+                      Clear filters
+                    </Button>
+                  </>
+                )}
+
+              {filters &&
+                filters.otherCompanyNames &&
+                filters.otherCompanyNames.length > 0 &&
+                filters.otherCompanyNames.map(
+                  (company: string, index: number) => (
+                    <Button
+                      key={index}
+                      variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color="purple"
                       className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                       onClick={() => {
-                        setFilters({ ...filters, fieldOfStudy: "" });
+                        setFilters({
+                          ...filters,
+                          otherCompanyNames: filters.otherCompanyNames.filter(
+                            (c: string) => c !== company
+                          ),
+                        });
                       }}
                     >
-                      <GraduationCap className="size-4" />
-                      {filters.fieldOfStudy}
+                      <Building2 className="size-4 mr-1" />
+                      {company}
                     </Button>
-                  ) : null}
-                  <Button
-                    variant="surface"
-                    size="2"
-                    style={{ cursor: "pointer" }}
-                    color={activeGithub ? "green" : "red"}
-                    onClick={() => handleToggle("activeGithub")}
-                  >
-                    {activeGithub ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500" />
-                    )}
-                    Active Github
-                  </Button>
-                  <Button
-                    variant="surface"
-                    size="2"
-                    style={{ cursor: "pointer" }}
-                    color={bigTech ? "green" : "red"}
-                    onClick={() => handleToggle("bigTech")}
-                  >
-                    {bigTech ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500" />
-                    )}
-                    Big Tech
-                  </Button>
-                  <Button
-                    variant="surface"
-                    size="2"
-                    style={{ cursor: "pointer" }}
-                    color={whopUser ? "green" : "red"}
-                    onClick={() => handleToggle("whopUser")}
-                  >
-                    {whopUser ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <X className="size-4 text-red-500" />
-                    )}
-                    <Image
-                      src={"/whop.png"}
-                      width={30}
-                      height={30}
-                      alt="whop logo"
-                    />
-                    Whop User
-                  </Button>
-                  <Button
-                    variant="surface"
-                    color="gray"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setFilters(null)}
-                  >
-                    <X className="size-4" />
-                    Clear filters
-                  </Button>
-                </>
-              )}
+                  )
+                )}
             </Flex>
           </Flex>
 
@@ -713,15 +780,12 @@ export default function ScrapedDialog() {
                           className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
                           onClick={() => {
                             setProfileUrls(
-                              profileUrls.filter((u) => u !== urlObj),
+                              profileUrls.filter((u) => u !== urlObj)
                             );
                             setManualUrls(
                               manualUrls
                                 .replace(urlObj.url, "")
-                                .replace(
-                                  urlObj.url.replace("https://", ""),
-                                  "",
-                                ),
+                                .replace(urlObj.url.replace("https://", ""), "")
                             );
                           }}
                         >
@@ -782,7 +846,7 @@ export default function ScrapedDialog() {
                     setFlushing(true);
                   }}
                 >
-                  Flush Queue
+                  Cancel
                 </Button>
               )}
             <Button
