@@ -134,12 +134,12 @@ export default function ScrapedDialog() {
     {
       id: string;
       score: number;
-      matchedSkills: { score: number; skill: string }[];
-      matchedJobTitle: { score: number; jobTitle: string };
-      matchedLocation: { score: number; location: string };
-      matchedCompanies: { score: number; company: string }[];
-      matchedSchools: { score: number; school: string }[];
-      matchedFieldsOfStudy: { score: number; fieldOfStudy: string }[];
+      matchedSkills?: { score: number; skill: string }[];
+      matchedJobTitle?: { score: number; jobTitle: string };
+      matchedLocation?: { score: number; location: string };
+      matchedCompanies?: { score: number; company: string }[];
+      matchedSchools?: { score: number; school: string }[];
+      matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
     }[]
   >([]);
 
@@ -156,9 +156,7 @@ export default function ScrapedDialog() {
   const getAbsoluteFilteredTopCandidatesMutation =
     api.outbound.getAbsoluteFilteredTopCandidates.useMutation({
       onSuccess: (data) => {
-        if (data.length > 0) {
-          setCandidateMatches(data);
-        }
+        setCandidateMatches(data);
       },
       onError: (error) => {
         console.error("Error fetching top candidates:", error);
@@ -214,12 +212,12 @@ export default function ScrapedDialog() {
           ([] as {
             id: string;
             score: number;
-            matchedSkills: { score: number; skill: string }[];
-            matchedJobTitle: { score: number; jobTitle: string };
-            matchedLocation: { score: number; location: string };
-            matchedCompanies: { score: number; company: string }[];
-            matchedSchools: { score: number; school: string }[];
-            matchedFieldsOfStudy: { score: number; fieldOfStudy: string }[];
+            matchedSkills?: { score: number; skill: string }[];
+            matchedJobTitle?: { score: number; jobTitle: string };
+            matchedLocation?: { score: number; location: string };
+            matchedCompanies?: { score: number; company: string }[];
+            matchedSchools?: { score: number; school: string }[];
+            matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
           }[])
       );
       setLoading(false);

@@ -151,52 +151,7 @@ async function querySimilarJobTitles(job: string) {
 
 export const outboundRouter = createTRPCRouter({
   getAbsoluteFilteredTopCandidates: publicProcedure
-    .input(
-      z.object({
-        showTwitter: z.boolean(),
-        showWhop: z.boolean(),
-        showGithub: z.boolean(),
-        showLinkedin: z.boolean(),
-        allIdsResponse: z.array(
-          z.object({
-            id: z.string(),
-            score: z.number(),
-            matchedSkills: z.array(
-              z.object({
-                score: z.number(),
-                skill: z.string(),
-              })
-            ),
-            matchedJobTitle: z.object({
-              score: z.number(),
-              jobTitle: z.string(),
-            }),
-            matchedLocation: z.object({
-              score: z.number(),
-              location: z.string(),
-            }),
-            matchedCompanies: z.array(
-              z.object({
-                score: z.number(),
-                company: z.string(),
-              })
-            ),
-            matchedSchools: z.array(
-              z.object({
-                score: z.number(),
-                school: z.string(),
-              })
-            ),
-            matchedFieldsOfStudy: z.array(
-              z.object({
-                score: z.number(),
-                fieldOfStudy: z.string(),
-              })
-            ),
-          })
-        ),
-      })
-    )
+    .input(z.any())
     .mutation(async ({ ctx, input }) => {
       console.log("input", input);
       let conditions = [];
@@ -204,7 +159,12 @@ export const outboundRouter = createTRPCRouter({
         conditions.push(isNotNull(schema.people.twitterUsername));
       }
       if (input.showWhop) {
-        conditions.push(isNotNull(schema.people.isWhopUser));
+        conditions.push(
+          or(
+            eq(schema.people.isWhopUser, true),
+            eq(schema.people.isWhopCreator, true)
+          )
+        );
       }
       if (input.showGithub) {
         conditions.push(isNotNull(schema.people.githubLogin));
@@ -217,7 +177,7 @@ export const outboundRouter = createTRPCRouter({
           ...conditions,
           inArray(
             schema.people.id,
-            input.allIdsResponse.map((id) => id.id)
+            input.allIdsResponse.map((id: any) => id.id)
           )
         ),
       });
@@ -225,7 +185,7 @@ export const outboundRouter = createTRPCRouter({
       const topCandidatesWithScores = topCandidates
         .map((candidate) => {
           const idResponse = input.allIdsResponse.find(
-            (id) => id.id === candidate.id
+            (id: any) => id.id === candidate.id
           );
           return {
             data: candidate,
@@ -239,7 +199,7 @@ export const outboundRouter = createTRPCRouter({
           };
         })
         .sort((a, b) => b.score - a.score)
-        .slice(0, 1);
+        .slice(0, 100);
 
       return topCandidatesWithScores;
     }),
