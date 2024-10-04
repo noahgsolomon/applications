@@ -1,11 +1,39 @@
 import { graphql } from "@octokit/graphql";
 import * as dotenv from "dotenv";
-import fs from "fs";
 import * as userSchema from "../server/db/schemas/users/schema";
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import {
+  people,
+  locationsVector,
+  fieldsOfStudy,
+  skillsNew,
+  schools,
+  companiesVectorNew,
+  jobTitlesVectorNew,
+} from "../server/db/schemas/users/schema";
 import OpenAI from "openai";
 import { eq } from "drizzle-orm";
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import axios from "axios";
+import fetch from "node-fetch";
+import { isNotNull, or, isNull, and } from "drizzle-orm";
+
+dotenv.config({ path: "../.env" });
+
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+if (!GITHUB_TOKEN) {
+  throw new Error("GitHub token is required in .env file");
+}
+
+const pool = new Pool({
+  connectionString: process.env.DB_URL,
+});
+const db = drizzle(pool, {
+  schema: {
+    ...userSchema,
+  },
+});
 
 export class RateLimiter {
   private isWaiting: boolean = false;
@@ -15,8 +43,8 @@ export class RateLimiter {
       return;
     }
     this.isWaiting = true;
-    console.log("Rate limit hit. Waiting for 3 minutes...");
-    await new Promise((resolve) => setTimeout(resolve, 180000));
+    console.log("Rate limit hit. Waiting for 1 minute...");
+    await new Promise((resolve) => setTimeout(resolve, 60000));
     this.isWaiting = false;
   }
 
@@ -43,19 +71,6 @@ const rateLimiter = new RateLimiter();
 
 dotenv.config({ path: "../.env" });
 
-const connection = neon(process.env.DB_URL!);
-const db = drizzle(connection, {
-  schema: {
-    ...userSchema,
-  },
-});
-
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
-if (!GITHUB_TOKEN) {
-  throw new Error("GitHub token is required in .env file");
-}
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -80,37 +95,23 @@ export const askCondition = async (condition: string): Promise<boolean> => {
   });
 
   const result = JSON.parse(
-    completion.choices[0].message.content ?? '{ "condition": false }',
+    completion.choices[0].message.content ?? '{ "condition": false }'
   ).condition as boolean;
 
   return result;
 };
 
-export async function isNearNYC(user: any): Promise<boolean> {
-  if (!user) {
-    console.error("User object is null or undefined");
-    return false;
-  }
-
-  if (!user.location) {
-    return false;
-  }
-
-  const condition = `Is this location (${user.location}) within 50 miles of Brooklyn, New York City? If it is ambiguous like if it says USA or obviously if the location isn't 50 miles from Brooklyn, return false.`;
-  const result = await askCondition(condition);
-  return result;
-}
-
 const organizations = [
-  "gitlab",
-  "atlassian",
-  "slack",
-  "twitter",
-  "linkedin",
-  "pinterest",
-  "spotify",
+  "stripe",
+  "square",
+  "uber",
+  "wish",
+  "yelp",
+  "zoom",
+  "zillow",
+  "yahoo",
+  "yandex",
 ];
-
 const fetchOrganizationMembers = async (orgName: string) => {
   const query = `
     query($orgName: String!, $cursor: String) {
@@ -158,7 +159,7 @@ const fetchOrganizationMembers = async (orgName: string) => {
 
 const fetchUserDetails = async (
   username: string,
-  isTopLevelMember: boolean,
+  isTopLevelMember: boolean
 ) => {
   const query = `
       query($login: String!) {
@@ -284,9 +285,126 @@ const fetchUserDetails = async (
       return null;
     }
 
-    return result.user;
+    const user = result.user;
+
+    // Process LinkedIn data if available
+    if (user.websiteUrl && user.websiteUrl.includes("linkedin.com")) {
+      await processLinkedInData(user.id, user.websiteUrl);
+    }
+
+    return user;
   });
 };
+
+async function scrapeLinkedInProfile(linkedinUrl: string) {
+  console.log(`Scraping LinkedIn profile for URL: ${linkedinUrl}`);
+  const options = {
+    method: "GET",
+    url: `https://api.scrapin.io/enrichment/profile`,
+    params: {
+      apikey: process.env.SCRAPIN_API_KEY!,
+      linkedInUrl: linkedinUrl,
+    },
+  };
+
+  try {
+    const response = await axios.request(options);
+    console.log("Profile data fetched successfully.");
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching LinkedIn profile data: ${error}`);
+    return null;
+  }
+}
+
+async function processLinkedInData(personId: string, linkedinUrl: string) {
+  const linkedinData = await scrapeLinkedInProfile(linkedinUrl);
+
+  if (linkedinData) {
+    // Update the person record
+    await db
+      .update(people)
+      .set({
+        linkedinUrl: linkedinUrl,
+        linkedinData: linkedinData,
+      })
+      .where(eq(people.id, personId));
+
+    // Process skills
+    if (linkedinData.skills) {
+      for (const skill of linkedinData.skills) {
+        await upsertSkillEmbedding(personId, skill);
+      }
+    }
+
+    // Process companies
+    if (linkedinData.positions) {
+      for (const position of linkedinData.positions) {
+        if (position.companyName) {
+          await upsertCompanyEmbedding(personId, position.companyName);
+        }
+      }
+    }
+
+    // Process education
+    if (linkedinData.education) {
+      for (const edu of linkedinData.education) {
+        if (edu.schoolName) {
+          await upsertSchoolEmbedding(personId, edu.schoolName);
+        }
+        if (edu.fieldOfStudy) {
+          await upsertFieldOfStudyEmbedding(personId, edu.fieldOfStudy);
+        }
+      }
+    }
+
+    // Process location
+    if (linkedinData.location) {
+      const normalizedLocation = await getNormalizedLocation(
+        linkedinData.location
+      );
+      await upsertLocationEmbedding(personId, normalizedLocation);
+    }
+
+    // Process job titles
+    if (linkedinData.positions) {
+      for (const position of linkedinData.positions) {
+        if (position.title) {
+          await upsertJobTitleEmbedding(personId, position.title);
+        }
+      }
+    }
+  }
+}
+
+async function upsertJobTitleEmbedding(personId: string, jobTitle: string) {
+  const existingJobTitle = await db
+    .select()
+    .from(jobTitlesVectorNew)
+    .where(eq(jobTitlesVectorNew.jobTitle, jobTitle))
+    .limit(1);
+
+  if (existingJobTitle.length > 0) {
+    const currentPersonIds = existingJobTitle[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(jobTitlesVectorNew)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(jobTitlesVectorNew.jobTitle, jobTitle));
+  } else {
+    const jobTitleVector = await getEmbedding(jobTitle);
+    await db
+      .insert(jobTitlesVectorNew)
+      .values({
+        personIds: [personId],
+        jobTitle,
+        vector: jobTitleVector,
+      })
+      .onConflictDoNothing();
+  }
+}
 
 const processFollowingData = async (user: any) => {
   if (!user) return null;
@@ -330,19 +448,19 @@ const processFollowingData = async (user: any) => {
       .filter((repo: any) => repo.repository.owner.login !== user.login)
       .sort(
         (a: any, b: any) =>
-          b.contributions.totalCount - a.contributions.totalCount,
+          b.contributions.totalCount - a.contributions.totalCount
       );
 
   const totalExternalCommits = externalContributions.reduce(
     (sum: number, repo: any) => sum + repo.contributions.totalCount,
-    0,
+    0
   );
 
   const totalCommits =
     user.contributionsCollection.contributionCalendar.totalContributions;
 
   const linkedInAccount = user.socialAccounts.nodes.find(
-    (account: any) => account.provider === "LINKEDIN",
+    (account: any) => account.provider === "LINKEDIN"
   );
   const linkedinUrl = linkedInAccount ? linkedInAccount.url : null;
 
@@ -371,7 +489,7 @@ const processFollowingData = async (user: any) => {
     totalStars,
     totalForks,
     languages: Object.entries(languagesMap).sort(
-      (a, b) => b[1].repoCount - a[1].repoCount,
+      (a, b) => b[1].repoCount - a[1].repoCount
     ),
     uniqueContributors: contributors,
     uniqueTopics: topics,
@@ -392,15 +510,67 @@ const processFollowingData = async (user: any) => {
   };
 };
 
+async function getTwitterData(username: string): Promise<any | null> {
+  try {
+    const endpoint = `https://api.socialdata.tools/twitter/user/${encodeURIComponent(
+      username
+    )}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.SOCIAL_DATA_API_KEY}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        `Failed to fetch Twitter data for ${username}: ${response.statusText}`
+      );
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (data) {
+      const followers_count = data.followers_count || 0;
+      const following_count = data.friends_count || 0;
+      const followerToFollowingRatio =
+        following_count > 0
+          ? followers_count / following_count
+          : followers_count;
+
+      return {
+        twitterFollowerCount: followers_count,
+        twitterFollowingCount: following_count,
+        twitterFollowerToFollowingRatio: followerToFollowingRatio,
+        twitterBio: data.description || null,
+      };
+    } else {
+      console.log(`No data found for Twitter username: ${username}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching Twitter data for ${username}:`, error);
+    return null;
+  }
+}
+
 const processUserData = async (user: any) => {
   if (!user) return null;
 
   const linkedInAccount = user.socialAccounts.nodes.find(
-    (account: any) => account.provider === "LINKEDIN",
+    (account: any) => account.provider === "LINKEDIN"
   );
   const linkedinUrl = linkedInAccount ? linkedInAccount.url : null;
 
   const normalizedLocation = await getNormalizedLocation(user.location || "");
+
+  let twitterData = null;
+  if (user.twitterUsername) {
+    twitterData = await getTwitterData(user.twitterUsername);
+  }
 
   return {
     followingList: user.following.nodes.map((node: any) => ({
@@ -409,6 +579,7 @@ const processUserData = async (user: any) => {
     linkedinUrl,
     location: user.location,
     normalizedLocation,
+    ...twitterData,
   };
 };
 
@@ -448,24 +619,24 @@ Examples:
   }
 }
 
-const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
+const insertOrUpdateUser = async (processedData: any) => {
   try {
     await db
-      .insert(userSchema.githubUsers)
+      .insert(userSchema.people)
       .values({
         id: processedData.login,
         name: processedData.name || null,
-        login: processedData.login,
+        githubLogin: processedData.login,
         location: processedData.location || null,
         normalizedLocation: processedData.normalizedLocation || null,
         websiteUrl: processedData.websiteUrl || null,
         twitterUsername: processedData.twitterUsername || null,
         email: processedData.email || null,
-        bio: processedData.bio || null,
+        githubBio: processedData.bio || null,
         followers: processedData.followers,
         following: processedData.following,
         followerToFollowingRatio: parseFloat(
-          processedData.followerToFollowingRatio,
+          processedData.followerToFollowingRatio
         ),
         contributionYears: processedData.contributionYears,
         totalCommits: processedData.totalCommits,
@@ -473,18 +644,24 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
         totalRepositories: processedData.totalRepositories,
         totalStars: processedData.totalStars,
         totalForks: processedData.totalForks,
-        languages: Object.fromEntries(processedData.languages),
+        githubLanguages: Object.fromEntries(processedData.languages),
         uniqueTopics: processedData.uniqueTopics,
         externalContributions: processedData.externalContributions,
         totalExternalCommits: processedData.totalExternalCommits,
         sponsorsCount: processedData.sponsorsCount,
         sponsoredProjects: processedData.sponsoredProjects,
         organizations: processedData.organizations,
-        isNearNYC: nearNyc,
         linkedinUrl: processedData.linkedinUrl || null,
+        githubData: {},
+        sourceTables: ["githubUsers"],
+        twitterFollowerCount: processedData.twitterFollowerCount || null,
+        twitterFollowingCount: processedData.twitterFollowingCount || null,
+        twitterFollowerToFollowingRatio:
+          processedData.twitterFollowerToFollowingRatio || null,
+        twitterBio: processedData.twitterBio || null,
       })
       .onConflictDoUpdate({
-        target: userSchema.githubUsers.login,
+        target: userSchema.people.githubLogin,
         set: {
           name: processedData.name || null,
           location: processedData.location || null,
@@ -492,11 +669,11 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
           websiteUrl: processedData.websiteUrl || null,
           twitterUsername: processedData.twitterUsername || null,
           email: processedData.email || null,
-          bio: processedData.bio || null,
+          githubBio: processedData.bio || null,
           followers: processedData.followers,
           following: processedData.following,
           followerToFollowingRatio: parseFloat(
-            processedData.followerToFollowingRatio,
+            processedData.followerToFollowingRatio
           ),
           contributionYears: processedData.contributionYears,
           totalCommits: processedData.totalCommits,
@@ -504,30 +681,36 @@ const insertOrUpdateUser = async (processedData: any, nearNyc: boolean) => {
           totalRepositories: processedData.totalRepositories,
           totalStars: processedData.totalStars,
           totalForks: processedData.totalForks,
-          languages: Object.fromEntries(processedData.languages),
+          githubLanguages: Object.fromEntries(processedData.languages),
           uniqueTopics: processedData.uniqueTopics,
           externalContributions: processedData.externalContributions,
           totalExternalCommits: processedData.totalExternalCommits,
           sponsorsCount: processedData.sponsorsCount,
           sponsoredProjects: processedData.sponsoredProjects,
           organizations: processedData.organizations,
-          isNearNYC: nearNyc,
           linkedinUrl: processedData.linkedinUrl || null,
+          githubData: {},
+          sourceTables: ["githubUsers"],
+          twitterFollowerCount: processedData.twitterFollowerCount || null,
+          twitterFollowingCount: processedData.twitterFollowingCount || null,
+          twitterFollowerToFollowingRatio:
+            processedData.twitterFollowerToFollowingRatio || null,
+          twitterBio: processedData.twitterBio || null,
         },
       });
     console.log(`Inserted/Updated data for user: ${processedData.login}`);
   } catch (error) {
     console.error(
       `Error inserting/updating data for user: ${processedData.login}`,
-      error,
+      error
     );
   }
 };
 
 const processFollowing = async (followingList: any[]) => {
   for (const followingPerson of followingList) {
-    const exists = await db.query.githubUsers.findFirst({
-      where: eq(userSchema.githubUsers.login, followingPerson.login),
+    const exists = await db.query.people.findFirst({
+      where: eq(userSchema.people.githubLogin, followingPerson.login),
     });
     if (exists) {
       console.log("skipping..");
@@ -536,8 +719,7 @@ const processFollowing = async (followingList: any[]) => {
       if (userData) {
         const processedData = await processFollowingData(userData);
         if (processedData) {
-          const nearNyc = await isNearNYC(processedData);
-          await insertOrUpdateUser(processedData, nearNyc);
+          await insertOrUpdateUser(processedData);
         }
       }
     }
@@ -574,15 +756,246 @@ const main = async () => {
     for (let i = 0; i < members.length; i += batchSize) {
       const batch = members.slice(i, i + batchSize);
       console.log(
-        `Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(members.length / batchSize)}`,
+        `Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(
+          members.length / batchSize
+        )}`
       );
       const batchResults = await processBatch(batch);
       orgData.push(...batchResults.filter((result) => result !== null));
     }
 
-    fs.writeFileSync(`${org}_data.json`, JSON.stringify(orgData, null, 2));
     console.log(`Data for ${org} saved to ${org}_data.json`);
   }
 };
 
 // main().catch((error) => console.error("Error in main function:", error));
+
+async function getEmbedding(text: string): Promise<number[]> {
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: text,
+  });
+
+  if (!response.data || response.data.length === 0) {
+    throw new Error("No embedding returned from OpenAI API");
+  }
+
+  return response.data[0].embedding;
+}
+
+async function upsertSkillEmbedding(personId: string, skill: string) {
+  const normalizedSkill = skill.toLowerCase().trim();
+  const existingSkill = await db
+    .select()
+    .from(skillsNew)
+    .where(eq(skillsNew.skill, normalizedSkill))
+    .limit(1);
+
+  if (existingSkill.length > 0) {
+    const currentPersonIds = existingSkill[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(skillsNew)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(skillsNew.skill, normalizedSkill));
+  } else {
+    const skillVector = await getEmbedding(normalizedSkill);
+    await db
+      .insert(skillsNew)
+      .values({
+        personIds: [personId],
+        skill: normalizedSkill,
+        vector: skillVector,
+      })
+      .onConflictDoNothing();
+  }
+}
+
+async function upsertCompanyEmbedding(personId: string, company: string) {
+  const existingCompany = await db
+    .select()
+    .from(companiesVectorNew)
+    .where(eq(companiesVectorNew.company, company))
+    .limit(1);
+
+  if (existingCompany.length > 0) {
+    const currentPersonIds = existingCompany[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(companiesVectorNew)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(companiesVectorNew.company, company));
+  } else {
+    const companyVector = await getEmbedding(company);
+    await db
+      .insert(companiesVectorNew)
+      .values({
+        personIds: [personId],
+        company,
+        vector: companyVector,
+      })
+      .onConflictDoNothing();
+  }
+}
+
+async function upsertSchoolEmbedding(personId: string, school: string) {
+  const existingSchool = await db
+    .select()
+    .from(schools)
+    .where(eq(schools.school, school))
+    .limit(1);
+
+  if (existingSchool.length > 0) {
+    const currentPersonIds = existingSchool[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(schools)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(schools.school, school));
+  } else {
+    const schoolVector = await getEmbedding(school);
+    await db
+      .insert(schools)
+      .values({
+        personIds: [personId],
+        school,
+        vector: schoolVector,
+      })
+      .onConflictDoNothing();
+  }
+}
+
+async function upsertFieldOfStudyEmbedding(
+  personId: string,
+  fieldOfStudy: string
+) {
+  const existingFieldOfStudy = await db
+    .select()
+    .from(fieldsOfStudy)
+    .where(eq(fieldsOfStudy.fieldOfStudy, fieldOfStudy))
+    .limit(1);
+
+  if (existingFieldOfStudy.length > 0) {
+    const currentPersonIds = existingFieldOfStudy[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(fieldsOfStudy)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(fieldsOfStudy.fieldOfStudy, fieldOfStudy));
+  } else {
+    const fieldOfStudyVector = await getEmbedding(fieldOfStudy);
+    await db
+      .insert(fieldsOfStudy)
+      .values({
+        personIds: [personId],
+        fieldOfStudy,
+        vector: fieldOfStudyVector,
+      })
+      .onConflictDoNothing();
+  }
+}
+
+async function upsertLocationEmbedding(
+  personId: string,
+  normalizedLocation: string
+) {
+  const existingLocation = await db
+    .select()
+    .from(locationsVector)
+    .where(eq(locationsVector.location, normalizedLocation))
+    .limit(1);
+
+  if (existingLocation.length > 0) {
+    const currentPersonIds = existingLocation[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+    await db
+      .update(locationsVector)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(locationsVector.location, normalizedLocation));
+  } else {
+    const locationVector = await getEmbedding(normalizedLocation);
+    await db
+      .insert(locationsVector)
+      .values({
+        personIds: [personId],
+        location: normalizedLocation,
+        vector: locationVector,
+      })
+      .onConflictDoNothing();
+  }
+}
+
+async function updateTwitterData() {
+  try {
+    const users = await db
+      .select()
+      .from(people)
+      .where(
+        and(
+          isNotNull(people.twitterUsername),
+          or(
+            isNull(people.twitterBio),
+            isNull(people.twitterFollowerCount),
+            isNull(people.twitterFollowingCount),
+            isNull(people.twitterFollowerToFollowingRatio),
+            isNull(people.tweets)
+          )
+        )
+      );
+
+    console.log(`Found ${users.length} users needing Twitter data updates.`);
+
+    for (const user of users) {
+      const twitterUsername = user.twitterUsername;
+
+      // Fetch Twitter data
+      const twitterData = await getTwitterData(twitterUsername!);
+
+      if (twitterData) {
+        const followers_count = twitterData.followers_count || 0;
+        const following_count = twitterData.friends_count || 0;
+        const description = twitterData.description || null;
+
+        const followerToFollowingRatio =
+          following_count > 0
+            ? followers_count / following_count
+            : followers_count;
+
+        await db
+          .update(people)
+          .set({
+            twitterFollowerCount: followers_count,
+            twitterFollowingCount: following_count,
+            twitterFollowerToFollowingRatio: followerToFollowingRatio,
+            twitterBio: description,
+          })
+          .where(eq(people.id, user.id));
+
+        console.log(`Updated Twitter data for user ID: ${user.id}`);
+      } else {
+        await db
+          .update(people)
+          .set({ twitterUsername: null })
+          .where(eq(people.id, user.id));
+
+        console.log(
+          `Invalid Twitter username '${twitterUsername}' for user ID: ${user.id}. Set twitterUsername to null.`
+        );
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  } catch (error) {
+    console.error("Error updating Twitter data:", error);
+  }
+}
