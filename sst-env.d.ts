@@ -5,10 +5,6 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
-    "FindSimilarProfilesGithubQueue": {
-      "type": "sst.aws.Queue"
-      "url": string
-    }
     "FindSimilarProfilesLinkedinQueue": {
       "type": "sst.aws.Queue"
       "url": string
