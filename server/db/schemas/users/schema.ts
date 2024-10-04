@@ -1,3 +1,4 @@
+import { all } from "axios";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -31,8 +32,7 @@ export const profileQueue = pgTable("profile_queue", {
   jobTitles: json("job_titles").$type<string[]>().default([]),
   error: boolean("error").default(false),
   success: boolean("success").default(false),
-  allIdsResponse:
-    json("all_ids_response").$type<{ id: string; score: number }[]>(),
+  allIdsResponse: json("all_ids_response").$type<any[]>(),
 });
 
 export const users = pgTable("user", {

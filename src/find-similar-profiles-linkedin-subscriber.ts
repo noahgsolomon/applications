@@ -1588,6 +1588,12 @@ export async function handler(event: any) {
           allIdsResponse: mergedResults.map((res) => ({
             id: res.id,
             score: res.score,
+            matchedSkills: res.matchedSkills,
+            matchedJobTitle: res.matchedJobTitle,
+            matchedLocation: res.matchedLocation,
+            matchedCompanies: res.matchedCompanies,
+            matchedSchools: res.matchedSchools,
+            matchedFieldsOfStudy: res.matchedFieldsOfStudy,
           })),
         })
         .where(eq(schema.profileQueue.id, insertId));
@@ -1603,6 +1609,12 @@ export async function handler(event: any) {
         allIdsResponse: mergedResults.map((res) => ({
           id: res.data.id,
           score: res.score,
+          matchedSkills: res.matchedSkills,
+          matchedJobTitle: res.matchedJobTitle,
+          matchedLocation: res.matchedLocation,
+          matchedCompanies: res.matchedCompanies,
+          matchedSchools: res.matchedSchools,
+          matchedFieldsOfStudy: res.matchedFieldsOfStudy,
         })),
       })
       .where(eq(schema.profileQueue.id, insertId));

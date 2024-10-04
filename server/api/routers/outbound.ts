@@ -158,11 +158,47 @@ export const outboundRouter = createTRPCRouter({
         showGithub: z.boolean(),
         showLinkedin: z.boolean(),
         allIdsResponse: z.array(
-          z.object({ id: z.string(), score: z.number() })
+          z.object({
+            id: z.string(),
+            score: z.number(),
+            matchedSkills: z.array(
+              z.object({
+                score: z.number(),
+                skill: z.string(),
+              })
+            ),
+            matchedJobTitle: z.object({
+              score: z.number(),
+              jobTitle: z.string(),
+            }),
+            matchedLocation: z.object({
+              score: z.number(),
+              location: z.string(),
+            }),
+            matchedCompanies: z.array(
+              z.object({
+                score: z.number(),
+                company: z.string(),
+              })
+            ),
+            matchedSchools: z.array(
+              z.object({
+                score: z.number(),
+                school: z.string(),
+              })
+            ),
+            matchedFieldsOfStudy: z.array(
+              z.object({
+                score: z.number(),
+                fieldOfStudy: z.string(),
+              })
+            ),
+          })
         ),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      console.log("input", input);
       let conditions = [];
       if (input.showTwitter) {
         conditions.push(isNotNull(schema.people.twitterUsername));
@@ -186,11 +222,24 @@ export const outboundRouter = createTRPCRouter({
         ),
       });
 
-      const topCandidatesWithScores = topCandidates.map((candidate) => ({
-        data: candidate,
-        score:
-          input.allIdsResponse.find((id) => id.id === candidate.id)?.score || 0,
-      }));
+      const topCandidatesWithScores = topCandidates
+        .map((candidate) => {
+          const idResponse = input.allIdsResponse.find(
+            (id) => id.id === candidate.id
+          );
+          return {
+            data: candidate,
+            score: idResponse?.score || 0,
+            matchedSkills: idResponse?.matchedSkills || [],
+            matchedJobTitle: idResponse?.matchedJobTitle || undefined,
+            matchedLocation: idResponse?.matchedLocation || undefined,
+            matchedCompanies: idResponse?.matchedCompanies || [],
+            matchedSchools: idResponse?.matchedSchools || [],
+            matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy || [],
+          };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 1);
 
       return topCandidatesWithScores;
     }),
@@ -201,7 +250,7 @@ export const outboundRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { payload } = input;
+      // const { payload } = input;
 
       const similarProfileQueries = await ctx.db.query.profileQueue.findMany();
 
@@ -219,7 +268,7 @@ export const outboundRouter = createTRPCRouter({
       try {
         const command = new SendMessageCommand({
           QueueUrl: queueUrl,
-          MessageBody: JSON.stringify(payload),
+          MessageBody: JSON.stringify(input.payload),
         });
 
         const response = await sqsClient.send(command);
@@ -237,8 +286,6 @@ export const outboundRouter = createTRPCRouter({
     const pendingSimilarProfiles = await ctx.db
       .select()
       .from(schema.profileQueue);
-
-    console.log("pendingSimilarProfiles", pendingSimilarProfiles);
 
     return pendingSimilarProfiles;
   }),
