@@ -37,12 +37,11 @@ import {
   Book,
   Info as InfoIcon,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function CandidateCard({
   candidate,
   bigTech,
-  activeGithub,
-  whopUser,
   company,
 }: {
   candidate: {
@@ -52,12 +51,10 @@ export default function CandidateCard({
     matchedJobTitle?: { score: number; jobTitle: string };
     matchedLocation?: { score: number; location: string };
     matchedCompanies?: { score: number; company: string }[];
-    matchedSchools?: { score: number; school: string }[]; // Changed from matchedSchool
-    matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[]; // Changed from matchedFieldOfStudy
+    matchedSchools?: { score: number; school: string }[];
+    matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
   };
   bigTech: boolean;
-  activeGithub: boolean;
-  whopUser: boolean;
   company?: InferSelectModel<typeof companyTable>;
 }) {
   const {
@@ -223,14 +220,22 @@ export default function CandidateCard({
                 matchedLocation.location.slice(1).toLowerCase()}
             </Badge>
           )}
+          {candidate.data.isWhopUser && (
+            <Badge variant="surface" color="orange">
+              <Image width={16} height={16} src="/whop.png" alt="Whop" />
+              Whop User
+            </Badge>
+          )}
           {candidate.matchedCompanies &&
             candidate.matchedCompanies.length > 0 &&
-            candidate.matchedCompanies.map((company) => (
-              <Badge key={company.company} variant="surface" color="blue">
-                <Building className="size-4 mr-1" />
-                {company.company}
-              </Badge>
-            ))}
+            [...new Set(candidate.matchedCompanies.map((c) => c.company))].map(
+              (companyName) => (
+                <Badge key={companyName} variant="surface" color="blue">
+                  <Building className="size-4 mr-1" />
+                  {companyName}
+                </Badge>
+              )
+            )}
           {matchedSchools &&
             matchedSchools.length > 0 &&
             matchedSchools.map((school, index) => (
