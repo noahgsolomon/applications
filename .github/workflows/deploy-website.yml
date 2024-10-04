@@ -47,7 +47,8 @@ jobs:
           COOKD_RESUME_SCREENER_ID: ${{ secrets.COOKD_RESUME_SCREENER_ID }}
           COOKD_SLUG_ID: ${{ secrets.COOKD_SLUG_ID }}
           GITHUB_TOKEN: ${{ secrets._GITHUB_TOKEN }}
-          WHOP_API_KEY: ${{ secrets.WHOP_API_KEY }}
           WHOP_COOKIE: ${{ secrets.WHOP_COOKIE }}
           GITHUB_QUEUE_URL: ${{ secrets.NEXT_PUBLIC_GITHUB_QUEUE_URL }}
           LINKEDIN_QUEUE_URL: ${{ secrets.NEXT_PUBLIC_LINKEDIN_QUEUE_URL }}
+          WHOP_API_KEY: ${{ secrets.WHOP_API_KEY }}
+          NEXT_PUBLIC_WHOP_APP_ID: ${{ secrets.NEXT_PUBLIC_WHOP_APP_ID }}

@@ -12,6 +12,8 @@ export const NextEnv = {
   WHOP_COOKIE: process.env.WHOP_COOKIE!,
   GITHUB_QUEUE_URL: process.env.GITHUB_QUEUE_URL!,
   LINKEDIN_QUEUE_URL: process.env.LINKEDIN_QUEUE_URL!,
+  WHOP_APP_ID: process.env.WHOP_APP_ID!,
+  NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
 };
 
 export const SubscriberEnv = {
@@ -28,4 +30,6 @@ export const SubscriberEnv = {
   WHOP_COOKIE: process.env.WHOP_COOKIE!,
   GITHUB_QUEUE_URL: process.env.GITHUB_QUEUE_URL!,
   LINKEDIN_QUEUE_URL: process.env.LINKEDIN_QUEUE_URL!,
+  WHOP_APP_ID: process.env.WHOP_APP_ID!,
+  NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
 };
