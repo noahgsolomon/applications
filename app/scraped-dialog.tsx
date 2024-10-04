@@ -44,6 +44,7 @@ import {
   Linkedin,
   School,
   GraduationCap,
+  Loader2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -66,7 +67,6 @@ import {
 } from "./store/filter-store";
 import { Toaster } from "@/components/ui/sonner";
 import CompaniesView from "./companies-view";
-import WhopLogo from "./WhopLogo";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCompaniesViewStore } from "./companies-view-store";
@@ -115,11 +115,46 @@ export default function ScrapedDialog() {
       }[]
     | null
   >(null);
+  const [ogCandidateMatches, setOgCandidateMatches] = useState<
+    | {
+        data: InferSelectModel<typeof people>;
+        score: number;
+        matchedSkills?: { score: number; skill: string }[];
+        matchedJobTitle?: { score: number; jobTitle: string };
+        matchedLocation?: { score: number; location: string };
+        matchedCompanies?: { score: number; company: string }[];
+      }[]
+    | null
+  >(null);
+  const [allIdsResponse, setAllIdsResponse] = useState<
+    { id: string; score: number }[]
+  >([]);
+
+  const [showGithub, setShowGithub] = useState(false);
+  const [showLinkedin, setShowLinkedin] = useState(false);
+  const [showTwitter, setShowTwitter] = useState(false);
+  const [showWhop, setShowWhop] = useState(false);
 
   const getPendingSimilarProfilesQuery =
     api.outbound.getPendingSimilarProfiles.useQuery(undefined, {
       refetchInterval: 2500,
     });
+
+  const getAbsoluteFilteredTopCandidatesQuery =
+    api.outbound.getAbsoluteFilteredTopCandidates.useQuery(
+      {
+        allIdsResponse,
+        showGithub,
+        showLinkedin,
+        showTwitter,
+        showWhop,
+      },
+      {
+        enabled: () =>
+          allIdsResponse.length > 0 &&
+          (showGithub || showLinkedin || showTwitter || showWhop),
+      }
+    );
 
   useEffect(() => {
     if (cookdSorting) {
@@ -156,6 +191,21 @@ export default function ScrapedDialog() {
               score: number;
             }[]
           | null
+      );
+      setOgCandidateMatches(
+        getPendingSimilarProfilesQuery.data[0].response as
+          | {
+              data: InferSelectModel<typeof people>;
+              score: number;
+            }[]
+          | null
+      );
+      setAllIdsResponse(
+        getPendingSimilarProfilesQuery.data[0].allIdsResponse ??
+          ([] as {
+            id: string;
+            score: number;
+          }[])
       );
       setLoading(false);
 
@@ -434,10 +484,24 @@ export default function ScrapedDialog() {
 
   const handleProfileSearch = () => {
     setCandidateMatches(null);
+    setOgCandidateMatches(null);
+    setAllIdsResponse([]);
     setError("");
     setLoading(true);
     findSimilarProfiles(profileUrls);
   };
+
+  useEffect(() => {
+    if (!showGithub && !showLinkedin && !showTwitter && !showWhop) {
+      setCandidateMatches(ogCandidateMatches);
+    }
+  }, [showGithub, showLinkedin, showTwitter, showWhop]);
+
+  useEffect(() => {
+    if (getAbsoluteFilteredTopCandidatesQuery.data) {
+      setCandidateMatches(getAbsoluteFilteredTopCandidatesQuery.data);
+    }
+  }, [getAbsoluteFilteredTopCandidatesQuery.data]);
 
   return (
     <ScrollArea>
@@ -631,7 +695,7 @@ export default function ScrapedDialog() {
                           </Button>
                         )
                       )}
-                    <Button
+                    {/* <Button
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
@@ -678,7 +742,7 @@ export default function ScrapedDialog() {
                         alt="whop logo"
                       />
                       Whop User
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="surface"
                       color="gray"
@@ -874,51 +938,119 @@ export default function ScrapedDialog() {
         </Flex>
 
         {/* Candidate List Dialog */}
-        {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
-          <DialogRoot>
-            <DialogTrigger>
-              <Button style={{ cursor: "pointer" }} variant="classic" mt="4">
-                View Candidates
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>Candidates</DialogTitle>
-              <DialogDescription>
-                List of candidates sorted by relevance.
-              </DialogDescription>
-              <Separator />
-              {sorting && (
-                <Text size="2" color="blue" mt="2">
-                  Sorting candidates based on relevance. This will take a few
-                  minutes...
-                </Text>
-              )}
-              <ScrollArea className="py-4">
-                <Flex direction="column" gap="2">
-                  {candidateMatches?.length === 0
-                    ? "No matches found."
-                    : candidateMatches
+        {(getAbsoluteFilteredTopCandidatesQuery.data &&
+          (showWhop || showTwitter || showLinkedin || showGithub)) ||
+          ((candidateMatches || sorting || matchedGithubUrls.length > 0) && (
+            <DialogRoot>
+              <DialogTrigger>
+                <Button style={{ cursor: "pointer" }} variant="classic" mt="4">
+                  View Candidates
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Candidates</DialogTitle>
+                <DialogDescription>
+                  List of candidates sorted by relevance.
+                </DialogDescription>
+                <div className="flex flex-row gap-2">
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={showGithub ? "green" : "gray"}
+                    onClick={() => setShowGithub(!showGithub)}
+                  >
+                    {showGithub ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : null}
+                    Has GitHub
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={showLinkedin ? "green" : "gray"}
+                    onClick={() => setShowLinkedin(!showLinkedin)}
+                  >
+                    {showLinkedin ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : null}
+                    Has LinkedIn
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={showTwitter ? "green" : "gray"}
+                    onClick={() => setShowTwitter(!showTwitter)}
+                  >
+                    {showTwitter ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : null}
+                    Has Twitter
+                  </Button>
+                  <Button
+                    variant="surface"
+                    size="2"
+                    style={{ cursor: "pointer" }}
+                    color={showWhop ? "green" : "gray"}
+                    onClick={() => setShowWhop(!showWhop)}
+                  >
+                    {showWhop ? (
+                      <Check className="size-4 text-green-500" />
+                    ) : null}
+                    <Image
+                      src={"/whop.png"}
+                      width={30}
+                      height={30}
+                      alt="whop logo"
+                    />
+                    Has Whop
+                  </Button>
+                </div>
+                {sorting && (
+                  <Text size="2" color="blue" mt="2">
+                    Sorting candidates based on relevance. This will take a few
+                    minutes...
+                  </Text>
+                )}
+                <ScrollArea className="py-4">
+                  <Flex direction="column" gap="2">
+                    {getAbsoluteFilteredTopCandidatesQuery.isLoading ? (
+                      <Flex
+                        direction="column"
+                        align="center"
+                        justify="center"
+                        className="py-8"
+                      >
+                        <Loader className="h-8 w-8 animate-spin text-primary" />
+                        <Text size="2" color="gray" mt="2">
+                          Filtering candidates...
+                        </Text>
+                      </Flex>
+                    ) : candidateMatches?.length === 0 ? (
+                      "No matches found."
+                    ) : (
+                      candidateMatches
                         ?.sort((a, b) => b.score - a.score)
                         .map((candidate) => (
                           <CandidateCard
                             key={candidate.data.id}
                             bigTech={bigTech}
-                            activeGithub={activeGithub}
-                            whopUser={whopUser}
-                            candidate={candidate!}
-                            // company={candidate.company!}
+                            candidate={candidate}
                           />
-                        ))}
-                </Flex>
-              </ScrollArea>
-              <DialogClose>
-                <Button style={{ cursor: "pointer" }} variant="soft" mt="4">
-                  Close
-                </Button>
-              </DialogClose>
-            </DialogContent>
-          </DialogRoot>
-        )}
+                        ))
+                    )}
+                  </Flex>
+                </ScrollArea>
+                <DialogClose>
+                  <Button style={{ cursor: "pointer" }} variant="soft" mt="4">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </DialogRoot>
+          ))}
       </Card>
     </ScrollArea>
   );
