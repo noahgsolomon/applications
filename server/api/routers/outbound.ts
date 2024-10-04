@@ -8,7 +8,16 @@ import * as schema from "@/server/db/schemas/users/schema";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
 import OpenAI from "openai";
-import { desc, eq, exists, inArray, InferSelectModel, or } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  inArray,
+  InferSelectModel,
+  isNotNull,
+  or,
+} from "drizzle-orm";
 import { InferResultType } from "@/utils/infer";
 import { jsonArrayContainsAny } from "@/lib/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -141,6 +150,50 @@ async function querySimilarJobTitles(job: string) {
 }
 
 export const outboundRouter = createTRPCRouter({
+  getAbsoluteFilteredTopCandidates: publicProcedure
+    .input(
+      z.object({
+        showTwitter: z.boolean(),
+        showWhop: z.boolean(),
+        showGithub: z.boolean(),
+        showLinkedin: z.boolean(),
+        allIdsResponse: z.array(
+          z.object({ id: z.string(), score: z.number() })
+        ),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      let conditions = [];
+      if (input.showTwitter) {
+        conditions.push(isNotNull(schema.people.twitterUsername));
+      }
+      if (input.showWhop) {
+        conditions.push(isNotNull(schema.people.isWhopUser));
+      }
+      if (input.showGithub) {
+        conditions.push(isNotNull(schema.people.githubLogin));
+      }
+      if (input.showLinkedin) {
+        conditions.push(isNotNull(schema.people.linkedinUrl));
+      }
+      const topCandidates = await ctx.db.query.people.findMany({
+        where: and(
+          ...conditions,
+          inArray(
+            schema.people.id,
+            input.allIdsResponse.map((id) => id.id)
+          )
+        ),
+      });
+
+      const topCandidatesWithScores = topCandidates.map((candidate) => ({
+        data: candidate,
+        score:
+          input.allIdsResponse.find((id) => id.id === candidate.id)?.score || 0,
+      }));
+
+      return topCandidatesWithScores;
+    }),
   insertIntoQueue: publicProcedure
     .input(
       z.object({
