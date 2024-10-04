@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import { InferSelectModel } from "drizzle-orm";
 import { graphql } from "@octokit/graphql";
 import { eq } from "drizzle-orm";
-import { isNearNYC, RateLimiter } from "@/github/graphql";
+import { RateLimiter } from "@/github/graphql";
 import { getNormalizedLocation } from "./normalized-location-github";
 
 dotenv.config({ path: "../.env" });
@@ -34,7 +34,7 @@ function calculateVariance(numbers: number[], mean: number): number {
 }
 
 export async function fetchUserFromGitHub(
-  username: string,
+  username: string
 ): Promise<GitHubUser | null> {
   const query = `
     query($login: String!) {
@@ -187,20 +187,19 @@ export async function fetchUserFromGitHub(
         .filter((repo: any) => repo.repository.owner.login !== user.login)
         .sort(
           (a: any, b: any) =>
-            b.contributions.totalCount - a.contributions.totalCount,
+            b.contributions.totalCount - a.contributions.totalCount
         );
 
     const totalExternalCommits = externalContributions.reduce(
       (sum: number, repo: any) => sum + repo.contributions.totalCount,
-      0,
+      0
     );
 
     const linkedInAccount = user.socialAccounts.nodes.find(
-      (account: any) => account.provider === "LINKEDIN",
+      (account: any) => account.provider === "LINKEDIN"
     );
     const linkedinUrl = linkedInAccount ? linkedInAccount.url : null;
     const normalizedLocation = await getNormalizedLocation(user.location || "");
-    const nearNyc = await isNearNYC(user);
 
     //@ts-ignore
     return {
@@ -228,15 +227,15 @@ export async function fetchUserFromGitHub(
       totalForks,
       languages: Object.fromEntries(
         Object.entries(languagesMap).sort(
-          (a, b) => b[1].repoCount - a[1].repoCount,
-        ),
+          (a, b) => b[1].repoCount - a[1].repoCount
+        )
       ),
       uniqueTopics: topics,
       externalContributions: externalContributions.length,
       totalExternalCommits,
       sponsorsCount: user.sponsors.totalCount,
       sponsoredProjects: user.sponsorshipsAsSponsor.nodes.map(
-        (s: any) => s.sponsorable.login,
+        (s: any) => s.sponsorable.login
       ),
       organizations: user.organizations.nodes.map((org: any) => ({
         name: org.name,
@@ -244,7 +243,6 @@ export async function fetchUserFromGitHub(
         description: org.description,
         membersCount: org.membersWithRole.totalCount,
       })),
-      isNearNYC: nearNyc,
       normalizedLocation,
       createdAt: new Date(),
       linkedinUrl,
@@ -256,7 +254,7 @@ export async function fetchUserFromGitHub(
 }
 
 export async function getOrFetchUser(
-  username: string,
+  username: string
 ): Promise<GitHubUser | null> {
   let user = null;
 
@@ -266,7 +264,7 @@ export async function getOrFetchUser(
 
   if (!user) {
     console.log(
-      `User ${username} not found in database, fetching from GitHub API...`,
+      `User ${username} not found in database, fetching from GitHub API...`
     );
     user = await fetchUserFromGitHub(username);
     if (user) {
@@ -293,7 +291,7 @@ export function analyzeSimilarities(users: GitHubUser[]) {
     if (user.normalizedLocation) {
       normalizedLocations.set(
         user.normalizedLocation,
-        (normalizedLocations.get(user.normalizedLocation) || 0) + 1,
+        (normalizedLocations.get(user.normalizedLocation) || 0) + 1
       );
     }
     Object.keys(user.languages || {}).forEach((lang) => {
@@ -341,11 +339,11 @@ export function analyzeSimilarities(users: GitHubUser[]) {
 
 export function calculateSimilarityScore(
   user: GitHubUser,
-  similarities: ReturnType<typeof analyzeSimilarities>,
+  similarities: ReturnType<typeof analyzeSimilarities>
 ): number {
   let score = 0;
   score += user.organizations?.some((org) =>
-    similarities.organizations.includes(org.login),
+    similarities.organizations.includes(org.login)
   )
     ? 1
     : 0;
@@ -354,7 +352,7 @@ export function calculateSimilarityScore(
     : 0;
   const userLanguages = Object.keys(user.languages || {});
   score += similarities.commonLanguages.filter((lang) =>
-    userLanguages.includes(lang),
+    userLanguages.includes(lang)
   ).length;
   score +=
     1 /
@@ -422,7 +420,7 @@ async function main(inputUserLogins: string[]) {
     const similarities = analyzeSimilarities(inputUsers);
     console.log(
       "Similarities among input users:",
-      JSON.stringify(similarities, null, 2),
+      JSON.stringify(similarities, null, 2)
     );
 
     const similarityScores = allUsers.map((user) => ({
@@ -439,7 +437,13 @@ async function main(inputUserLogins: string[]) {
     console.log("Top 100 most similar GitHub users (excluding input users):");
     for (const { user, similarityScore } of topSimilarUsers) {
       console.log(
-        `User: ${user.login}, Similarity Score: ${similarityScore.toFixed(4)}, Followers: ${user.followers}, Stars: ${user.totalStars}, Repos: ${user.totalRepositories}, Location: ${user.location || "N/A"}, Normalized Location: ${user.normalizedLocation || "N/A"}`,
+        `User: ${user.login}, Similarity Score: ${similarityScore.toFixed(
+          4
+        )}, Followers: ${user.followers}, Stars: ${user.totalStars}, Repos: ${
+          user.totalRepositories
+        }, Location: ${user.location || "N/A"}, Normalized Location: ${
+          user.normalizedLocation || "N/A"
+        }`
       );
     }
   } catch (error) {
