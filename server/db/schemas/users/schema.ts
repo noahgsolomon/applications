@@ -31,6 +31,8 @@ export const profileQueue = pgTable("profile_queue", {
   jobTitles: json("job_titles").$type<string[]>().default([]),
   error: boolean("error").default(false),
   success: boolean("success").default(false),
+  allIdsResponse:
+    json("all_ids_response").$type<{ id: string; score: number }[]>(),
 });
 
 export const users = pgTable("user", {
@@ -68,7 +70,7 @@ export const candidates = pgTable("candidates", {
   workedInBigTech: boolean("worked_in_big_tech").default(false),
   livesNearBrooklyn: boolean("lives_near_brooklyn").default(false),
   companyId: varchar("company_id", { length: 255 }).references(
-    () => company.id,
+    () => company.id
   ), // not unique until we make the matches (weight similarity and stuff json object)
   companyIds: jsonb("company_ids").$type<string[]>().default([]),
   url: text("url").notNull().unique(),
@@ -84,7 +86,7 @@ export const candidates = pgTable("candidates", {
   isEngineer: boolean("is_engineer").default(false),
   isSkillAvgInVectorDB: boolean("is_skill_avg_in_vector_db").default(false),
   isJobTitleAvgInVectorDB: boolean("is_job_title_avg_in_vector_db").default(
-    false,
+    false
   ),
   isFeatureAvgInVectorDB: boolean("is_feature_avg_in_vector_db").default(false),
   processed: boolean("processed").default(false),
@@ -228,7 +230,7 @@ export const whopTwitterFollowers = pgTable(
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
     // unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
-  }),
+  })
 );
 
 export const whopTwitterFollowing = pgTable(
@@ -249,7 +251,7 @@ export const whopTwitterFollowing = pgTable(
   (t) => ({
     unq: unique().on(t.whopTwitterAccountId, t.username),
     // unq2: unique().on(t.whopTwitterAccountId, t.twitterId),
-  }),
+  })
 );
 
 export const people = pgTable(
@@ -333,7 +335,7 @@ export const people = pgTable(
     twitterFollowerCount: integer("twitter_follower_count"),
     twitterFollowingCount: integer("twitter_following_count"),
     twitterFollowerToFollowingRatio: real(
-      "twitter_follower_to_following_ratio",
+      "twitter_follower_to_following_ratio"
     ),
     twitterBio: text("twitter_bio"),
     tweets: jsonb("tweets").$type<any[]>(),
@@ -355,17 +357,17 @@ export const people = pgTable(
     twitterIdUnique: unique().on(table.twitterId),
     locationVectorIndex: index("location_vector_index").using(
       "hnsw",
-      table.locationVector.op("vector_cosine_ops"),
+      table.locationVector.op("vector_cosine_ops")
     ),
     averageSkillVectorIndex: index("average_skill_vector_idx").using(
       "hnsw",
-      table.averageSkillVector.op("vector_cosine_ops"),
+      table.averageSkillVector.op("vector_cosine_ops")
     ),
     averageJobTitleVectorIndex: index("average_job_title_vector_idx").using(
       "hnsw",
-      table.averageJobTitleVector.op("vector_cosine_ops"),
+      table.averageJobTitleVector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const jobTitles = pgTable(
@@ -383,9 +385,9 @@ export const jobTitles = pgTable(
     uniqueTitlePerPerson: unique().on(table.personId, table.title),
     vectorIndex: index("job_titles_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const companiesVector = pgTable(
@@ -403,9 +405,9 @@ export const companiesVector = pgTable(
     uniqueCompanyPerPerson: unique().on(table.personId, table.company),
     vectorIndex: index("companiess_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const education = pgTable(
@@ -424,17 +426,17 @@ export const education = pgTable(
     uniqueSchoolPerPerson: unique().on(
       table.personId,
       table.school,
-      table.fieldOfStudy,
+      table.fieldOfStudy
     ),
     schoolVectorIndex: index("school_vector_index").using(
       "hnsw",
-      table.schoolVector.op("vector_cosine_ops"),
+      table.schoolVector.op("vector_cosine_ops")
     ),
     fieldOfStudyVectorIndex: index("field_of_study_vector_index").using(
       "hnsw",
-      table.fieldOfStudyVector.op("vector_cosine_ops"),
+      table.fieldOfStudyVector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const skills = pgTable(
@@ -451,9 +453,9 @@ export const skills = pgTable(
     uniqueSkillPerPerson: unique().on(table.personId, table.skill),
     vectorIndex: index("skills_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const skillsNew = pgTable(
@@ -467,9 +469,9 @@ export const skillsNew = pgTable(
   (table) => ({
     vectorIndex: index("skills_new_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 export const companiesVectorNew = pgTable(
   "companies_vector_new",
@@ -482,9 +484,9 @@ export const companiesVectorNew = pgTable(
   (table) => ({
     vectorIndex: index("companies_vector_new_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const schools = pgTable(
@@ -498,9 +500,9 @@ export const schools = pgTable(
   (table) => ({
     vectorIndex: index("schools_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const fieldsOfStudy = pgTable(
@@ -514,9 +516,9 @@ export const fieldsOfStudy = pgTable(
   (table) => ({
     vectorIndex: index("fields_of_study_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const jobTitlesVectorNew = pgTable(
@@ -530,9 +532,9 @@ export const jobTitlesVectorNew = pgTable(
   (table) => ({
     vectorIndex: index("job_titles_vector_new_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
 
 export const locationsVector = pgTable(
@@ -546,7 +548,7 @@ export const locationsVector = pgTable(
   (table) => ({
     vectorIndex: index("locations_vector_index").using(
       "hnsw",
-      table.vector.op("vector_cosine_ops"),
+      table.vector.op("vector_cosine_ops")
     ),
-  }),
+  })
 );
