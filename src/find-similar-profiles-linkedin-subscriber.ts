@@ -1459,20 +1459,20 @@ async function processFilterCriteria(
     person.score = finalScore;
   });
 
-  // Step 11: Sort and slice to get top 100 candidates
-  const top100Candidates = mostSimilarPeople
+  // Step 11: Sort and slice to get top 1000 candidates
+  const top1000Candidates = mostSimilarPeople
     .sort((a, b) => b.score - a.score)
-    .slice(0, 100);
+    .slice(0, 1000);
 
-  // Step 12: Fetch user data for the top 100 candidates
-  const top100PersonIds = top100Candidates.map((candidate) => candidate.id);
-  const top100Users = await db.query.people.findMany({
-    where: inArray(people.id, top100PersonIds),
+  // Step 12: Fetch user data for the top 1000 candidates
+  const top1000PersonIds = top1000Candidates.map((candidate) => candidate.id);
+  const top1000Users = await db.query.people.findMany({
+    where: inArray(people.id, top1000PersonIds),
   });
 
-  // Step 13: Map user data back to top 100 candidates
-  const topCandidatesWithData = top100Candidates.map((candidate) => {
-    const userData = top100Users.find((user) => user.id === candidate.id);
+  // Step 13: Map user data back to top 1000 candidates
+  const topCandidatesWithData = top1000Candidates.map((candidate) => {
+    const userData = top1000Users.find((user) => user.id === candidate.id);
     return {
       data: userData,
       score: candidate.score,
@@ -1582,7 +1582,14 @@ export async function handler(event: any) {
     if (mergedResults.length === 0) {
       await db
         .update(schema.profileQueue)
-        .set({ response: mergedResults, error: true })
+        .set({
+          response: mergedResults.slice(0, 100),
+          error: true,
+          allIdsResponse: mergedResults.map((res) => ({
+            id: res.id,
+            score: res.score,
+          })),
+        })
         .where(eq(schema.profileQueue.id, insertId));
       return;
     }
@@ -1591,8 +1598,12 @@ export async function handler(event: any) {
     await db
       .update(schema.profileQueue)
       .set({
-        response: mergedResults,
+        response: mergedResults.slice(0, 100),
         success: true,
+        allIdsResponse: mergedResults.map((res) => ({
+          id: res.data.id,
+          score: res.score,
+        })),
       })
       .where(eq(schema.profileQueue.id, insertId));
   } catch (error) {
