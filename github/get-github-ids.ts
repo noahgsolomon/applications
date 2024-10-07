@@ -55,7 +55,7 @@ async function updateGithubIds() {
         }
       })
     );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 20000));
   }
 
   console.log("Finished updating GitHub IDs for all users");
