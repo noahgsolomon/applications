@@ -41,7 +41,6 @@ import Image from "next/image";
 
 export default function CandidateCard({
   candidate,
-  bigTech,
   company,
 }: {
   candidate: {
@@ -54,7 +53,6 @@ export default function CandidateCard({
     matchedSchools?: { score: number; school: string }[];
     matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
   };
-  bigTech: boolean;
   company?: InferSelectModel<typeof companyTable>;
 }) {
   const {
@@ -191,14 +189,6 @@ export default function CandidateCard({
           >
             {score.toFixed(2)}
           </Badge>
-          {bigTech && (
-            <Badge
-              variant="surface"
-              color={data.workedInBigTech ? "green" : "red"}
-            >
-              {data.workedInBigTech ? "Big Tech" : "Non-Big Tech"}
-            </Badge>
-          )}
           {matchedSkills &&
             matchedSkills.length > 0 &&
             matchedSkills
