@@ -45,6 +45,9 @@ import {
   School,
   GraduationCap,
   Loader2,
+  ChartNetwork,
+  TwitterIcon,
+  Braces,
 } from "lucide-react";
 import {
   Tooltip,
@@ -77,6 +80,21 @@ interface ProfileUrl {
   url: string;
 }
 
+interface Filters {
+  job?: string;
+  skills?: string[];
+  companies?: Company[];
+  otherCompanyNames?: string[];
+  location?: string;
+  schools?: string[];
+  fieldsOfStudy?: string[];
+}
+
+interface Company {
+  id: string;
+  // ... other company properties
+}
+
 const toPascalCase = (str: string) => {
   return str
     .split(" ")
@@ -85,10 +103,9 @@ const toPascalCase = (str: string) => {
 };
 
 export default function ScrapedDialog() {
-  const { open, setOpen, filters, setFilters } = useScrapedDialogStore();
+  const { filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(false);
-  const [sorting, setSorting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [profileUrls, setProfileUrls] = useState<ProfileUrl[]>([]);
@@ -97,11 +114,8 @@ export default function ScrapedDialog() {
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
 
-  const [nearBrooklyn, setNearBrooklyn] = useState(true);
-  const [searchInternet, setSearchInternet] = useState(false);
-  const [activeGithub, setActiveGithub] = useState(false);
   const [whopUser, setWhopUser] = useState(false);
-  const [bigTech, setBigTech] = useState(false);
+  const [activeGithub, setActiveGithub] = useState(false);
   const [cookdSorting, setCookdSorting] = useState(true);
   const [flushing, setFlushing] = useState(false);
   const [candidateMatches, setCandidateMatches] = useState<
@@ -147,6 +161,175 @@ export default function ScrapedDialog() {
   const [showLinkedin, setShowLinkedin] = useState(false);
   const [showTwitter, setShowTwitter] = useState(false);
   const [showWhop, setShowWhop] = useState(false);
+
+  // Function to initialize filterWeights based on active filters
+  const initializeFilterWeights = () => {
+    let weights: { [key: string]: number | { [skillName: string]: number } } =
+      {};
+
+    if (filters?.job) {
+      weights.job = 0.2;
+    }
+    if (
+      (filters?.companies && filters.companies.length > 0) ||
+      (filters?.otherCompanyNames && filters?.otherCompanyNames.length > 0)
+    ) {
+      weights.companies = 0.1;
+    }
+    if (filters?.location) {
+      weights.location = 0.15;
+    }
+    if (filters?.schools && filters?.schools.length > 0) {
+      weights.schools = 0.1;
+    }
+    if (filters?.fieldsOfStudy && filters?.fieldsOfStudy.length > 0) {
+      weights.fieldsOfStudy = 0.15;
+    }
+    if (whopUser) {
+      weights.whopUser = 0.2;
+    }
+    // Handle individual skill weights
+    if (filters?.skills && filters.skills.length > 0) {
+      const skillWeight = 0.3;
+      const numSkills = filters.skills.length;
+      const initialSkillWeight = skillWeight / numSkills;
+
+      weights.skills = filters.skills.reduce(
+        (acc: { [skillName: string]: number }, skill: string) => {
+          acc[skill] = initialSkillWeight;
+          return acc;
+        },
+        {} as { [skillName: string]: number }
+      );
+    }
+
+    const totalWeight = Object.values(weights)
+      .map((w) =>
+        typeof w === "number" ? w : Object.values(w).reduce((a, b) => a + b, 0)
+      )
+      .reduce((sum, w) => sum + w, 0);
+
+    // Normalize weights to sum to 1
+    const normalizedWeights = Object.fromEntries(
+      Object.entries(weights).map(([key, w]) => [
+        key,
+        typeof w === "number"
+          ? w / totalWeight
+          : Object.fromEntries(
+              Object.entries(w).map(([skill, weight]) => [
+                skill,
+                weight / totalWeight,
+              ])
+            ),
+      ])
+    );
+
+    return normalizedWeights;
+  };
+
+  // Initialize filterWeights
+  const [filterWeights, setFilterWeights] = useState<{
+    [key: string]: number | { [skillName: string]: number };
+  }>(initializeFilterWeights());
+
+  // Update filterWeights whenever filters or whopUser change
+  useEffect(() => {
+    setFilterWeights(initializeFilterWeights());
+  }, [filters, whopUser]);
+
+  // Function to handle weight changes
+  const handleWeightChange = (
+    filterType: string,
+    value: number,
+    skillName?: string
+  ) => {
+    let oldWeight;
+    if (skillName) {
+      oldWeight = (filterWeights.skills as { [key: string]: number })[
+        skillName
+      ];
+    } else {
+      oldWeight = filterWeights[filterType] as number;
+    }
+
+    if (oldWeight === undefined) {
+      return;
+    }
+    const delta = value - oldWeight;
+
+    // Calculate total other weights
+    const otherWeights = Object.entries(filterWeights)
+      .filter(([key]) => key !== filterType && key !== "skills")
+      .map(([_, w]) => (typeof w === "number" ? w : 0))
+      .reduce((sum, w) => sum + w, 0);
+
+    let totalOtherSkillWeights = 0;
+    if (filterWeights.skills) {
+      totalOtherSkillWeights = Object.entries(
+        filterWeights.skills as { [key: string]: number }
+      )
+        .filter(([key]) => key !== skillName)
+        .map(([_, w]) => w)
+        .reduce((sum, w) => sum + w, 0);
+    }
+
+    const totalOtherWeights = otherWeights + totalOtherSkillWeights;
+
+    let newWeights = { ...filterWeights };
+
+    if (skillName) {
+      (newWeights.skills as { [key: string]: number })[skillName] = value;
+    } else {
+      newWeights[filterType] = value;
+    }
+
+    // Adjust other weights proportionally
+    Object.keys(newWeights).forEach((key) => {
+      if (
+        key !== filterType &&
+        key !== "skills" &&
+        typeof newWeights[key] === "number"
+      ) {
+        const weight = newWeights[key] as number;
+        const adjustedWeight = weight - (weight / totalOtherWeights) * delta;
+        newWeights[key] = Math.max(adjustedWeight, 0);
+      } else if (key === "skills") {
+        const skillsWeights = newWeights.skills as { [key: string]: number };
+        Object.keys(skillsWeights).forEach((skill) => {
+          if (skill !== skillName) {
+            const weight = skillsWeights[skill];
+            const adjustedWeight =
+              weight - (weight / totalOtherWeights) * delta;
+            skillsWeights[skill] = Math.max(adjustedWeight, 0);
+          }
+        });
+      }
+    });
+
+    // Recalculate total weight and normalize if necessary
+    let totalWeight = Object.values(newWeights)
+      .map((w) =>
+        typeof w === "number" ? w : Object.values(w).reduce((a, b) => a + b, 0)
+      )
+      .reduce((sum, w) => sum + w, 0);
+
+    // Normalize weights to sum to 1
+    newWeights = Object.fromEntries(
+      Object.entries(newWeights).map(([key, w]) => [
+        key,
+        typeof w === "number"
+          ? w / totalWeight
+          : Object.fromEntries(
+              Object.entries(w).map(([skill, weight]) => [
+                skill,
+                weight / totalWeight,
+              ])
+            ),
+      ])
+    );
+
+    setFilterWeights(newWeights);
+  };
 
   const getPendingSimilarProfilesQuery =
     api.outbound.getPendingSimilarProfiles.useQuery(undefined, {
@@ -257,27 +440,12 @@ export default function ScrapedDialog() {
     },
   });
 
-  // This mutation is no longer needed since we're handling everything via the queue
-  // const findFilteredCandidatesMutation = ...
-
-  const handleToggle = (
-    type:
-      | "bigTech"
-      | "nearBrooklyn"
-      | "searchInternet"
-      | "activeGithub"
-      | "whopUser"
-  ) => {
-    if (type === "nearBrooklyn") {
-      setNearBrooklyn((prev) => !prev);
-    } else if (type === "searchInternet") {
-      setSearchInternet((prev) => !prev);
-    } else if (type === "activeGithub") {
-      setActiveGithub((prev) => !prev);
-    } else if (type === "whopUser") {
+  const handleToggle = (type: "whopUser" | "activeGithub") => {
+    if (type === "whopUser") {
       setWhopUser((prev) => !prev);
-    } else if (type === "bigTech") {
-      setBigTech((prev) => !prev);
+    }
+    if (type === "activeGithub") {
+      setActiveGithub((prev) => !prev);
     }
   };
 
@@ -327,7 +495,6 @@ export default function ScrapedDialog() {
     setError("");
     companyFilterMutation.mutate({
       query,
-      searchInternet,
     });
   };
 
@@ -464,22 +631,45 @@ export default function ScrapedDialog() {
     if (filters) {
       payload.filterCriteria = {
         query,
-        searchInternet: false,
-        relevantRoleId: undefined,
-        companyIds:
-          (filters?.companies ?? []).map((company) => company.id) ?? [],
-        otherCompanyNames: filters?.otherCompanyNames ?? [], // Add this line
-        job: filters?.job ?? "",
-        skills: filters?.skills ?? [],
-        booleanSearch: "",
-        nearBrooklyn,
-        location: filters?.location,
-        activeGithub: activeGithub,
-        whopUser: whopUser,
-        bigTech: bigTech,
-        schools: filters?.schools ?? [],
-        fieldsOfStudy: filters?.fieldsOfStudy ?? [],
+        companyIds: {
+          values: (filters?.companies ?? []).map((company) => company.id) ?? [],
+          weight: filterWeights.companies as number,
+        },
+        otherCompanyNames: {
+          values: filters?.otherCompanyNames ?? [],
+          weight: filterWeights.companies as number,
+        },
+        job: {
+          value: filters?.job ?? "",
+          weight: filterWeights.job as number,
+        },
+        location: {
+          value: filters?.location,
+          weight: filterWeights.location as number,
+        },
+        schools: {
+          values: filters?.schools ?? [],
+          weight: filterWeights.schools as number,
+        },
+        fieldsOfStudy: {
+          values: filters?.fieldsOfStudy ?? [],
+          weight: filterWeights.fieldsOfStudy as number,
+        },
+        whopUser: {
+          value: whopUser,
+          weight: filterWeights.whopUser as number,
+        },
       };
+
+      if (filters?.skills && filterWeights.skills) {
+        const skillsWeights = filterWeights.skills as { [key: string]: number };
+        payload.filterCriteria.skills = {
+          values: filters.skills.map((skill: string) => ({
+            skill,
+            weight: skillsWeights[skill],
+          })),
+        };
+      }
     }
 
     if (
@@ -545,7 +735,6 @@ export default function ScrapedDialog() {
               placeholder="e.g., Software Engineer, Google"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              disabled={loading}
             />
             <Button
               variant="classic"
@@ -619,10 +808,11 @@ export default function ScrapedDialog() {
                         ),
                       })
                     }
-                    color="sky"
+                    color="pink"
                     key={skill}
                     variant="surface"
                   >
+                    <Braces className="size-4" />
                     <Text>{toPascalCase(skill)}</Text>
                   </Button>
                 ))}
@@ -702,39 +892,207 @@ export default function ScrapedDialog() {
                           </Button>
                         )
                       )}
-                    {/* <Button
-                      variant="surface"
-                      size="2"
-                      style={{ cursor: "pointer" }}
-                      color={activeGithub ? "green" : "red"}
-                      onClick={() => handleToggle("activeGithub")}
-                    >
-                      {activeGithub ? (
-                        <Check className="size-4 text-green-500" />
-                      ) : (
-                        <X className="size-4 text-red-500" />
-                      )}
-                      Active Github
-                    </Button>
+
+                    <DialogRoot>
+                      <DialogTrigger>
+                        <Button
+                          style={{ cursor: "pointer" }}
+                          variant="surface"
+                          color="gray"
+                        >
+                          <ChartNetwork className="size-4" />
+                          Filter Weights
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <Flex direction="column" gap="2" mt="4">
+                          <Text as="div" size="2" weight="bold">
+                            Filter Weights
+                          </Text>
+                          <Text className="text-primary/60">
+                            Adjust the weight of each filter type.
+                          </Text>
+
+                          {Object.keys(filterWeights).map((filterType) => {
+                            if (filterType !== "skills") {
+                              const buttonColor = (() => {
+                                switch (filterType) {
+                                  case "job":
+                                    return "orange";
+                                  case "companies":
+                                    return "purple";
+                                  case "location":
+                                    return "iris";
+                                  case "schools":
+                                    return "cyan";
+                                  case "fieldsOfStudy":
+                                    return "cyan";
+                                  case "whopUser":
+                                    return "orange";
+                                  default:
+                                    return "gray";
+                                }
+                              })();
+
+                              const Whop = () => (
+                                <Image
+                                  src={"/whop.png"}
+                                  width={30}
+                                  height={30}
+                                  alt="whop logo"
+                                />
+                              );
+
+                              const ButtonIcon = (() => {
+                                switch (filterType) {
+                                  case "job":
+                                    return Briefcase;
+                                  case "companies":
+                                    return Building2;
+                                  case "location":
+                                    return TreePalm;
+                                  case "schools":
+                                    return School;
+                                  case "fieldsOfStudy":
+                                    return GraduationCap;
+                                  case "whopUser":
+                                    return Whop;
+                                  default:
+                                    return null;
+                                }
+                              })();
+
+                              const buttonText = (() => {
+                                switch (filterType) {
+                                  case "job":
+                                    return filters?.job || "Job";
+                                  case "companies":
+                                    return filters?.companies.length === 1
+                                      ? filters?.companies[0].name
+                                      : "Companies";
+                                  case "location":
+                                    return filters?.location || "Location";
+                                  case "fieldsOfStudy":
+                                    return filters?.fieldsOfStudy.length === 1
+                                      ? filters?.fieldsOfStudy[0]
+                                      : "Fields of Study";
+                                  case "whopUser":
+                                    return "Whop Mode";
+                                  case "schools":
+                                    return filters?.schools.length === 1
+                                      ? filters?.schools[0]
+                                      : "Schools";
+                                  default:
+                                    return toPascalCase(filterType);
+                                }
+                              })();
+
+                              return (
+                                <Flex
+                                  key={filterType}
+                                  align="center"
+                                  gap="2"
+                                  mt="2"
+                                >
+                                  <Button
+                                    variant="surface"
+                                    color={buttonColor}
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    {ButtonIcon && (
+                                      <ButtonIcon className="size-4 mr-1" />
+                                    )}
+                                    {buttonText}
+                                  </Button>
+                                  <input
+                                    type="range"
+                                    min={0}
+                                    max={1}
+                                    step={0.01}
+                                    style={{ cursor: "pointer", flex: 1 }}
+                                    value={filterWeights[filterType] as number}
+                                    onChange={(e) =>
+                                      handleWeightChange(
+                                        filterType,
+                                        parseFloat(e.target.value)
+                                      )
+                                    }
+                                  />
+                                  <Text
+                                    style={{
+                                      width: "50px",
+                                      textAlign: "right",
+                                    }}
+                                  >
+                                    {(
+                                      (filterWeights[filterType] as number) *
+                                      100
+                                    ).toFixed(0)}
+                                    %
+                                  </Text>
+                                </Flex>
+                              );
+                            } else {
+                              // Handle individual skills
+                              const skillsWeights = filterWeights.skills as {
+                                [key: string]: number;
+                              };
+                              return Object.keys(skillsWeights).map(
+                                (skillName) => (
+                                  <Flex
+                                    key={skillName}
+                                    align="center"
+                                    gap="2"
+                                    mt="2"
+                                  >
+                                    <Button
+                                      style={{ cursor: "pointer" }}
+                                      color="pink"
+                                      key={skillName}
+                                      variant="surface"
+                                    >
+                                      <Braces className="size-4" />
+                                      <Text>{toPascalCase(skillName)}</Text>
+                                    </Button>
+                                    <input
+                                      type="range"
+                                      min={0}
+                                      max={1}
+                                      step={0.01}
+                                      style={{ cursor: "pointer", flex: 1 }}
+                                      value={skillsWeights[skillName]}
+                                      onChange={(e) =>
+                                        handleWeightChange(
+                                          "skills",
+                                          parseFloat(e.target.value),
+                                          skillName
+                                        )
+                                      }
+                                    />
+                                    <Text
+                                      style={{
+                                        width: "50px",
+                                        textAlign: "right",
+                                      }}
+                                    >
+                                      {(skillsWeights[skillName] * 100).toFixed(
+                                        0
+                                      )}
+                                      %
+                                    </Text>
+                                  </Flex>
+                                )
+                              );
+                            }
+                          })}
+                        </Flex>
+                      </DialogContent>
+                    </DialogRoot>
                     <Button
                       variant="surface"
                       size="2"
                       style={{ cursor: "pointer" }}
-                      color={bigTech ? "green" : "red"}
-                      onClick={() => handleToggle("bigTech")}
-                    >
-                      {bigTech ? (
-                        <Check className="size-4 text-green-500" />
-                      ) : (
-                        <X className="size-4 text-red-500" />
-                      )}
-                      Big Tech
-                    </Button>
-                    <Button
-                      variant="surface"
-                      size="2"
-                      style={{ cursor: "pointer" }}
-                      color={whopUser ? "green" : "red"}
+                      color={whopUser ? "orange" : "gray"}
                       onClick={() => handleToggle("whopUser")}
                     >
                       {whopUser ? (
@@ -748,13 +1106,39 @@ export default function ScrapedDialog() {
                         height={30}
                         alt="whop logo"
                       />
-                      Whop User
-                    </Button> */}
+                      Whop Mode
+                    </Button>
+                    <Button
+                      variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color={activeGithub ? "violet" : "gray"}
+                      onClick={() => handleToggle("activeGithub")}
+                    >
+                      {activeGithub ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      <Github className="size-4" />
+                      Active Github
+                    </Button>
                     <Button
                       variant="surface"
                       color="gray"
                       style={{ cursor: "pointer" }}
-                      onClick={() => setFilters(null)}
+                      onClick={() => {
+                        setFilters(null);
+                        setFilterWeights({
+                          job: 1 / 7,
+                          skills: 1 / 7,
+                          companies: 1 / 7,
+                          location: 1 / 7,
+                          schools: 1 / 7,
+                          fieldsOfStudy: 1 / 7,
+                          whopUser: 1 / 7,
+                        });
+                      }}
                     >
                       <X className="size-4" />
                       Clear filters
@@ -945,7 +1329,7 @@ export default function ScrapedDialog() {
         </Flex>
 
         {/* Candidate List Dialog */}
-        {(candidateMatches || sorting || matchedGithubUrls.length > 0) && (
+        {(candidateMatches || matchedGithubUrls.length > 0) && (
           <DialogRoot>
             <DialogTrigger>
               <Button style={{ cursor: "pointer" }} variant="classic" mt="4">
@@ -957,12 +1341,12 @@ export default function ScrapedDialog() {
               <DialogDescription>
                 List of candidates sorted by relevance.
               </DialogDescription>
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="surface"
                   size="2"
                   style={{ cursor: "pointer" }}
-                  color={showGithub ? "green" : "gray"}
+                  color={showGithub ? "violet" : "gray"}
                   onClick={() => {
                     if (
                       !showGithub ||
@@ -986,13 +1370,14 @@ export default function ScrapedDialog() {
                   {showGithub ? (
                     <Check className="size-4 text-green-500" />
                   ) : null}
+                  <Github className="size-4" />
                   Has GitHub
                 </Button>
                 <Button
                   variant="surface"
                   size="2"
                   style={{ cursor: "pointer" }}
-                  color={showLinkedin ? "green" : "gray"}
+                  color={showLinkedin ? "blue" : "gray"}
                   onClick={() => {
                     if (
                       !showLinkedin ||
@@ -1016,13 +1401,14 @@ export default function ScrapedDialog() {
                   {showLinkedin ? (
                     <Check className="size-4 text-green-500" />
                   ) : null}
+                  <Linkedin className="size-4" />
                   Has LinkedIn
                 </Button>
                 <Button
                   variant="surface"
                   size="2"
                   style={{ cursor: "pointer" }}
-                  color={showTwitter ? "green" : "gray"}
+                  color={showTwitter ? "sky" : "gray"}
                   onClick={() => {
                     setShowTwitter(!showTwitter);
                     if (
@@ -1047,6 +1433,7 @@ export default function ScrapedDialog() {
                   {showTwitter ? (
                     <Check className="size-4 text-green-500" />
                   ) : null}
+                  <TwitterIcon className="size-4" />
                   Has Twitter
                 </Button>
                 <Button
@@ -1086,12 +1473,6 @@ export default function ScrapedDialog() {
                   Has Whop
                 </Button>
               </div>
-              {sorting && (
-                <Text size="2" color="blue" mt="2">
-                  Sorting candidates based on relevance. This will take a few
-                  minutes...
-                </Text>
-              )}
               <ScrollArea className="py-4">
                 <Flex direction="column" gap="2">
                   {getAbsoluteFilteredTopCandidatesMutation.isPending ? (
@@ -1114,7 +1495,6 @@ export default function ScrapedDialog() {
                       .map((candidate) => (
                         <CandidateCard
                           key={candidate.data.id}
-                          bigTech={bigTech}
                           candidate={candidate}
                         />
                       ))
