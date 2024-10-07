@@ -1085,29 +1085,59 @@ export const querySimilarFieldsOfStudy = async (
   }
 };
 
-async function processFilterCriteria(
-  filterCriteria: {
-    query: string;
-    job: string;
-    relevantRoleId?: string;
-    nearBrooklyn: boolean;
-    searchInternet: boolean;
-    skills: string[];
-    companyIds: string[];
-    otherCompanyNames: string[];
-    location?: string;
-    activeGithub?: boolean;
-    whopUser?: boolean;
-    bigTech?: boolean;
-    schools: string[];
-    fieldsOfStudy: string[];
-  },
-  insertId: string
-) {
+function calculateMean(scores: number[]): number {
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}
+
+function calculateStdDev(scores: number[], mean: number): number {
+  const variance =
+    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+    scores.length;
+  return Math.sqrt(variance);
+}
+
+interface FilterCriteria {
+  query: string;
+  companyIds: {
+    values: string[];
+    weight: number;
+  };
+  otherCompanyNames: {
+    values: string[];
+    weight: number;
+  };
+  job: {
+    value: string;
+    weight: number;
+  };
+  skills: {
+    values: { skill: string; weight: number }[];
+  };
+  location: {
+    value: string;
+    weight: number;
+  };
+  schools: {
+    values: string[];
+    weight: number;
+  };
+  fieldsOfStudy: {
+    values: string[];
+    weight: number;
+  };
+  whopUser: {
+    value: boolean;
+    weight: number;
+  };
+}
+
+async function processFilterCriteria(filterCriteria: FilterCriteria) {
   console.log("Processing filter criteria...");
 
   let companyIds =
-    filterCriteria.companyIds.length > 0 ? filterCriteria.companyIds : ["NONE"];
+    filterCriteria.companyIds.values.length > 0
+      ? filterCriteria.companyIds.values
+      : ["NONE"];
 
   // Step 1: Retrieve LinkedIn employees for the provided companies
   const linkedinCompanyEmployees = await db.query.people.findMany({
@@ -1125,16 +1155,25 @@ async function processFilterCriteria(
   const companyNames = companies.map((company) => company.name);
 
   // Step 3 and Step 6: Parallelize queries for similar technologies and companies
-  const [similarTechnologiesArrays, similarCompanies] = await Promise.all([
-    filterCriteria.skills.length > 0
+  const [similarTechnologiesResults, similarCompanies] = await Promise.all([
+    filterCriteria.skills.values.length > 0
       ? Promise.all(
-          filterCriteria.skills.map((skill) => querySimilarTechnologies(skill))
+          filterCriteria.skills.values.map((skillObj) =>
+            querySimilarTechnologies(skillObj.skill).then((result) => ({
+              skill: skillObj.skill,
+              weight: skillObj.weight,
+              similarTechnologies: result,
+            }))
+          )
         )
       : Promise.resolve([]),
     Promise.all(
       companyNames.map((companyName) => querySimilarCompanies(companyName))
     ),
   ]);
+
+  const personSkillScores: { [personId: string]: { [skill: string]: number } } =
+    {};
 
   // Combine LinkedIn employees with similar companies
   const combinedCompanyMatches = [...similarCompanies.flat()];
@@ -1160,10 +1199,27 @@ async function processFilterCriteria(
     });
   });
 
+  // Process each skill and collect person scores
+  similarTechnologiesResults.forEach(
+    ({ skill, weight, similarTechnologies }) => {
+      similarTechnologies.forEach((tech) => {
+        tech.personIds?.forEach((personId) => {
+          const personScore = tech.score || 0;
+          if (!personSkillScores[personId]) {
+            personSkillScores[personId] = {};
+          }
+          // Store the raw score for the skill
+          personSkillScores[personId][skill] = personScore;
+        });
+      });
+    }
+  );
+
+  // Collect all person IDs from similar technologies
   const similarTechnologiesPersonIds = Array.from(
     new Set(
-      similarTechnologiesArrays.flatMap((arr) =>
-        arr.flatMap((item) => item.personIds || [])
+      similarTechnologiesResults.flatMap((result) =>
+        result.similarTechnologies.flatMap((tech) => tech.personIds || [])
       )
     )
   );
@@ -1174,8 +1230,10 @@ async function processFilterCriteria(
     score: number;
     personIds: string[] | null;
   }[] = [];
-  if (filterCriteria.location) {
-    similarLocations = await querySimilarLocations(filterCriteria.location);
+  if (filterCriteria.location.value) {
+    similarLocations = await querySimilarLocations(
+      filterCriteria.location.value
+    );
   }
 
   const similarLocationPersonIds = Array.from(
@@ -1188,8 +1246,8 @@ async function processFilterCriteria(
     score: number;
     personIds: string[] | null;
   }[] = [];
-  if (filterCriteria.job && filterCriteria.job !== "") {
-    similarJobTitles = await querySimilarJobTitles(filterCriteria.job);
+  if (filterCriteria.job.value && filterCriteria.job.value !== "") {
+    similarJobTitles = await querySimilarJobTitles(filterCriteria.job.value);
   }
 
   const similarJobTitlesPersonIds = Array.from(
@@ -1202,10 +1260,12 @@ async function processFilterCriteria(
     score: number;
     personIds: string[] | null;
   }[] = [];
-  if (filterCriteria.schools.length > 0) {
+  if (filterCriteria.schools.values.length > 0) {
     similarSchools = (
       await Promise.all(
-        filterCriteria.schools.map((school) => querySimilarSchools(school))
+        filterCriteria.schools.values.map((school) =>
+          querySimilarSchools(school)
+        )
       )
     ).flat();
   }
@@ -1220,10 +1280,10 @@ async function processFilterCriteria(
     score: number;
     personIds: string[] | null;
   }[] = [];
-  if (filterCriteria.fieldsOfStudy.length > 0) {
+  if (filterCriteria.fieldsOfStudy.values.length > 0) {
     similarFieldsOfStudy = (
       await Promise.all(
-        filterCriteria.fieldsOfStudy.map((field) =>
+        filterCriteria.fieldsOfStudy.values.map((field) =>
           querySimilarFieldsOfStudy(field)
         )
       )
@@ -1248,231 +1308,281 @@ async function processFilterCriteria(
   // Step 8: Create an array to store scores without fetching user data
   const mostSimilarPeople: {
     id: string;
-    score: number;
-    matchedSkills: { skill: string; score: number }[];
+    rawScores: { [criterion: string]: number };
+    matchedSkills: { skill: string; score: number; weight: number }[];
     matchedJobTitle: { jobTitle: string; score: number } | null;
     matchedLocation: { location: string; score: number } | null;
     matchedCompanies: { company: string; score: number }[];
     matchedSchools: { school: string; score: number }[];
     matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[];
+    isWhopUser: boolean;
+    score: number;
   }[] = [];
 
-  const skillScores: number[] = [];
-  const locationScores: number[] = [];
-  const jobTitleScores: number[] = [];
-  const companyScores: number[] = [];
-  const schoolScores: number[] = [];
-  const fieldOfStudyScores: number[] = [];
-  // Step 9: Calculate scores based on criteria for each person ID
+  // Initialize arrays to collect raw scores for normalization
+  const criterionRawScores: { [criterion: string]: number[] } = {
+    skills: [],
+    location: [],
+    jobTitle: [],
+    companies: [],
+    schools: [],
+    fieldsOfStudy: [],
+    whopUser: [],
+  };
+
+  // Fetch necessary user data for whopUser filtering
+  const peopleData = await db.query.people.findMany({
+    columns: {
+      id: true,
+      isWhopUser: true,
+      isWhopCreator: true,
+    },
+    where: inArray(schema.people.id, combinedPersonIds),
+  });
+
+  // Create a map for easier access
+  const peopleDataMap = new Map(
+    peopleData.map((person) => [person.id, person])
+  );
+
+  // Calculate statistics for each skill
+  const skillStats: {
+    [skill: string]: { scores: number[]; mean: number; stdDev: number };
+  } = {};
+
+  similarTechnologiesResults.forEach(
+    ({ skill, weight, similarTechnologies }) => {
+      const scores: number[] = similarTechnologies.map(
+        (tech) => tech.score || 0
+      );
+      const mean = calculateMean(scores);
+      const stdDev = calculateStdDev(scores, mean);
+      skillStats[skill] = { scores, mean, stdDev };
+    }
+  );
+
+  // Calculate per-person raw scores
   combinedPersonIds.forEach((personId) => {
-    let skillScoreSum = 0;
-    const matchedSkills: { skill: string; score: number }[] = [];
+    const rawScores: { [criterion: string]: number } = {};
+    const matchedSkills: { skill: string; score: number; weight: number }[] =
+      [];
     let matchedJobTitle: { jobTitle: string; score: number } | null = null;
     let matchedLocation: { location: string; score: number } | null = null;
     const matchedCompanies: { company: string; score: number }[] = [];
-    let matchedSchools: { school: string; score: number }[] = [];
-    let matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[] = [];
+    const matchedSchools: { school: string; score: number }[] = [];
+    const matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[] = [];
+    let isWhopUser = false;
 
-    // Add skill scores
-    similarTechnologiesArrays.forEach((techArray) => {
-      const matchedTechs = techArray.filter((tech) =>
-        tech.personIds?.includes(personId)
-      );
-      if (matchedTechs.length > 0) {
-        const maxTech = matchedTechs.reduce((max, tech) =>
-          tech.score > max.score ? tech : max
-        );
-        skillScoreSum += maxTech.score || 0;
-        matchedSkills.push({ skill: maxTech.technology, score: maxTech.score });
-      }
+    // Calculate skill scores for this person
+    let skillScoreSum = 0;
+    const personSkills = personSkillScores[personId] || {};
+
+    Object.keys(personSkills).forEach((skill) => {
+      const rawScore = personSkills[skill];
+      const { mean, stdDev } = skillStats[skill];
+
+      const normalizedScore = normalizeScore(rawScore, mean, stdDev);
+
+      const skillWeight =
+        filterCriteria.skills.values.find((s) => s.skill === skill)?.weight ||
+        0;
+
+      const weightedScore = normalizedScore * skillWeight;
+
+      skillScoreSum += weightedScore;
+
+      matchedSkills.push({
+        skill,
+        score: rawScore,
+        weight: skillWeight,
+      });
     });
-    skillScores.push(skillScoreSum);
+
+    rawScores.skills = skillScoreSum;
 
     // Add location scores
     let maxLocationScore = 0;
     similarLocations.forEach((location) => {
       if (location.personIds?.includes(personId)) {
-        maxLocationScore = Math.max(maxLocationScore, location.score);
-        matchedLocation = {
-          location: location.location,
-          score: location.score,
-        };
+        if (location.score > maxLocationScore) {
+          maxLocationScore = location.score;
+          matchedLocation = {
+            location: location.location,
+            score: location.score,
+          };
+        }
       }
     });
-    locationScores.push(maxLocationScore);
+    rawScores.location = maxLocationScore;
 
     // Add job title scores
     let maxJobTitleScore = 0;
     similarJobTitles.forEach((jobTitle) => {
       if (jobTitle.personIds?.includes(personId)) {
-        maxJobTitleScore = Math.max(maxJobTitleScore, jobTitle.score);
-        matchedJobTitle = {
-          jobTitle: jobTitle.jobTitle,
-          score: jobTitle.score,
-        };
+        if (jobTitle.score > maxJobTitleScore) {
+          maxJobTitleScore = jobTitle.score;
+          matchedJobTitle = {
+            jobTitle: jobTitle.jobTitle,
+            score: jobTitle.score,
+          };
+        }
       }
     });
-    jobTitleScores.push(maxJobTitleScore);
+    rawScores.jobTitle = maxJobTitleScore;
 
     // Add company scores
+    let companyScoreSum = 0;
     combinedCompanyMatches.forEach((company) => {
       if (company.personIds?.includes(personId)) {
+        companyScoreSum += company.score;
         matchedCompanies.push({
           company: company.company,
           score: company.score,
         });
       }
     });
-    companyScores.push(Math.max(...matchedCompanies.map((c) => c.score), 0));
+    rawScores.companies = companyScoreSum;
 
     // Add school scores
     let maxSchoolScore = 0;
     similarSchools.forEach((school) => {
       if (school.personIds?.includes(personId)) {
-        maxSchoolScore = Math.max(maxSchoolScore, school.score);
+        if (school.score > maxSchoolScore) {
+          maxSchoolScore = school.score;
+        }
         matchedSchools.push({
           school: school.school,
           score: school.score,
         });
       }
     });
-    schoolScores.push(maxSchoolScore);
+    rawScores.schools = maxSchoolScore;
 
     // Add field of study scores
     let maxFieldOfStudyScore = 0;
     similarFieldsOfStudy.forEach((field) => {
       if (field.personIds?.includes(personId)) {
-        maxFieldOfStudyScore = Math.max(maxFieldOfStudyScore, field.score);
+        if (field.score > maxFieldOfStudyScore) {
+          maxFieldOfStudyScore = field.score;
+        }
         matchedFieldsOfStudy.push({
           fieldOfStudy: field.fieldOfStudy,
           score: field.score,
         });
       }
     });
-    fieldOfStudyScores.push(maxFieldOfStudyScore);
+    rawScores.fieldsOfStudy = maxFieldOfStudyScore;
+
+    // Whop user
+    const personData = peopleDataMap.get(personId);
+    if (filterCriteria.whopUser.value && personData) {
+      isWhopUser = personData.isWhopUser || personData.isWhopCreator || false;
+    }
+    rawScores.whopUser = isWhopUser ? 1 : 0;
+
+    // Collect raw scores for normalization
+    Object.keys(criterionRawScores).forEach((criterion) => {
+      criterionRawScores[criterion].push(rawScores[criterion] || 0);
+    });
 
     mostSimilarPeople.push({
       id: personId,
-      score: 0,
+      rawScores,
       matchedSkills,
       matchedJobTitle,
       matchedLocation,
       matchedCompanies,
       matchedSchools,
       matchedFieldsOfStudy,
+      isWhopUser,
+      score: 0, // will calculate later
     });
   });
 
-  // Step 10: Normalize scores
-  const calculateStats = (scores: number[]) => {
-    const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    const variance =
-      scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
-      scores.length;
-    const stdDev = Math.sqrt(variance);
-    return { mean, stdDev };
-  };
+  // Calculate statistics for each criterion
+  const criterionStats: {
+    [criterion: string]: { mean: number; stdDev: number };
+  } = {};
 
-  const normalizeScore = (score: number, mean: number, stdDev: number) => {
-    if (stdDev === 0) return score > 0 ? 1 : 0;
-    const zScore = (score - mean) / stdDev;
-    return 1 / (1 + Math.exp(-zScore)); // Sigmoid function, maps to (0, 1)
-  };
+  Object.keys(criterionRawScores).forEach((criterion) => {
+    const scores = criterionRawScores[criterion];
+    const mean = calculateMean(scores);
+    const stdDev = calculateStdDev(scores, mean);
+    criterionStats[criterion] = { mean, stdDev };
+  });
 
-  const skillStats = calculateStats(skillScores);
-  const locationStats = calculateStats(locationScores);
-  const jobTitleStats = calculateStats(jobTitleScores);
-  const companyStats = calculateStats(companyScores);
-  const schoolStats = calculateStats(schoolScores);
-  const fieldOfStudyStats = calculateStats(fieldOfStudyScores);
+  // Prepare criteria weights
+  const totalSkillWeight = filterCriteria.skills.values.reduce(
+    (sum, skillObj) => sum + skillObj.weight,
+    0
+  );
 
-  const criteriaWeights = {
-    skills: filterCriteria.skills.length > 0 ? 1 : 0,
-    location: filterCriteria.location ? 1 : 0,
-    job: filterCriteria.job && filterCriteria.job !== "" ? 1 : 0,
-    company: companyNames.length > 0 ? 1 : 0,
-    schools: filterCriteria.schools.length > 0 ? 1 : 0,
-    fieldsOfStudy: filterCriteria.fieldsOfStudy.length > 0 ? 1 : 0,
-  };
+  const criteriaWeights: { [criterion: string]: number } = {};
 
-  const totalWeight = Object.values(criteriaWeights).reduce((a, b) => a + b, 0);
+  if (totalSkillWeight > 0) {
+    criteriaWeights.skills = totalSkillWeight;
+  }
+  if (filterCriteria.location.value) {
+    criteriaWeights.location = filterCriteria.location.weight;
+  }
+  if (filterCriteria.job.value) {
+    criteriaWeights.jobTitle = filterCriteria.job.weight;
+  }
+  if (
+    filterCriteria.companyIds.values.length > 0 ||
+    filterCriteria.otherCompanyNames.values.length > 0
+  ) {
+    criteriaWeights.companies = filterCriteria.companyIds.weight;
+  }
+  if (filterCriteria.schools.values.length > 0) {
+    criteriaWeights.schools = filterCriteria.schools.weight;
+  }
+  if (filterCriteria.fieldsOfStudy.values.length > 0) {
+    criteriaWeights.fieldsOfStudy = filterCriteria.fieldsOfStudy.weight;
+  }
+  if (filterCriteria.whopUser.value) {
+    criteriaWeights.whopUser = filterCriteria.whopUser.weight;
+  }
 
-  mostSimilarPeople.forEach((person, index) => {
+  const totalWeight = Object.values(criteriaWeights).reduce(
+    (sum, weight) => sum + weight,
+    0
+  );
+
+  // Normalize criteria weights
+  Object.keys(criteriaWeights).forEach((criterion) => {
+    criteriaWeights[criterion] = criteriaWeights[criterion] / totalWeight;
+  });
+
+  // Calculate final scores
+  mostSimilarPeople.forEach((person) => {
     let finalScore = 0;
 
-    if (criteriaWeights.skills > 0) {
-      finalScore +=
-        (criteriaWeights.skills / totalWeight) *
-        normalizeScore(skillScores[index], skillStats.mean, skillStats.stdDev);
-    }
+    Object.keys(criteriaWeights).forEach((criterion) => {
+      const rawScore = person.rawScores[criterion] || 0;
+      const { mean, stdDev } = criterionStats[criterion];
+      const normalizedScore = normalizeScore(rawScore, mean, stdDev);
+      const weight = criteriaWeights[criterion];
 
-    if (criteriaWeights.location > 0) {
-      finalScore +=
-        (criteriaWeights.location / totalWeight) *
-        normalizeScore(
-          locationScores[index],
-          locationStats.mean,
-          locationStats.stdDev
-        );
-    }
-
-    if (criteriaWeights.job > 0) {
-      finalScore +=
-        (criteriaWeights.job / totalWeight) *
-        normalizeScore(
-          jobTitleScores[index],
-          jobTitleStats.mean,
-          jobTitleStats.stdDev
-        );
-    }
-
-    if (criteriaWeights.company > 0) {
-      finalScore +=
-        (criteriaWeights.company / totalWeight) *
-        normalizeScore(
-          companyScores[index],
-          companyStats.mean,
-          companyStats.stdDev
-        );
-    }
-
-    if (criteriaWeights.schools > 0) {
-      finalScore +=
-        (criteriaWeights.schools / totalWeight) *
-        normalizeScore(
-          schoolScores[index],
-          schoolStats.mean,
-          schoolStats.stdDev
-        );
-    }
-
-    if (criteriaWeights.fieldsOfStudy > 0) {
-      finalScore +=
-        (criteriaWeights.fieldsOfStudy / totalWeight) *
-        normalizeScore(
-          fieldOfStudyScores[index],
-          fieldOfStudyStats.mean,
-          fieldOfStudyStats.stdDev
-        );
-    }
+      finalScore += weight * normalizedScore;
+    });
 
     person.score = finalScore;
   });
 
-  // Step 11: Sort and slice to get top 1000 candidates
-  const top1000Candidates = mostSimilarPeople
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 1000);
+  // Step 13: Map user data back to top candidates
+  const topCandidates = mostSimilarPeople.sort((a, b) => b.score - a.score);
 
-  // Step 12: Fetch user data for the top 1000 candidates
-  const top1000PersonIds = top1000Candidates.map((candidate) => candidate.id);
-  const top1000Users = await db.query.people.findMany({
-    where: inArray(people.id, top1000PersonIds),
+  // Limit to top 2000 candidates
+  const top2000Candidates = topCandidates.slice(0, 2000);
+
+  const top2000PersonIds = top2000Candidates.map((candidate) => candidate.id);
+  const top2000Users = await db.query.people.findMany({
+    where: inArray(schema.people.id, top2000PersonIds),
   });
 
-  // Step 13: Map user data back to top 1000 candidates
-  const topCandidatesWithData = top1000Candidates.map((candidate) => {
-    const userData = top1000Users.find((user) => user.id === candidate.id);
+  const topCandidatesWithData = top2000Candidates.map((candidate) => {
+    const userData = top2000Users.find((user) => user.id === candidate.id);
     return {
       data: userData,
       score: candidate.score,
@@ -1487,9 +1597,15 @@ async function processFilterCriteria(
 
   console.log("Filter criteria processing completed.");
   console.log(
-    `Scores: ${topCandidatesWithData.map((c) => c.score).join(", ")}`
+    `Scores: ${topCandidatesWithData.map((c) => c.score.toFixed(4)).join(", ")}`
   );
   return topCandidatesWithData;
+}
+
+function normalizeScore(score: number, mean: number, stdDev: number): number {
+  if (stdDev === 0) return score > 0 ? 1 : 0;
+  const zScore = (score - mean) / stdDev;
+  return 1 / (1 + Math.exp(-zScore));
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
@@ -1561,10 +1677,7 @@ export async function handler(event: any) {
     if (body.filterCriteria) {
       try {
         console.log("Processing filter criteria...");
-        const filterCriteria = await processFilterCriteria(
-          body.filterCriteria,
-          insertId
-        );
+        const filterCriteria = await processFilterCriteria(body.filterCriteria);
         resultsFromFilterCriteria = filterCriteria;
       } catch (error) {
         console.error("Error processing filter criteria:", error);

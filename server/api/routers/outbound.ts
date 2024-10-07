@@ -663,7 +663,7 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
     }),
 
   companyFilter: publicProcedure
-    .input(z.object({ query: z.string(), searchInternet: z.boolean() }))
+    .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
       console.log("Starting companyFilter mutation");
       console.log("Input received:", input);
