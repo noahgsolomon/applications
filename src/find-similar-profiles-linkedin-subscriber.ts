@@ -19,7 +19,9 @@ import {
   gte,
   inArray,
   InferSelectModel,
+  like,
   not,
+  or,
   sql,
 } from "drizzle-orm";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -687,81 +689,33 @@ async function insertPersonFromLinkedin(profileData: any) {
   return personId;
 }
 
-function cosineSimilarity(vecA: number[], vecB: number[]): number {
-  const dotProduct = vecA.reduce((sum, a, idx) => sum + a * vecB[idx], 0);
-  const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
-  const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
-  return magnitudeA && magnitudeB ? dotProduct / (magnitudeA * magnitudeB) : 0;
-}
-
-function calculateSimilarityBasedWeights(
-  inputPeople: InferSelectModel<typeof people>[]
-) {
-  const embeddings = {
-    company: inputPeople
-      .map((p) => p.averageCompanyVector)
-      .filter(Boolean) as number[][],
-    school: inputPeople
-      .map((p) => p.averageSchoolVector)
-      .filter(Boolean) as number[][],
-    fieldOfStudy: inputPeople
-      .map((p) => p.averageFieldOfStudyVector)
-      .filter(Boolean) as number[][],
-    skills: inputPeople
-      .map((p) => p.averageSkillVector)
-      .filter(Boolean) as number[][],
-    jobTitles: inputPeople
-      .map((p) => p.averageJobTitleVector)
-      .filter(Boolean) as number[][],
-    location: inputPeople
-      .map((p) => p.locationVector)
-      .filter(Boolean) as number[][],
-  };
-
-  const weights: Record<string, number> = {};
-
-  for (const [key, vectors] of Object.entries(embeddings)) {
-    if (vectors.length < 2) {
-      weights[key] = 1;
-      continue;
-    }
-
-    let totalSimilarity = 0;
-    let comparisons = 0;
-
-    for (let i = 0; i < vectors.length; i++) {
-      for (let j = i + 1; j < vectors.length; j++) {
-        totalSimilarity += cosineSimilarity(vectors[i], vectors[j]);
-        comparisons++;
-      }
-    }
-
-    const averageSimilarity = totalSimilarity / comparisons;
-    weights[key] = averageSimilarity;
-  }
-
-  // Normalize weights
-  const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
-  for (const key in weights) {
-    weights[key] /= totalWeight;
-  }
-
-  return weights;
-}
-
 async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   console.log("Processing LinkedIn URLs...");
 
   const inputPeople: InferSelectModel<typeof people>[] = [];
   const batchSize = 50;
 
+  function normalizeLinkedInUrl(url: string): string {
+    return url
+      .toLowerCase()
+      .replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/)?/, "")
+      .replace(/\/$/, "");
+  }
+
   // Process URLs in batches
   for (let i = 0; i < profileUrls.length; i += batchSize) {
     const batch = profileUrls.slice(i, i + batchSize);
     const batchResults = await Promise.all(
       batch.map(async (profileUrl) => {
+        console.log(`Processing URL: ${profileUrl}`);
         let person = await db.query.people.findFirst({
-          where: eq(people.linkedinUrl, profileUrl),
+          where: like(
+            people.linkedinUrl,
+            `%${normalizeLinkedInUrl(profileUrl)
+              .toLowerCase()
+              .replace("https://", "")
+              .replace("www.", "")}%`
+          ),
         });
 
         if (!person) {
@@ -947,112 +901,99 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
     );
   }
 
-  const allSimilarPeople = [
-    ...mostSimilarPeopleBySkills,
-    ...mostSimilarPeopleByJobTitles,
-    ...mostSimilarPeopleByCompanies,
-    ...mostSimilarPeopleBySchools,
-    ...mostSimilarPeopleByFieldsOfStudy,
-    ...mostSimilarPeopleByLocations,
-  ];
+  const allSimilarPeople: {
+    personId: string;
+    score: number;
+    attributions: string[];
+  }[] = [];
 
-  // Fetch all people excluding input people
-  console.log("Fetching most similar people...");
-  const allPeople = await db.query.people.findMany({
-    where: not(inArray(people.id, Array.from(inputPersonIds))),
+  const addToAllSimilarPeople = (
+    personId: string,
+    score: number,
+    attribution: string
+  ) => {
+    const existingPerson = allSimilarPeople.find(
+      (p) => p.personId === personId
+    );
+    if (existingPerson) {
+      existingPerson.score += score;
+      if (!existingPerson.attributions.includes(attribution)) {
+        existingPerson.attributions.push(attribution);
+      }
+    } else {
+      allSimilarPeople.push({
+        personId,
+        score,
+        attributions: [attribution],
+      });
+    }
+  };
+
+  // Combine all similarity calculations
+  console.log("Starting to combine similarity calculations...");
+  [
+    { data: mostSimilarPeopleBySkills, attribution: "skills" },
+    { data: mostSimilarPeopleByJobTitles, attribution: "jobTitles" },
+    { data: mostSimilarPeopleByCompanies, attribution: "companies" },
+    { data: mostSimilarPeopleBySchools, attribution: "schools" },
+    { data: mostSimilarPeopleByFieldsOfStudy, attribution: "fieldsOfStudy" },
+    { data: mostSimilarPeopleByLocations, attribution: "locations" },
+  ].forEach(({ data, attribution }, index) => {
+    console.log(`Processing ${attribution} data (${index + 1}/6)...`);
+    data.forEach((person, personIndex) => {
+      if (Array.isArray(person.personIds)) {
+        person.personIds.forEach((personId) => {
+          addToAllSimilarPeople(personId, person.score, attribution);
+        });
+      } else if (typeof person.personIds === "string") {
+        // If personIds is a single string, treat it as a single personId
+        addToAllSimilarPeople(person.personIds, person.score, attribution);
+      } else {
+        console.warn(
+          `Unexpected personIds format for ${attribution} at index ${personIndex}:`,
+          person.personIds
+        );
+      }
+    });
+    console.log(`Finished processing ${attribution} data.`);
   });
-  console.log(`Fetched ${allPeople.length} people.`);
+  console.log("Finished combining all similarity calculations.");
 
-  // Initialize combined scores
-  const combinedScores: Record<string, number> = {};
-
-  // Compute inverse variance weights
-  const weights = calculateSimilarityBasedWeights(inputPeople);
-
-  // Compute similarity scores using average vectors stored in `people` table
-  console.log("Computing similarity scores...");
-  await Promise.all(
-    allPeople.map(async (person) => {
-      let score = 0;
-
-      // Experience Score
-      const { experienceScore } = calculateExperienceScore(
-        person,
-        mean,
-        stdDev
-      );
-      score += experienceScore * weights.experience;
-
-      // Company Similarity
-      if (avgCompanyEmbedding && person.averageCompanyVector) {
-        const companySimilarity = cosineSimilarity(
-          avgCompanyEmbedding,
-          person.averageCompanyVector
-        );
-        score += companySimilarity * weights.company;
-      }
-
-      // School Similarity
-      if (avgSchoolEmbedding && person.averageSchoolVector) {
-        const schoolSimilarity = cosineSimilarity(
-          avgSchoolEmbedding,
-          person.averageSchoolVector
-        );
-        score += schoolSimilarity * weights.school;
-      }
-
-      // Field of Study Similarity
-      if (avgFieldOfStudyEmbedding && person.averageFieldOfStudyVector) {
-        const fieldOfStudySimilarity = cosineSimilarity(
-          avgFieldOfStudyEmbedding,
-          person.averageFieldOfStudyVector
-        );
-        score += fieldOfStudySimilarity * weights.fieldOfStudy;
-      }
-
-      // Location Similarity
-      if (avgLocationEmbedding && person.locationVector) {
-        const locationSimilarity = cosineSimilarity(
-          avgLocationEmbedding,
-          person.locationVector
-        );
-        score += locationSimilarity * weights.location;
-      }
-
-      // Skills Similarity
-      if (person.averageSkillVector) {
-        const skillSimilarity = cosineSimilarity(
-          avgSkillEmbedding,
-          person.averageSkillVector
-        );
-        score += skillSimilarity * weights.skills;
-      }
-
-      // Job Titles Similarity
-      if (person.averageJobTitleVector) {
-        const jobTitleSimilarity = cosineSimilarity(
-          avgJobTitleEmbedding,
-          person.averageJobTitleVector
-        );
-        score += jobTitleSimilarity * weights.jobTitles;
-      }
-
-      combinedScores[person.id] = score;
-    })
-  );
-
-  // Sort and select top candidates
-  console.log("Sorting and selecting top candidates...");
-  const topCandidates = allPeople
-    .map((person) => ({
-      ...person,
-      score: combinedScores[person.id] || 0,
-    }))
+  // Sort the allSimilarPeople array by score in descending order and limit to top 2000
+  const topSimilarPeople = allSimilarPeople
     .sort((a, b) => b.score - a.score)
     .slice(0, 2000);
-  console.log(`Selected ${topCandidates.length} top candidates.`);
 
-  return topCandidates;
+  // Fetch only the top 2000 similar people
+  console.log("Fetching top 2000 most similar people...");
+  const topCandidates = await db.query.people.findMany({
+    where: and(
+      not(inArray(people.id, Array.from(inputPersonIds))),
+      inArray(
+        people.id,
+        topSimilarPeople.map((p) => p.personId)
+      )
+    ),
+  });
+  console.log(`Fetched ${topCandidates.length} people.`);
+
+  // Combine the fetched data with the similarity scores
+  const scoredCandidates = topCandidates
+    .map((person) => {
+      const similarityData = topSimilarPeople.find(
+        (p) => p.personId === person.id
+      );
+      return {
+        data: { ...person },
+        score: similarityData ? similarityData.score : 0,
+        attributions: similarityData ? similarityData.attributions : [],
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  console.log(`Processed ${scoredCandidates.length} top candidates.`);
+
+  return scoredCandidates;
 }
 
 export const querySimilarTechnologies = async (
