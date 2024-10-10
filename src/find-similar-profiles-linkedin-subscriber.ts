@@ -255,19 +255,6 @@ function analyzeEducation(
   return educationWeights;
 }
 
-function analyzeNYCProximity(
-  candidates: Array<{ livesNearBrooklyn: boolean | null }>
-): boolean {
-  const nycCount = candidates.filter((c) => c.livesNearBrooklyn).length;
-  const nycRatio = nycCount / candidates.length;
-  const shouldApplyNYCWeight = nycRatio >= 0.5;
-
-  console.log(`NYC proximity ratio: ${nycRatio.toFixed(2)}`);
-  console.log(`Applying NYC proximity weighting: ${shouldApplyNYCWeight}`);
-
-  return shouldApplyNYCWeight;
-}
-
 async function computeAverageEmbedding(
   embeddings: number[][]
 ): Promise<number[]> {
@@ -418,54 +405,210 @@ async function insertPersonFromLinkedin(profileData: any) {
   const miniSummary = await generateMiniSummary(profileData);
   const { tech, features, isEngineer } = await gatherTopSkills(profileData);
 
-  // Extract job titles
+  // Extract job titles, companies, schools, and fields of study
   const jobTitlesList = profileData.positions.positionHistory.map(
     (position: any) => position.title
   ) as string[];
+  const companyNames = profileData.positions.positionHistory.map(
+    (position: any) => position.companyName
+  ) as string[];
+  const educationHistory = profileData.schools?.educationHistory || [];
+  const schoolNames = educationHistory.map(
+    (education: any) => education.schoolName
+  ) as string[];
+  const fieldsOfStudy = educationHistory.map(
+    (education: any) => education.fieldOfStudy
+  ) as string[];
 
-  // Check additional conditions
-  console.log("Checking additional conditions for person...");
-  const workedInBigTech = await askCondition(
-    `Has this person worked in big tech? ${JSON.stringify(
-      profileData.positions.positionHistory.map(
-        (experience: any) => experience.companyName
-      ),
-      null,
-      2
-    )} ${profileData.summary} ${profileData.headline}`
-  );
-
-  const livesNearBrooklyn = await askCondition(
-    `Does this person live within 50 miles of Brooklyn, New York, USA? Their location: ${
-      profileData.location ?? "unknown location"
-    } ${
-      profileData.positions.positionHistory.length > 0
-        ? `or ${JSON.stringify(
-            profileData.positions.positionHistory[0],
-            null,
-            2
-          )}`
-        : ""
-    }`
-  );
-
-  // Generate detailed summary
   const summary = await generateSummary(profileData);
   const personId = uuid();
+
+  // Initialize arrays to store vectors for averaging
+  const skillVectors: number[][] = [];
+  const jobTitleVectors: number[][] = [];
+  const companyVectors: number[][] = [];
+  const schoolVectors: number[][] = [];
+  const fieldOfStudyVectors: number[][] = [];
+
+  // Function to upsert data into a table
+  async function upsertData(
+    table: any,
+    fieldName: string,
+    fieldValue: string,
+    vectorFieldName: string
+  ) {
+    const normalizedValue = fieldValue.toLowerCase().trim();
+    const existingRecord = await db
+      .select()
+      .from(table)
+      .where(eq(table[fieldName], normalizedValue))
+      .limit(1);
+
+    if (existingRecord.length > 0) {
+      const currentPersonIds = existingRecord[0].personIds || [];
+      const updatedPersonIds = Array.from(
+        new Set([...currentPersonIds, personId])
+      );
+
+      if (
+        updatedPersonIds.length === currentPersonIds.length &&
+        updatedPersonIds.every((id, index) => id === currentPersonIds[index])
+      ) {
+        console.log(
+          `[upsert${fieldName}] No changes for ${fieldName} "${normalizedValue}". Skipping update.`
+        );
+        return existingRecord[0][vectorFieldName];
+      }
+
+      await db
+        .update(table)
+        .set({ personIds: updatedPersonIds })
+        .where(eq(table[fieldName], normalizedValue));
+
+      console.log(
+        `[upsert${fieldName}] Updated ${fieldName} "${normalizedValue}" with person ID: ${personId}`
+      );
+      return existingRecord[0][vectorFieldName];
+    } else {
+      const vector = await getEmbedding(normalizedValue);
+      await db
+        .insert(table)
+        .values({
+          personIds: [personId],
+          [fieldName]: normalizedValue,
+          [vectorFieldName]: vector,
+        })
+        .onConflictDoNothing();
+
+      console.log(
+        `[upsert${fieldName}] Inserted new ${fieldName} "${normalizedValue}" with person ID: ${personId}`
+      );
+      return vector;
+    }
+  }
 
   // Compute location vector if location is provided
   let locationVector: number[] | null = null;
   if (profileData.location) {
     locationVector = await getEmbedding(profileData.location);
+    await db.insert(schema.locationsVector).values({
+      personIds: [personId],
+      location: profileData.location,
+      vector: locationVector,
+    });
+    await upsertData(
+      schema.locationsVector,
+      "location",
+      profileData.location,
+      "vector"
+    );
   }
 
-  // Insert into `people` table
+  // Upsert skills
+  for (const skill of [...tech, ...features]) {
+    try {
+      const vector = await upsertData(
+        schema.skillsNew,
+        "skill",
+        skill,
+        "vector"
+      );
+      skillVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing skill "${skill}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Upsert job titles
+  for (const title of jobTitlesList) {
+    try {
+      const vector = await upsertData(
+        schema.jobTitlesVectorNew,
+        "jobTitle",
+        title,
+        "vector"
+      );
+      jobTitleVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing job title "${title}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Upsert companies
+  for (const company of companyNames) {
+    try {
+      const vector = await upsertData(
+        schema.companiesVectorNew,
+        "company",
+        company,
+        "vector"
+      );
+      companyVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing company "${company}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Upsert schools
+  for (const school of schoolNames) {
+    try {
+      const vector = await upsertData(
+        schema.schools,
+        "school",
+        school,
+        "vector"
+      );
+      schoolVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing school "${school}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Upsert fields of study
+  for (const field of fieldsOfStudy) {
+    try {
+      const vector = await upsertData(
+        schema.fieldsOfStudy,
+        "fieldOfStudy",
+        field,
+        "vector"
+      );
+      fieldOfStudyVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing field of study "${field}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Compute average vectors
+  const averageSkillVector = await computeAverageEmbedding(skillVectors);
+  const averageJobTitleVector = await computeAverageEmbedding(jobTitleVectors);
+  const averageCompanyVector = await computeAverageEmbedding(companyVectors);
+  const averageSchoolVector = await computeAverageEmbedding(schoolVectors);
+  const averageFieldOfStudyVector = await computeAverageEmbedding(
+    fieldOfStudyVectors
+  );
+
   try {
     await db
       .insert(people)
       .values({
         id: personId,
-        linkedinUrl: profileData.linkedInUrl as string,
+        linkedinUrl: profileData.link as string,
         linkedinData: profileData,
         name: `${profileData.firstName} ${profileData.lastName}`.trim(),
         miniSummary,
@@ -474,10 +617,13 @@ async function insertPersonFromLinkedin(profileData: any) {
         topFeatures: features,
         jobTitles: jobTitlesList,
         isEngineer,
-        workedInBigTech,
-        livesNearBrooklyn,
         createdAt: new Date(),
         locationVector,
+        averageSkillVector,
+        averageJobTitleVector,
+        averageCompanyVector,
+        averageSchoolVector,
+        averageFieldOfStudyVector,
       })
       .onConflictDoNothing();
 
@@ -485,56 +631,9 @@ async function insertPersonFromLinkedin(profileData: any) {
       `Person ${profileData.firstName} ${profileData.lastName} inserted into the database. Person ID: ${personId}`
     );
   } catch (e) {
-    console.log(
-      `Failed to insert person ${profileData.firstName} ${profileData.lastName} into the database.`
-    );
-  }
-
-  // Insert skills with embeddings
-  if (tech.length > 0 || features.length > 0) {
-    await Promise.all(
-      [...tech, ...features].map(async (skill) => {
-        try {
-          const skillVector = await getEmbedding(skill);
-          await db.insert(skills).values({
-            personId: personId,
-            skill: skill,
-            vector: skillVector,
-          });
-          console.log(
-            `[insertSkill] Inserted skill "${skill}" for person ID: ${personId}`
-          );
-        } catch (error) {
-          console.error(
-            `[insertSkill] Failed to insert skill "${skill}" for person ID: ${personId}`,
-            error
-          );
-        }
-      })
-    );
-  }
-
-  // Insert job titles with embeddings
-  if (jobTitlesList.length > 0) {
-    await Promise.all(
-      jobTitlesList.map(async (title) => {
-        try {
-          const titleVector = await getEmbedding(title);
-          await db.insert(jobTitles).values({
-            personId: personId,
-            title: title,
-            vector: titleVector,
-          });
-          console.log(
-            `[insertJobTitle] Inserted job title "${title}" for person ID: ${personId}`
-          );
-        } catch (error) {
-          console.error(
-            `[insertJobTitle] Failed to insert job title "${title}" for person ID: ${personId}`,
-            error
-          );
-        }
-      })
+    console.error(
+      `Failed to insert person ${profileData.firstName} ${profileData.lastName} into the database.`,
+      e
     );
   }
 
@@ -548,20 +647,63 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
   return magnitudeA && magnitudeB ? dotProduct / (magnitudeA * magnitudeB) : 0;
 }
 
+function calculateSimilarityBasedWeights(
+  inputPeople: InferSelectModel<typeof people>[]
+) {
+  const embeddings = {
+    company: inputPeople
+      .map((p) => p.averageCompanyVector)
+      .filter(Boolean) as number[][],
+    school: inputPeople
+      .map((p) => p.averageSchoolVector)
+      .filter(Boolean) as number[][],
+    fieldOfStudy: inputPeople
+      .map((p) => p.averageFieldOfStudyVector)
+      .filter(Boolean) as number[][],
+    skills: inputPeople
+      .map((p) => p.averageSkillVector)
+      .filter(Boolean) as number[][],
+    jobTitles: inputPeople
+      .map((p) => p.averageJobTitleVector)
+      .filter(Boolean) as number[][],
+    location: inputPeople
+      .map((p) => p.locationVector)
+      .filter(Boolean) as number[][],
+  };
+
+  const weights: Record<string, number> = {};
+
+  for (const [key, vectors] of Object.entries(embeddings)) {
+    if (vectors.length < 2) {
+      weights[key] = 1;
+      continue;
+    }
+
+    let totalSimilarity = 0;
+    let comparisons = 0;
+
+    for (let i = 0; i < vectors.length; i++) {
+      for (let j = i + 1; j < vectors.length; j++) {
+        totalSimilarity += cosineSimilarity(vectors[i], vectors[j]);
+        comparisons++;
+      }
+    }
+
+    const averageSimilarity = totalSimilarity / comparisons;
+    weights[key] = averageSimilarity;
+  }
+
+  // Normalize weights
+  const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+  for (const key in weights) {
+    weights[key] /= totalWeight;
+  }
+
+  return weights;
+}
+
 async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   console.log("Processing LinkedIn URLs...");
-
-  // Insert a new entry into `profileQueue`
-  await db
-    .insert(profileQueue)
-    .values({
-      id: insertId, // Assuming `insertId` is used as the primary key
-      type: "LINKEDIN",
-      urls: profileUrls,
-      progress: 0,
-      message: "Beginning search.",
-    })
-    .onConflictDoNothing(); // Prevent duplicate entries if necessary
 
   const inputPeople: InferSelectModel<typeof people>[] = [];
   const batchSize = 50;
@@ -615,23 +757,16 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   const inputPersonIds = new Set(inputPeople.map((p) => p.id));
 
-  // Analyze input people
-  const companyWeights = analyzeCompanies(inputPeople);
-  const educationWeights = analyzeEducation(inputPeople);
-  const shouldApplyNYCWeight = analyzeNYCProximity(inputPeople);
-
   // Generate embeddings for skills, features, and job titles
-  const allSkills = inputPeople.flatMap((p) => p.topTechnologies || []);
-  const allFeatures = inputPeople.flatMap((p) => p.topFeatures || []);
+  const allSkills = inputPeople.flatMap((p) => [
+    ...(p.topTechnologies ?? []),
+    ...(p.topFeatures ?? []),
+  ]);
   const allJobTitles = inputPeople.flatMap((p) => p.jobTitles || []);
 
   const skillEmbeddings = await generateEmbeddingsWithLogging(
     allSkills,
     "skill"
-  );
-  const featureEmbeddings = await generateEmbeddingsWithLogging(
-    allFeatures,
-    "feature"
   );
   const jobTitleEmbeddings = await generateEmbeddingsWithLogging(
     allJobTitles,
@@ -640,10 +775,52 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   // Compute average embeddings
   const avgSkillEmbedding = await computeAverageEmbedding(skillEmbeddings);
-  const avgFeatureEmbedding = await computeAverageEmbedding(featureEmbeddings);
   const avgJobTitleEmbedding = await computeAverageEmbedding(
     jobTitleEmbeddings
   );
+
+  // Compute average company embedding
+  const companyEmbeddings = inputPeople
+    .filter((person) => person.averageCompanyVector)
+    .map((person) => person.averageCompanyVector as number[]);
+
+  let avgCompanyEmbedding: number[] | null = null;
+  if (companyEmbeddings.length > 0) {
+    avgCompanyEmbedding = await computeAverageEmbedding(companyEmbeddings);
+  }
+
+  // Compute average school embedding
+  const schoolEmbeddings = inputPeople
+    .filter((person) => person.averageSchoolVector)
+    .map((person) => person.averageSchoolVector as number[]);
+
+  let avgSchoolEmbedding: number[] | null = null;
+  if (schoolEmbeddings.length > 0) {
+    avgSchoolEmbedding = await computeAverageEmbedding(schoolEmbeddings);
+  }
+
+  // Compute average field of study embedding
+  const fieldOfStudyEmbeddings = inputPeople
+    .filter((person) => person.averageFieldOfStudyVector)
+    .map((person) => person.averageFieldOfStudyVector as number[]);
+
+  let avgFieldOfStudyEmbedding: number[] | null = null;
+  if (fieldOfStudyEmbeddings.length > 0) {
+    avgFieldOfStudyEmbedding = await computeAverageEmbedding(
+      fieldOfStudyEmbeddings
+    );
+  }
+
+  // Compute average location embedding
+  const locationEmbeddings = inputPeople
+    .filter((person) => person.locationVector)
+    .map((person) => person.locationVector as number[]);
+
+  let avgLocationEmbedding: number[] | null = null;
+
+  if (locationEmbeddings.length > 0) {
+    avgLocationEmbedding = await computeAverageEmbedding(locationEmbeddings);
+  }
 
   // Fetch all people excluding input people
   console.log("Fetching all people...");
@@ -654,6 +831,9 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   // Initialize combined scores
   const combinedScores: Record<string, number> = {};
+
+  // Compute inverse variance weights
+  const weights = calculateSimilarityBasedWeights(inputPeople);
 
   // Compute similarity scores using average vectors stored in `people` table
   console.log("Computing similarity scores...");
@@ -667,73 +847,63 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
         mean,
         stdDev
       );
-      const experienceWeight = 0.2;
-      score += experienceScore * experienceWeight;
+      score += experienceScore * weights.experience;
 
-      // Company Score
-      if ((person.linkedinData as any)?.positions?.positionHistory) {
-        const companies = (
-          person.linkedinData as any
-        ).positions.positionHistory.map(
-          (position: any) => position.companyName
+      // Company Similarity
+      if (avgCompanyEmbedding && person.averageCompanyVector) {
+        const companySimilarity = cosineSimilarity(
+          avgCompanyEmbedding,
+          person.averageCompanyVector
         );
-        const companyScore = companies.reduce(
-          (s: number, company: string) => s + (companyWeights[company] || 0),
-          0
-        );
-        score += companyScore;
+        score += companySimilarity * weights.company;
       }
 
-      // Education Score
-      if ((person.linkedinData as any)?.schools?.educationHistory) {
-        const schools = (
-          person.linkedinData as any
-        ).schools.educationHistory.map(
-          (education: any) => education.schoolName
+      // School Similarity
+      if (avgSchoolEmbedding && person.averageSchoolVector) {
+        const schoolSimilarity = cosineSimilarity(
+          avgSchoolEmbedding,
+          person.averageSchoolVector
         );
-        const educationScore = schools.reduce(
-          (s: number, school: string) => s + (educationWeights[school] || 0),
-          0
-        );
-        score += educationScore;
+        score += schoolSimilarity * weights.school;
       }
 
-      // NYC Proximity Weighting
-      if (shouldApplyNYCWeight && person.livesNearBrooklyn) {
-        score *= 1.2; // 20% boost for NYC proximity
+      // Field of Study Similarity
+      if (avgFieldOfStudyEmbedding && person.averageFieldOfStudyVector) {
+        const fieldOfStudySimilarity = cosineSimilarity(
+          avgFieldOfStudyEmbedding,
+          person.averageFieldOfStudyVector
+        );
+        score += fieldOfStudySimilarity * weights.fieldOfStudy;
+      }
+
+      // Location Similarity
+      if (avgLocationEmbedding && person.locationVector) {
+        const locationSimilarity = cosineSimilarity(
+          avgLocationEmbedding,
+          person.locationVector
+        );
+        score += locationSimilarity * weights.location;
       }
 
       // Skills Similarity
       if (person.averageSkillVector) {
-        const similarity = cosineSimilarity(
+        const skillSimilarity = cosineSimilarity(
           avgSkillEmbedding,
           person.averageSkillVector
         );
-        score += similarity;
+        score += skillSimilarity * weights.skills;
       }
 
       // Job Titles Similarity
       if (person.averageJobTitleVector) {
-        const similarity = cosineSimilarity(
+        const jobTitleSimilarity = cosineSimilarity(
           avgJobTitleEmbedding,
           person.averageJobTitleVector
         );
-        score += similarity;
+        score += jobTitleSimilarity * weights.jobTitles;
       }
 
-      // Location Similarity
-      if (
-        person.locationVector &&
-        avgSkillEmbedding.length === person.locationVector.length
-      ) {
-        const locationSimilarity = cosineSimilarity(
-          avgSkillEmbedding,
-          person.locationVector
-        );
-        score += locationSimilarity;
-      }
-
-      combinedScores[person.id] = (combinedScores[person.id] || 0) + score;
+      combinedScores[person.id] = score;
     })
   );
 
@@ -745,7 +915,7 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       score: combinedScores[person.id] || 0,
     }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 100);
+    .slice(0, 2000);
   console.log(`Selected ${topCandidates.length} top candidates.`);
 
   return topCandidates;
