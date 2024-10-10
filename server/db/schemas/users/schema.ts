@@ -346,6 +346,13 @@ export const people = pgTable(
     sourceTables: jsonb("source_tables").$type<string[]>().default([]),
     locationVector: vector("location_vector", { dimensions: 1536 }),
     averageSkillVector: vector("average_skill_vector", { dimensions: 1536 }),
+    averageSchoolVector: vector("average_school_vector", { dimensions: 1536 }),
+    averageCompanyVector: vector("average_company_vector", {
+      dimensions: 1536,
+    }),
+    averageFieldOfStudyVector: vector("average_field_of_study_vector", {
+      dimensions: 1536,
+    }),
     averageJobTitleVector: vector("average_job_title_vector", {
       dimensions: 1536,
     }),
