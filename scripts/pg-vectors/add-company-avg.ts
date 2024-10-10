@@ -35,7 +35,7 @@ async function computeAndStoreAverageEmbeddingsForAllUsers() {
     .select()
     .from(schema.companiesVectorNew)
     .limit(80000)
-    .offset(20000);
+    .offset(40000);
 
   console.log(`Processing ${allCompanies.length} companies...`);
   const processedPersonIds = new Set<string>();

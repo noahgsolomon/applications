@@ -56,6 +56,53 @@ async function getEmbedding(text: string) {
   return response.data[0].embedding;
 }
 
+async function querySimilarPeopleByEmbedding(
+  vectorColumn: any,
+  idColumn: any,
+  table: any,
+  embedding: number[],
+  topK: number
+) {
+  try {
+    console.log(`[1] Starting search for similar people`);
+    const similarity = sql<number>`1 - (${cosineDistance(
+      vectorColumn,
+      embedding
+    )})`;
+
+    const similarPeople = await db
+      .select({
+        personIds: idColumn,
+        similarity,
+      })
+      .from(table)
+      .where(gt(similarity, 0.5))
+      .orderBy(cosineDistance(vectorColumn, embedding))
+      .limit(topK);
+
+    console.log(
+      `[3] Retrieved ${similarPeople.length} similar people after similarity search.`
+    );
+
+    const result = similarPeople.map((s) => ({
+      score: parseFloat(s.similarity.toFixed(6)),
+      personIds: s.personIds,
+    }));
+
+    console.log(`[5] Returning ${result.length} similar people.`);
+    console.log(
+      `Number of matches users: ${similarPeople.reduce(
+        (acc, curr) => acc + (curr.personIds?.length ?? 0),
+        0
+      )}`
+    );
+    return result;
+  } catch (error) {
+    console.error("Error querying similar technologies:", error);
+    return [];
+  }
+}
+
 const generateEmbeddingsWithLogging = async (data: string[], type: string) => {
   console.log(`Generating ${type} embeddings for ${data.length} items...`);
   const embeddings = await Promise.all(
@@ -822,8 +869,95 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
     avgLocationEmbedding = await computeAverageEmbedding(locationEmbeddings);
   }
 
+  let mostSimilarPeopleBySkills: { score: number; personIds: string[] }[] = [];
+
+  if (avgSkillEmbedding) {
+    mostSimilarPeopleBySkills = await querySimilarPeopleByEmbedding(
+      schema.people.averageSkillVector,
+      schema.people.id,
+      schema.people,
+      avgSkillEmbedding,
+      500
+    );
+  }
+
+  let mostSimilarPeopleByJobTitles: { score: number; personIds: string[] }[] =
+    [];
+
+  if (avgJobTitleEmbedding) {
+    mostSimilarPeopleByJobTitles = await querySimilarPeopleByEmbedding(
+      schema.people.averageJobTitleVector,
+      schema.people.id,
+      schema.people,
+      avgJobTitleEmbedding,
+      500
+    );
+  }
+
+  let mostSimilarPeopleByCompanies: { score: number; personIds: string[] }[] =
+    [];
+
+  if (avgCompanyEmbedding) {
+    mostSimilarPeopleByCompanies = await querySimilarPeopleByEmbedding(
+      schema.people.averageCompanyVector,
+      schema.people.id,
+      schema.people,
+      avgCompanyEmbedding,
+      500
+    );
+  }
+
+  let mostSimilarPeopleBySchools: { score: number; personIds: string[] }[] = [];
+
+  if (avgSchoolEmbedding) {
+    mostSimilarPeopleBySchools = await querySimilarPeopleByEmbedding(
+      schema.people.averageSchoolVector,
+      schema.people.id,
+      schema.people,
+      avgSchoolEmbedding,
+      500
+    );
+  }
+
+  let mostSimilarPeopleByFieldsOfStudy: {
+    score: number;
+    personIds: string[];
+  }[] = [];
+
+  if (avgFieldOfStudyEmbedding) {
+    mostSimilarPeopleByFieldsOfStudy = await querySimilarPeopleByEmbedding(
+      schema.people.averageFieldOfStudyVector,
+      schema.people.id,
+      schema.people,
+      avgFieldOfStudyEmbedding,
+      500
+    );
+  }
+
+  let mostSimilarPeopleByLocations: { score: number; personIds: string[] }[] =
+    [];
+
+  if (avgLocationEmbedding) {
+    mostSimilarPeopleByLocations = await querySimilarPeopleByEmbedding(
+      schema.people.locationVector,
+      schema.people.id,
+      schema.people,
+      avgLocationEmbedding,
+      500
+    );
+  }
+
+  const allSimilarPeople = [
+    ...mostSimilarPeopleBySkills,
+    ...mostSimilarPeopleByJobTitles,
+    ...mostSimilarPeopleByCompanies,
+    ...mostSimilarPeopleBySchools,
+    ...mostSimilarPeopleByFieldsOfStudy,
+    ...mostSimilarPeopleByLocations,
+  ];
+
   // Fetch all people excluding input people
-  console.log("Fetching all people...");
+  console.log("Fetching most similar people...");
   const allPeople = await db.query.people.findMany({
     where: not(inArray(people.id, Array.from(inputPersonIds))),
   });
