@@ -63,7 +63,8 @@ async function querySimilarPeopleByEmbedding(
   idColumn: any,
   table: any,
   embedding: number[],
-  topK: number
+  topK: number,
+  threshold: number
 ) {
   try {
     console.log(`[1] Starting search for similar people`);
@@ -78,7 +79,7 @@ async function querySimilarPeopleByEmbedding(
         similarity,
       })
       .from(table)
-      .where(gt(similarity, 0.5))
+      .where(gt(similarity, threshold))
       .orderBy(cosineDistance(vectorColumn, embedding))
       .limit(topK);
 
@@ -306,15 +307,15 @@ function analyzeEducation(
 
 async function computeAverageEmbedding(
   embeddings: number[][]
-): Promise<number[]> {
+): Promise<number[] | null> {
   if (embeddings.length === 0) {
-    throw new Error("No embeddings provided to compute average");
+    return null;
   }
-  return embeddings.reduce(
-    (acc, embedding) =>
-      acc.map((val, i) => val + embedding[i] / embeddings.length),
+  const sum = embeddings.reduce(
+    (acc, curr) => acc.map((val, i) => val + curr[i]),
     new Array(embeddings[0].length).fill(0)
   );
+  return sum.map((val) => val / embeddings.length);
 }
 
 async function scrapeLinkedInProfile(linkedinUrl: string) {
@@ -689,6 +690,34 @@ async function insertPersonFromLinkedin(profileData: any) {
   return personId;
 }
 
+function cosineSimilarity(a: number[], b: number[]): number {
+  const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
+  const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+  const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+  return dotProduct / (magnitudeA * magnitudeB);
+}
+
+function calculateCosineSimilarityVariance(embeddings: number[][]): number {
+  if (embeddings.length < 2) return 0;
+  if (embeddings.length === 2) {
+    return 1 - cosineSimilarity(embeddings[0], embeddings[1]);
+  }
+
+  const similarities: number[] = [];
+  for (let i = 0; i < embeddings.length; i++) {
+    for (let j = i + 1; j < embeddings.length; j++) {
+      similarities.push(cosineSimilarity(embeddings[i], embeddings[j]));
+    }
+  }
+
+  const mean =
+    similarities.reduce((sum, val) => sum + val, 0) / similarities.length;
+  const variance =
+    similarities.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    similarities.length;
+  return variance;
+}
+
 async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   console.log("Processing LinkedIn URLs...");
 
@@ -753,152 +782,190 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   console.log(`Found ${inputPeople.length} matching input people.`);
 
-  // Calculate experience bounds
-  const { mean, stdDev } = calculateExperienceBounds(inputPeople);
-
   const inputPersonIds = new Set(inputPeople.map((p) => p.id));
 
-  // Generate embeddings for skills, features, and job titles
-  const allSkills = inputPeople.flatMap((p) => [
-    ...(p.topTechnologies ?? []),
-    ...(p.topFeatures ?? []),
-  ]);
-  const allJobTitles = inputPeople.flatMap((p) => p.jobTitles || []);
+  // Compute average embeddings for each person
+  const inputPersonAverageEmbeddings = await Promise.all(
+    inputPeople.map(async (person) => {
+      const skillEmbedding = person.averageSkillVector as number[] | null;
+      const jobTitleEmbedding = person.averageJobTitleVector as number[] | null;
+      const companyEmbedding = person.averageCompanyVector as number[] | null;
+      const schoolEmbedding = person.averageSchoolVector as number[] | null;
+      const fieldOfStudyEmbedding = person.averageFieldOfStudyVector as
+        | number[]
+        | null;
+      const locationEmbedding = person.locationVector as number[] | null;
 
-  const skillEmbeddings = await generateEmbeddingsWithLogging(
-    allSkills,
-    "skill"
-  );
-  const jobTitleEmbeddings = await generateEmbeddingsWithLogging(
-    allJobTitles,
-    "job title"
+      return {
+        personId: person.id,
+        skillEmbedding,
+        jobTitleEmbedding,
+        companyEmbedding,
+        schoolEmbedding,
+        fieldOfStudyEmbedding,
+        locationEmbedding,
+      };
+    })
   );
 
-  // Compute average embeddings
-  const avgSkillEmbedding = await computeAverageEmbedding(skillEmbeddings);
+  // Calculate variances for each metric
+  const metricVariances: { [key: string]: number } = {
+    skills: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.skillEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    jobTitles: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.jobTitleEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    companies: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.companyEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    schools: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.schoolEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    fieldsOfStudy: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.fieldOfStudyEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    locations: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.locationEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+  };
+
+  console.log("Metric variances:", metricVariances);
+
+  // Compute overall average embeddings
+  const avgSkillEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.skillEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
   const avgJobTitleEmbedding = await computeAverageEmbedding(
-    jobTitleEmbeddings
+    inputPersonAverageEmbeddings
+      .map((p) => p.jobTitleEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgCompanyEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.companyEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgSchoolEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.schoolEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgFieldOfStudyEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.fieldOfStudyEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgLocationEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.locationEmbedding)
+      .filter((e): e is number[] => e !== null)
   );
 
-  // Compute average company embedding
-  const companyEmbeddings = inputPeople
-    .filter((person) => person.averageCompanyVector)
-    .map((person) => person.averageCompanyVector as number[]);
+  // Filter out metrics with high variance
+  const varianceThreshold = 0.1;
+  const validMetrics = Object.entries(metricVariances)
+    .filter(([, variance]) => variance <= varianceThreshold)
+    .map(([metric]) => metric);
 
-  let avgCompanyEmbedding: number[] | null = null;
-  if (companyEmbeddings.length > 0) {
-    avgCompanyEmbedding = await computeAverageEmbedding(companyEmbeddings);
-  }
+  console.log("Valid metrics for scoring:", validMetrics);
 
-  // Compute average school embedding
-  const schoolEmbeddings = inputPeople
-    .filter((person) => person.averageSchoolVector)
-    .map((person) => person.averageSchoolVector as number[]);
+  // Modify the similarity calculations to only include valid metrics
+  let mostSimilarPeople: { score: number; personIds: string[] }[] = [];
 
-  let avgSchoolEmbedding: number[] | null = null;
-  if (schoolEmbeddings.length > 0) {
-    avgSchoolEmbedding = await computeAverageEmbedding(schoolEmbeddings);
-  }
+  for (const metric of validMetrics) {
+    let similarPeople: { score: number; personIds: string[] }[] = [];
 
-  // Compute average field of study embedding
-  const fieldOfStudyEmbeddings = inputPeople
-    .filter((person) => person.averageFieldOfStudyVector)
-    .map((person) => person.averageFieldOfStudyVector as number[]);
+    switch (metric) {
+      case "skills":
+        if (avgSkillEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageSkillVector,
+            schema.people.id,
+            schema.people,
+            avgSkillEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+      case "jobTitles":
+        if (avgJobTitleEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageJobTitleVector,
+            schema.people.id,
+            schema.people,
+            avgJobTitleEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+      case "companies":
+        if (avgCompanyEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageCompanyVector,
+            schema.people.id,
+            schema.people,
+            avgCompanyEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+      case "schools":
+        if (avgSchoolEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageSchoolVector,
+            schema.people.id,
+            schema.people,
+            avgSchoolEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+      case "fieldsOfStudy":
+        if (avgFieldOfStudyEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageFieldOfStudyVector,
+            schema.people.id,
+            schema.people,
+            avgFieldOfStudyEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+      case "locations":
+        if (avgLocationEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.locationVector,
+            schema.people.id,
+            schema.people,
+            avgLocationEmbedding,
+            500,
+            0.5
+          );
+        }
+        break;
+    }
 
-  let avgFieldOfStudyEmbedding: number[] | null = null;
-  if (fieldOfStudyEmbeddings.length > 0) {
-    avgFieldOfStudyEmbedding = await computeAverageEmbedding(
-      fieldOfStudyEmbeddings
-    );
-  }
-
-  // Compute average location embedding
-  const locationEmbeddings = inputPeople
-    .filter((person) => person.locationVector)
-    .map((person) => person.locationVector as number[]);
-
-  let avgLocationEmbedding: number[] | null = null;
-
-  if (locationEmbeddings.length > 0) {
-    avgLocationEmbedding = await computeAverageEmbedding(locationEmbeddings);
-  }
-
-  let mostSimilarPeopleBySkills: { score: number; personIds: string[] }[] = [];
-
-  if (avgSkillEmbedding) {
-    mostSimilarPeopleBySkills = await querySimilarPeopleByEmbedding(
-      schema.people.averageSkillVector,
-      schema.people.id,
-      schema.people,
-      avgSkillEmbedding,
-      500
-    );
-  }
-
-  let mostSimilarPeopleByJobTitles: { score: number; personIds: string[] }[] =
-    [];
-
-  if (avgJobTitleEmbedding) {
-    mostSimilarPeopleByJobTitles = await querySimilarPeopleByEmbedding(
-      schema.people.averageJobTitleVector,
-      schema.people.id,
-      schema.people,
-      avgJobTitleEmbedding,
-      500
-    );
-  }
-
-  let mostSimilarPeopleByCompanies: { score: number; personIds: string[] }[] =
-    [];
-
-  if (avgCompanyEmbedding) {
-    mostSimilarPeopleByCompanies = await querySimilarPeopleByEmbedding(
-      schema.people.averageCompanyVector,
-      schema.people.id,
-      schema.people,
-      avgCompanyEmbedding,
-      500
-    );
-  }
-
-  let mostSimilarPeopleBySchools: { score: number; personIds: string[] }[] = [];
-
-  if (avgSchoolEmbedding) {
-    mostSimilarPeopleBySchools = await querySimilarPeopleByEmbedding(
-      schema.people.averageSchoolVector,
-      schema.people.id,
-      schema.people,
-      avgSchoolEmbedding,
-      500
-    );
-  }
-
-  let mostSimilarPeopleByFieldsOfStudy: {
-    score: number;
-    personIds: string[];
-  }[] = [];
-
-  if (avgFieldOfStudyEmbedding) {
-    mostSimilarPeopleByFieldsOfStudy = await querySimilarPeopleByEmbedding(
-      schema.people.averageFieldOfStudyVector,
-      schema.people.id,
-      schema.people,
-      avgFieldOfStudyEmbedding,
-      500
-    );
-  }
-
-  let mostSimilarPeopleByLocations: { score: number; personIds: string[] }[] =
-    [];
-
-  if (avgLocationEmbedding) {
-    mostSimilarPeopleByLocations = await querySimilarPeopleByEmbedding(
-      schema.people.locationVector,
-      schema.people.id,
-      schema.people,
-      avgLocationEmbedding,
-      500
-    );
+    mostSimilarPeople = mostSimilarPeople.concat(similarPeople);
   }
 
   const allSimilarPeople: {
@@ -912,32 +979,34 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
     score: number,
     attribution: string
   ) => {
-    const existingPerson = allSimilarPeople.find(
-      (p) => p.personId === personId
-    );
-    if (existingPerson) {
-      existingPerson.score += score;
-      if (!existingPerson.attributions.includes(attribution)) {
-        existingPerson.attributions.push(attribution);
+    if (validMetrics.includes(attribution)) {
+      const existingPerson = allSimilarPeople.find(
+        (p) => p.personId === personId
+      );
+      if (existingPerson) {
+        existingPerson.score += score;
+        if (!existingPerson.attributions.includes(attribution)) {
+          existingPerson.attributions.push(attribution);
+        }
+      } else {
+        allSimilarPeople.push({
+          personId,
+          score,
+          attributions: [attribution],
+        });
       }
-    } else {
-      allSimilarPeople.push({
-        personId,
-        score,
-        attributions: [attribution],
-      });
     }
   };
 
   // Combine all similarity calculations
   console.log("Starting to combine similarity calculations...");
   [
-    { data: mostSimilarPeopleBySkills, attribution: "skills" },
-    { data: mostSimilarPeopleByJobTitles, attribution: "jobTitles" },
-    { data: mostSimilarPeopleByCompanies, attribution: "companies" },
-    { data: mostSimilarPeopleBySchools, attribution: "schools" },
-    { data: mostSimilarPeopleByFieldsOfStudy, attribution: "fieldsOfStudy" },
-    { data: mostSimilarPeopleByLocations, attribution: "locations" },
+    { data: mostSimilarPeople, attribution: "skills" },
+    { data: mostSimilarPeople, attribution: "jobTitles" },
+    { data: mostSimilarPeople, attribution: "companies" },
+    { data: mostSimilarPeople, attribution: "schools" },
+    { data: mostSimilarPeople, attribution: "fieldsOfStudy" },
+    { data: mostSimilarPeople, attribution: "locations" },
   ].forEach(({ data, attribution }, index) => {
     console.log(`Processing ${attribution} data (${index + 1}/6)...`);
     data.forEach((person, personIndex) => {
