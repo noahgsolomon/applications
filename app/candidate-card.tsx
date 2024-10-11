@@ -259,6 +259,7 @@ export default function CandidateCard({
                         ? "purple"
                         : "gray"
                     }
+                    key={from}
                   >
                     {from === "linkedin" ? (
                       <Linkedin className="size-4 mr-1" />
