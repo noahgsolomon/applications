@@ -885,7 +885,10 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
   console.log("Valid metrics for scoring:", validMetrics);
 
   // Modify the similarity calculations to only include valid metrics
-  let mostSimilarPeople: { score: number; personIds: string[] }[] = [];
+  // Create a dictionary to store similarPeople per metric
+  const similarPeoplePerMetric: {
+    [metric: string]: { score: number; personIds: string[] }[];
+  } = {};
 
   for (const metric of validMetrics) {
     let similarPeople: { score: number; personIds: string[] }[] = [];
@@ -898,8 +901,8 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgSkillEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
@@ -910,8 +913,8 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgJobTitleEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
@@ -922,8 +925,8 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgCompanyEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
@@ -934,8 +937,8 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgSchoolEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
@@ -946,8 +949,8 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgFieldOfStudyEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
@@ -958,20 +961,21 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
             schema.people.id,
             schema.people,
             avgLocationEmbedding,
-            500,
-            0.5
+            2000,
+            0.1
           );
         }
         break;
     }
 
-    mostSimilarPeople = mostSimilarPeople.concat(similarPeople);
+    // Store similarPeople for this metric
+    similarPeoplePerMetric[metric] = similarPeople;
   }
 
   const allSimilarPeople: {
     personId: string;
     score: number;
-    attributions: string[];
+    attributions: { attribution: string; score: number }[];
   }[] = [];
 
   const addToAllSimilarPeople = (
@@ -985,14 +989,19 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
       );
       if (existingPerson) {
         existingPerson.score += score;
-        if (!existingPerson.attributions.includes(attribution)) {
-          existingPerson.attributions.push(attribution);
+        const existingAttribution = existingPerson.attributions.find(
+          (a) => a.attribution === attribution
+        );
+        if (existingAttribution) {
+          existingAttribution.score += score;
+        } else {
+          existingPerson.attributions.push({ attribution, score });
         }
       } else {
         allSimilarPeople.push({
           personId,
           score,
-          attributions: [attribution],
+          attributions: [{ attribution, score }],
         });
       }
     }
@@ -1000,15 +1009,12 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   // Combine all similarity calculations
   console.log("Starting to combine similarity calculations...");
-  [
-    { data: mostSimilarPeople, attribution: "skills" },
-    { data: mostSimilarPeople, attribution: "jobTitles" },
-    { data: mostSimilarPeople, attribution: "companies" },
-    { data: mostSimilarPeople, attribution: "schools" },
-    { data: mostSimilarPeople, attribution: "fieldsOfStudy" },
-    { data: mostSimilarPeople, attribution: "locations" },
-  ].forEach(({ data, attribution }, index) => {
-    console.log(`Processing ${attribution} data (${index + 1}/6)...`);
+  validMetrics.forEach((metric, index) => {
+    const data = similarPeoplePerMetric[metric];
+    const attribution = metric;
+    console.log(
+      `Processing ${attribution} data (${index + 1}/${validMetrics.length})...`
+    );
     data.forEach((person, personIndex) => {
       if (Array.isArray(person.personIds)) {
         person.personIds.forEach((personId) => {
@@ -1099,7 +1105,63 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   console.log(`Processed ${scoredCandidates.length} top candidates.`);
 
-  return scoredCandidates;
+  // Calculate mean and standard deviation
+  const scores = scoredCandidates.map((c) => c.score);
+  const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  const variance =
+    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+    scores.length;
+  const stdDev = Math.sqrt(variance);
+
+  const normalizedCandidates = scoredCandidates.map((candidate) => {
+    // Z-score normalization
+    let normalizedScore = (candidate.score - mean) / (stdDev + 0.000001);
+
+    // Optional: Convert to a 0-1 scale using the cumulative distribution function
+    normalizedScore = 0.5 * (1 + erf(normalizedScore / Math.sqrt(2)));
+
+    const normalizedAttributions = candidate.attributions.map((attr) => {
+      const attrMean = mean; // Assuming same mean and stdDev for attributions
+      const attrStdDev = stdDev;
+      let attrNormalizedScore =
+        (attr.score - attrMean) / (attrStdDev + 0.000001);
+      attrNormalizedScore = 0.5 * (1 + erf(attrNormalizedScore / Math.sqrt(2)));
+
+      return {
+        attribution: attr.attribution,
+        score: parseFloat(attrNormalizedScore.toFixed(6)),
+      };
+    });
+
+    return {
+      ...candidate,
+      score: normalizedScore,
+      attributions: normalizedAttributions,
+    };
+  });
+
+  // Helper function for error function (erf)
+  // Abramowitz and Stegun approximation
+  function erf(x: number) {
+    const sign = x >= 0 ? 1 : -1;
+    x = Math.abs(x);
+    const a1 = 0.254829592;
+    const a2 = -0.284496736;
+    const a3 = 1.421413741;
+    const a4 = -1.453152027;
+    const a5 = 1.061405429;
+    const p = 0.3275911;
+    const t = 1 / (1 + p * x);
+    const y =
+      1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return sign * y;
+  }
+
+  console.log(
+    `Processed and normalized ${normalizedCandidates.length} top candidates.`
+  );
+
+  return normalizedCandidates;
 }
 
 export const querySimilarTechnologies = async (
@@ -1997,21 +2059,137 @@ function normalizeScore(score: number, mean: number, stdDev: number): number {
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
-  const idSet = new Set();
-  const mergedResults: any[] = [];
+  const mergedResultsMap: { [id: string]: any } = {};
 
   for (const resultsArray of resultsArrays) {
     for (const item of resultsArray) {
-      if (!idSet.has(item.data.id)) {
-        idSet.add(item.data.id);
-        mergedResults.push(item);
+      const id = item.data.id;
+
+      if (!mergedResultsMap[id]) {
+        // If the user is not in the merged results yet, add them
+        mergedResultsMap[id] = { ...item };
+        // Ensure 'from' is an array
+        mergedResultsMap[id].from = Array.isArray(item.from)
+          ? item.from
+          : [item.from];
+        // Ensure attributions is an array
+        mergedResultsMap[id].attributions = item.attributions || [];
+      } else {
+        // If the user is already in the merged results, sum the scores and merge properties
+        mergedResultsMap[id].score += item.score;
+
+        // Merge attributions
+        mergedResultsMap[id].attributions = mergeAttributions(
+          mergedResultsMap[id].attributions,
+          item.attributions || []
+        );
+
+        // Update 'from' sources
+        const existingFrom = mergedResultsMap[id].from;
+        const newFromSources = Array.isArray(item.from)
+          ? item.from
+          : [item.from];
+        newFromSources.forEach((source: string) => {
+          if (!existingFrom.includes(source)) {
+            existingFrom.push(source);
+          }
+        });
+        mergedResultsMap[id].from = existingFrom;
+
+        // Merge matchedSkills
+        mergedResultsMap[id].matchedSkills = mergeArrayOfObjects(
+          mergedResultsMap[id].matchedSkills,
+          item.matchedSkills,
+          ["skill"]
+        );
+
+        // Merge matchedJobTitle
+        mergedResultsMap[id].matchedJobTitle =
+          mergedResultsMap[id].matchedJobTitle || item.matchedJobTitle;
+
+        // Merge matchedLocation
+        mergedResultsMap[id].matchedLocation =
+          mergedResultsMap[id].matchedLocation || item.matchedLocation;
+
+        // Merge matchedCompanies
+        mergedResultsMap[id].matchedCompanies = mergeArrayOfObjects(
+          mergedResultsMap[id].matchedCompanies,
+          item.matchedCompanies,
+          ["company"]
+        );
+
+        // Merge matchedSchools
+        mergedResultsMap[id].matchedSchools = mergeArrayOfObjects(
+          mergedResultsMap[id].matchedSchools,
+          item.matchedSchools,
+          ["school"]
+        );
+
+        // Merge matchedFieldsOfStudy
+        mergedResultsMap[id].matchedFieldsOfStudy = mergeArrayOfObjects(
+          mergedResultsMap[id].matchedFieldsOfStudy,
+          item.matchedFieldsOfStudy,
+          ["fieldOfStudy"]
+        );
+
+        // Merge any additional properties as needed
       }
     }
   }
 
+  // Convert the mergedResultsMap back to an array
+  const mergedResults = Object.values(mergedResultsMap);
+
+  // Sort the merged results by score in descending order
   mergedResults.sort((a, b) => b.score - a.score);
 
   return mergedResults;
+}
+
+function mergeArrayOfObjects(
+  arr1: any[] = [],
+  arr2: any[] = [],
+  uniqueKeys: string[] = []
+): any[] {
+  const combined = [...arr1, ...arr2];
+  if (uniqueKeys.length === 0) return combined;
+
+  const seen = new Set();
+  const result = [];
+
+  for (const item of combined) {
+    const key = uniqueKeys.map((k) => item[k]).join("|");
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(item);
+    }
+  }
+
+  return result;
+}
+
+function mergeAttributions(
+  attributions1: { attribution: string; score: number }[] = [],
+  attributions2: { attribution: string; score: number }[] = []
+): { attribution: string; score: number }[] {
+  const attributionMap: { [key: string]: number } = {};
+
+  attributions1.forEach((attr) => {
+    attributionMap[attr.attribution] = attr.score;
+  });
+
+  attributions2.forEach((attr) => {
+    if (attributionMap[attr.attribution] !== undefined) {
+      attributionMap[attr.attribution] += attr.score;
+    } else {
+      attributionMap[attr.attribution] = attr.score;
+    }
+  });
+
+  return Object.keys(attributionMap).map((key) => ({
+    attribution: key,
+    score: attributionMap[key],
+  }));
 }
 
 export async function handler(event: any) {
@@ -2037,41 +2215,41 @@ export async function handler(event: any) {
     let resultsFromGithubUrls: any[] = [];
     let resultsFromFilterCriteria: any[] = [];
 
-    if (body.linkedinUrls && body.linkedinUrls.length > 0) {
-      try {
-        console.log("Processing Linkedin URLs...");
-        resultsFromLinkedinUrls = await processLinkedinUrls(
-          body.linkedinUrls,
-          insertId
-        );
-      } catch (error) {
-        console.error("Error processing profile URLs:", error);
-      }
-    }
+    const [linkedinResults, githubResults, filterResults] = await Promise.all([
+      body.linkedinUrls && body.linkedinUrls.length > 0
+        ? processLinkedinUrls(body.linkedinUrls, insertId).catch((error) => {
+            console.error("Error processing Linkedin URLs:", error);
+            return [];
+          })
+        : Promise.resolve([]),
 
-    if (body.githubUrls && body.githubUrls.length > 0) {
-      console.log("Processing GitHub URLs...");
-      // try {
-      //   console.log("Processing profile URLs...");
-      //   resultsFromGithubUrls = await processProfileUrls(
-      //     body.githubUrls,
-      //     insertId,
-      //   );
-      // } catch (error) {
-      //   console.error("Error processing profile URLs:", error);
-      // }
-    }
+      body.githubUrls && body.githubUrls.length > 0
+        ? Promise.resolve([])
+        : Promise.resolve([]),
 
-    if (body.filterCriteria) {
-      try {
-        console.log("Processing filter criteria...");
-        const filterCriteria = await processFilterCriteria(body.filterCriteria);
-        resultsFromFilterCriteria = filterCriteria;
-      } catch (error) {
-        console.error("Error processing filter criteria:", error);
-        // Optionally handle the error or continue
-      }
-    }
+      body.filterCriteria
+        ? processFilterCriteria(body.filterCriteria).catch((error) => {
+            console.error("Error processing filter criteria:", error);
+            return [];
+          })
+        : Promise.resolve([]),
+    ]);
+
+    resultsFromLinkedinUrls = linkedinResults.map((candidate) => ({
+      ...candidate,
+      from: "linkedin",
+    }));
+    resultsFromGithubUrls = githubResults.map((result) => ({
+      from: "github",
+    }));
+    resultsFromFilterCriteria = filterResults.map((result) => ({
+      ...result,
+      from: "filter",
+    }));
+
+    console.log("Processed Linkedin URLs:", resultsFromLinkedinUrls.length);
+    console.log("Processed GitHub URLs:", resultsFromGithubUrls.length);
+    console.log("Processed filter criteria:", resultsFromFilterCriteria.length);
 
     // Merge the results
     const mergedResults = mergeResults(
@@ -2095,6 +2273,8 @@ export async function handler(event: any) {
             matchedCompanies: res.matchedCompanies,
             matchedSchools: res.matchedSchools,
             matchedFieldsOfStudy: res.matchedFieldsOfStudy,
+            attributions: res.attributions ?? [],
+            from: res.from,
           })),
         })
         .where(eq(schema.profileQueue.id, insertId));
@@ -2116,6 +2296,8 @@ export async function handler(event: any) {
           matchedCompanies: res.matchedCompanies,
           matchedSchools: res.matchedSchools,
           matchedFieldsOfStudy: res.matchedFieldsOfStudy,
+          attributions: res.attributions ?? [],
+          from: res.from,
         })),
       })
       .where(eq(schema.profileQueue.id, insertId));
