@@ -1498,17 +1498,7 @@ export const querySimilarFieldsOfStudy = async (
   }
 };
 
-function calculateMean(scores: number[]): number {
-  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
-}
-
-function calculateStdDev(scores: number[], mean: number): number {
-  const variance =
-    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
-    scores.length;
-  return Math.sqrt(variance);
-}
-
+// Define the FilterCriteria interface with activeGithub added
 interface FilterCriteria {
   query: string;
   companyIds: {
@@ -1542,8 +1532,40 @@ interface FilterCriteria {
     value: boolean;
     weight: number;
   };
+  activeGithub: {
+    value: boolean;
+    weight: number;
+  };
 }
 
+// Helper functions
+function calculateMean(scores: number[]): number {
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}
+
+function calculateStdDev(scores: number[], mean: number): number {
+  const variance =
+    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+    scores.length;
+  return Math.sqrt(variance);
+}
+
+function normalizeScore(score: number, mean: number, stdDev: number): number {
+  if (stdDev === 0) return score > 0 ? 1 : 0;
+  const zScore = (score - mean) / stdDev;
+  return 1 / (1 + Math.exp(-zScore));
+}
+
+function calculateMeanAndStdDev(scores: number[]): {
+  mean: number;
+  stdDev: number;
+} {
+  const mean = calculateMean(scores);
+  const stdDev = calculateStdDev(scores, mean);
+  return { mean, stdDev };
+}
+
+// The processFilterCriteria function with activeGithub logic added
 async function processFilterCriteria(filterCriteria: FilterCriteria) {
   console.log("Processing filter criteria...");
 
@@ -1730,6 +1752,14 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[];
     isWhopUser: boolean;
     score: number;
+    githubMetrics?: {
+      followers: number;
+      totalCommits: number;
+      totalStars: number;
+      totalRepositories: number;
+      followerToFollowingRatio: number;
+    };
+    activeGithub?: boolean;
   }[] = [];
 
   // Initialize arrays to collect raw scores for normalization
@@ -1741,14 +1771,21 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     schools: [],
     fieldsOfStudy: [],
     whopUser: [],
+    activeGithub: [],
   };
 
-  // Fetch necessary user data for whopUser filtering
+  // Fetch necessary user data for whopUser filtering and GitHub activity
   const peopleData = await db.query.people.findMany({
     columns: {
       id: true,
       isWhopUser: true,
       isWhopCreator: true,
+      // Include GitHub data needed for activeGithub score
+      followers: true,
+      totalCommits: true,
+      totalStars: true,
+      totalRepositories: true,
+      followerToFollowingRatio: true,
     },
     where: inArray(schema.people.id, combinedPersonIds),
   });
@@ -1757,6 +1794,15 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
   const peopleDataMap = new Map(
     peopleData.map((person) => [person.id, person])
   );
+
+  // Initialize arrays to collect GitHub metrics for normalization
+  const githubMetricsRawValues: { [metric: string]: number[] } = {
+    followers: [],
+    totalCommits: [],
+    totalStars: [],
+    totalRepositories: [],
+    followerToFollowingRatio: [],
+  };
 
   // Calculate statistics for each skill
   const skillStats: {
@@ -1785,6 +1831,8 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     const matchedSchools: { school: string; score: number }[] = [];
     const matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[] = [];
     let isWhopUser = false;
+
+    const personData = peopleDataMap.get(personId);
 
     // Calculate skill scores for this person
     let skillScoreSum = 0;
@@ -1887,15 +1935,38 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     rawScores.fieldsOfStudy = maxFieldOfStudyScore;
 
     // Whop user
-    const personData = peopleDataMap.get(personId);
     if (filterCriteria.whopUser.value && personData) {
       isWhopUser = personData.isWhopUser || personData.isWhopCreator || false;
     }
     rawScores.whopUser = isWhopUser ? 1 : 0;
 
+    // Collect GitHub metrics for activeGithub score
+    const githubMetricsPerPerson = {
+      followers: personData?.followers || 0,
+      totalCommits: personData?.totalCommits || 0,
+      totalStars: personData?.totalStars || 0,
+      totalRepositories: personData?.totalRepositories || 0,
+      followerToFollowingRatio: personData?.followerToFollowingRatio || 0,
+    };
+
+    // Collect raw GitHub metrics for normalization
+    githubMetricsRawValues.followers.push(githubMetricsPerPerson.followers);
+    githubMetricsRawValues.totalCommits.push(
+      githubMetricsPerPerson.totalCommits
+    );
+    githubMetricsRawValues.totalStars.push(githubMetricsPerPerson.totalStars);
+    githubMetricsRawValues.totalRepositories.push(
+      githubMetricsPerPerson.totalRepositories
+    );
+    githubMetricsRawValues.followerToFollowingRatio.push(
+      githubMetricsPerPerson.followerToFollowingRatio
+    );
+
     // Collect raw scores for normalization
     Object.keys(criterionRawScores).forEach((criterion) => {
-      criterionRawScores[criterion].push(rawScores[criterion] || 0);
+      if (criterion !== "activeGithub") {
+        criterionRawScores[criterion].push(rawScores[criterion] || 0);
+      }
     });
 
     mostSimilarPeople.push({
@@ -1909,6 +1980,7 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
       matchedFieldsOfStudy,
       isWhopUser,
       score: 0, // will calculate later
+      githubMetrics: githubMetricsPerPerson,
     });
   });
 
@@ -1922,6 +1994,18 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     const mean = calculateMean(scores);
     const stdDev = calculateStdDev(scores, mean);
     criterionStats[criterion] = { mean, stdDev };
+  });
+
+  // Calculate GitHub metrics statistics
+  const githubMetricsStats: {
+    [metric: string]: { mean: number; stdDev: number };
+  } = {};
+
+  Object.keys(githubMetricsRawValues).forEach((metric) => {
+    const values = githubMetricsRawValues[metric];
+    const mean = calculateMean(values);
+    const stdDev = calculateStdDev(values, mean);
+    githubMetricsStats[metric] = { mean, stdDev };
   });
 
   // Prepare criteria weights
@@ -1956,6 +2040,9 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
   if (filterCriteria.whopUser.value) {
     criteriaWeights.whopUser = filterCriteria.whopUser.weight;
   }
+  if (filterCriteria.activeGithub.value) {
+    criteriaWeights.activeGithub = filterCriteria.activeGithub.weight;
+  }
 
   const totalWeight = Object.values(criteriaWeights).reduce(
     (sum, weight) => sum + weight,
@@ -1967,17 +2054,71 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     criteriaWeights[criterion] = criteriaWeights[criterion] / totalWeight;
   });
 
-  // Calculate final scores
+  // Calculate final scores including activeGithub
   mostSimilarPeople.forEach((person) => {
     let finalScore = 0;
 
     Object.keys(criteriaWeights).forEach((criterion) => {
-      const rawScore = person.rawScores[criterion] || 0;
-      const { mean, stdDev } = criterionStats[criterion];
-      const normalizedScore = normalizeScore(rawScore, mean, stdDev);
-      const weight = criteriaWeights[criterion];
+      if (criterion === "activeGithub") {
+        // Compute normalized activeGithub score
+        const githubMetrics = person.githubMetrics!;
 
-      finalScore += weight * normalizedScore;
+        // Normalize each GitHub metric
+        const normalizedFollowers = normalizeScore(
+          githubMetrics.followers,
+          githubMetricsStats.followers.mean,
+          githubMetricsStats.followers.stdDev
+        );
+
+        const normalizedTotalCommits = normalizeScore(
+          githubMetrics.totalCommits,
+          githubMetricsStats.totalCommits.mean,
+          githubMetricsStats.totalCommits.stdDev
+        );
+
+        const normalizedTotalStars = normalizeScore(
+          githubMetrics.totalStars,
+          githubMetricsStats.totalStars.mean,
+          githubMetricsStats.totalStars.stdDev
+        );
+
+        const normalizedFollowerToFollowingRatio = normalizeScore(
+          githubMetrics.followerToFollowingRatio,
+          githubMetricsStats.followerToFollowingRatio.mean,
+          githubMetricsStats.followerToFollowingRatio.stdDev
+        );
+
+        // Compute activeGithub score with weights
+        const activeGithubScore =
+          normalizedFollowers * 0.2 +
+          normalizedTotalCommits * 0.3 +
+          normalizedTotalStars * 0.3 +
+          normalizedFollowerToFollowingRatio * 0.2;
+
+        person.rawScores.activeGithub = activeGithubScore;
+
+        // Add to criterion raw scores for normalization
+        criterionRawScores.activeGithub.push(activeGithubScore);
+
+        // Normalize activeGithub score
+        const { mean, stdDev } = calculateMeanAndStdDev(
+          criterionRawScores.activeGithub
+        );
+        criterionStats.activeGithub = { mean, stdDev };
+        const normalizedScore = normalizeScore(activeGithubScore, mean, stdDev);
+
+        const activeGithubThreshold = 0.5;
+        person.activeGithub = activeGithubScore >= activeGithubThreshold;
+
+        finalScore += criteriaWeights[criterion] * normalizedScore;
+      } else {
+        const rawScore = person.rawScores[criterion] || 0;
+        const { mean, stdDev } = criterionStats[criterion];
+        const normalizedScore = normalizeScore(rawScore, mean, stdDev);
+        const weight = criteriaWeights[criterion];
+
+        finalScore += weight * normalizedScore;
+      }
     });
 
     person.score = finalScore;
@@ -2042,6 +2183,8 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
       matchedCompanies: candidate.matchedCompanies,
       matchedSchools: candidate.matchedSchools,
       matchedFieldsOfStudy: candidate.matchedFieldsOfStudy,
+      activeGithub: candidate.activeGithub,
+      activeGithubScore: candidate.rawScores.activeGithub,
     };
   });
 
@@ -2050,12 +2193,6 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
     `Scores: ${topCandidatesWithData.map((c) => c.score.toFixed(4)).join(", ")}`
   );
   return topCandidatesWithData;
-}
-
-function normalizeScore(score: number, mean: number, stdDev: number): number {
-  if (stdDev === 0) return score > 0 ? 1 : 0;
-  const zScore = (score - mean) / stdDev;
-  return 1 / (1 + Math.exp(-zScore));
 }
 
 function mergeResults(...resultsArrays: any[][]): any[] {
@@ -2131,6 +2268,23 @@ function mergeResults(...resultsArrays: any[][]): any[] {
           item.matchedFieldsOfStudy,
           ["fieldOfStudy"]
         );
+
+        // Merge activeGithub
+        mergedResultsMap[id].activeGithub =
+          mergedResultsMap[id].activeGithub || item.activeGithub;
+
+        // Merge activeGithubScore
+        if (item.activeGithubScore !== undefined) {
+          if (mergedResultsMap[id].activeGithubScore !== undefined) {
+            // Take the maximum score
+            mergedResultsMap[id].activeGithubScore = Math.max(
+              mergedResultsMap[id].activeGithubScore,
+              item.activeGithubScore
+            );
+          } else {
+            mergedResultsMap[id].activeGithubScore = item.activeGithubScore;
+          }
+        }
 
         // Merge any additional properties as needed
       }
@@ -2267,6 +2421,8 @@ export async function handler(event: any) {
           allIdsResponse: mergedResults.map((res) => ({
             id: res.id,
             score: res.score,
+            activeGithub: res.activeGithub,
+            activeGithubScore: res.activeGithubScore,
             matchedSkills: res.matchedSkills,
             matchedJobTitle: res.matchedJobTitle,
             matchedLocation: res.matchedLocation,
@@ -2290,6 +2446,8 @@ export async function handler(event: any) {
         allIdsResponse: mergedResults.map((res) => ({
           id: res.data.id,
           score: res.score,
+          activeGithub: res.activeGithub,
+          activeGithubScore: res.activeGithubScore,
           matchedSkills: res.matchedSkills,
           matchedJobTitle: res.matchedJobTitle,
           matchedLocation: res.matchedLocation,
