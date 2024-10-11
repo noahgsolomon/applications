@@ -202,6 +202,12 @@ export const outboundRouter = createTRPCRouter({
             activeGithubScore: idResponse?.activeGithubScore || undefined,
           };
         })
+        .filter((candidate) =>
+          input.showActiveGithub ? candidate.activeGithub : true
+        )
+        .filter((candidate) =>
+          input.showMatchingLocation ? candidate.matchedLocation : true
+        )
         .sort((a, b) => b.score - a.score)
         .slice(0, 100);
 

@@ -48,6 +48,7 @@ import {
   ChartNetwork,
   TwitterIcon,
   Braces,
+  MapPin,
 } from "lucide-react";
 import {
   Tooltip,
@@ -165,6 +166,8 @@ export default function ScrapedDialog() {
   const [showLinkedin, setShowLinkedin] = useState(false);
   const [showTwitter, setShowTwitter] = useState(false);
   const [showWhop, setShowWhop] = useState(false);
+  const [showActiveGithub, setShowActiveGithub] = useState(false);
+  const [showMatchingLocation, setShowMatchingLocation] = useState(false);
 
   // Function to initialize filterWeights based on active filters
   const initializeFilterWeights = () => {
@@ -707,10 +710,24 @@ export default function ScrapedDialog() {
   };
 
   useEffect(() => {
-    if (!showGithub && !showLinkedin && !showTwitter && !showWhop) {
+    if (
+      !showGithub &&
+      !showLinkedin &&
+      !showTwitter &&
+      !showWhop &&
+      !showActiveGithub &&
+      !showMatchingLocation
+    ) {
       setCandidateMatches(ogCandidateMatches);
     }
-  }, [showGithub, showLinkedin, showTwitter, showWhop]);
+  }, [
+    showGithub,
+    showLinkedin,
+    showTwitter,
+    showWhop,
+    showActiveGithub,
+    showMatchingLocation,
+  ]);
 
   return (
     <ScrollArea>
@@ -1371,7 +1388,9 @@ export default function ScrapedDialog() {
                       !showGithub ||
                       showLinkedin ||
                       showTwitter ||
-                      showWhop
+                      showWhop ||
+                      showActiveGithub ||
+                      showMatchingLocation
                     ) {
                       getAbsoluteFilteredTopCandidatesMutation.mutate({
                         allIdsResponse,
@@ -1379,6 +1398,8 @@ export default function ScrapedDialog() {
                         showLinkedin,
                         showTwitter,
                         showWhop,
+                        showActiveGithub,
+                        showMatchingLocation,
                       });
                     } else {
                       setCandidateMatches(ogCandidateMatches);
@@ -1402,7 +1423,9 @@ export default function ScrapedDialog() {
                       !showLinkedin ||
                       showGithub ||
                       showTwitter ||
-                      showWhop
+                      showWhop ||
+                      showActiveGithub ||
+                      showMatchingLocation
                     ) {
                       getAbsoluteFilteredTopCandidatesMutation.mutate({
                         allIdsResponse,
@@ -1410,6 +1433,8 @@ export default function ScrapedDialog() {
                         showLinkedin: !showLinkedin,
                         showTwitter,
                         showWhop,
+                        showActiveGithub,
+                        showMatchingLocation,
                       });
                     } else {
                       setCandidateMatches(ogCandidateMatches);
@@ -1434,7 +1459,9 @@ export default function ScrapedDialog() {
                       !showTwitter ||
                       showGithub ||
                       showLinkedin ||
-                      showWhop
+                      showWhop ||
+                      showActiveGithub ||
+                      showMatchingLocation
                     ) {
                       getAbsoluteFilteredTopCandidatesMutation.mutate({
                         allIdsResponse,
@@ -1442,6 +1469,8 @@ export default function ScrapedDialog() {
                         showLinkedin,
                         showTwitter: !showTwitter,
                         showWhop,
+                        showActiveGithub,
+                        showMatchingLocation,
                       });
                     } else {
                       setCandidateMatches(ogCandidateMatches);
@@ -1465,7 +1494,9 @@ export default function ScrapedDialog() {
                       !showWhop ||
                       showGithub ||
                       showLinkedin ||
-                      showTwitter
+                      showTwitter ||
+                      showActiveGithub ||
+                      showMatchingLocation
                     ) {
                       getAbsoluteFilteredTopCandidatesMutation.mutate({
                         allIdsResponse,
@@ -1473,6 +1504,8 @@ export default function ScrapedDialog() {
                         showLinkedin,
                         showTwitter,
                         showWhop: !showWhop,
+                        showActiveGithub,
+                        showMatchingLocation,
                       });
                     } else {
                       setCandidateMatches(ogCandidateMatches);
@@ -1490,6 +1523,74 @@ export default function ScrapedDialog() {
                     alt="whop logo"
                   />
                   Has Whop
+                </Button>
+                <Button
+                  variant="surface"
+                  size="2"
+                  style={{ cursor: "pointer" }}
+                  color={showActiveGithub ? "violet" : "gray"}
+                  onClick={() => {
+                    if (
+                      !showActiveGithub ||
+                      showGithub ||
+                      showLinkedin ||
+                      showTwitter ||
+                      showWhop ||
+                      showMatchingLocation
+                    ) {
+                      getAbsoluteFilteredTopCandidatesMutation.mutate({
+                        allIdsResponse,
+                        showGithub,
+                        showLinkedin,
+                        showTwitter,
+                        showWhop,
+                        showActiveGithub: !showActiveGithub,
+                        showMatchingLocation,
+                      });
+                    } else {
+                      setCandidateMatches(ogCandidateMatches);
+                    }
+                    setShowActiveGithub(!showActiveGithub);
+                  }}
+                >
+                  {showActiveGithub ? (
+                    <Check className="size-4 text-green-500" />
+                  ) : null}
+                  <Github className="size-4" />
+                  Active Github
+                </Button>
+                <Button
+                  variant="surface"
+                  size="2"
+                  style={{ cursor: "pointer" }}
+                  color={showMatchingLocation ? "green" : "gray"}
+                  onClick={() => {
+                    if (
+                      !showMatchingLocation ||
+                      showGithub ||
+                      showLinkedin ||
+                      showTwitter ||
+                      showWhop ||
+                      showActiveGithub
+                    ) {
+                      getAbsoluteFilteredTopCandidatesMutation.mutate({
+                        allIdsResponse,
+                        showGithub,
+                        showLinkedin,
+                        showTwitter,
+                        showWhop,
+                        showActiveGithub,
+                        showMatchingLocation: !showMatchingLocation,
+                      });
+                    }
+                    setShowMatchingLocation(!showMatchingLocation);
+                  }}
+                >
+                  {showMatchingLocation ? (
+                    <Check className="size-4 text-green-500" />
+                  ) : null}
+                  <MapPin className="size-4 mr-1" />
+                  Matching Location
                 </Button>
               </div>
               <ScrollArea className="py-4">
