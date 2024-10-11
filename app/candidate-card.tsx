@@ -56,6 +56,8 @@ export default function CandidateCard({
     matchedCompanies?: { score: number; company: string }[];
     matchedSchools?: { score: number; school: string }[];
     matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
+    activeGithub?: boolean;
+    activeGithubScore?: number;
   };
   company?: InferSelectModel<typeof companyTable>;
 }) {
@@ -67,6 +69,10 @@ export default function CandidateCard({
     matchedJobTitle,
     matchedSchools,
     matchedFieldsOfStudy,
+    activeGithub,
+    activeGithubScore,
+    from,
+    attributions,
   } = candidate;
   const imageUrl =
     data.image ||
@@ -246,29 +252,38 @@ export default function CandidateCard({
                 {field.fieldOfStudy}
               </Badge>
             ))}
-          {candidate.from &&
-            (Array.isArray(candidate.from) ? (
+          {activeGithub && (
+            <Badge variant="surface" color="purple">
+              <Github className="size-4 mr-1" />
+              Active GitHub
+              {activeGithubScore !== undefined && (
+                <>: {activeGithubScore.toFixed(2)}</>
+              )}
+            </Badge>
+          )}
+          {from &&
+            (Array.isArray(from) ? (
               <>
-                {candidate.from.map((from) => (
+                {from.map((source) => (
                   <Badge
                     variant="surface"
                     color={
-                      from === "linkedin"
+                      source === "linkedin"
                         ? "blue"
-                        : from === "github"
+                        : source === "github"
                         ? "purple"
                         : "gray"
                     }
-                    key={from}
+                    key={source}
                   >
-                    {from === "linkedin" ? (
+                    {source === "linkedin" ? (
                       <Linkedin className="size-4 mr-1" />
-                    ) : from === "github" ? (
+                    ) : source === "github" ? (
                       <Github className="size-4 mr-1" />
                     ) : (
                       <ChartNetwork className="size-4 mr-1" />
                     )}
-                    {from + " similar profiles"}
+                    {source + " similar profiles"}
                   </Badge>
                 ))}
               </>
@@ -276,26 +291,26 @@ export default function CandidateCard({
               <Badge
                 variant="surface"
                 color={
-                  candidate.from === "linkedin"
+                  from === "linkedin"
                     ? "blue"
-                    : candidate.from === "github"
+                    : from === "github"
                     ? "purple"
                     : "gray"
                 }
               >
-                {candidate.from === "linkedin" ? (
+                {from === "linkedin" ? (
                   <Linkedin className="size-4 mr-1" />
-                ) : candidate.from === "github" ? (
+                ) : from === "github" ? (
                   <Github className="size-4 mr-1" />
                 ) : (
                   <ChartNetwork className="size-4 mr-1" />
                 )}
-                {candidate.from + " similar profiles"}
+                {from + " similar profiles"}
               </Badge>
             ))}
-          {candidate.attributions && candidate.attributions.length > 0 && (
+          {attributions && attributions.length > 0 && (
             <>
-              {candidate.attributions.map((attr, index) => (
+              {attributions.map((attr, index) => (
                 <Badge key={index} variant="surface" color="purple">
                   <Plus className="size-4 mr-1" />
                   {attr.attribution}: {attr.score.toFixed(2)}

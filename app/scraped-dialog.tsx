@@ -130,6 +130,8 @@ export default function ScrapedDialog() {
         matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
         attributions?: { attribution: string; score: number }[];
         from?: "linkedin" | "github" | "filter";
+        activeGithub?: boolean;
+        activeGithubScore?: number;
       }[]
     | null
   >(null);
@@ -190,6 +192,10 @@ export default function ScrapedDialog() {
     if (whopUser) {
       weights.whopUser = 0.2;
     }
+    if (activeGithub) {
+      weights.activeGithub = 0.1;
+    }
+
     // Handle individual skill weights
     if (filters?.skills && filters.skills.length > 0) {
       const skillWeight = 0.3;
@@ -237,7 +243,7 @@ export default function ScrapedDialog() {
   // Update filterWeights whenever filters or whopUser change
   useEffect(() => {
     setFilterWeights(initializeFilterWeights());
-  }, [filters, whopUser]);
+  }, [filters, whopUser, activeGithub]);
 
   // Function to handle weight changes
   const handleWeightChange = (
@@ -661,6 +667,10 @@ export default function ScrapedDialog() {
           value: whopUser,
           weight: filterWeights.whopUser as number,
         },
+        activeGithub: {
+          value: activeGithub,
+          weight: filterWeights.activeGithub as number,
+        },
       };
 
       if (filters?.skills && filterWeights.skills) {
@@ -931,6 +941,8 @@ export default function ScrapedDialog() {
                                     return "cyan";
                                   case "whopUser":
                                     return "orange";
+                                  case "activeGithub":
+                                    return "violet";
                                   default:
                                     return "gray";
                                 }
@@ -959,6 +971,8 @@ export default function ScrapedDialog() {
                                     return GraduationCap;
                                   case "whopUser":
                                     return Whop;
+                                  case "activeGithub":
+                                    return Github;
                                   default:
                                     return null;
                                 }
@@ -984,6 +998,8 @@ export default function ScrapedDialog() {
                                     return filters?.schools.length === 1
                                       ? filters?.schools[0]
                                       : "Schools";
+                                  case "activeGithub":
+                                    return "Active Github";
                                   default:
                                     return toPascalCase(filterType);
                                 }
@@ -1132,13 +1148,14 @@ export default function ScrapedDialog() {
                       onClick={() => {
                         setFilters(null);
                         setFilterWeights({
-                          job: 1 / 7,
-                          skills: 1 / 7,
-                          companies: 1 / 7,
-                          location: 1 / 7,
-                          schools: 1 / 7,
-                          fieldsOfStudy: 1 / 7,
-                          whopUser: 1 / 7,
+                          job: 1 / 8,
+                          skills: 1 / 8,
+                          companies: 1 / 8,
+                          location: 1 / 8,
+                          schools: 1 / 8,
+                          fieldsOfStudy: 1 / 8,
+                          whopUser: 1 / 8,
+                          activeGithub: 1 / 8,
                         });
                       }}
                     >
@@ -1184,7 +1201,7 @@ export default function ScrapedDialog() {
             <AccordionItem value="urls">
               <AccordionTrigger>
                 <Text size="2" weight="bold">
-                  Upload Ideal LinkedIn or GitHub Candidate URLs
+                  Upload Ideal LinkedIn Candidate URLs
                 </Text>
               </AccordionTrigger>
               <AccordionContent>

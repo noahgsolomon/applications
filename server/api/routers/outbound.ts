@@ -198,6 +198,8 @@ export const outboundRouter = createTRPCRouter({
             matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy || [],
             from: idResponse?.from || undefined,
             attributions: idResponse?.attributions || undefined,
+            activeGithub: idResponse?.activeGithub || undefined,
+            activeGithubScore: idResponse?.activeGithubScore || undefined,
           };
         })
         .sort((a, b) => b.score - a.score)
