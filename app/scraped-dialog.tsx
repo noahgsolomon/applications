@@ -128,6 +128,8 @@ export default function ScrapedDialog() {
         matchedCompanies?: { score: number; company: string }[];
         matchedSchools?: { score: number; school: string }[];
         matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
+        attributions?: { attribution: string; score: number }[];
+        from?: "linkedin" | "github" | "filter";
       }[]
     | null
   >(null);

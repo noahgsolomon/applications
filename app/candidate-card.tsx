@@ -36,6 +36,8 @@ import {
   GraduationCap,
   Book,
   Info as InfoIcon,
+  Plus,
+  ChartNetwork,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -46,6 +48,8 @@ export default function CandidateCard({
   candidate: {
     data: InferSelectModel<typeof people>;
     score: number;
+    attributions?: { attribution: string; score: number }[];
+    from?: string | string[];
     matchedSkills?: { score: number; skill: string }[];
     matchedJobTitle?: { score: number; jobTitle: string };
     matchedLocation?: { score: number; location: string };
@@ -242,59 +246,62 @@ export default function CandidateCard({
                 {field.fieldOfStudy}
               </Badge>
             ))}
-          {/* {matchedSkills && matchedSkills.length > 0 && (
-            <TableRow>
-              <TableCell>Skills</TableCell>
-              <TableCell>
-                {matchedSkills
-                  .reduce((sum, skill) => sum + skill.score, 0)
-                  .toFixed(2)}
-              </TableCell>
-            </TableRow>
+          {candidate.from &&
+            (Array.isArray(candidate.from) ? (
+              <>
+                {candidate.from.map((from) => (
+                  <Badge
+                    variant="surface"
+                    color={
+                      from === "linkedin"
+                        ? "blue"
+                        : from === "github"
+                        ? "purple"
+                        : "gray"
+                    }
+                  >
+                    {from === "linkedin" ? (
+                      <Linkedin className="size-4 mr-1" />
+                    ) : from === "github" ? (
+                      <Github className="size-4 mr-1" />
+                    ) : (
+                      <ChartNetwork className="size-4 mr-1" />
+                    )}
+                    {from + " similar profiles"}
+                  </Badge>
+                ))}
+              </>
+            ) : (
+              <Badge
+                variant="surface"
+                color={
+                  candidate.from === "linkedin"
+                    ? "blue"
+                    : candidate.from === "github"
+                    ? "purple"
+                    : "gray"
+                }
+              >
+                {candidate.from === "linkedin" ? (
+                  <Linkedin className="size-4 mr-1" />
+                ) : candidate.from === "github" ? (
+                  <Github className="size-4 mr-1" />
+                ) : (
+                  <ChartNetwork className="size-4 mr-1" />
+                )}
+                {candidate.from + " similar profiles"}
+              </Badge>
+            ))}
+          {candidate.attributions && candidate.attributions.length > 0 && (
+            <>
+              {candidate.attributions.map((attr, index) => (
+                <Badge key={index} variant="surface" color="purple">
+                  <Plus className="size-4 mr-1" />
+                  {attr.attribution}: {attr.score.toFixed(2)}
+                </Badge>
+              ))}
+            </>
           )}
-          {matchedJobTitle && (
-            <TableRow>
-              <TableCell>Job Title</TableCell>
-              <TableCell>{matchedJobTitle.score.toFixed(2)}</TableCell>
-            </TableRow>
-          )}
-          {matchedLocation && (
-            <TableRow>
-              <TableCell>Location</TableCell>
-              <TableCell>{matchedLocation.score.toFixed(2)}</TableCell>
-            </TableRow>
-          )}
-          {candidate.matchedCompanies &&
-            candidate.matchedCompanies.length > 0 && (
-              <TableRow>
-                <TableCell>Companies</TableCell>
-                <TableCell>
-                  {candidate.matchedCompanies
-                    .reduce((sum, company) => sum + company.score, 0)
-                    .toFixed(2)}
-                </TableCell>
-              </TableRow>
-            )}
-          {matchedSchools && matchedSchools.length > 0 && (
-            <TableRow>
-              <TableCell>Schools</TableCell>
-              <TableCell>
-                {matchedSchools
-                  .reduce((sum, school) => sum + school.score, 0)
-                  .toFixed(2)}
-              </TableCell>
-            </TableRow>
-          )}
-          {matchedFieldsOfStudy && matchedFieldsOfStudy.length > 0 && (
-            <TableRow>
-              <TableCell>Fields of Study</TableCell>
-              <TableCell>
-                {matchedFieldsOfStudy
-                  .reduce((sum, field) => sum + field.score, 0)
-                  .toFixed(2)}
-              </TableCell>
-            </TableRow>
-          )} */}
         </Flex>
       </Flex>
     </Card>

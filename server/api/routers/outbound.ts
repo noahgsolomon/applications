@@ -196,6 +196,8 @@ export const outboundRouter = createTRPCRouter({
             matchedCompanies: idResponse?.matchedCompanies || [],
             matchedSchools: idResponse?.matchedSchools || [],
             matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy || [],
+            from: idResponse?.from || undefined,
+            attributions: idResponse?.attributions || undefined,
           };
         })
         .sort((a, b) => b.score - a.score)
