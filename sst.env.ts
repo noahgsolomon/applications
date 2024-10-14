@@ -14,6 +14,7 @@ export const NextEnv = {
   LINKEDIN_QUEUE_URL: process.env.LINKEDIN_QUEUE_URL!,
   WHOP_APP_ID: process.env.WHOP_APP_ID!,
   NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
+  TOKEN_GITHUB: process.env.TOKEN_GITHUB!,
 };
 
 export const SubscriberEnv = {
@@ -32,4 +33,5 @@ export const SubscriberEnv = {
   LINKEDIN_QUEUE_URL: process.env.LINKEDIN_QUEUE_URL!,
   WHOP_APP_ID: process.env.WHOP_APP_ID!,
   NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
+  TOKEN_GITHUB: process.env.TOKEN_GITHUB!,
 };

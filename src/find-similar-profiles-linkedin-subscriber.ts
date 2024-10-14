@@ -925,7 +925,7 @@ async function fetchGitHubUserData(username: string): Promise<any | null> {
         query,
         login: username,
         headers: {
-          authorization: `Bearer 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`,
+          authorization: `Bearer ${process.env.TOKEN_GITHUB}`,
         },
       });
     });

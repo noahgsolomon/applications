@@ -52,3 +52,4 @@ jobs:
           LINKEDIN_QUEUE_URL: ${{ secrets.NEXT_PUBLIC_LINKEDIN_QUEUE_URL }}
           WHOP_API_KEY: ${{ secrets.WHOP_API_KEY }}
           NEXT_PUBLIC_WHOP_APP_ID: ${{ secrets.NEXT_PUBLIC_WHOP_APP_ID }}
+          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
