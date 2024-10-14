@@ -213,7 +213,7 @@ export default function CandidateCard({
               {matchedJobTitle.jobTitle}
             </Badge>
           )}
-          {matchedLocation && (
+          {matchedLocation && matchedLocation.location && (
             <Badge variant="surface" color="iris">
               <TreePalm className="size-4" />
               {matchedLocation.location.slice(0, 1).toUpperCase() +

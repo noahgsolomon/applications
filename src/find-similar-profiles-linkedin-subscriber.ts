@@ -32,12 +32,16 @@ import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
 import ws from "ws";
 import { jsonArrayContainsAny } from "@/lib/utils";
+import { graphql } from "@octokit/graphql";
+import { RateLimiter } from "@/github/graphql";
 
 neonConfig.webSocketConstructor = ws;
 
 dotenv.config({
   path: "../.env",
 });
+
+const rateLimiter = new RateLimiter();
 
 const pool = new Pool({ connectionString: process.env.DB_URL });
 export const db = drizzle(pool, {
@@ -399,32 +403,6 @@ async function gatherTopSkills(profileData: any) {
   return result;
 }
 
-async function askCondition(condition: string) {
-  const completion = await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content:
-          'You are to return a valid parseable JSON object with one attribute "condition" which can either be true or false. All questions users ask will always be able to be answered in a yes or no. An example response would be { "condition": true }',
-      },
-      {
-        role: "user",
-        content: condition,
-      },
-    ],
-    response_format: { type: "json_object" },
-    model: "gpt-4o-mini",
-    temperature: 0,
-    max_tokens: 256,
-  });
-
-  const result = JSON.parse(
-    completion.choices[0].message.content ?? '{ "condition": false }'
-  ).condition as boolean;
-
-  return result;
-}
-
 async function generateSummary(profileData: any) {
   console.log("Generating summary for profile data...");
   const completion = await openai.chat.completions.create({
@@ -446,6 +424,765 @@ async function generateSummary(profileData: any) {
   });
   console.log("Summary generated.");
   return completion.choices[0].message.content;
+}
+
+async function processGitHubUrls(githubUrls: string[], insertId: string) {
+  console.log(`Processing GitHub URLs: ${githubUrls.join(", ")}`);
+
+  // Map GitHub URLs to usernames
+  const usernames = githubUrls
+    .map((url) => {
+      const match = url.match(/github\.com\/(.*?)\/?$/);
+      return match ? match[1] : null;
+    })
+    .filter(Boolean) as string[];
+
+  // Fetch or insert users into the database
+  for (const username of usernames) {
+    // Check if the user already exists in the database
+    const existingUser = await db.query.people.findFirst({
+      where: eq(schema.people.githubLogin, username),
+    });
+
+    if (!existingUser) {
+      // Fetch user data from GitHub
+      const userData = await fetchGitHubUserData(username);
+      if (userData) {
+        // Insert the new user into the database
+        await insertPersonFromGithub(userData);
+      }
+    }
+  }
+
+  // Fetch input people from the database
+  const inputPeople = await db.query.people.findMany({
+    where: inArray(schema.people.githubLogin, usernames),
+    columns: {
+      id: true,
+      averageSkillVector: true,
+      averageCompanyVector: true,
+      averageJobTitleVector: true,
+      locationVector: true,
+      averageSchoolVector: true,
+      averageFieldOfStudyVector: true,
+      githubLanguages: true,
+      followers: true,
+      following: true,
+      totalStars: true,
+      totalCommits: true,
+      contributionYears: true,
+    },
+  });
+
+  if (inputPeople.length === 0) {
+    console.log("No matching input people found");
+    return [];
+  }
+
+  console.log(`Found ${inputPeople.length} matching input people.`);
+
+  // Prepare embeddings for each metric
+  const inputPersonAverageEmbeddings = inputPeople.map((person) => {
+    return {
+      id: person.id,
+      skillEmbedding: person.averageSkillVector,
+      companyEmbedding: person.averageCompanyVector,
+      jobTitleEmbedding: person.averageJobTitleVector,
+      schoolEmbedding: person.averageSchoolVector,
+      fieldOfStudyEmbedding: person.averageFieldOfStudyVector,
+      locationEmbedding: person.locationVector,
+    };
+  });
+
+  // Calculate variances for each metric
+  const metricVariances: { [key: string]: number } = {
+    skills: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.skillEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    jobTitles: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.jobTitleEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    companies: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.companyEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    schools: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.schoolEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    fieldsOfStudy: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.fieldOfStudyEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+    locations: calculateCosineSimilarityVariance(
+      inputPersonAverageEmbeddings
+        .map((p) => p.locationEmbedding)
+        .filter((e): e is number[] => e !== null)
+    ),
+  };
+
+  console.log("Metric variances:", metricVariances);
+
+  // Compute overall average embeddings
+  const avgSkillEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.skillEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgJobTitleEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.jobTitleEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgCompanyEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.companyEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgSchoolEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.schoolEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgFieldOfStudyEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.fieldOfStudyEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+  const avgLocationEmbedding = await computeAverageEmbedding(
+    inputPersonAverageEmbeddings
+      .map((p) => p.locationEmbedding)
+      .filter((e): e is number[] => e !== null)
+  );
+
+  // Filter out metrics with high variance
+  const varianceThreshold = 0.1;
+  const validMetrics = Object.entries(metricVariances)
+    .filter(([, variance]) => variance <= varianceThreshold)
+    .map(([metric]) => metric);
+
+  console.log("Valid metrics for scoring:", validMetrics);
+
+  // Create a dictionary to store similarPeople per metric
+  const similarPeoplePerMetric: {
+    [metric: string]: { score: number; personIds: string }[];
+  } = {};
+
+  for (const metric of validMetrics) {
+    let similarPeople: { score: number; personIds: string }[] = [];
+
+    switch (metric) {
+      case "skills":
+        if (avgSkillEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageSkillVector,
+            schema.people.id,
+            schema.people,
+            avgSkillEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+      case "jobTitles":
+        if (avgJobTitleEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageJobTitleVector,
+            schema.people.id,
+            schema.people,
+            avgJobTitleEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+      case "companies":
+        if (avgCompanyEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageCompanyVector,
+            schema.people.id,
+            schema.people,
+            avgCompanyEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+      case "schools":
+        if (avgSchoolEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageSchoolVector,
+            schema.people.id,
+            schema.people,
+            avgSchoolEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+      case "fieldsOfStudy":
+        if (avgFieldOfStudyEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.averageFieldOfStudyVector,
+            schema.people.id,
+            schema.people,
+            avgFieldOfStudyEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+      case "locations":
+        if (avgLocationEmbedding) {
+          similarPeople = await querySimilarPeopleByEmbedding(
+            schema.people.locationVector,
+            schema.people.id,
+            schema.people,
+            avgLocationEmbedding,
+            2000,
+            0.1
+          );
+        }
+        break;
+    }
+
+    // Store similarPeople for this metric
+    similarPeoplePerMetric[metric] = similarPeople;
+  }
+
+  const allSimilarPeople: {
+    personId: string;
+    score: number;
+    attributions: { attribution: string; score: number }[];
+  }[] = [];
+
+  const addToAllSimilarPeople = (
+    personId: string,
+    score: number,
+    attribution: string
+  ) => {
+    if (validMetrics.includes(attribution)) {
+      const existingPerson = allSimilarPeople.find(
+        (p) => p.personId === personId
+      );
+      if (existingPerson) {
+        existingPerson.score += score;
+        const existingAttribution = existingPerson.attributions.find(
+          (a) => a.attribution === attribution
+        );
+        if (existingAttribution) {
+          existingAttribution.score += score;
+        } else {
+          existingPerson.attributions.push({ attribution, score });
+        }
+      } else {
+        allSimilarPeople.push({
+          personId,
+          score,
+          attributions: [{ attribution, score }],
+        });
+      }
+    }
+  };
+
+  // Combine all similarity calculations
+  console.log("Starting to combine similarity calculations...");
+  validMetrics.forEach((metric, index) => {
+    const data = similarPeoplePerMetric[metric];
+    const attribution = metric;
+    console.log(
+      `Processing ${attribution} data (${index + 1}/${validMetrics.length})...`
+    );
+    data.forEach((person, personIndex) => {
+      if (person.personIds) {
+        addToAllSimilarPeople(person.personIds, person.score, attribution);
+      } else {
+        console.warn(
+          `Unexpected personIds format for ${attribution} at index ${personIndex}:`,
+          person.personIds
+        );
+      }
+    });
+    console.log(`Finished processing ${attribution} data.`);
+  });
+  console.log("Finished combining all similarity calculations.");
+
+  // Sort the allSimilarPeople array by score in descending order and limit to top 2000
+  const topSimilarPeople = allSimilarPeople
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2000);
+
+  // Fetch only the top similar people
+  console.log("Fetching top similar people...");
+  const inputPersonIds = new Set(inputPeople.map((p) => p.id));
+  const topCandidates = await db.query.people.findMany({
+    where: and(
+      not(inArray(schema.people.id, Array.from(inputPersonIds))),
+      inArray(
+        schema.people.id,
+        topSimilarPeople.map((p) => p.personId)
+      )
+    ),
+    columns: {
+      id: true,
+      isWhopUser: true,
+      isWhopCreator: true,
+      name: true,
+      companyIds: true,
+      githubBio: true,
+      summary: true,
+      miniSummary: true,
+      createdAt: true,
+      email: true,
+      followers: true,
+      githubCompany: true,
+      websiteUrl: true,
+      workedInBigTech: true,
+      contributionYears: true,
+      following: true,
+      githubImage: true,
+      followerToFollowingRatio: true,
+      image: true,
+      isEngineer: true,
+      jobTitles: true,
+      linkedinData: true,
+      twitterBio: true,
+      twitterData: true,
+      githubLanguages: true,
+      topFeatures: true,
+      topTechnologies: true,
+      linkedinUrl: true,
+      normalizedLocation: true,
+      location: true,
+      twitterUsername: true,
+      githubData: true,
+      githubLogin: true,
+      githubId: true,
+      organizations: true,
+    },
+  });
+  console.log(`Fetched ${topCandidates.length} people.`);
+
+  // Combine the fetched data with the similarity scores
+  const scoredCandidates = topCandidates
+    .map((person) => {
+      const similarityData = topSimilarPeople.find(
+        (p) => p.personId === person.id
+      );
+      return {
+        data: { ...person },
+        score: similarityData ? similarityData.score : 0,
+        attributions: similarityData ? similarityData.attributions : [],
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  console.log(`Processed ${scoredCandidates.length} top candidates.`);
+
+  // Calculate min and max scores
+  const scores = scoredCandidates.map((c) => c.score);
+  const minScore = Math.min(...scores);
+  const maxScore = Math.max(...scores);
+
+  // Avoid division by zero
+  const scoreRange = maxScore - minScore || 1;
+  // Normalize scores using Min-Max normalization
+  const normalizedCandidates = scoredCandidates.map((candidate) => {
+    const normalizedScore = (candidate.score - minScore) / scoreRange;
+
+    const normalizedAttributions = candidate.attributions.map((attr) => {
+      const attrNormalizedScore = (attr.score - minScore) / scoreRange;
+
+      return {
+        attribution: attr.attribution,
+        score: parseFloat(attrNormalizedScore.toFixed(6)),
+      };
+    });
+
+    return {
+      ...candidate,
+      score: parseFloat(normalizedScore.toFixed(6)),
+      attributions: normalizedAttributions,
+    };
+  });
+
+  console.log(
+    `Processed and normalized ${normalizedCandidates.length} top candidates.`
+  );
+
+  return normalizedCandidates;
+}
+
+// Helper functions used in the implementation
+
+function calculateAverageEmbedding(embeddings: number[][]): number[] | null {
+  if (embeddings.length === 0) return null;
+  const length = embeddings[0].length;
+  const sum = new Array(length).fill(0);
+  for (const emb of embeddings) {
+    for (let i = 0; i < length; i++) {
+      sum[i] += emb[i];
+    }
+  }
+  return sum.map((val) => val / embeddings.length);
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  const dotProduct = a.reduce((sum, ai, idx) => sum + ai * b[idx], 0);
+  const normA = Math.sqrt(a.reduce((sum, ai) => sum + ai * ai, 0));
+  const normB = Math.sqrt(b.reduce((sum, bi) => sum + bi * bi, 0));
+  return dotProduct / (normA * normB);
+}
+
+async function fetchGitHubUserData(username: string): Promise<any | null> {
+  console.log(`Fetching GitHub user data for username: ${username}`);
+
+  const query = `
+  query($login: String!) {
+    user(login: $login) {
+      login
+      name
+      bio
+      location
+      company
+      websiteUrl
+      twitterUsername
+      email
+      avatarUrl
+      followers {
+        totalCount
+      }
+      following {
+        totalCount
+      }
+      repositories(first: 100, isFork: false, ownerAffiliations: OWNER) {
+        totalCount
+        nodes {
+          name
+          stargazerCount
+          forkCount
+          primaryLanguage {
+            name
+          }
+          repositoryTopics(first: 10) {
+            nodes {
+              topic {
+                name
+              }
+            }
+          }
+        }
+      }
+      contributionsCollection {
+        contributionYears
+        totalCommitContributions
+        restrictedContributionsCount
+      }
+      organizations(first: 100) {
+        nodes {
+          login
+          name
+          description
+          membersWithRole {
+            totalCount
+          }
+        }
+      }
+      sponsors(first: 100) {
+        totalCount
+        nodes {
+          __typename
+          ... on User {
+            login
+            name
+          }
+          ... on Organization {
+            login
+            name
+          }
+        }
+      }
+      socialAccounts(first: 10) {
+        nodes {
+          provider
+          url
+        }
+      }
+    }
+  }
+`;
+
+  try {
+    const result = await rateLimiter.execute(async () => {
+      return graphql<any>({
+        query,
+        login: username,
+        headers: {
+          authorization: `Bearer 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`,
+        },
+      });
+    });
+
+    if (result === null) {
+      console.log(`Failed to fetch data for user: ${username}`);
+      return null;
+    }
+
+    const userData = result.user;
+
+    // Extract LinkedIn URL if available
+    let linkedinUrl: string | null = null;
+    const linkedinAccount = userData.socialAccounts.nodes.find(
+      (account: any) => account.provider.toLowerCase() === "linkedin"
+    );
+    if (linkedinAccount) {
+      linkedinUrl = linkedinAccount.url;
+    }
+
+    // Add linkedinUrl to the userData object
+    userData.linkedinUrl = linkedinUrl;
+
+    return userData;
+  } catch (error) {
+    console.error(`Error fetching GitHub user data for ${username}:`, error);
+    return null;
+  }
+}
+
+async function insertPersonFromGithub(profileData: any) {
+  console.log("Inserting person into the database from GitHub data...");
+
+  // Extract data from profileData
+  const {
+    login,
+    name,
+    bio,
+    location,
+    company,
+    websiteUrl,
+    twitterUsername,
+    email,
+    avatarUrl,
+    followers,
+    following,
+    contributionsCollection,
+    repositories,
+    organizations,
+    sponsors,
+  } = profileData;
+
+  const personId = uuid();
+
+  // Process additional fields
+  const githubCompany = company || null;
+  const contributionYears = contributionsCollection.contributionYears || [];
+  const totalCommits = contributionsCollection.totalCommitContributions || 0;
+  const totalExternalCommits =
+    contributionsCollection.restrictedContributionsCount || 0;
+
+  const totalRepositories = repositories.totalCount || 0;
+  const totalStars = repositories.nodes.reduce(
+    (sum: number, repo: any) => sum + repo.stargazerCount,
+    0
+  );
+  const totalForks = repositories.nodes.reduce(
+    (sum: number, repo: any) => sum + repo.forkCount,
+    0
+  );
+
+  // Process GitHub Languages
+  const githubLanguages: Record<string, any> = {};
+  repositories.nodes.forEach((repo: any) => {
+    if (repo.primaryLanguage && repo.primaryLanguage.name) {
+      const language = repo.primaryLanguage.name;
+      if (!githubLanguages[language]) {
+        githubLanguages[language] = { repoCount: 0, stars: 0 };
+      }
+      githubLanguages[language].repoCount += 1;
+      githubLanguages[language].stars += repo.stargazerCount;
+    }
+  });
+
+  // Process unique topics
+  const topicSet = new Set<string>();
+  repositories.nodes.forEach((repo: any) => {
+    repo.repositoryTopics.nodes.forEach((topicNode: any) => {
+      topicSet.add(topicNode.topic.name);
+    });
+  });
+
+  // Process sponsored projects and sponsors count
+  const sponsoredProjects = sponsors.nodes.map((sponsor: any) => sponsor.login);
+  const sponsorsCount = sponsors.totalCount || 0;
+
+  // Calculate follower to following ratio
+  const followerToFollowingRatio =
+    following.totalCount > 0
+      ? followers.totalCount / following.totalCount
+      : followers.totalCount;
+
+  // Normalize location (implement your own normalization logic)
+  const normalizedLocation = location ? location.toLowerCase().trim() : null;
+
+  // Extract skills from primary languages
+  const skillsSet = new Set<string>();
+  repositories.nodes.forEach((repo: any) => {
+    if (repo.primaryLanguage && repo.primaryLanguage.name) {
+      skillsSet.add(repo.primaryLanguage.name);
+    }
+  });
+  const skills = Array.from(skillsSet);
+
+  // Process skill vectors
+  const skillVectors: number[][] = [];
+  for (const skill of skills) {
+    try {
+      const vector = await upsertData(
+        schema.skillsNew,
+        "skill",
+        skill,
+        "vector",
+        personId
+      );
+      skillVectors.push(vector);
+    } catch (error) {
+      console.error(
+        `Error processing skill "${skill}" for person ID: ${personId}`,
+        error
+      );
+    }
+  }
+
+  // Compute average skill vector
+  const averageSkillVector = await computeAverageEmbedding(skillVectors);
+
+  // Extract topics from repositories
+  const topicsSet = new Set<string>();
+  repositories.nodes.forEach((repo: any) => {
+    repo.repositoryTopics.nodes.forEach((topicNode: any) => {
+      if (topicNode.topic && topicNode.topic.name) {
+        topicsSet.add(topicNode.topic.name);
+      }
+    });
+  });
+
+  try {
+    await db.insert(people).values({
+      id: personId as string,
+      name: name || login,
+      githubLogin: login,
+      githubData: profileData,
+      followers: followers.totalCount,
+      following: following.totalCount,
+      websiteUrl: websiteUrl || null,
+      email: email || null,
+      twitterUsername: twitterUsername || null,
+      location: location || null,
+      locationVector: location ? await getEmbedding(location) : null,
+      averageSkillVector,
+      createdAt: new Date(),
+      image: avatarUrl || null,
+      organizations,
+      githubBio: bio || null,
+      githubImage: avatarUrl || null,
+      githubId: login,
+      githubCompany,
+      contributionYears,
+      githubLanguages,
+      linkedinUrl: profileData.linkedinUrl || null,
+      topTechnologies: skills,
+      topFeatures: [],
+      followerToFollowingRatio,
+      normalizedLocation,
+      sourceTables: ["github"],
+      totalCommits,
+      totalExternalCommits,
+      totalForks,
+      totalStars,
+      totalRepositories,
+      sponsorsCount,
+      sponsoredProjects,
+      uniqueTopics: Array.from(topicSet),
+    });
+
+    console.log(
+      `Person ${
+        name || login
+      } inserted into the database. Person ID: ${personId}`
+    );
+  } catch (e) {
+    console.error(
+      `Failed to insert person ${name || login} into the database.`,
+      e
+    );
+  }
+
+  return personId;
+}
+
+// Function to upsert data into a table
+async function upsertData(
+  table: any,
+  fieldName: string,
+  fieldValue: string,
+  vectorFieldName: string,
+  personId: string
+) {
+  const normalizedValue = fieldValue.toLowerCase().trim();
+  const existingRecord = await db
+    .select()
+    .from(table)
+    .where(eq(table[fieldName], normalizedValue))
+    .limit(1);
+
+  if (existingRecord.length > 0) {
+    const currentPersonIds = existingRecord[0].personIds || [];
+    const updatedPersonIds = Array.from(
+      new Set([...currentPersonIds, personId])
+    );
+
+    if (
+      updatedPersonIds.length === currentPersonIds.length &&
+      updatedPersonIds.every((id, index) => id === currentPersonIds[index])
+    ) {
+      console.log(
+        `[upsert${fieldName}] No changes for ${fieldName} "${normalizedValue}". Skipping update.`
+      );
+      return existingRecord[0][vectorFieldName];
+    }
+
+    await db
+      .update(table)
+      .set({ personIds: updatedPersonIds })
+      .where(eq(table[fieldName], normalizedValue));
+
+    console.log(
+      `[upsert${fieldName}] Updated ${fieldName} "${normalizedValue}" with person ID: ${personId}`
+    );
+    return existingRecord[0][vectorFieldName];
+  } else {
+    const vector = await getEmbedding(normalizedValue);
+    await db
+      .insert(table)
+      .values({
+        personIds: [personId],
+        [fieldName]: normalizedValue,
+        [vectorFieldName]: vector,
+      })
+      .onConflictDoNothing();
+
+    console.log(
+      `[upsert${fieldName}] Inserted new ${fieldName} "${normalizedValue}" with person ID: ${personId}`
+    );
+    return vector;
+  }
 }
 
 async function insertPersonFromLinkedin(profileData: any) {
@@ -480,63 +1217,6 @@ async function insertPersonFromLinkedin(profileData: any) {
   const schoolVectors: number[][] = [];
   const fieldOfStudyVectors: number[][] = [];
 
-  // Function to upsert data into a table
-  async function upsertData(
-    table: any,
-    fieldName: string,
-    fieldValue: string,
-    vectorFieldName: string
-  ) {
-    const normalizedValue = fieldValue.toLowerCase().trim();
-    const existingRecord = await db
-      .select()
-      .from(table)
-      .where(eq(table[fieldName], normalizedValue))
-      .limit(1);
-
-    if (existingRecord.length > 0) {
-      const currentPersonIds = existingRecord[0].personIds || [];
-      const updatedPersonIds = Array.from(
-        new Set([...currentPersonIds, personId])
-      );
-
-      if (
-        updatedPersonIds.length === currentPersonIds.length &&
-        updatedPersonIds.every((id, index) => id === currentPersonIds[index])
-      ) {
-        console.log(
-          `[upsert${fieldName}] No changes for ${fieldName} "${normalizedValue}". Skipping update.`
-        );
-        return existingRecord[0][vectorFieldName];
-      }
-
-      await db
-        .update(table)
-        .set({ personIds: updatedPersonIds })
-        .where(eq(table[fieldName], normalizedValue));
-
-      console.log(
-        `[upsert${fieldName}] Updated ${fieldName} "${normalizedValue}" with person ID: ${personId}`
-      );
-      return existingRecord[0][vectorFieldName];
-    } else {
-      const vector = await getEmbedding(normalizedValue);
-      await db
-        .insert(table)
-        .values({
-          personIds: [personId],
-          [fieldName]: normalizedValue,
-          [vectorFieldName]: vector,
-        })
-        .onConflictDoNothing();
-
-      console.log(
-        `[upsert${fieldName}] Inserted new ${fieldName} "${normalizedValue}" with person ID: ${personId}`
-      );
-      return vector;
-    }
-  }
-
   // Compute location vector if location is provided
   let locationVector: number[] | null = null;
   if (profileData.location) {
@@ -550,7 +1230,8 @@ async function insertPersonFromLinkedin(profileData: any) {
       schema.locationsVector,
       "location",
       profileData.location,
-      "vector"
+      "vector",
+      personId
     );
   }
 
@@ -561,7 +1242,8 @@ async function insertPersonFromLinkedin(profileData: any) {
         schema.skillsNew,
         "skill",
         skill,
-        "vector"
+        "vector",
+        personId
       );
       skillVectors.push(vector);
     } catch (error) {
@@ -579,7 +1261,8 @@ async function insertPersonFromLinkedin(profileData: any) {
         schema.jobTitlesVectorNew,
         "jobTitle",
         title,
-        "vector"
+        "vector",
+        personId
       );
       jobTitleVectors.push(vector);
     } catch (error) {
@@ -597,7 +1280,8 @@ async function insertPersonFromLinkedin(profileData: any) {
         schema.companiesVectorNew,
         "company",
         company,
-        "vector"
+        "vector",
+        personId
       );
       companyVectors.push(vector);
     } catch (error) {
@@ -615,7 +1299,8 @@ async function insertPersonFromLinkedin(profileData: any) {
         schema.schools,
         "school",
         school,
-        "vector"
+        "vector",
+        personId
       );
       schoolVectors.push(vector);
     } catch (error) {
@@ -633,7 +1318,8 @@ async function insertPersonFromLinkedin(profileData: any) {
         schema.fieldsOfStudy,
         "fieldOfStudy",
         field,
-        "vector"
+        "vector",
+        personId
       );
       fieldOfStudyVectors.push(vector);
     } catch (error) {
@@ -688,13 +1374,6 @@ async function insertPersonFromLinkedin(profileData: any) {
   }
 
   return personId;
-}
-
-function cosineSimilarity(a: number[], b: number[]): number {
-  const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
-  const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
-  const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
-  return dotProduct / (magnitudeA * magnitudeB);
 }
 
 function calculateCosineSimilarityVariance(embeddings: number[][]): number {
@@ -1105,27 +1784,20 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
   console.log(`Processed ${scoredCandidates.length} top candidates.`);
 
-  // Calculate mean and standard deviation
+  // Calculate min and max scores
   const scores = scoredCandidates.map((c) => c.score);
-  const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-  const variance =
-    scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
-    scores.length;
-  const stdDev = Math.sqrt(variance);
+  const minScore = Math.min(...scores);
+  const maxScore = Math.max(...scores);
 
+  // Avoid division by zero
+  const scoreRange = maxScore - minScore || 1;
+
+  // Normalize scores using Min-Max normalization
   const normalizedCandidates = scoredCandidates.map((candidate) => {
-    // Z-score normalization
-    let normalizedScore = (candidate.score - mean) / (stdDev + 0.000001);
-
-    // Optional: Convert to a 0-1 scale using the cumulative distribution function
-    normalizedScore = 0.5 * (1 + erf(normalizedScore / Math.sqrt(2)));
+    const normalizedScore = (candidate.score - minScore) / scoreRange;
 
     const normalizedAttributions = candidate.attributions.map((attr) => {
-      const attrMean = mean; // Assuming same mean and stdDev for attributions
-      const attrStdDev = stdDev;
-      let attrNormalizedScore =
-        (attr.score - attrMean) / (attrStdDev + 0.000001);
-      attrNormalizedScore = 0.5 * (1 + erf(attrNormalizedScore / Math.sqrt(2)));
+      const attrNormalizedScore = (attr.score - minScore) / scoreRange;
 
       return {
         attribution: attr.attribution,
@@ -1135,27 +1807,10 @@ async function processLinkedinUrls(profileUrls: string[], insertId: string) {
 
     return {
       ...candidate,
-      score: normalizedScore,
+      score: parseFloat(normalizedScore.toFixed(6)),
       attributions: normalizedAttributions,
     };
   });
-
-  // Helper function for error function (erf)
-  // Abramowitz and Stegun approximation
-  function erf(x: number) {
-    const sign = x >= 0 ? 1 : -1;
-    x = Math.abs(x);
-    const a1 = 0.254829592;
-    const a2 = -0.284496736;
-    const a3 = 1.421413741;
-    const a4 = -1.453152027;
-    const a5 = 1.061405429;
-    const p = 0.3275911;
-    const t = 1 / (1 + p * x);
-    const y =
-      1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-    return sign * y;
-  }
 
   console.log(
     `Processed and normalized ${normalizedCandidates.length} top candidates.`
@@ -2378,7 +3033,10 @@ export async function handler(event: any) {
         : Promise.resolve([]),
 
       body.githubUrls && body.githubUrls.length > 0
-        ? Promise.resolve([])
+        ? processGitHubUrls(body.githubUrls, insertId).catch((error) => {
+            console.error("Error processing GitHub URLs:", error);
+            return [];
+          })
         : Promise.resolve([]),
 
       body.filterCriteria
@@ -2394,6 +3052,7 @@ export async function handler(event: any) {
       from: "linkedin",
     }));
     resultsFromGithubUrls = githubResults.map((result) => ({
+      ...result,
       from: "github",
     }));
     resultsFromFilterCriteria = filterResults.map((result) => ({
