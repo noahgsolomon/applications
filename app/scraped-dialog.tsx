@@ -1218,7 +1218,7 @@ export default function ScrapedDialog() {
             <AccordionItem value="urls">
               <AccordionTrigger>
                 <Text size="2" weight="bold">
-                  Upload Ideal LinkedIn Candidate URLs
+                  Upload Ideal LinkedIn and GitHub Candidate URLs
                 </Text>
               </AccordionTrigger>
               <AccordionContent>
