@@ -103,6 +103,13 @@ const toPascalCase = (str: string) => {
     .join(" ");
 };
 
+function extractTwitterUsernames(content: string): string[] {
+  const twitterRegex =
+    /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/(@?\w+)/gi;
+  const matches = content.matchAll(twitterRegex);
+  return Array.from(matches, (m) => m[1].replace("@", ""));
+}
+
 export default function ScrapedDialog() {
   const { filters, setFilters } = useScrapedDialogStore();
   const [loading, setLoading] = useState(false);
@@ -168,6 +175,7 @@ export default function ScrapedDialog() {
   const [showWhop, setShowWhop] = useState(false);
   const [showActiveGithub, setShowActiveGithub] = useState(false);
   const [showMatchingLocation, setShowMatchingLocation] = useState(false);
+  const [twitterUsernames, setTwitterUsernames] = useState<string[]>([]);
 
   // Function to initialize filterWeights based on active filters
   const initializeFilterWeights = () => {
@@ -522,17 +530,24 @@ export default function ScrapedDialog() {
 
   const extractUrls = (
     content: string
-  ): { linkedinUrls: string[]; githubUrls: string[] } => {
+  ): {
+    linkedinUrls: string[];
+    githubUrls: string[];
+    twitterUsernames: string[];
+  } => {
     const linkedinRegex =
-      /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-%.]+/g;
-    const githubRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9-]+/g;
+      /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-%.]+/gi;
+    const githubRegex =
+      /(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9-]+/gi;
 
     const linkedinMatches = content.match(linkedinRegex) || [];
     const githubMatches = content.match(githubRegex) || [];
+    const twitterUsernames = extractTwitterUsernames(content);
 
     return {
       linkedinUrls: [...new Set(linkedinMatches)].map(normalizeUrl),
       githubUrls: [...new Set(githubMatches)].map(normalizeUrl),
+      twitterUsernames: [...new Set(twitterUsernames)],
     };
   };
 
@@ -540,7 +555,9 @@ export default function ScrapedDialog() {
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     setManualUrls(e.target.value);
-    const { linkedinUrls, githubUrls } = extractUrls(e.target.value);
+    const { linkedinUrls, githubUrls, twitterUsernames } = extractUrls(
+      e.target.value
+    );
 
     const newProfileUrls: ProfileUrl[] = [
       ...linkedinUrls.map((url) => ({
@@ -565,6 +582,8 @@ export default function ScrapedDialog() {
           self.findIndex((t) => t.url === url.url && t.type === url.type)
       )
     );
+
+    setTwitterUsernames(twitterUsernames);
   };
 
   const handleFileProcessing = async (file: File) => {
@@ -572,8 +591,13 @@ export default function ScrapedDialog() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      const { linkedinUrls, githubUrls } = extractUrls(content);
-      if (linkedinUrls.length > 0 || githubUrls.length > 0) {
+      const { linkedinUrls, githubUrls, twitterUsernames } =
+        extractUrls(content);
+      if (
+        linkedinUrls.length > 0 ||
+        githubUrls.length > 0 ||
+        twitterUsernames.length > 0
+      ) {
         const newProfileUrls: ProfileUrl[] = [
           ...linkedinUrls.map((url) => ({
             type: "linkedin" as const,
@@ -593,8 +617,11 @@ export default function ScrapedDialog() {
               self.findIndex((t) => t.url === url.url && t.type === url.type)
           )
         );
+        setTwitterUsernames(twitterUsernames);
       } else {
-        setError("No valid LinkedIn or GitHub URLs found in the file.");
+        setError(
+          "No valid LinkedIn, GitHub, or Twitter URLs found in the file."
+        );
       }
     };
     reader.onerror = () => {
@@ -637,6 +664,10 @@ export default function ScrapedDialog() {
 
     if (githubUrls.length > 0) {
       payload.githubUrls = githubUrls;
+    }
+
+    if (twitterUsernames.length > 0) {
+      payload.twitterUsernames = twitterUsernames;
     }
 
     if (filters) {
@@ -1218,7 +1249,7 @@ export default function ScrapedDialog() {
             <AccordionItem value="urls">
               <AccordionTrigger>
                 <Text size="2" weight="bold">
-                  Upload Ideal LinkedIn and GitHub Candidate URLs
+                  Upload Ideal LinkedIn, GitHub, and Twitter Candidate URLs
                 </Text>
               </AccordionTrigger>
               <AccordionContent>
@@ -1255,11 +1286,13 @@ export default function ScrapedDialog() {
                     />
                   </div>
                 </Flex>
-                {profileUrls.length > 0 && (
+                {(profileUrls.length > 0 || twitterUsernames.length > 0) && (
                   <Flex direction="column" gap="2" mt="2">
                     <Text size="2">
                       {profileUrls.length} unique LinkedIn and GitHub URLs
                       loaded
+                      {twitterUsernames.length > 0 &&
+                        `, ${twitterUsernames.length} Twitter usernames`}
                     </Text>
                     <Flex wrap="wrap" gap="2">
                       {profileUrls.map((urlObj, index) => (
@@ -1288,13 +1321,37 @@ export default function ScrapedDialog() {
                           {urlObj.url.split("/").pop()}
                         </Button>
                       ))}
-
+                      {twitterUsernames.map((username, index) => (
+                        <Button
+                          key={`twitter-${index}`}
+                          variant="surface"
+                          color="sky"
+                          style={{ cursor: "pointer" }}
+                          className="hover:line-through hover:text-red-500 transition duration-200 ease-in-out"
+                          onClick={() => {
+                            setTwitterUsernames(
+                              twitterUsernames.filter((u) => u !== username)
+                            );
+                            setManualUrls(
+                              manualUrls
+                                .replace(`https://twitter.com/${username}`, "")
+                                .replace(`https://x.com/${username}`, "")
+                                .replace(`@${username}`, "")
+                                .replace(username, "")
+                            );
+                          }}
+                        >
+                          <TwitterIcon className="size-4 mr-1" />
+                          {username}
+                        </Button>
+                      ))}
                       <Button
                         variant="surface"
                         color="gray"
                         style={{ cursor: "pointer" }}
                         onClick={() => {
                           setProfileUrls([]);
+                          setTwitterUsernames([]);
                           setManualUrls("");
                         }}
                       >
