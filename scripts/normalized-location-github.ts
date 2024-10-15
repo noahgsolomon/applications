@@ -56,6 +56,44 @@ Examples:
   }
 }
 
+export async function getNormalizedCountry(location: string): Promise<string> {
+  try {
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are a country normalizer. Given a location, return the uppercase country name. If it's a US location (city or state), return "UNITED STATES". For other locations, return the uppercase country name. If unsure or the location is invalid, return "UNKNOWN".
+
+Examples:
+- New York City -> UNITED STATES
+- New York -> UNITED STATES
+- London -> UNITED KINGDOM
+- California -> UNITED STATES
+- Tokyo -> JAPAN
+- Paris, France -> FRANCE
+- Sydney -> AUSTRALIA
+- 90210 -> UNITED STATES
+- Earth -> UNKNOWN`,
+        },
+        {
+          role: "user",
+          content: location,
+        },
+      ],
+      model: "gpt-4o-mini",
+      temperature: 0,
+      max_tokens: 256,
+    });
+
+    return (
+      completion.choices[0].message.content?.trim().toUpperCase() || "UNKNOWN"
+    );
+  } catch (error) {
+    console.error(`Error normalizing country for "${location}":`, error);
+    return "UNKNOWN";
+  }
+}
+
 async function updateUserLocations() {
   const users = await db.query.githubUsers.findMany({
     where: isNull(userSchema.githubUsers.normalizedLocation),
@@ -66,7 +104,7 @@ async function updateUserLocations() {
   for (const user of users) {
     if (user.location) {
       console.log(
-        `Processing user ${user.login} with location: ${user.location}`,
+        `Processing user ${user.login} with location: ${user.location}`
       );
       const normalizedLocation = await getNormalizedLocation(user.location);
 
@@ -76,7 +114,7 @@ async function updateUserLocations() {
         .where(eq(userSchema.githubUsers.id, user.id));
 
       console.log(
-        `Updated ${user.login}: ${user.location} -> ${normalizedLocation}`,
+        `Updated ${user.login}: ${user.location} -> ${normalizedLocation}`
       );
     } else {
       await db

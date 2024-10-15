@@ -322,7 +322,7 @@ async function computeAverageEmbedding(
   return sum.map((val) => val / embeddings.length);
 }
 
-async function scrapeLinkedInProfile(linkedinUrl: string) {
+export async function scrapeLinkedInProfile(linkedinUrl: string) {
   console.log(`Scraping LinkedIn profile for URL: ${linkedinUrl}`);
   const options = {
     method: "GET",
@@ -343,7 +343,7 @@ async function scrapeLinkedInProfile(linkedinUrl: string) {
   }
 }
 
-async function generateMiniSummary(profileData: any) {
+export async function generateMiniSummary(profileData: any) {
   console.log("Generating mini summary...");
   const completion = await openai.chat.completions.create({
     messages: [
@@ -367,7 +367,7 @@ async function generateMiniSummary(profileData: any) {
   return completion.choices[0].message.content;
 }
 
-async function gatherTopSkills(profileData: any) {
+export async function gatherTopSkills(profileData: any) {
   console.log("Gathering top skills from profile data...");
   const skills = profileData.skills || [];
   const positions = profileData.positions.positionHistory
@@ -403,7 +403,7 @@ async function gatherTopSkills(profileData: any) {
   return result;
 }
 
-async function generateSummary(profileData: any) {
+export async function generateSummary(profileData: any) {
   console.log("Generating summary for profile data...");
   const completion = await openai.chat.completions.create({
     messages: [

@@ -55,7 +55,11 @@ export const googleSearch = async (query: string) => {
   let allLinkedinUrls: string[] = [];
 
   for (let start = 1; start < maxResults; start += resultsPerPage) {
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cseId)}&start=${start}`;
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(
+      query
+    )}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(
+      cseId
+    )}&start=${start}`;
 
     try {
       const response = await axios.get(url);
@@ -77,7 +81,7 @@ export const googleSearch = async (query: string) => {
   }
 
   console.log(
-    `Google search completed. Found ${allLinkedinUrls.length} LinkedIn URLs.`,
+    `Google search completed. Found ${allLinkedinUrls.length} LinkedIn URLs.`
   );
   return allLinkedinUrls;
 };
@@ -106,7 +110,7 @@ const scrapeLinkedInProfile = async (linkedinUrl: string) => {
 const checkCompanyMatch = async (profileData: any) => {
   console.log("Checking for matching company in the database...");
   let companiesWorkedAt = profileData.positions.positionHistory.map(
-    (experience: any) => experience.linkedInId as string,
+    (experience: any) => experience.linkedInId as string
   );
   companiesWorkedAt = companiesWorkedAt.length > 0 ? companiesWorkedAt : [""];
 
@@ -143,7 +147,7 @@ const askCondition = async (condition: string) => {
   });
 
   const result = JSON.parse(
-    completion.choices[0].message.content ?? '{ "condition": false }',
+    completion.choices[0].message.content ?? '{ "condition": false }'
   ).condition as boolean;
 
   return result;
@@ -218,7 +222,7 @@ const insertCandidate = async (profileData: any, companyId?: string) => {
   });
   if (existingCandidate) {
     console.log(
-      `Candidate already exists in the database: ${profileData.linkedInUrl}`,
+      `Candidate already exists in the database: ${profileData.linkedInUrl}`
     );
     return;
   }
@@ -230,19 +234,25 @@ const insertCandidate = async (profileData: any, companyId?: string) => {
   const workedInBigTech = await askCondition(
     `Has this person worked in big tech? ${JSON.stringify(
       profileData.positions.positionHistory.map(
-        (experience: any) => experience.companyName,
+        (experience: any) => experience.companyName
       ),
       null,
-      2,
-    )} ${profileData.summary} ${profileData.headline}`,
+      2
+    )} ${profileData.summary} ${profileData.headline}`
   );
 
   const livesNearBrooklyn = await askCondition(
-    `Does this person live within 50 miles of Brooklyn, New York, USA? Their location: ${profileData.location ?? "unknown location"} ${
+    `Does this person live within 50 miles of Brooklyn, New York, USA? Their location: ${
+      profileData.location ?? "unknown location"
+    } ${
       profileData.positions.positionHistory.length > 0
-        ? `or ${JSON.stringify(profileData.positions.positionHistory[0], null, 2)}`
+        ? `or ${JSON.stringify(
+            profileData.positions.positionHistory[0],
+            null,
+            2
+          )}`
         : ""
-    }`,
+    }`
   );
 
   const summary = await generateSummary(profileData);
@@ -264,7 +274,7 @@ const insertCandidate = async (profileData: any, companyId?: string) => {
   });
 
   console.log(
-    `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`,
+    `Candidate ${profileData.firstName} ${profileData.lastName} inserted into the database. Candidate ID: ${candidateId}`
   );
   return candidateId;
 };
@@ -283,7 +293,7 @@ export const processUrls = async (urls: string[]) => {
     const existingCandidate = await db.query.candidates.findFirst({
       where: or(
         eq(userSchema.candidates.url, normalizedUrl),
-        eq(userSchema.candidates.url, `${normalizedUrl}/`),
+        eq(userSchema.candidates.url, `${normalizedUrl}/`)
       ),
     });
     if (existingCandidate) {
@@ -301,7 +311,7 @@ export const processUrls = async (urls: string[]) => {
 
       if (companyMatch) {
         console.log(
-          `Candidate ${name} has worked at a stored company: ${companyMatch.name}.`,
+          `Candidate ${name} has worked at a stored company: ${companyMatch.name}.`
         );
         await insertCandidate(profileData.person, companyMatch.id);
       } else {
@@ -315,7 +325,7 @@ export const processUrls = async (urls: string[]) => {
 
   await Promise.all(promises);
   console.log(
-    `Batch processing complete. Waiting 2 seconds before proceeding to the next batch...`,
+    `Batch processing complete. Waiting 2 seconds before proceeding to the next batch...`
   );
 };
 
@@ -589,7 +599,7 @@ const main = async () => {
   for (const query of queries.slice(0, 200)) {
     const urls = await googleSearch(query);
     console.log(
-      `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`,
+      `Number of URLs returned that contain www.linkedin.com/in: ${urls.length}`
     );
 
     for (let i = 0; i < urls.length; i += 10) {
@@ -602,4 +612,4 @@ const main = async () => {
   console.log("Main process completed.");
 };
 
-main();
+// main();
