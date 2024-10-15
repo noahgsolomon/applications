@@ -2221,7 +2221,7 @@ function calculateMeanAndStdDev(scores: number[]): {
 }
 
 // The processFilterCriteria function with activeGithub logic added
-async function processFilterCriteria(filterCriteria: FilterCriteria) {
+export async function processFilterCriteria(filterCriteria: FilterCriteria) {
   console.log("Processing filter criteria...");
 
   let companyIds =
@@ -2824,6 +2824,10 @@ async function processFilterCriteria(filterCriteria: FilterCriteria) {
       githubLogin: true,
       githubId: true,
       organizations: true,
+      totalCommits: true,
+      totalStars: true,
+      totalRepositories: true,
+      totalForks: true,
     },
   });
 
