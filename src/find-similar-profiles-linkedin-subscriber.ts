@@ -2859,6 +2859,11 @@ function mergeResults(...resultsArrays: any[][]): any[] {
 
   for (const resultsArray of resultsArrays) {
     for (const item of resultsArray) {
+      if (!item.data || !item.data.id) {
+        console.warn("Skipping item without data or id:", item);
+        continue;
+      }
+
       const id = item.data.id;
 
       if (!mergedResultsMap[id]) {
@@ -3106,20 +3111,55 @@ export async function handler(event: any) {
       .set({
         response: mergedResults.slice(0, 100),
         success: true,
-        allIdsResponse: mergedResults.map((res) => ({
-          id: res.data.id,
-          score: res.score,
-          activeGithub: res.activeGithub,
-          activeGithubScore: res.activeGithubScore,
-          matchedSkills: res.matchedSkills,
-          matchedJobTitle: res.matchedJobTitle,
-          matchedLocation: res.matchedLocation,
-          matchedCompanies: res.matchedCompanies,
-          matchedSchools: res.matchedSchools,
-          matchedFieldsOfStudy: res.matchedFieldsOfStudy,
-          attributions: res.attributions ?? [],
-          from: res.from,
-        })),
+        allIdsResponse: mergedResults.map((res) => {
+          const data = res.data;
+          const mostUsedLanguage = data?.githubLanguages
+            ? Object.entries(data.githubLanguages).sort(
+                (a: any, b: any) => b[1].repoCount - a[1].repoCount
+              )[0]?.[0] || ""
+            : "";
+          const mostStarredLanguage = data?.githubLanguages
+            ? Object.entries(data.githubLanguages).sort(
+                (a: any, b: any) => b[1].stars - a[1].stars
+              )[0]?.[0] || ""
+            : "";
+
+          return {
+            id: data.id,
+            name: data.name || "",
+            email: data.email || "",
+            githubLogin: data.githubLogin || "",
+            githubUrl: data.githubLogin
+              ? `https://github.com/${data.githubLogin}`
+              : "",
+            isWhopUser: data.isWhopUser || false,
+            mostUsedLanguage,
+            mostStarredLanguage,
+            followers: data.followers || 0,
+            followerRatio: data.followerToFollowingRatio || 0,
+            contributionYears: data.contributionYears
+              ? data.contributionYears.join(", ")
+              : "",
+            totalCommits: data.totalCommits || 0,
+            totalStars: data.totalStars || 0,
+            totalRepositories: data.totalRepositories || 0,
+            totalForks: data.totalForks || 0,
+            location: data.normalizedLocation || "",
+            score: res.score.toFixed(4),
+            activeGithubScore: res.activeGithubScore
+              ? res.activeGithubScore.toFixed(4)
+              : "",
+            activeGithub: res.activeGithub,
+            matchedSkills: res.matchedSkills,
+            matchedJobTitle: res.matchedJobTitle,
+            matchedLocation: res.matchedLocation,
+            matchedCompanies: res.matchedCompanies,
+            matchedSchools: res.matchedSchools,
+            matchedFieldsOfStudy: res.matchedFieldsOfStudy,
+            attributions: res.attributions ?? [],
+            from: res.from,
+          };
+        }),
       })
       .where(eq(schema.profileQueue.id, insertId));
   } catch (error) {

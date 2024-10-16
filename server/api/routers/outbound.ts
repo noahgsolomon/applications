@@ -23,6 +23,8 @@ import { jsonArrayContainsAny } from "@/lib/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import { Resource } from "sst";
+import { parse } from "json2csv";
+import { TRPCError } from "@trpc/server";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -877,5 +879,72 @@ If no company they mentioned is in the list, return an empty array for "companyN
           ),
       });
       return scoredCandidates;
+    }),
+  downloadAsCsv: publicProcedure
+    .input(z.array(z.any()))
+    .mutation(async ({ input }) => {
+      try {
+        const csvData = input.map((candidate) => {
+          const data = candidate;
+
+          return {
+            name: data.name || "",
+            email: data.email || "",
+            githubUrl:
+              data.githubUrl || `https://github.com/${data.githubLogin}`,
+            isWhopUser: data.isWhopUser || false,
+            mostUsedLanguage: data.mostUsedLanguage || "",
+            mostStarredLanguage: data.mostStarredLanguage || "",
+            followers: data.followers || 0,
+            followerRatio: data.followerToFollowingRatio || 0,
+            contributionYears: Array.isArray(data.contributionYears)
+              ? data.contributionYears.join(", ")
+              : data.contributionYears || "",
+            totalCommits: data.totalCommits || 0,
+            totalStars: data.totalStars || 0,
+            totalRepositories: data.totalRepositories || 0,
+            totalForks: data.totalForks || 0,
+            location: data.location || "",
+            score: candidate.score
+              ? parseFloat(candidate.score).toFixed(4)
+              : "",
+            activeGithubScore: candidate.activeGithubScore
+              ? parseFloat(candidate.activeGithubScore).toFixed(4)
+              : "",
+          };
+        });
+
+        const fields = [
+          "name",
+          "email",
+          "githubUrl",
+          "isWhopUser",
+          "mostUsedLanguage",
+          "mostStarredLanguage",
+          "followers",
+          "followerRatio",
+          "contributionYears",
+          "totalCommits",
+          "totalStars",
+          "location",
+          "score",
+          "activeGithubScore",
+          "totalRepositories",
+          "totalForks",
+        ];
+
+        const csv = parse(csvData, { fields });
+
+        return {
+          csv,
+          filename: "filtered_candidates.csv",
+        };
+      } catch (error) {
+        console.error("Error generating CSV:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate CSV",
+        });
+      }
     }),
 });

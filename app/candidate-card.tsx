@@ -197,7 +197,7 @@ export default function CandidateCard({
             variant="surface"
             color={score >= 0.75 ? "green" : score >= 0.5 ? "yellow" : "red"}
           >
-            {score.toFixed(2)}
+            {score?.toFixed(2)}
           </Badge>
           {matchedSkills &&
             matchedSkills.length > 0 &&

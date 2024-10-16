@@ -49,6 +49,7 @@ import {
   TwitterIcon,
   Braces,
   MapPin,
+  Download,
 } from "lucide-react";
 import {
   Tooltip,
@@ -121,6 +122,37 @@ export default function ScrapedDialog() {
   const { setCompaniesRemoved } = useCompaniesViewStore();
 
   const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
+
+  const downloadCsvMutation = api.outbound.downloadAsCsv.useMutation();
+
+  const handleDownloadCsv = async () => {
+    if (!allIdsResponse || allIdsResponse.length === 0) {
+      toast.error("No data available to download");
+      return;
+    }
+
+    try {
+      const result = await downloadCsvMutation.mutateAsync(allIdsResponse);
+
+      const blob = new Blob([result.csv], { type: "text/csv;charset=utf-8;" });
+
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", result.filename);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      toast.success("CSV downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+      toast.error("Failed to download CSV");
+    }
+  };
 
   const [whopUser, setWhopUser] = useState(false);
   const [activeGithub, setActiveGithub] = useState(false);
@@ -1648,6 +1680,23 @@ export default function ScrapedDialog() {
                   ) : null}
                   <MapPin className="size-4 mr-1" />
                   Matching Location
+                </Button>
+                <Button
+                  variant="surface"
+                  size="2"
+                  style={{ cursor: "pointer" }}
+                  color="mint"
+                  onClick={handleDownloadCsv}
+                  disabled={downloadCsvMutation.isPending}
+                >
+                  {downloadCsvMutation.isPending ? (
+                    <Loader className="size-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Download className="size-4 mr-1" />
+                      Download CSV
+                    </>
+                  )}
                 </Button>
               </div>
               <ScrollArea className="py-4">
