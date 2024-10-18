@@ -1,79 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import * as schema from "@/server/db/schemas/users/schema";
-import OpenAI from "openai";
 import { and, eq, inArray, isNotNull, or } from "drizzle-orm";
-import { Pinecone } from "@pinecone-database/pinecone";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
-
-async function getEmbedding(text: string) {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-3-large",
-    input: text,
-    encoding_format: "float",
-  });
-
-  return response.data[0].embedding;
-}
-
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY || "",
-});
-
-const index = pinecone.Index("whop");
-
-async function querySimilarTechnologies(skill: string) {
-  try {
-    console.log(`Getting embedding for skill: ${skill}`);
-    const skillEmbedding = await getEmbedding(skill);
-    console.log(`Got embedding for skill: ${skill}`);
-
-    const queryResponse = await index.namespace("technologies").query({
-      topK: 200,
-      vector: skillEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
-
-    const similarTechnologies = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.7)
-      .map((match) => ({
-        technology: match.metadata?.technology as string,
-        score: match.score ?? 0,
-      }));
-    return similarTechnologies;
-  } catch (error) {
-    console.error("Error querying similar technologies:", error);
-    return [];
-  }
-}
-
-async function querySimilarJobTitles(job: string) {
-  try {
-    console.log(`Getting embedding for job: ${job}`);
-    const jobEmbedding = await getEmbedding(job);
-
-    const queryResponse = await index.namespace("job-titles").query({
-      topK: 500,
-      vector: jobEmbedding,
-      includeMetadata: true,
-      includeValues: false,
-    });
-
-    const similarJobTitles = queryResponse.matches
-      .filter((match) => (match.score ?? 0) > 0.7)
-      .map((match) => match.metadata?.jobTitle) as string[];
-
-    console.log(`SIMILAR JOB TITLES LENGTH: ${similarJobTitles.length}`);
-    return similarJobTitles;
-  } catch (error) {
-    console.error("Error querying similar job titles:", error);
-    return [];
-  }
-}
 
 export const candidateRouter = createTRPCRouter({
   getAbsoluteFilteredTopCandidates: publicProcedure
