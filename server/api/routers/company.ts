@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
-  candidates,
   company as companyTable,
+  people,
 } from "@/server/db/schemas/users/schema";
 import OpenAI from "openai";
 import { inArray } from "drizzle-orm";
@@ -114,15 +114,7 @@ export const companyRouter = createTRPCRouter({
   findRelevantCompanies: publicProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const companies = await ctx.db.query.company.findMany({
-        where: (company, { exists, eq }) =>
-          exists(
-            ctx.db
-              .select()
-              .from(candidates)
-              .where(eq(candidates.companyId, company.id))
-          ),
-      });
+      const companies = await ctx.db.query.company.findMany();
 
       const companyNames = companies.map((company) => company.name);
 
@@ -506,15 +498,7 @@ If no company they mentioned is in the list, return an empty array for "companyN
       }
     }),
   allActiveCompanies: publicProcedure.query(async ({ ctx }) => {
-    const companies = await ctx.db.query.company.findMany({
-      where: (company, { exists, eq }) =>
-        exists(
-          ctx.db
-            .select()
-            .from(candidates)
-            .where(eq(candidates.companyId, company.id))
-        ),
-    });
+    const companies = await ctx.db.query.company.findMany();
 
     return companies.map((company) => ({
       id: company.id,

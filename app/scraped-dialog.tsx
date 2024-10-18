@@ -62,7 +62,6 @@ import { toast } from "sonner";
 import CandidateCard from "./candidate-card";
 import { InferSelectModel } from "drizzle-orm";
 import {
-  candidates,
   company as companyTable,
   people,
 } from "@/server/db/schemas/users/schema";
