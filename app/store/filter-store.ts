@@ -2,7 +2,7 @@ import { api as ServerApi } from "@/trpc/server";
 import { create } from "zustand";
 
 export type CompanyFilterReturnType = Awaited<
-  ReturnType<typeof ServerApi.outbound.companyFilter>
+  ReturnType<typeof ServerApi.company.companyFilter>
 >;
 
 type ScrapedDialogStore = {

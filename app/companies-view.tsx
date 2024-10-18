@@ -28,7 +28,7 @@ export default function CompaniesView() {
     useScrapedDialogStore();
   const { companiesRemoved, setCompaniesRemoved } = useCompaniesViewStore();
   const [open, setOpen] = useState(false);
-  const allActiveCompaniesQuery = api.outbound.allActiveCompanies.useQuery();
+  const allActiveCompaniesQuery = api.company.allActiveCompanies.useQuery();
   const [filters, setFilters] = useState<string[]>([]);
   const [companies, setCompanies] = useState(
     scrapedFilters?.companies && scrapedFilters.companies.length > 0
@@ -58,7 +58,7 @@ export default function CompaniesView() {
   }, [companiesRemoved, allActiveCompaniesQuery.data]);
 
   const relevantCompaniesMutation =
-    api.outbound.findRelevantCompanies.useMutation({
+    api.company.findRelevantCompanies.useMutation({
       onSuccess: (data) => {
         //@ts-ignore
         setCompanies(data.companies);
@@ -109,7 +109,7 @@ export default function CompaniesView() {
   const removeCompany = (companyId: string) => {
     // Update the list of companies by filtering out the removed company
     const updatedCompanies = companies.filter(
-      (company) => company.id !== companyId
+      (company: any) => company.id !== companyId
     );
     setCompanies(updatedCompanies);
 
@@ -261,7 +261,7 @@ export default function CompaniesView() {
       <ScrollArea className="flex flex-row gap-2">
         <Flex direction={"row"} wrap={"wrap"} gap={"4"}>
           {!companiesRemoved &&
-            companies?.map((company) => (
+            companies?.map((company: any) => (
               <TooltipProvider key={company.id} delayDuration={500}>
                 <Tooltip>
                   <TooltipTrigger asChild>
