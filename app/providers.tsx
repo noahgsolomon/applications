@@ -1,4 +1,3 @@
-// components/ThemeProvider.tsx
 "use client";
 
 import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
@@ -33,7 +32,6 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
 
-  // Ensure we're rendering client-side to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);

@@ -1,30 +1,20 @@
 import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "../server/db/schemas/users/schema";
-import { z } from "zod";
 import {
-  candidates,
-  jobTitles,
   people,
-  profileQueue,
-  skills,
 } from "@/server/db/schemas/users/schema";
 import {
   and,
   cosineDistance,
-  desc,
   eq,
-  exists,
   gt,
-  gte,
   inArray,
   InferSelectModel,
   like,
   not,
-  or,
   sql,
 } from "drizzle-orm";
-import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import axios from "axios";
 //@ts-ignore

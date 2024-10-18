@@ -94,7 +94,6 @@ interface Filters {
 
 interface Company {
   id: string;
-  // ... other company properties
 }
 
 const toPascalCase = (str: string) => {
@@ -121,7 +120,7 @@ export default function ScrapedDialog() {
   const [matchedGithubUrls, setMatchedGithubUrls] = useState<string[]>([]);
   const { setCompaniesRemoved } = useCompaniesViewStore();
 
-  const allActiveCompanies = api.outbound.allActiveCompanies.useQuery().data;
+  const allActiveCompanies = api.company.allActiveCompanies.useQuery().data;
 
   const downloadCsvMutation = api.outbound.downloadAsCsv.useMutation();
 
@@ -383,12 +382,12 @@ export default function ScrapedDialog() {
   };
 
   const getPendingSimilarProfilesQuery =
-    api.outbound.getPendingSimilarProfiles.useQuery(undefined, {
+    api.candidate.getPendingSimilarProfiles.useQuery(undefined, {
       refetchInterval: 2500,
     });
 
   const getAbsoluteFilteredTopCandidatesMutation =
-    api.outbound.getAbsoluteFilteredTopCandidates.useMutation({
+    api.candidate.getAbsoluteFilteredTopCandidates.useMutation({
       onSuccess: (data) => {
         setCandidateMatches(data);
       },
@@ -467,7 +466,7 @@ export default function ScrapedDialog() {
   ]);
 
   const deletePendingSimilarProfilesMutation =
-    api.outbound.deletePendingSimilarProfiles.useMutation({
+    api.candidate.deletePendingSimilarProfiles.useMutation({
       onSuccess: () => {
         getPendingSimilarProfilesQuery.refetch();
       },
@@ -500,7 +499,7 @@ export default function ScrapedDialog() {
     }
   };
 
-  const companyFilterMutation = api.outbound.companyFilter.useMutation({
+  const companyFilterMutation = api.company.companyFilter.useMutation({
     onSuccess: (data: CompanyFilterReturnType) => {
       if (!data.valid) {
         setError(data.message);
@@ -706,7 +705,9 @@ export default function ScrapedDialog() {
       payload.filterCriteria = {
         query,
         companyIds: {
-          values: (filters?.companies ?? []).map((company) => company.id) ?? [],
+          values:
+            (filters?.companies ?? []).map((company: Company) => company.id) ??
+            [],
           weight: filterWeights.companies as number,
         },
         otherCompanyNames: {
