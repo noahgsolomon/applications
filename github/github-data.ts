@@ -4,7 +4,7 @@ import {
   gatherTopSkills,
   generateMiniSummary,
   scrapeLinkedInProfile,
-} from "@/src/find-similar-profiles-linkedin-subscriber";
+} from "@/src/sort";
 import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";

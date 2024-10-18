@@ -10,14 +10,11 @@ export default $config({
     };
   },
   async run() {
-    const findSimilarProfilesLinkedinQueue = new sst.aws.Queue(
-      "FindSimilarProfilesLinkedinQueue",
-      {
-        visibilityTimeout: "10 minutes",
-      }
-    );
-    findSimilarProfilesLinkedinQueue.subscribe({
-      handler: "src/find-similar-profiles-linkedin-subscriber.handler",
+    const sortQueue = new sst.aws.Queue("SortQueue", {
+      visibilityTimeout: "10 minutes",
+    });
+    sortQueue.subscribe({
+      handler: "src/sort.handler",
       environment: SubscriberEnv,
       memory: "10240 MB",
       timeout: "10 minutes",
@@ -25,11 +22,11 @@ export default $config({
 
     new sst.aws.Nextjs("WhopApplications", {
       environment: NextEnv,
-      link: [findSimilarProfilesLinkedinQueue],
+      link: [sortQueue],
     });
 
     return {
-      findSimilarProfilesLinkedinQueue: findSimilarProfilesLinkedinQueue.url,
+      sortQueue: sortQueue.url,
     };
   },
 });

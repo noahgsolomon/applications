@@ -5,7 +5,7 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
-    "FindSimilarProfilesLinkedinQueue": {
+    "SortQueue": {
       "type": "sst.aws.Queue"
       "url": string
     }

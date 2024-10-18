@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { parse } from "json2csv";
-import { processFilterCriteria } from "../src/find-similar-profiles-linkedin-subscriber";
+import { processFilterCriteria } from "../src/sort";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "../server/db/schemas/users/schema";

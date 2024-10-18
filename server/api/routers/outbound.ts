@@ -27,7 +27,7 @@ export const outboundRouter = createTRPCRouter({
       }
       const sqsClient = new SQSClient({ region: "us-east-1" });
 
-      const queueUrl = Resource.FindSimilarProfilesLinkedinQueue.url;
+      const queueUrl = Resource.SortQueue.url;
 
       if (!queueUrl) {
         throw new Error("Queue URL not configured");
