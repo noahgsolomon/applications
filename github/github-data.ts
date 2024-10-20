@@ -104,362 +104,14 @@ const openai = new OpenAI({
 });
 
 const organizations = [
-  // "digitalocean",
-  // "mongodb",
-  // "etsy",
-  // "squarespace",
-  // "datadog",
-  // "buzzfeed",
-  // "foursquare",
-  // "kickstarter",
-  // "betterment",
-  // "classpass",
-  // "warbyparker",
-  // "glossier",
-  // "peloton-tech",
-  // "wework",
-  // "justworks",
-  // "grubhub",
-  // "meetup",
-  // "flatiron-school",
-  // "codecademy",
-  // "generalassembly",
-  // "gilt",
-  // "paperlesspost",
-  // "venmo",
-  // "bluemercury",
-  // "birchbox",
-  // "casper",
-  // "harrys",
-  // "bonobos",
-  // "renttherunway",
-  // "quartz",
-  // "google",
-  // "facebook",
-  // "microsoft",
-  // "apple",
-  // "amazon",
-  // "netflix",
-  // "airbnb",
-  // "uber",
-  // "twitter",
-  // "linkedin",
-  // "github",
-  // "gitlab",
-  "mozilla",
-  "apache",
-  "npm",
-  "jekyll",
-  "nodejs",
-  "angular",
-  "reactjs",
-  "vuejs",
-  "webpack",
-  "babel",
-  "electron",
-  "django",
-  "laravel",
-  "symfony",
-  "drupal",
-  "joomla",
-  "prestashop",
-  "magento",
-  "shopify",
-  "wordpress",
-  "woocommerce",
-  "stripe",
-  "paypal",
-  "square",
-  "twilio",
-  "heroku",
-  "aws",
-  "azure",
-  "googlecloudplatform",
-  "oracle",
-  "ibm",
-  "redhat",
-  "docker",
-  "kubernetes",
-  "hashicorp",
-  "ansible",
-  "puppetlabs",
-  "chef",
-  "jenkinsci",
-  "circleci",
-  "travis-ci",
-  "gitlab-ci",
-  "github-actions",
-  "openai",
-  "tensorflow",
-  "pytorch",
-  "keras-team",
-  "scikit-learn",
-  "pandas-dev",
-  "numpy",
-  "matplotlib",
-  "jupyter",
-  "apache-spark",
-  "apache-hadoop",
-  "elastic",
-  "grafana",
-  "prometheus",
-  "couchbase",
-  "cassandra",
-  "redis",
-  "memcached",
-  "postgres",
-  "mysql",
-  "mariadb",
-  "neo4j",
-  "orientdb",
-  "janusgraph",
-  "d3",
-  "leaflet",
-  "threejs",
-  "aframevr",
-  "opencv",
-  "godotengine",
-  "unity3d",
-  "unrealengine",
-  "blender",
-  "gimp",
-  "inkscape",
-  "boostorg",
-  "llvm",
-  "gnu",
-  "rust-lang",
-  "golang",
-  "python",
-  "ruby",
-  "php",
-  "perl",
-  "swift",
-  "kotlin",
-  "jetbrains",
-  "eclipse",
-  "visualstudio",
-  "intellij-community",
-  "terraform-providers",
-  "cloudfoundry",
-  "openstack",
-  "ceph",
-  "mirantis",
-  "armmbed",
-  "aws-amplify",
-  "aws-samples",
-  "canonical",
-  "vmware",
-  "opencontainers",
-  "containerd",
-  "linuxfoundation",
-  "linux",
-  "linuxmint",
-  "torvalds",
-  "gnome",
-  "kde",
-  "intel",
-  "nvidia",
-  "amd",
-  "openbsd",
-  "freebsd",
-  "netbsd",
-  "react-native",
-  "gatsbyjs",
-  "nextjs",
-  "vercel",
-  "nuxt",
-  "sveltejs",
-  "emberjs",
-  "backbonejs",
-  "meteor",
-  "hapi",
-  "koajs",
-  "nestjs",
-  "expressjs",
-  "fastify",
-  "loopbackio",
-  "meanjs",
-  "socketio",
-  "rails",
-  "sinatra",
-  "padrino",
-  "hanami",
-  "django",
-  "flask",
-  "pallets",
-  "fastapi",
-  "tornadoweb",
-  "bottlepy",
-  "pyramid",
-  "zopefoundation",
-  "twisted",
-  "celery",
-  "scrapy",
-  "sqlalchemy",
-  "psf",
-  "the-benchmarker",
-  "dropwizard",
-  "spring-projects",
-  "vert-x3",
-  "playframework",
-  "ratpack",
-  "exercism",
-  "codecademy",
-  "freeCodeCamp",
-  "udacity",
-  "coursera",
-  "edx",
-  "pluralsight",
-  "linkedinlearning",
-  "manning",
-  "oreillymedia",
-  "packtpublishing",
-  "hashnode",
-  "devto",
-  "medium",
-  "dzone",
-  "sitepoint",
-  "codementor",
-  "codesandbox",
-  "codepen",
-  "jsfiddle",
-  "jsbin",
-  "alibaba",
-  "tencent",
-  "baidu",
-  "jdcom",
-  "bytedance",
-  "huawei",
-  "xiaomi",
-  "adobe",
-  "sap",
-  "salesforce",
-  "atlassian",
-  "autodesk",
-  "cisco",
-  "citrix",
-  "dell",
-  "hp",
-  "ibm",
-  "intel",
-  "oracle",
-  "qualcomm",
-  "vmware",
-  "xerox",
-  "zendesk",
-  "zoom",
-  "box",
-  "dropbox",
-  "evernote",
-  "shopify",
-  "nvidia",
-  "sony",
-  "panasonic",
-  "philips",
-  "samsung",
-  "siemens",
-  "toshiba",
-  "uberopensource",
-  "airbnb",
-  "lyft",
-  "spacex",
-  "teslamotors",
-  "nasa",
-  "esa",
-  "jpl",
-  "rosetta",
-  "openstack",
-  "cncf",
-  "opendaylight",
-  "ome",
-  "embl-ebi",
-  "percona",
-  "perforce",
-  "zendframework",
-  "symfony",
-  "fabpot",
-  "cakephp",
-  "yiisoft",
-  "slimphp",
-  "php-fig",
-  "composer",
-  "vscode",
-  "facebookresearch",
-  "google-research",
-  "baidu-research",
-  "apple",
-  "mozilla",
-  "standfordnlp",
-  "berkeleydeeprlcourse",
-  "microsoft-ai",
-  "aws-samples",
-  "azure-samples",
-  "thoughtbot",
-  "hashicorp",
-  "digitalocean",
-  "do-community",
-  "linode",
-  "cloudflare",
-  "bitnami",
-  "cloudera",
-  "confluentinc",
-  "apache",
-  "apache-spark",
-  "apache-hadoop",
-  "apache-kafka",
-  "apache-zookeeper",
-  "apache-storm",
-  "apache-flink",
-  "apache-drill",
-  "apache-cassandra",
-  "apache-hbase",
-  "apache-ignite",
-  "apache-zeppelin",
-  "apache-ambari",
-  "apache-airflow",
-  "apache-lucene",
-  "apache-solr",
-  "apache-nifi",
-  "elastic",
-  "logstash",
-  "kibana",
-  "beats",
-  "opensearch-project",
-  "graylog2",
-  "efcore",
-  "aspnet",
-  "dotnet",
-  "mono",
-  "monodevelop",
-  "xamarin",
-  "godotengine",
-  "unity-technologies",
-  "unrealengine",
-  "crytek",
-  "ogre3d",
-  "ventuz",
-  "virtools",
-  "privateer",
-  "haxe",
-  "kotlin",
-  "openjdk",
-  "clojure",
-  "scala",
-  "sbt",
-  "gradle",
-  "apache-ant",
-  "apache-maven",
-  "junit-team",
-  "testng-team",
-  "spockframework",
-  "arquillian",
-  "mockito",
-  "easymock",
-  "powermock",
-  "assertj",
-  "google",
-  "adobe",
-  // Continue adding more organizations...
+  // "jacksonhuether",
+  // "DarrenBaldwin07",
+  // "dylsteck",
+  // "sharkey11",
+  // "pondorasti",
+  // "yagil",
+  // "PabloSzx",
+  "focusaurus",
 ];
 
 // Function to fetch Twitter data
@@ -511,10 +163,10 @@ async function fetchGitHubUserData(username: string): Promise<any | null> {
     where: eq(schema.people.githubLogin, username),
   });
 
-  if (exists) {
-    console.log(`User already exists: ${username}`);
-    return null;
-  }
+  // if (exists) {
+  //   console.log(`User already exists: ${username}`);
+  //   return null;
+  // }
 
   const query = `
     query($login: String!) {
@@ -531,8 +183,11 @@ async function fetchGitHubUserData(username: string): Promise<any | null> {
         followers {
           totalCount
         }
-        following {
+        following(first: 100) {
           totalCount
+          nodes {
+            login
+          }
         }
         repositories(first: 100, isFork: false, ownerAffiliations: OWNER) {
           totalCount
@@ -927,7 +582,8 @@ const processedUsers = new Set<string>();
 
 async function processOrganizationWithSlidingWindow(orgName: string) {
   console.log(`Processing organization: ${orgName}`);
-  const members = await fetchOrganizationMembers(orgName);
+  // const members = await fetchOrganizationMembers(orgName);
+  const members = [orgName];
   console.log(`Found ${members.length} members for ${orgName}`);
 
   const queue = new Queue(100);
@@ -935,14 +591,14 @@ async function processOrganizationWithSlidingWindow(orgName: string) {
   const totalMembers = members.length;
 
   const processMember = async (username: string) => {
-    await queue.wait(username); // Wait for a free slot in the queue
+    await queue.wait(username);
     try {
       const userData = await fetchGitHubUserData(username);
       if (userData) {
         await processUser(userData);
       }
     } finally {
-      queue.end(username); // Release the slot in the queue
+      queue.end(username);
       processedCount++;
       console.log(`Processed ${processedCount}/${totalMembers} members`);
     }
@@ -955,17 +611,17 @@ async function processOrganizationWithSlidingWindow(orgName: string) {
   await Promise.all(processingPromises);
 }
 
-async function processUser(userData: any) {
+async function processUser(userData: any, depth: number = 0) {
   if (!userData || !userData.githubLogin) {
     console.log("Invalid user data received. Skipping.");
     return;
   }
 
-  if (processedUsers.has(userData.githubLogin)) {
-    return;
-  }
+  // if (processedUsers.has(userData.githubLogin)) {
+  //   return;
+  // }
 
-  console.log(`Processing user: ${userData.githubLogin}`);
+  console.log(`Processing user: ${userData.githubLogin} (Depth: ${depth})`);
   processedUsers.add(userData.githubLogin);
 
   // Compute and store vectors for the user
@@ -990,14 +646,14 @@ async function processUser(userData: any) {
     // await updateExistingUser(existingUser.id, updates);
   }
 
-  // Process following users (if needed)
-  const followingList = userData.githubData.following.nodes || [];
-  for (const followingUser of followingList) {
-    if (!processedUsers.has(followingUser.githubLogin)) {
-      await fetchGitHubUserData(followingUser.githubLogin).then(
+  // Process following users up to depth 2
+  if (depth < 2) {
+    const followingList = userData.githubData.following.nodes || [];
+    for (const followingUser of followingList) {
+      await fetchGitHubUserData(followingUser.login).then(
         (followingUserData) => {
           if (followingUserData) {
-            processUser(followingUserData);
+            processUser(followingUserData, depth + 1);
           }
         }
       );
