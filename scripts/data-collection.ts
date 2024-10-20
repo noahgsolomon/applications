@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql";
-import { RateLimiter } from "./graphql";
+import { RateLimiter } from "../github/graphql";
 import {
   gatherTopSkills,
   generateMiniSummary,
@@ -111,7 +111,17 @@ const organizations = [
   // "pondorasti",
   // "yagil",
   // "PabloSzx",
-  "focusaurus",
+  // "focusaurus",
+  // "jacksonpires",
+  // "bensheldon",
+  // "himself65",
+  // "255kb",
+  // "brandonroberts",
+  // "hendricius",
+  "praveentcom",
+  "natikgadzhi",
+  "outoftime",
+  "shrugs",
 ];
 
 // Function to fetch Twitter data
@@ -778,13 +788,15 @@ async function computeAndStoreVectorsForUser(userData: any) {
 }
 
 async function insertNewUser(userData: any, updates: any) {
-  await db.insert(schema.people).values({
-    ...userData,
-    ...updates,
-    githubLogin: userData.githubLogin,
-    sourceTables: ["githubUsers"],
-  });
-  console.log(`Inserted new user: ${userData.githubLogin}`);
+  try {
+    await db.insert(schema.people).values({
+      ...userData,
+      ...updates,
+      githubLogin: userData.githubLogin,
+      sourceTables: ["githubUsers"],
+    });
+    console.log(`Inserted new user: ${userData.githubLogin}`);
+  } catch (e) {}
 }
 
 async function updateExistingUser(userId: string, updates: any) {
