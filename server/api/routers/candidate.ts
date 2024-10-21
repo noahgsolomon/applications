@@ -38,7 +38,7 @@ export const candidateRouter = createTRPCRouter({
             input.allIdsResponse.map((id: any) => id.id)
           )
         ),
-        limit: 500,
+        limit: 100,
       });
       console.log("finished finding top candidates");
 
