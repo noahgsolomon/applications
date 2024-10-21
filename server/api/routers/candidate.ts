@@ -7,7 +7,7 @@ export const candidateRouter = createTRPCRouter({
   getAbsoluteFilteredTopCandidates: publicProcedure
     .input(z.any())
     .mutation(async ({ ctx, input }) => {
-      console.log("input", input);
+      console.log("starting getAbsoluteFilteredTopCandidates");
       let conditions = [];
       if (input.showTwitter) {
         conditions.push(isNotNull(schema.people.twitterUsername));
@@ -26,6 +26,7 @@ export const candidateRouter = createTRPCRouter({
       if (input.showLinkedin) {
         conditions.push(isNotNull(schema.people.linkedinUrl));
       }
+      console.log("finished conditions");
       const topCandidates = await ctx.db.query.people.findMany({
         columns: {
           id: true,
@@ -39,6 +40,7 @@ export const candidateRouter = createTRPCRouter({
         ),
         limit: 500,
       });
+      console.log("finished finding top candidates");
 
       let topCandidatesIdsWithScores = topCandidates
         .map((candidate) => {
@@ -63,12 +65,16 @@ export const candidateRouter = createTRPCRouter({
         .sort((a, b) => b.score - a.score)
         .slice(0, 100);
 
+      console.log("finished sorting and slicing");
+
       const topCandidatesWithScoresData = await ctx.db.query.people.findMany({
         where: inArray(
           schema.people.id,
           topCandidatesIdsWithScores.map((candidate) => candidate.data.id)
         ),
       });
+
+      console.log("finished finding top candidates with scores data");
 
       const topCandidatesWithScores = topCandidatesWithScoresData.map(
         (candidate) => {
@@ -80,6 +86,8 @@ export const candidateRouter = createTRPCRouter({
           return { data: { ...candidate }, ...candidateWithScoreWithoutData };
         }
       );
+
+      console.log("finished mapping top candidates with scores");
 
       return topCandidatesWithScores;
     }),
