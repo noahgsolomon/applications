@@ -27,6 +27,9 @@ export const candidateRouter = createTRPCRouter({
         conditions.push(isNotNull(schema.people.linkedinUrl));
       }
       const topCandidates = await ctx.db.query.people.findMany({
+        columns: {
+          id: true,
+        },
         where: and(
           ...conditions,
           inArray(
