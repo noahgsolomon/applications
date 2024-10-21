@@ -38,7 +38,6 @@ export const candidateRouter = createTRPCRouter({
             input.allIdsResponse.map((id: any) => id.id)
           )
         ),
-        limit: 100,
       });
       console.log("finished finding top candidates");
 
@@ -68,6 +67,31 @@ export const candidateRouter = createTRPCRouter({
       console.log("finished sorting and slicing");
 
       const topCandidatesWithScoresData = await ctx.db.query.people.findMany({
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+          linkedinData: true,
+          linkedinUrl: true,
+          githubLogin: true,
+          githubBio: true,
+          githubImage: true,
+          githubLanguages: true,
+          twitterBio: true,
+          twitterUsername: true,
+          image: true,
+          location: true,
+          isWhopUser: true,
+          isWhopCreator: true,
+          jobTitles: true,
+          topTechnologies: true,
+          topFeatures: true,
+          miniSummary: true,
+          normalizedLocation: true,
+          organizations: true,
+          githubCompany: true,
+          twitterData: true,
+        },
         where: inArray(
           schema.people.id,
           topCandidatesIdsWithScores.map((candidate) => candidate.data.id)
