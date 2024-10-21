@@ -77,7 +77,7 @@
 }
 
 code {
-  @apply whitespace-pre-wrap text-primary !important;
+  @apply whitespace-pre-wrap text-primary dark:text-secondary !important;
   /* This will wrap the text inside the code block */
 }
 
