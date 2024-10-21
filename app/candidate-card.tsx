@@ -270,7 +270,12 @@ export default function CandidateCard({
               <Github className="size-4 mr-1" />
               Active GitHub
               {activeGithubScore !== undefined && (
-                <>: {activeGithubScore.toFixed(2)}</>
+                <>
+                  :{" "}
+                  {typeof activeGithubScore === "number"
+                    ? activeGithubScore.toFixed(2)
+                    : activeGithubScore}
+                </>
               )}
             </Badge>
           )}
@@ -326,7 +331,10 @@ export default function CandidateCard({
               {attributions.map((attr, index) => (
                 <Badge key={index} variant="surface" color="purple">
                   <Plus className="size-4 mr-1" />
-                  {attr.attribution}: {attr.score.toFixed(2)}
+                  {attr.attribution}:{" "}
+                  {typeof attr.score === "number"
+                    ? attr.score.toFixed(2)
+                    : attr.score}
                 </Badge>
               ))}
             </>

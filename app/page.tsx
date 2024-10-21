@@ -382,7 +382,7 @@ export default function Page() {
   const getAbsoluteFilteredTopCandidatesMutation =
     api.candidate.getAbsoluteFilteredTopCandidates.useMutation({
       onSuccess: (data) => {
-        setCandidateMatches(data);
+        setCandidateMatches(data as NonNullable<typeof candidateMatches>);
       },
       onError: (error) => {
         console.error("Error fetching top candidates:", error);

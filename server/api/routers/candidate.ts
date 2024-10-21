@@ -39,24 +39,44 @@ export const candidateRouter = createTRPCRouter({
         ),
       });
 
-      const topCandidatesWithScores = topCandidates
+      let topCandidatesIdsWithScores = topCandidates
         .map((candidate) => {
           const idResponse = input.allIdsResponse.find(
             (id: any) => id.id === candidate.id
           );
           return {
-            data: candidate,
-            score: idResponse?.score || 0,
-            matchedSkills: idResponse?.matchedSkills || [],
-            matchedJobTitle: idResponse?.matchedJobTitle || undefined,
-            matchedLocation: idResponse?.matchedLocation || undefined,
-            matchedCompanies: idResponse?.matchedCompanies || [],
-            matchedSchools: idResponse?.matchedSchools || [],
-            matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy || [],
-            from: idResponse?.from || undefined,
-            attributions: idResponse?.attributions || undefined,
-            activeGithub: idResponse?.activeGithub || undefined,
-            activeGithubScore: idResponse?.activeGithubScore || undefined,
+            data: candidate as { id: string },
+            score: (idResponse?.score ?? 0) as number,
+            matchedSkills: idResponse?.matchedSkills as
+              | { score: number; skill: string }[]
+              | undefined,
+            matchedJobTitle: idResponse?.matchedJobTitle as
+              | { score: number; jobTitle: string }
+              | undefined,
+            matchedLocation: idResponse?.matchedLocation as
+              | { score: number; location: string }
+              | undefined,
+            matchedCompanies: idResponse?.matchedCompanies as
+              | { score: number; company: string }[]
+              | undefined,
+            matchedSchools: idResponse?.matchedSchools as
+              | { score: number; school: string }[]
+              | undefined,
+            matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy as
+              | { score: number; fieldOfStudy: string }[]
+              | undefined,
+            attributions: idResponse?.attributions as
+              | { attribution: string; score: number }[]
+              | undefined,
+            from: idResponse?.from as
+              | "linkedin"
+              | "github"
+              | "filter"
+              | undefined,
+            activeGithub: idResponse?.activeGithub as boolean | undefined,
+            activeGithubScore: idResponse?.activeGithubScore as
+              | number
+              | undefined,
           };
         })
         .filter((candidate) =>
@@ -67,6 +87,24 @@ export const candidateRouter = createTRPCRouter({
         )
         .sort((a, b) => b.score - a.score)
         .slice(0, 100);
+
+      const topCandidatesWithScoresData = await ctx.db.query.people.findMany({
+        where: inArray(
+          schema.people.id,
+          topCandidatesIdsWithScores.map((candidate) => candidate.data.id)
+        ),
+      });
+
+      const topCandidatesWithScores = topCandidatesWithScoresData.map(
+        (candidate) => {
+          const candidateWithScore = topCandidatesIdsWithScores.find(
+            (c) => c.data.id === candidate.id
+          );
+          const { data, ...candidateWithScoreWithoutData } =
+            candidateWithScore || {};
+          return { data: { ...candidate }, ...candidateWithScoreWithoutData };
+        }
+      );
 
       return topCandidatesWithScores;
     }),
