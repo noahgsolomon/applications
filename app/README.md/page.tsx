@@ -11,27 +11,27 @@ const md = `
 
 There are three core files for the sourcing tool. Sourcing has to do with aggregating, vetting (scoring), and displaying.
 
-\`\`\`
-- The aggregating file is \`scripts/data-collection.ts\`
-- The scoring file is \`src/score.ts\`
-- The displaying file is \`page.tsx\`
-\`\`\`
+The aggregating file is \`scripts/data-collection.ts\`
+The scoring file is \`src/sort.ts\`
+The displaying file is \`page.tsx\`
 
 ### Aggregating
 
-The first step for sourcing is aggregating. We need a method of retrieving data from (ideally) solid ppl from the go, and then filtering more at the scoring layer. And then soring at the visual layer. So there's multiple levels of filtering, and the first one is based on who we scrape and store.
+The first step for sourcing is aggregating. We need a method of retrieving data from (ideally) solid ppl from the go, and then filtering more at the scoring layer. And then sorting at the visual layer. So there's multiple levels of filtering, and the first one is based on who we scrape and store.
 
-1. The initial method was to type in Google search queries prefixed with 'site:www.linkedin.com/in', get the top n results, and then scrape those LinkedIn profiles, and store them.
-2. Then, we realized it might be better to just store everyone from a given set of companies. That is what the 'company' table (schema found in \`server/db/schemas/users/schema.ts\`) is for. Storing those top companies.
-3. We later moved onto a mixture approach when hit with the limits of LinkedIn which is that it only shows first 2,000 employees for a company AND the CURRENT employees only.
+The initial method was to type in Google search queries prefixed with 'site:www.linkedin.com/in', get the top n results, and then scrape those LinkedIn profiles, and store them.
 
-Later, we decided it would be useful to score based on GitHub accounts. We didn't have a good way of getting GitHub accounts, emails, twitters, or actual quantity of work from LinkedIn, but we could get all these things, including LinkedIn links we can scrape from starting aggregation on GitHub. And because GitHub's GraphQL API has very flexible limits, it costs us $0 to pull from GitHub on the order of 10,000 profiles / day.
+Then, we realized it might be better to just store everyone from a given set of companies. That is what the 'company' table (schema found in \`server/db/schemas/users/schema.ts\`) is for. Storing those top companies.
+
+We later moved onto a mixture approach when we hit with the limits of LinkedIn which is that it only shows first 2,000 employees for a company AND the CURRENT employees only.
+
+Later, we decided it would be useful to score based on GitHub accounts. We didn't have a good way of getting GitHub accounts, emails, twitters, or actual quantity of work from LinkedIn, but we could get all these things including LinkedIn links from starting aggregation on GitHub. And because GitHub's GraphQL API has very flexible limits, it costs us $0 to pull from GitHub on the order of 10,000 profiles / day.
 
 ### People Table
 
 The single object that represents a candidate is the people table (schema found in \`server/db/schemas/users/schema.ts\`). It has a ton of columns, but i'll just dump them here:
 
-\`\`\`ts
+\`
 id
 name
 email
@@ -97,9 +97,9 @@ averageSchoolVector
 averageCompanyVector
 averageFieldOfStudyVector
 averageJobTitleVector
-\`\`\`
+\`
 
-Lots of columns, most of which contribute to the scoring like locationVector (\`src/score.ts\`), and some which are just used for visualizing like miniSummary (\`app/page.tsx\`).
+Lots of columns, most of which contribute to the scoring like locationVector (\`src/sort.ts\`), and some which are just used for visualizing like miniSummary (\`app/page.tsx\`).
 
 ### TL;DR on how we get data
 
@@ -111,8 +111,9 @@ Now that we have all the data we'd ever need, we need a way to make sense of it.
 
 There are 2 main ways to score:
 
-1. Based on a textual search query
-2. GitHub and LinkedIn and Twitter ideal candidate URLs
+Based on a textual search query
+
+GitHub and LinkedIn and Twitter ideal candidate URLs
 
 Both of these methods can be used in tandem since both have normalized scores in a range of 0-1.
 
@@ -120,7 +121,7 @@ Both of these methods can be used in tandem since both have normalized scores in
 
 - **Soft filters**: Encourage the results to be near that search space (i.e. rewarding points to candidates who match that criteria like "is a whop user"). These types of filters only encourage the results to skew towards those given filters, but they don't filter absolutely.
 
-- **Hard filters**: These are the buttons in the "View Candidates" modal (\`app/page.tsx\`) above the candidate cards (\`app/candidate-card.tsx\`). When you click a filter of has GitHub, or is whop user, then it will based on the top 2000-8000 people returned from our scoring method (\`src/score.ts\`), return only the people who in this case have a GitHub and/or whop account.
+- **Hard filters**: These are the buttons in the "View Candidates" modal (\`app/page.tsx\`) above the candidate cards (\`app/candidate-card.tsx\`). When you click a hard filter like 'has GitHub', or 'is whop user', then it will return only people who have said criteria of the 2000-8000 people returned from our scoring method (\`src/sort.ts\`).
 
 ### Companies View
 
@@ -130,19 +131,19 @@ There is also something somewhat aside, that is sort of a separate but integrate
 
 Here are a list of things we score/sort/filter based on:
 
-- Location
-- School
-- Field of study
-- Active GitHub
-- Companies they've worked for
-- Job titles held
-- Skills
-- Features they've worked on
-- Is a whop user
+Location
+School
+Field of study
+Active GitHub
+Companies they've worked for
+Job titles held
+Skills
+Features they've worked on
+Is a whop user
 
 for all of these except boolean conditions by nature like active github and is whop user must be resolved by the use of vector embeddings.The first step is to derive the values for all of the filter attributes based on the search query. We inform ChatGPT of the expected JSON it should generate based on these attributes as shown below (server/api/routes/company.ts):
 
-\`\`\`ts
+\`
 {
 "companyNames": string[],
 "otherCompanyNames": string[],
@@ -152,7 +153,7 @@ for all of these except boolean conditions by nature like active github and is w
 "schools": string[],
 "fieldsOfStudy": string[]
 }
-\`\`\`
+\`
 
 The location is normalized, so if the user inputs "SWE who knows x y z and lives in Brooklyn", it will make the location value "NEW YORK". Once we have all these values for these filter attributes we post this message into the queue (server/api/routes/outbound.ts). For location, company names, job titles, skills & features, schools, and fields of study, we convert all of these into vector embeddings. We then find the top k most similar vectors in the corresponding vector table (locationsVector, jobTitlesVectorNew, schools, fieldsOfStudy, companiesVectorNew, skillsNew). Each row contains n personIds, these n people have this exact same text we embedded and upserted into that embedding table. So if we return the top k skills from the skillsNew table for "Next.js", where k = 200, and the cosine similarity threshold is 0.5, but thresholding at 0.5 reduced that 200 number of rows to 80, and the average # of personIds each returned row of 80 gives us is 50, this means we will find 80\*50=400 different personIds that have the skill "Next.js".
 
