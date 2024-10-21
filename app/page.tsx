@@ -17,6 +17,7 @@ import {
   Heading,
   Separator,
   Card,
+  Link,
 } from "frosted-ui";
 import {
   Accordion,
@@ -66,7 +67,6 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import CompaniesView from "./companies-view";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useCompaniesViewStore } from "./companies-view-store";
 
 interface ProfileUrl {
@@ -793,7 +793,10 @@ export default function Page() {
         className="my-36 p-4 w-[90%] sm:w-[75%] lg:w-[800px] mx-auto shadow-md"
       >
         <Toaster richColors className="z-[99999]" />
-        <Heading size={"6"}>Candidate Search</Heading>
+        <div className="flex flex-row gap-2 items-center">
+          <Heading size={"6"}>Candidate Search</Heading>|
+          <Link href={"/README.md"}>README.md</Link>
+        </div>
         <Text className="text-primary/60">
           Provide details to search for candidates.
         </Text>

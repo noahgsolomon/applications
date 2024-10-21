@@ -63,8 +63,159 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
+
+
+/* General styling for the code block */
+.hljs {
+  @apply overflow-x-auto font-thin !important;
+}
+
+code {
+  @apply whitespace-pre-wrap text-primary !important;
+  /* This will wrap the text inside the code block */
+}
+
+pre {
+  @apply rounded-lg !important;
+}
+
+/* Keyword styling (like def, if, else, return) */
+.hljs-keyword {
+  @apply text-[#ff7b72] !important;
+  /* Pinkish-red */
+}
+
+/* Function names */
+.hljs-title.function_ {
+  @apply text-[#d2a8ff] !important;
+  /* Light purple */
+}
+
+/* Parameters and variables */
+.hljs-params {
+  @apply text-[#ffa657] !important;
+  /* Orange */
+}
+
+/* Number styling */
+.hljs-number {
+  @apply text-[#79c0ff] !important;
+  /* Light blue */
+}
+
+/* Comments */
+.hljs-comment {
+  @apply text-[#8b949e] italic !important;
+  /* Grayish */
+}
+
+/* Built-in functions and strings */
+.hljs-built_in,
+.hljs-string {
+  @apply text-[#a5d6ff] !important;
+  /* Light blue */
+}
+
+/* Substitutions in strings */
+.hljs-subst {
+  @apply text-[#c9d1d9] !important;
+  /* Light gray */
+}
+
+.hljs-variable {
+  @apply text-[#ffa657] !important;
+  /* Orange */
+}
+
+.hljs-built_in {
+  @apply text-[#79c0ff] !important;
+  /* Light blue */
+}
+
+.language-blue {
+  @apply bg-blue-500/50 rounded-none;
+}
+
+.katex-html {
+  @apply hidden;
+}
+
+p {
+  @apply text-xs md:text-sm text-primary;
+}
+
+math {
+  @apply rounded-lg p-1 flex justify-start font-bold pointer-events-auto !important;
+}
+
+mo,
+mfrac,
+mtext,
+mrow,
+msup,
+mi,
+annotation {
+  @apply text-[10px];
+}
+
+
+.prose p {
+  @apply text-lg;
+}
+
+
+h1 {
+  font-size: larger;
+  /*add a # before the text of .prose h1*/
+  @apply text-primary border-border border-b pb-2 text-3xl
+}
+
+h2 {
+  @apply text-primary pb-2
+}
+
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  @apply no-underline transition-all hover:opacity-90
+}
+
+p a, li a, ul a {
+  @apply transition-all hover:opacity-90
+}
+
+h2 a::before {
+  content: '';
+  @apply mr-2 text-2xl;
+}
+
+h3 a::before {
+  content: '';
+  @apply mr-2 text-2xl;
+}
+
+h3 {
+  @apply text-xl
+}
+
+img {
+  @apply mx-auto my-0 rounded-lg w-[75%] max-w-[500px] h-auto;
+}
+
+h2 a:hover::before {
+  content: '##';
+}
+
+h3 a:hover::before {
+  content: '###';
+}
+
+h1 a:hover::before {
+  content: '#';
+  @apply opacity-50
+}
