@@ -1025,15 +1025,6 @@ export default function Page() {
                                 }
                               })();
 
-                              const Whop = () => (
-                                <Image
-                                  src={"/whop.png"}
-                                  width={30}
-                                  height={30}
-                                  alt="whop logo"
-                                />
-                              );
-
                               const ButtonIcon = (() => {
                                 switch (filterType) {
                                   case "job":
@@ -1046,8 +1037,6 @@ export default function Page() {
                                     return School;
                                   case "fieldsOfStudy":
                                     return GraduationCap;
-                                  case "whopUser":
-                                    return Whop;
                                   case "activeGithub":
                                     return Github;
                                   default:
@@ -1195,13 +1184,7 @@ export default function Page() {
                       ) : (
                         <X className="size-4 text-red-500" />
                       )}
-                      <Image
-                        src={"/whop.png"}
-                        width={30}
-                        height={30}
-                        alt="whop logo"
-                      />
-                      Whop Mode
+                      Whop User
                     </Button>
                     <Button
                       variant="surface"
@@ -1602,12 +1585,6 @@ export default function Page() {
                   {showWhop ? (
                     <Check className="size-4 text-green-500" />
                   ) : null}
-                  <Image
-                    src={"/whop.png"}
-                    width={30}
-                    height={30}
-                    alt="whop logo"
-                  />
                   Has Whop
                 </Button>
                 <Button

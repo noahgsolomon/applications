@@ -63,7 +63,7 @@ export default function CandidateCard({
 }) {
   const {
     data,
-    score,
+    score: candidateScore,
     matchedLocation,
     matchedSkills,
     matchedJobTitle,
@@ -80,6 +80,13 @@ export default function CandidateCard({
     data.githubImage ||
     (data.twitterData && (data.twitterData as any).profile_image_url_https) ||
     "";
+
+  const score =
+    typeof candidateScore === "number"
+      ? candidateScore.toFixed(2)
+      : typeof candidateScore === "string"
+      ? parseFloat(candidateScore).toFixed(2)
+      : "0";
 
   return (
     <Card className="shadow-md p-6">
@@ -195,9 +202,15 @@ export default function CandidateCard({
         <Flex wrap="wrap" gap="2">
           <Badge
             variant="surface"
-            color={score >= 0.75 ? "green" : score >= 0.5 ? "yellow" : "red"}
+            color={
+              parseFloat(score) >= 0.75
+                ? "green"
+                : parseFloat(score) >= 0.5
+                ? "yellow"
+                : "red"
+            }
           >
-            {score?.toFixed(2)}
+            {score}
           </Badge>
           {matchedSkills &&
             matchedSkills.length > 0 &&
