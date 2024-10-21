@@ -37,6 +37,7 @@ export const candidateRouter = createTRPCRouter({
             input.allIdsResponse.map((id: any) => id.id)
           )
         ),
+        limit: 500,
       });
 
       let topCandidatesIdsWithScores = topCandidates
@@ -47,36 +48,10 @@ export const candidateRouter = createTRPCRouter({
           return {
             data: candidate as { id: string },
             score: (idResponse?.score ?? 0) as number,
-            matchedSkills: idResponse?.matchedSkills as
-              | { score: number; skill: string }[]
-              | undefined,
-            matchedJobTitle: idResponse?.matchedJobTitle as
-              | { score: number; jobTitle: string }
-              | undefined,
             matchedLocation: idResponse?.matchedLocation as
               | { score: number; location: string }
               | undefined,
-            matchedCompanies: idResponse?.matchedCompanies as
-              | { score: number; company: string }[]
-              | undefined,
-            matchedSchools: idResponse?.matchedSchools as
-              | { score: number; school: string }[]
-              | undefined,
-            matchedFieldsOfStudy: idResponse?.matchedFieldsOfStudy as
-              | { score: number; fieldOfStudy: string }[]
-              | undefined,
-            attributions: idResponse?.attributions as
-              | { attribution: string; score: number }[]
-              | undefined,
-            from: idResponse?.from as
-              | "linkedin"
-              | "github"
-              | "filter"
-              | undefined,
             activeGithub: idResponse?.activeGithub as boolean | undefined,
-            activeGithubScore: idResponse?.activeGithubScore as
-              | number
-              | undefined,
           };
         })
         .filter((candidate) =>
