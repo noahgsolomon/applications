@@ -103,26 +103,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-const organizations = [
-  // "jacksonhuether",
-  // "DarrenBaldwin07",
-  // "dylsteck",
-  // "sharkey11",
-  // "pondorasti",
-  // "yagil",
-  // "PabloSzx",
-  // "focusaurus",
-  // "jacksonpires",
-  // "bensheldon",
-  // "himself65",
-  // "255kb",
-  // "brandonroberts",
-  // "hendricius",
-  "praveentcom",
-  "natikgadzhi",
-  "outoftime",
-  "shrugs",
-];
+const organizations = ["icco", "samuelngs", "davidsonfellipe"];
 
 // Function to fetch Twitter data
 async function getTwitterData(username: string): Promise<any | null> {

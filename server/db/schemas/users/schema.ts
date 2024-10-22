@@ -35,38 +35,49 @@ export const profileQueue = pgTable("profile_queue", {
   allIdsResponse: json("all_ids_response").$type<any[]>(),
 });
 
-export const company = pgTable("company", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  linkedinId: varchar("linkedin_id", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  universalName: varchar("universal_name", { length: 255 }),
-  linkedinUrl: text("linkedin_url").notNull(),
-  employeeCount: integer("employee_count"),
-  websiteUrl: text("website_url"),
-  tagline: text("tagline"),
-  description: text("description"),
-  industry: varchar("industry", { length: 255 }),
-  phone: varchar("phone", { length: 255 }),
-  specialities: json("specialities").$type<string[]>().default([]),
-  headquarter: json("headquarter").$type<{
-    city: string;
-    country: string;
-    postalCode: string;
-    geographicArea: string;
-    street1: string | null;
-    street2: string | null;
-  }>(),
-  logo: text("logo"),
-  foundedOn: json("founded_on").$type<{ year: number }>(),
-  linkedinData: json("linkedin_data").$type<any>().default({}),
-  // will be top 10 based on the employees most present technologies and features weighted by the employees ordering of these.
-  topTechnologies: json("top_technologies").$type<string[]>().default([]),
-  topFeatures: json("top_features").$type<string[]>().default([]),
-  specialties: json("specialties").$type<string[]>().default([]),
-});
+export const company = pgTable(
+  "company",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    linkedinId: varchar("linkedin_id", { length: 255 }).notNull().unique(),
+    name: varchar("name", { length: 255 }).notNull(),
+    universalName: varchar("universal_name", { length: 255 }),
+    linkedinUrl: text("linkedin_url").notNull(),
+    employeeCount: integer("employee_count"),
+    websiteUrl: text("website_url"),
+    tagline: text("tagline"),
+    description: text("description"),
+    industry: varchar("industry", { length: 255 }),
+    phone: varchar("phone", { length: 255 }),
+    specialities: json("specialities").$type<string[]>().default([]),
+    headquarter: json("headquarter").$type<{
+      city: string;
+      country: string;
+      postalCode: string;
+      geographicArea: string;
+      street1: string | null;
+      street2: string | null;
+    }>(),
+    logo: text("logo"),
+    foundedOn: json("founded_on").$type<{ year: number }>(),
+    linkedinData: json("linkedin_data").$type<any>().default({}),
+    // will be top 10 based on the employees most present technologies and features weighted by the employees ordering of these.
+    topTechnologies: json("top_technologies").$type<string[]>().default([]),
+    topFeatures: json("top_features").$type<string[]>().default([]),
+    specialties: json("specialties").$type<string[]>().default([]),
+    companyNameVector: vector("company_name_vector", { dimensions: 1536 }),
+    groups: json("groups").$type<string[]>().default([]),
+  },
+  (table) => ({
+    companyNameVectorIndex: index("company_name_vector_index").using(
+      "hnsw",
+      table.companyNameVector.op("vector_cosine_ops")
+    ),
+  })
+);
 
 export const whopTwitterAccounts = pgTable("whop_twitter_accounts", {
   id: varchar("id", { length: 255 })
