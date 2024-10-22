@@ -8,6 +8,7 @@ import OpenAI from "openai";
 import { inArray } from "drizzle-orm";
 import { InferResultType } from "@/utils/infer";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { jsonArrayContains } from "@/lib/utils";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -506,5 +507,11 @@ If no company they mentioned is in the list, return an empty array for "companyN
       linkedinUrl: company.linkedinUrl,
       logo: company.logo,
     }));
+  }),
+  all60fpsDesignCompanies: publicProcedure.query(async ({ ctx }) => {
+    const companies = await ctx.db.query.company.findMany({
+      where: jsonArrayContains(companyTable.groups, ["60fps.design"]),
+    });
+    return companies;
   }),
 });

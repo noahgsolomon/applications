@@ -27,8 +27,9 @@ export default function CompaniesView() {
   const { filters: scrapedFilters, setFilters: setScrapedFilters } =
     useScrapedDialogStore();
   const { companiesRemoved, setCompaniesRemoved } = useCompaniesViewStore();
-  const [open, setOpen] = useState(false);
   const allActiveCompaniesQuery = api.company.allActiveCompanies.useQuery();
+  const all60fpsDesignCompaniesQuery =
+    api.company.all60fpsDesignCompanies.useQuery();
   const [filters, setFilters] = useState<string[]>([]);
   const [companies, setCompanies] = useState(
     scrapedFilters?.companies && scrapedFilters.companies.length > 0
@@ -189,6 +190,21 @@ export default function CompaniesView() {
                 Remove all companies
               </Button>
             )}
+            <Button
+              variant="surface"
+              color="sky"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setCompanies(all60fpsDesignCompaniesQuery.data || []);
+                setScrapedFilters({
+                  ...scrapedFilters,
+                  //@ts-ignore
+                  companies: all60fpsDesignCompaniesQuery.data,
+                });
+              }}
+            >
+              60fps.design
+            </Button>
             {companiesRemoved && (
               <Button
                 disabled={loading}
