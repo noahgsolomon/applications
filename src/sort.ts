@@ -960,7 +960,7 @@ async function upsertData(
   }
 }
 
-async function insertPersonFromLinkedin(profileData: any) {
+export async function insertPersonFromLinkedin(profileData: any) {
   console.log("Inserting person into the database...");
 
   // Generate summaries and gather skills
@@ -996,11 +996,6 @@ async function insertPersonFromLinkedin(profileData: any) {
   let locationVector: number[] | null = null;
   if (profileData.location) {
     locationVector = await getEmbedding(profileData.location);
-    await db.insert(schema.locationsVector).values({
-      personIds: [personId],
-      location: profileData.location,
-      vector: locationVector,
-    });
     await upsertData(
       schema.locationsVector,
       "location",
@@ -1136,7 +1131,26 @@ async function insertPersonFromLinkedin(profileData: any) {
         averageSchoolVector,
         averageFieldOfStudyVector,
       })
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: people.linkedinUrl,
+        set: {
+          linkedinData: profileData,
+          linkedinUrl: profileData.link as string,
+          name: `${profileData.firstName} ${profileData.lastName}`.trim(),
+          miniSummary,
+          summary,
+          topTechnologies: tech,
+          topFeatures: features,
+          jobTitles: jobTitlesList,
+          isEngineer,
+          locationVector,
+          averageSkillVector,
+          averageJobTitleVector,
+          averageCompanyVector,
+          averageSchoolVector,
+          averageFieldOfStudyVector,
+        },
+      });
 
     console.log(
       `Person ${profileData.firstName} ${profileData.lastName} inserted into the database. Person ID: ${personId}`
@@ -2047,7 +2061,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
       const company = companies.find((c) => c.id === companyId);
       if (company) {
         const existingMatch = combinedCompanyMatches.find(
-          (match) => match.company === company.name
+          (match) => match.company.toLowerCase() === company.name.toLowerCase()
         );
         if (existingMatch) {
           existingMatch.personIds = [
