@@ -120,11 +120,19 @@ export default function CandidateCard({
         <Flex direction="column" gap="2" className="flex-grow">
           <Flex justify="between" align="center">
             <Flex gap="2">
-              {data.linkedinUrl && (
+              {data.linkedinUrl ? (
                 <Link href={data.linkedinUrl} target="_blank">
                   <Linkedin className="size-5 text-blue-600 " />
                 </Link>
-              )}
+              ) : data.linkedinData &&
+                (data.linkedinData as any).linkedInUrl ? (
+                <Link
+                  href={(data.linkedinData as any).linkedInUrl}
+                  target="_blank"
+                >
+                  <Linkedin className="size-5 text-blue-600 " />
+                </Link>
+              ) : null}
               {data.githubLogin && (
                 <Link
                   href={`https://github.com/${data.githubLogin}`}
