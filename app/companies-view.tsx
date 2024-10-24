@@ -30,6 +30,10 @@ export default function CompaniesView() {
   const allActiveCompaniesQuery = api.company.allActiveCompanies.useQuery();
   const all60fpsDesignCompaniesQuery =
     api.company.all60fpsDesignCompanies.useQuery();
+  const {
+    data: all60fpsDesignCompanies,
+    isLoading: all60fpsDesignCompaniesLoading,
+  } = all60fpsDesignCompaniesQuery;
   const [filters, setFilters] = useState<string[]>([]);
   const [companies, setCompanies] = useState(
     scrapedFilters?.companies && scrapedFilters.companies.length > 0
@@ -193,13 +197,14 @@ export default function CompaniesView() {
             <Button
               variant="surface"
               color="sky"
+              disabled={all60fpsDesignCompaniesLoading}
               style={{ cursor: "pointer" }}
               onClick={() => {
-                setCompanies(all60fpsDesignCompaniesQuery.data || []);
+                setCompanies(all60fpsDesignCompanies || []);
                 setScrapedFilters({
                   ...scrapedFilters,
                   //@ts-ignore
-                  companies: all60fpsDesignCompaniesQuery.data,
+                  companies: all60fpsDesignCompanies,
                 });
               }}
             >
