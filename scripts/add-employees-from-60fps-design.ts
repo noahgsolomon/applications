@@ -140,7 +140,15 @@ async function searchAndProcessEmployees() {
   const processedUrls = new Set<string>();
   const BATCH_SIZE = 10;
 
+  let seenLastProcessed = false;
   for (const company of companies) {
+    if (!seenLastProcessed) {
+      if (company.name.toLowerCase() === "netflix") {
+        seenLastProcessed = true;
+      }
+      console.log(`Skipping ${company.name}`);
+      continue;
+    }
     const queries = [
       `site:linkedin.com/in/ "${company.name}" current`,
       `site:linkedin.com/in/ "${company.name}"`,
