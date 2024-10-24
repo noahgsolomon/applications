@@ -907,10 +907,10 @@ export default function Page() {
                 ))}
 
               {filters &&
-                ((filters.companies &&
-                  filters.companies.length > 0 &&
-                  filters.companies.length !== allActiveCompanies?.length) ||
-                  filters.otherCompanyNames?.length > 0 ||
+                // (filters.companies &&
+                // filters.companies.length > 0 &&
+                // filters.companies.length !== allActiveCompanies?.length) ||
+                (filters.otherCompanyNames?.length > 0 ||
                   filters.schools?.length > 0 ||
                   filters.fieldsOfStudy?.length > 0 ||
                   filters.location ||
@@ -1426,7 +1426,21 @@ export default function Page() {
                 setError("");
                 handleProfileSearch();
               }}
-              disabled={loading || (profileUrls.length === 0 && !filters)}
+              disabled={
+                loading ||
+                (profileUrls.length === 0 &&
+                  !(
+                    filters &&
+                    // (filters.companies &&
+                    // filters.companies.length > 0 &&
+                    // filters.companies.length !== allActiveCompanies?.length) ||
+                    (filters.otherCompanyNames?.length > 0 ||
+                      filters.schools?.length > 0 ||
+                      filters.fieldsOfStudy?.length > 0 ||
+                      filters.location ||
+                      filters.skills?.length > 0)
+                  ))
+              }
             >
               {loading ? <Loader className="size-4 animate-spin" /> : "Search"}
             </Button>
