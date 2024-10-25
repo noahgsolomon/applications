@@ -5,12 +5,14 @@ import { people } from "@/server/db/schemas/users/schema";
 import {
   and,
   cosineDistance,
+  desc,
   eq,
   gt,
   inArray,
   InferSelectModel,
   like,
   not,
+  notInArray,
   sql,
 } from "drizzle-orm";
 import OpenAI from "openai";
@@ -1982,6 +1984,10 @@ interface FilterCriteria {
     value: boolean;
     weight: number;
   };
+  whopMutuals?: {
+    value: boolean;
+    weight: number;
+  };
 }
 
 // Helper functions
@@ -2175,6 +2181,29 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     new Set(similarFieldsOfStudy.flatMap((field) => field.personIds || []))
   );
 
+  let whopMutualsPersonIds: string[] = [];
+
+  const whopAccounts = await db.query.whopTwitterAccounts.findMany();
+
+  const whopMutualScores = await db.query.people.findMany({
+    where: notInArray(
+      schema.people.twitterId,
+      whopAccounts.map((a) => a.twitterId)
+    ),
+    columns: {
+      id: true,
+    },
+    orderBy: [
+      desc(schema.people.whopTwitterMutualsCount),
+      desc(schema.people.whopTwitterFollowersCount),
+      desc(schema.people.whopTwitterFollowingCount),
+    ],
+    limit: 2000,
+  });
+  whopMutualsPersonIds = whopMutualScores.map((p) => p.id);
+  console.log(`[6] Retrieved ${whopMutualsPersonIds.length} whop mutuals.`);
+  console.log(whopMutualScores.slice(0, 10));
+
   // Step 7: Combine all person IDs into a set to avoid duplicates
   const combinedPersonIds = Array.from(
     new Set([
@@ -2184,6 +2213,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
       ...similarSchoolPersonIds,
       ...similarFieldOfStudyPersonIds,
       ...combinedCompanyMatches.flatMap((c) => c.personIds || []),
+      ...whopMutualsPersonIds,
     ])
   );
 
@@ -2198,6 +2228,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     matchedSchools: { school: string; score: number }[];
     matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[];
     isWhopUser: boolean;
+    whopMutuals?: { score: number };
     score: number;
     githubMetrics?: {
       followers: number;
@@ -2219,6 +2250,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     fieldsOfStudy: [],
     whopUser: [],
     activeGithub: [],
+    whopMutuals: [],
   };
 
   // Fetch necessary user data for whopUser filtering and GitHub activity
@@ -2227,6 +2259,9 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
       id: true,
       isWhopUser: true,
       isWhopCreator: true,
+      whopTwitterFollowersCount: true,
+      whopTwitterMutualsCount: true,
+      whopTwitterFollowingCount: true,
       // Include GitHub data needed for activeGithub score
       followers: true,
       totalCommits: true,
@@ -2278,12 +2313,22 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     const matchedSchools: { school: string; score: number }[] = [];
     const matchedFieldsOfStudy: { fieldOfStudy: string; score: number }[] = [];
     let isWhopUser = false;
-
+    let whopMutuals: { score: number } | undefined = undefined;
     const personData = peopleDataMap.get(personId);
 
     // Calculate skill scores for this person
     let skillScoreSum = 0;
     const personSkills = personSkillScores[personId] || {};
+
+    whopMutuals = {
+      score:
+        (personData?.whopTwitterMutualsCount || 0) * 3 +
+        (personData?.whopTwitterFollowersCount || 0) * 2 +
+        (personData?.whopTwitterFollowingCount || 0) * 0.33,
+    };
+    rawScores.whopMutuals = whopMutuals.score;
+
+    criterionRawScores.whopMutuals.push(rawScores.whopMutuals);
 
     Object.keys(personSkills).forEach((skill) => {
       const rawScore = personSkills[skill];
@@ -2426,6 +2471,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
       matchedSchools,
       matchedFieldsOfStudy,
       isWhopUser,
+      whopMutuals,
       score: 0, // will calculate later
       githubMetrics: githubMetricsPerPerson,
     });
@@ -2494,6 +2540,9 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
   }
   if (filterCriteria.activeGithub.value) {
     criteriaWeights.activeGithub = filterCriteria.activeGithub.weight;
+  }
+  if (filterCriteria.whopMutuals?.value) {
+    criteriaWeights.whopMutuals = filterCriteria.whopMutuals.weight;
   }
 
   const totalWeight = Object.values(criteriaWeights).reduce(
@@ -2628,21 +2677,24 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     },
   });
 
-  const topCandidatesWithData = top2000Candidates.map((candidate) => {
-    const userData = top2000Users.find((user) => user.id === candidate.id);
-    return {
-      data: userData,
-      score: candidate.score,
-      matchedSkills: candidate.matchedSkills,
-      matchedJobTitle: candidate.matchedJobTitle,
-      matchedLocation: candidate.matchedLocation,
-      matchedCompanies: candidate.matchedCompanies,
-      matchedSchools: candidate.matchedSchools,
-      matchedFieldsOfStudy: candidate.matchedFieldsOfStudy,
-      activeGithub: candidate.activeGithub,
-      activeGithubScore: candidate.rawScores.activeGithub,
-    };
-  });
+  const topCandidatesWithData = top2000Candidates
+    .map((candidate) => {
+      const userData = top2000Users.find((user) => user.id === candidate.id);
+      return {
+        data: userData,
+        score: candidate.score,
+        matchedSkills: candidate.matchedSkills,
+        matchedJobTitle: candidate.matchedJobTitle,
+        matchedLocation: candidate.matchedLocation,
+        matchedCompanies: candidate.matchedCompanies,
+        matchedSchools: candidate.matchedSchools,
+        matchedFieldsOfStudy: candidate.matchedFieldsOfStudy,
+        activeGithub: candidate.activeGithub,
+        activeGithubScore: candidate.rawScores.activeGithub,
+        whopMutuals: candidate.rawScores.whopMutuals,
+      };
+    })
+    .filter((c) => c.data);
 
   console.log("Filter criteria processing completed.");
   console.log(
@@ -2733,6 +2785,10 @@ function mergeResults(...resultsArrays: any[][]): any[] {
         // Merge activeGithub
         mergedResultsMap[id].activeGithub =
           mergedResultsMap[id].activeGithub || item.activeGithub;
+
+        // Merge whopMutuals
+        mergedResultsMap[id].whopMutuals =
+          mergedResultsMap[id].whopMutuals || item.whopMutuals;
 
         // Merge activeGithubScore
         if (item.activeGithubScore !== undefined) {
@@ -2894,6 +2950,7 @@ export async function handler(event: any) {
             matchedCompanies: res.matchedCompanies,
             matchedSchools: res.matchedSchools,
             matchedFieldsOfStudy: res.matchedFieldsOfStudy,
+            whopMutuals: res.whopMutuals,
             attributions: res.attributions ?? [],
             from: res.from,
           })),
@@ -2947,6 +3004,7 @@ export async function handler(event: any) {
               ? res.activeGithubScore.toFixed(4)
               : "",
             activeGithub: res.activeGithub,
+            whopMutuals: res.whopMutuals,
             matchedSkills: res.matchedSkills,
             matchedJobTitle: res.matchedJobTitle,
             matchedLocation: res.matchedLocation,
