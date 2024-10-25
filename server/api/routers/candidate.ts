@@ -53,6 +53,7 @@ export const candidateRouter = createTRPCRouter({
               | { score: number; location: string }
               | undefined,
             activeGithub: idResponse?.activeGithub as boolean | undefined,
+            whopMutuals: idResponse?.whopMutuals as number | undefined,
           };
         })
         .filter((candidate) =>
