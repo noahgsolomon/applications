@@ -45,6 +45,7 @@ import {
   Braces,
   MapPin,
   Download,
+  Users2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -160,6 +161,7 @@ export default function Page() {
         matchedCompanies?: { score: number; company: string }[];
         matchedSchools?: { score: number; school: string }[];
         matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
+        whopMutuals?: { score: number };
         attributions?: { attribution: string; score: number }[];
         from?: "linkedin" | "github" | "filter";
         activeGithub?: boolean;
@@ -200,6 +202,7 @@ export default function Page() {
   const [showActiveGithub, setShowActiveGithub] = useState(false);
   const [showMatchingLocation, setShowMatchingLocation] = useState(false);
   const [twitterUsernames, setTwitterUsernames] = useState<string[]>([]);
+  const [whopMutual, setWhopMutual] = useState(false);
 
   // Function to initialize filterWeights based on active filters
   const initializeFilterWeights = () => {
@@ -229,6 +232,9 @@ export default function Page() {
     }
     if (activeGithub) {
       weights.activeGithub = 0.1;
+    }
+    if (whopMutual) {
+      weights.whopMutual = 0.2;
     }
 
     // Handle individual skill weights
@@ -278,7 +284,7 @@ export default function Page() {
   // Update filterWeights whenever filters or whopUser change
   useEffect(() => {
     setFilterWeights(initializeFilterWeights());
-  }, [filters, whopUser, activeGithub]);
+  }, [filters, whopUser, activeGithub, whopMutual]);
 
   // Function to handle weight changes
   const handleWeightChange = (
@@ -483,12 +489,17 @@ export default function Page() {
     },
   });
 
-  const handleToggle = (type: "whopUser" | "activeGithub") => {
-    if (type === "whopUser") {
-      setWhopUser((prev) => !prev);
-    }
-    if (type === "activeGithub") {
-      setActiveGithub((prev) => !prev);
+  const handleToggle = (type: string) => {
+    switch (type) {
+      case "whopUser":
+        setWhopUser(!whopUser);
+        break;
+      case "activeGithub":
+        setActiveGithub(!activeGithub);
+        break;
+      case "whopMutual":
+        setWhopMutual(!whopMutual);
+        break;
     }
   };
 
@@ -731,6 +742,10 @@ export default function Page() {
         activeGithub: {
           value: activeGithub,
           weight: filterWeights.activeGithub as number,
+        },
+        whopMutuals: {
+          value: whopMutual,
+          weight: filterWeights.whopMutual as number,
         },
       };
 
@@ -1019,6 +1034,8 @@ export default function Page() {
                                     return "cyan";
                                   case "whopUser":
                                     return "orange";
+                                  case "whopMutual":
+                                    return "orange";
                                   case "activeGithub":
                                     return "violet";
                                   default:
@@ -1040,6 +1057,8 @@ export default function Page() {
                                     return GraduationCap;
                                   case "activeGithub":
                                     return Github;
+                                  case "whopMutual":
+                                    return Users2;
                                   default:
                                     return null;
                                 }
@@ -1067,6 +1086,8 @@ export default function Page() {
                                       : "Schools";
                                   case "activeGithub":
                                     return "Active Github";
+                                  case "whopMutual":
+                                    return "Whop Mutual";
                                   default:
                                     return toPascalCase(filterType);
                                 }
@@ -1204,19 +1225,35 @@ export default function Page() {
                     </Button>
                     <Button
                       variant="surface"
+                      size="2"
+                      style={{ cursor: "pointer" }}
+                      color={whopMutual ? "orange" : "gray"}
+                      onClick={() => handleToggle("whopMutual")}
+                    >
+                      {whopMutual ? (
+                        <Check className="size-4 text-green-500" />
+                      ) : (
+                        <X className="size-4 text-red-500" />
+                      )}
+                      <Users2 className="size-4 mr-1" />
+                      Whop Mutual
+                    </Button>
+                    <Button
+                      variant="surface"
                       color="gray"
                       style={{ cursor: "pointer" }}
                       onClick={() => {
                         setFilters(null);
                         setFilterWeights({
-                          job: 1 / 8,
-                          skills: 1 / 8,
-                          companies: 1 / 8,
-                          location: 1 / 8,
-                          schools: 1 / 8,
-                          fieldsOfStudy: 1 / 8,
-                          whopUser: 1 / 8,
-                          activeGithub: 1 / 8,
+                          job: 1 / 9,
+                          skills: 1 / 9,
+                          companies: 1 / 9,
+                          location: 1 / 9,
+                          schools: 1 / 9,
+                          fieldsOfStudy: 1 / 9,
+                          whopUser: 1 / 9,
+                          activeGithub: 1 / 9,
+                          whopMutual: 1 / 9,
                         });
                       }}
                     >
@@ -1432,14 +1469,12 @@ export default function Page() {
                 (profileUrls.length === 0 &&
                   !(
                     filters &&
-                    // (filters.companies &&
-                    // filters.companies.length > 0 &&
-                    // filters.companies.length !== allActiveCompanies?.length) ||
                     (filters.otherCompanyNames?.length > 0 ||
                       filters.schools?.length > 0 ||
                       filters.fieldsOfStudy?.length > 0 ||
                       filters.location ||
-                      filters.skills?.length > 0)
+                      filters.skills?.length > 0 ||
+                      whopMutual)
                   ))
               }
             >
@@ -1706,26 +1741,7 @@ export default function Page() {
                     "No matches found."
                   ) : (
                     candidateMatches
-                      ?.filter((candidate) => {
-                        const linkedinUrl =
-                          candidate.data.linkedinUrl ||
-                          (candidate.data.linkedinData as any)?.linkedInUrl;
-                        if (
-                          linkedinUrl &&
-                          !uniqueLinkedInUrls.has(linkedinUrl)
-                        ) {
-                          if (
-                            candidate.data.linkedinData &&
-                            !candidate.data.linkedinUrl
-                          ) {
-                            return false;
-                          }
-                          uniqueLinkedInUrls.add(linkedinUrl);
-                          return true;
-                        }
-                        return false;
-                      })
-                      .sort((a, b) => b.score - a.score)
+                      ?.sort((a, b) => b.score - a.score)
                       .map((candidate) => (
                         <CandidateCard
                           key={candidate.data.id}
