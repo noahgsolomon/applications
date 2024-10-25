@@ -234,6 +234,13 @@ export const people = pgTable(
     averageJobTitleVector: vector("average_job_title_vector", {
       dimensions: 1536,
     }),
+    whopTwitterFollowersCount: integer("whop_twitter_followers_count").default(
+      0
+    ),
+    whopTwitterFollowingCount: integer("whop_twitter_following_count").default(
+      0
+    ),
+    whopTwitterMutualsCount: integer("whop_twitter_mutuals_count").default(0),
   },
   (table) => ({
     // Adding unique constraints

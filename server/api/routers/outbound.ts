@@ -1,14 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import OpenAI from "openai";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import { Resource } from "sst";
 import { parse } from "json2csv";
 import { TRPCError } from "@trpc/server";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
 export const outboundRouter = createTRPCRouter({
   insertIntoQueue: publicProcedure
@@ -81,6 +76,7 @@ export const outboundRouter = createTRPCRouter({
             activeGithubScore: candidate.activeGithubScore
               ? parseFloat(candidate.activeGithubScore).toFixed(4)
               : "",
+            whopMutuals: candidate.whopMutuals,
           };
         });
 
@@ -101,6 +97,7 @@ export const outboundRouter = createTRPCRouter({
           "activeGithubScore",
           "totalRepositories",
           "totalForks",
+          "whopMutuals",
         ];
 
         const csv = parse(csvData, { fields });
