@@ -55,8 +55,16 @@ export const outboundRouter = createTRPCRouter({
           return {
             name: data.name || "",
             email: data.email || "",
+            twitterUrl:
+              data.twitterUrl ??
+              (data.twitterUsername
+                ? `https://twitter.com/${data.twitterUsername}`
+                : ""),
             githubUrl:
-              data.githubUrl || `https://github.com/${data.githubLogin}`,
+              data.githubUrl ??
+              (data.githubLogin
+                ? `https://github.com/${data.githubLogin}`
+                : ""),
             isWhopUser: data.isWhopUser || false,
             mostUsedLanguage: data.mostUsedLanguage || "",
             mostStarredLanguage: data.mostStarredLanguage || "",
@@ -83,6 +91,7 @@ export const outboundRouter = createTRPCRouter({
         const fields = [
           "name",
           "email",
+          "twitterUrl",
           "githubUrl",
           "isWhopUser",
           "mostUsedLanguage",

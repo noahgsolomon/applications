@@ -192,6 +192,10 @@ export default function Page() {
       matchedCompanies?: { score: number; company: string }[];
       matchedSchools?: { score: number; school: string }[];
       matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
+      twitterUrl?: string;
+      githubUrl?: string;
+      email?: string;
+      name?: string;
     }[]
   >([]);
 
@@ -444,6 +448,10 @@ export default function Page() {
           ([] as {
             id: string;
             score: number;
+            twitterUrl?: string;
+            githubUrl?: string;
+            email?: string;
+            name?: string;
             matchedSkills?: { score: number; skill: string }[];
             matchedJobTitle?: { score: number; jobTitle: string };
             matchedLocation?: { score: number; location: string };

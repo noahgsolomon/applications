@@ -2722,6 +2722,14 @@ function mergeResults(...resultsArrays: any[][]): any[] {
         mergedResultsMap[id].from = Array.isArray(item.from)
           ? item.from
           : [item.from];
+
+        // Ensure twitterUrl is set
+        if (item.twitterUsername) {
+          mergedResultsMap[
+            id
+          ].twitterUrl = `https://x.com/${item.twitterUsername}`;
+        }
+
         // Ensure attributions is an array
         mergedResultsMap[id].attributions = item.attributions || [];
       } else {
@@ -2752,6 +2760,12 @@ function mergeResults(...resultsArrays: any[][]): any[] {
           item.matchedSkills,
           ["skill"]
         );
+
+        if (item.githubLogin) {
+          mergedResultsMap[
+            id
+          ].githubUrl = `https://github.com/${item.githubLogin}`;
+        }
 
         // Merge matchedJobTitle
         mergedResultsMap[id].matchedJobTitle =
@@ -2953,6 +2967,7 @@ export async function handler(event: any) {
             whopMutuals: res.whopMutuals,
             attributions: res.attributions ?? [],
             from: res.from,
+            twitterUrl: res.twitterUrl,
           })),
         })
         .where(eq(schema.profileQueue.id, insertId));
@@ -3013,6 +3028,9 @@ export async function handler(event: any) {
             matchedFieldsOfStudy: res.matchedFieldsOfStudy,
             attributions: res.attributions ?? [],
             from: res.from,
+            twitterUrl: data.twitterUsername
+              ? `https://x.com/${data.twitterUsername}`
+              : "",
           };
         }),
       })
