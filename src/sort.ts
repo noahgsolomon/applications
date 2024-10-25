@@ -1114,7 +1114,8 @@ export async function insertPersonFromLinkedin(profileData: any) {
       .insert(people)
       .values({
         id: personId,
-        linkedinUrl: profileData.link as string,
+        image: profileData.photoUrl,
+        linkedinUrl: profileData.linkedInUrl as string,
         linkedinData: profileData,
         name: `${profileData.firstName} ${profileData.lastName}`.trim(),
         miniSummary,
@@ -1135,7 +1136,7 @@ export async function insertPersonFromLinkedin(profileData: any) {
         target: people.linkedinUrl,
         set: {
           linkedinData: profileData,
-          linkedinUrl: profileData.link as string,
+          linkedinUrl: profileData.linkedInUrl as string,
           name: `${profileData.firstName} ${profileData.lastName}`.trim(),
           miniSummary,
           summary,
@@ -1731,6 +1732,7 @@ export const querySimilarCompanies = async (
       `[1] Starting search for similar locations to: "${inputCompany}"`
     );
 
+    console.log(`inputCompany: ${inputCompany}`);
     const embedding = await getEmbedding(inputCompany);
     console.log(`[2] Embedding generated for: "${inputCompany}"`);
 
@@ -2181,6 +2183,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
       ...similarJobTitlesPersonIds,
       ...similarSchoolPersonIds,
       ...similarFieldOfStudyPersonIds,
+      ...combinedCompanyMatches.flatMap((c) => c.personIds || []),
     ])
   );
 
@@ -2473,7 +2476,12 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
     filterCriteria.companyIds.values.length > 0 ||
     filterCriteria.otherCompanyNames.values.length > 0
   ) {
-    criteriaWeights.companies = filterCriteria.companyIds.weight;
+    const companyWeight =
+      (filterCriteria.companyIds.weight || 0) +
+      (filterCriteria.otherCompanyNames.weight || 0);
+    if (companyWeight > 0) {
+      criteriaWeights.companies = companyWeight;
+    }
   }
   if (filterCriteria.schools.values.length > 0) {
     criteriaWeights.schools = filterCriteria.schools.weight;
