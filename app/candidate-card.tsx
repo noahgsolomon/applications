@@ -96,7 +96,7 @@ export default function CandidateCard({
             size="7"
             color="blue"
             fallback={(data.name || "N").charAt(0).toUpperCase()}
-            src={imageUrl}
+            src={imageUrl ?? (data.linkedinData as any)?.photoUrl}
           />
           {company && (
             <TooltipProvider key={company.id} delayDuration={500}>

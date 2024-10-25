@@ -542,6 +542,7 @@ export default function Page() {
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uniqueLinkedInUrls = new Set();
 
   const [manualUrls, setManualUrls] = useState("");
 
@@ -1705,7 +1706,26 @@ export default function Page() {
                     "No matches found."
                   ) : (
                     candidateMatches
-                      ?.sort((a, b) => b.score - a.score)
+                      ?.filter((candidate) => {
+                        const linkedinUrl =
+                          candidate.data.linkedinUrl ||
+                          (candidate.data.linkedinData as any)?.linkedInUrl;
+                        if (
+                          linkedinUrl &&
+                          !uniqueLinkedInUrls.has(linkedinUrl)
+                        ) {
+                          if (
+                            candidate.data.linkedinData &&
+                            !candidate.data.linkedinUrl
+                          ) {
+                            return false;
+                          }
+                          uniqueLinkedInUrls.add(linkedinUrl);
+                          return true;
+                        }
+                        return false;
+                      })
+                      .sort((a, b) => b.score - a.score)
                       .map((candidate) => (
                         <CandidateCard
                           key={candidate.data.id}
