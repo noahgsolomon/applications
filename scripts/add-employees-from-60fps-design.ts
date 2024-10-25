@@ -108,7 +108,7 @@ export const googleSearch = async (query: string) => {
       console.log("Search results fetched successfully.");
       const results = response.data.items || [];
       const linkedinUrls = results
-        .filter((result: any) => result.link.includes("www.linkedin.com/in"))
+        .filter((result: any) => result.link.includes("linkedin.com/in"))
         .map((result: any) => result.link);
       allLinkedinUrls = allLinkedinUrls.concat(linkedinUrls);
 
@@ -140,36 +140,16 @@ async function searchAndProcessEmployees() {
   const processedUrls = new Set<string>();
   const BATCH_SIZE = 10;
 
-  let seenLastProcessed = false;
+  let seenLastProcessed = true;
   for (const company of companies) {
     if (!seenLastProcessed) {
-      if (company.name.toLowerCase() === "netflix") {
+      if (company.name.toLowerCase() === "not boring") {
         seenLastProcessed = true;
       }
       console.log(`Skipping ${company.name}`);
       continue;
     }
-    const queries = [
-      `site:linkedin.com/in/ "${company.name}" current`,
-      `site:linkedin.com/in/ "${company.name}"`,
-      `site:linkedin.com/in/ "${company.name}" "software engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "product designer"`,
-      `site:linkedin.com/in/ "${company.name}" "product manager"`,
-      `site:linkedin.com/in/ "${company.name}" "engineering manager"`,
-      `site:linkedin.com/in/ "${company.name}" "tech lead"`,
-      `site:linkedin.com/in/ "${company.name}" "mobile engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "ios engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "android engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "frontend engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "ui engineer"`,
-      `site:linkedin.com/in/ "${company.name}" "ux designer"`,
-      `site:linkedin.com/in/ "${company.name}" "ux researcher"`,
-      `site:linkedin.com/in/ "${company.name}" rails`,
-      `site:linkedin.com/in/ "${company.name}" New York`,
-      `site:linkedin.com/in/ "${company.name}" NYC`,
-      `site:linkedin.com/in/ "${company.name}" Next.js`,
-      `site:linkedin.com/in/ "${company.name}" React`,
-    ];
+    const queries = [`site:linkedin.com/in AND company:"${company.name}"`];
 
     let linkedinUrls: string[] = [];
     for (const query of queries) {
@@ -189,8 +169,13 @@ async function searchAndProcessEmployees() {
         batch.map(async (url) => {
           try {
             const profileData = await scrapeLinkedInProfile(url);
-            if (profileData) {
+            const existingPerson = await db.query.people.findFirst({
+              where: eq(schema.people.linkedinUrl, url),
+            });
+            if (profileData && !existingPerson) {
               await processLinkedInProfile(profileData);
+            } else {
+              console.log(`Skipping ${url} because it already exists`);
             }
             processedUrls.add(url);
           } catch (error) {

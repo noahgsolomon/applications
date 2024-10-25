@@ -1,0 +1,353 @@
+{
+  "skills": [
+    "Figma (Software)",
+    "Adobe Animate",
+    "Adobe After Effects",
+    "2D Character Animation",
+    "Motion Design",
+    "Storyboarding",
+    "Animation",
+    "Character Animation",
+    "Computer Animation",
+    "Traditional Animation",
+    "Illustration",
+    "Drawing",
+    "Art",
+    "Digital Illustration",
+    "Painting",
+    "Flash Animation",
+    "Fine Art",
+    "Visual Arts",
+    "Oil Painting",
+    "Watercolor"
+  ],
+  "premium": false,
+  "schools": {
+    "educationsCount": 1,
+    "educationHistory": [
+      {
+        "degreeName": "Bachelor of Fine Arts (BFA), Animation",
+        "schoolLogo": null,
+        "schoolName": "Maryland Institute College of Art",
+        "linkedInUrl": null,
+        "fieldOfStudy": "Bachelor of Fine Arts (BFA), Animation",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 1 },
+          "start": { "year": 2010, "month": 1 }
+        }
+      }
+    ]
+  },
+  "summary": null,
+  "headline": "Senior Product Illustrator at Brilliant.org, 2D Animation Freelancer",
+  "lastName": "Chen",
+  "location": "San Francisco, California, United States of America",
+  "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQEzwHQlQXgicQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517550667374?e=1735171200&v=beta&t=_L3Yik71iGy4_UYb3tK4X7vrLY117OHGMAdBCsHh6jI",
+  "firstName": "Juliana",
+  "languages": [],
+  "positions": {
+    "positionsCount": 25,
+    "positionHistory": [
+      {
+        "title": "Senior Product Illustrator",
+        "linkedInId": "3155903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D560BAQG2qkfHI8YtUA/company-logo_400_400/company-logo_400_400/0/1715270741218/brilliant_org_logo?e=1737590400&v=beta&t=LpJR9C51cBGOKTXZ1AZSmttek7eil5aBYb0-sJmQybE",
+        "companyName": "Brilliant.org",
+        "description": "I work on illustrations and animations on the product level, as well as continuing my role providing static and motion art for the covered STEM topics.\n\nI primarily work on animated assets for the app's interface, such as buttons, characters, and celebrations for completing goals, to help create a little joy for the users.\n\nIts currently not listed in skills, but I use Rive for the animation work.",
+        "linkedInUrl": "https://www.linkedin.com/company/3155903/",
+        "startEndDate": { "end": null, "start": { "year": 2023, "month": 4 } }
+      },
+      {
+        "title": "Senior Illustrator",
+        "linkedInId": "3155903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D560BAQG2qkfHI8YtUA/company-logo_400_400/company-logo_400_400/0/1715270741218/brilliant_org_logo?e=1737590400&v=beta&t=LpJR9C51cBGOKTXZ1AZSmttek7eil5aBYb0-sJmQybE",
+        "companyName": "Brilliant.org",
+        "description": "Creating and designing illustrations and animations that help inspire and nurture everyone's and anyone's interests in STEM on the interactive pages of Brilliant. My duties range from tackling long term, multi paged illustrations, to day-of needs for our science and math writing teams.\n\nI have created story-driven illustrations, assets for interactive applications, character animation to liven up content both on the product and content level, and motion design as guidance for engineers to implement.",
+        "linkedInUrl": "https://www.linkedin.com/company/3155903/",
+        "startEndDate": { "end": null, "start": { "year": 2019, "month": 2 } },
+        "companyLocation": "San Francisco Bay Area"
+      },
+      {
+        "title": "Freelance Animator and Illustrator",
+        "companyLogo": null,
+        "companyName": "Self-employed",
+        "description": "",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Self-employed",
+        "startEndDate": { "end": null, "start": { "year": 2018, "month": 2 } },
+        "companyLocation": "San Francisco Bay Area"
+      },
+      {
+        "title": "Character Designer, General Concept Artist",
+        "linkedInId": "30611306",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C4E0BAQFq-QZRp1NYyg/company-logo_400_400/company-logo_400_400/0/1630645456974/double_dagger_studio_logo?e=1737590400&v=beta&t=UzC4EBKKRlSS6iTc4_zkxkrvgbO3VWiVZE4dknJqeG0",
+        "companyName": "Double Dagger Studio",
+        "description": "Character designer and general concept artist for Double Dagger's debut game, Little Kitty, Big City!\n\nAs a character designer, I designed major and minor characters, both in their design and exploring their personality, then delivered detailed turn-arounds to pass off to the 3D-modeler. An incredibly important part of the design process was coming up with ways so some characters could share assets, but still look unique from each other.\n\nThe work done as a concept artist varies. In some concepts I would visually explore scenarios the main kitty character would find themselves in, such as how they would jump into a trash bin, interact with adults and children, handling in-game missions, and weird places the cat could nap (very important).\n\nI also provided storyboards for cutscenes, conceptual environment sketches, background art and animations, designed the logo, and several dozen hats (also very important).",
+        "linkedInUrl": "https://www.linkedin.com/company/30611306/",
+        "contractType": "Freelance",
+        "startEndDate": { "end": null, "start": { "year": 2020, "month": 4 } }
+      },
+      {
+        "title": "Character Designer and Animator",
+        "linkedInId": "1441",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C4D0BAQHiNSL4Or29cg/company-logo_400_400/company-logo_400_400/0/1631311446380?e=1737590400&v=beta&t=KfDwVFF_-EvduTktr-CJjSwOZ1r2iEoQ4aBwPKtdJ2A",
+        "companyName": "Google",
+        "description": "Concepted, designed, and animated on the Halloween 2020 Doodle, Magic Cat Academy 2!\n\nWork included creating and pitching storylines, developing the chosen story, designing bosses and allies based on real life sea creatures, creating the rough animations for the characters and cutscenes, and illustrating the end cards and social media banners. Since it was a sequel to a game where the main character was based on one of my family's cats, it was personally important to me to get our other cat in the game as well. That's game design, friends.\n\nPlease check out the Doodle Archive page for more information!",
+        "linkedInUrl": "https://www.linkedin.com/company/1441/",
+        "contractType": "Freelance",
+        "startEndDate": {
+          "end": { "year": 2020, "month": 10 },
+          "start": { "year": 2020, "month": 7 }
+        }
+      },
+      {
+        "title": "Freelance Character Designer, Illustrator",
+        "linkedInId": "1244903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQEwwQkb-BmZig/company-logo_400_400/company-logo_400_400/0/1630601551289?e=1737590400&v=beta&t=83ahJjvz_P0Z0xsSR0JubygI9eNKJbyzF5qT29q5qkE",
+        "companyName": "Self Employed",
+        "description": "I designed and provided unique key art for Brendan Blaber's \"Let's Make\" video on a hypothetical Animal Crossing game! The key art ranged from spot illustrations, to character art of newly pitched NPCs. I also illustrated the overworld that would update with new locations as the video progressed. Please give it a watch!",
+        "linkedInUrl": "https://www.linkedin.com/company/1244903/",
+        "contractType": "Freelance",
+        "startEndDate": {
+          "end": { "year": 2020, "month": 3 },
+          "start": { "year": 2020, "month": 1 }
+        }
+      },
+      {
+        "title": "Freelance Illustrator",
+        "linkedInId": "1244903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQEwwQkb-BmZig/company-logo_400_400/company-logo_400_400/0/1630601551289?e=1737590400&v=beta&t=83ahJjvz_P0Z0xsSR0JubygI9eNKJbyzF5qT29q5qkE",
+        "companyName": "Self Employed",
+        "description": "I collaborated with Japan Travel Agency PacSet Travel to send their mascot, Kippu the fox, on a choose-your-own adventure using Twitter's poll feature! The campaign ran weekly from July to October, where an illustration of Kippu would be posted, along with a poll to decide Kippu's next action.\n\nProduction began in June, where we developed a premise for Kippu's story, and design a decision tree for each poll option. Because we could not truly know which path would be chosen, each week I would provide both the winning option's illustration, along with sketches for the next three choices for discussion and approval. That way when the winner was declared, I would immediately work on the new illustrator without anymore back-and-forth, so it could be posted ASAP.\n\nCheck out an example of one of the tweets, and see all the final artwork at once!",
+        "linkedInUrl": "https://www.linkedin.com/company/1244903/",
+        "startEndDate": {
+          "end": { "year": 2019, "month": 10 },
+          "start": { "year": 2019, "month": 6 }
+        }
+      },
+      {
+        "title": "Freelance Character Designer, Illustrator",
+        "linkedInId": "1244903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQEwwQkb-BmZig/company-logo_400_400/company-logo_400_400/0/1630601551289?e=1737590400&v=beta&t=83ahJjvz_P0Z0xsSR0JubygI9eNKJbyzF5qT29q5qkE",
+        "companyName": "Self Employed",
+        "description": "I provided unique key art for Brendan Blaber's \"Let's Make\" video on a hypothetical Pokemon game! I designed and illustrated new characters (protagonists, rivals, gym leaders and their badges, Pokemon), spot illustrations depicting scenarios, and created an overworld that would update as the video progressed. Please check it out, I essentially was hired to draw Pokemon fanart and I couldn't have been happier to work with Blaber on this fun story!",
+        "linkedInUrl": "https://www.linkedin.com/company/1244903/",
+        "startEndDate": {
+          "end": { "year": 2019, "month": 6 },
+          "start": { "year": 2019, "month": 4 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "linkedInId": "1244903",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQEwwQkb-BmZig/company-logo_400_400/company-logo_400_400/0/1630601551289?e=1737590400&v=beta&t=83ahJjvz_P0Z0xsSR0JubygI9eNKJbyzF5qT29q5qkE",
+        "companyName": "Self Employed",
+        "description": "Collaborating with Nadieh Brehmer and Google Trends on a data visualization project, I created animated gifs of cats and dogs based on interesting search queries people around the world have entered.",
+        "linkedInUrl": "https://www.linkedin.com/company/1244903/",
+        "startEndDate": {
+          "end": { "year": 2019, "month": 5 },
+          "start": { "year": 2019, "month": 1 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "linkedInId": "18502151",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQEgG_TsTp6VEA/company-logo_400_400/company-logo_400_400/0/1631308758828?e=1737590400&v=beta&t=DpPzPs09G9V_wAzMuf7Us7nQiCwbR92z6BKr5sF-9Fs",
+        "companyName": "Rare Bits",
+        "description": "Designed and animated booster pack animations for Neopet's CryptoQuest.",
+        "linkedInUrl": "https://www.linkedin.com/company/18502151/",
+        "startEndDate": {
+          "end": { "year": 2018, "month": 9 },
+          "start": { "year": 2018, "month": 9 }
+        },
+        "companyLocation": "San Francisco Bay Area"
+      },
+      {
+        "title": "Freelance Animator",
+        "linkedInId": "1441",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C4D0BAQHiNSL4Or29cg/company-logo_400_400/company-logo_400_400/0/1631311446380?e=1737590400&v=beta&t=KfDwVFF_-EvduTktr-CJjSwOZ1r2iEoQ4aBwPKtdJ2A",
+        "companyName": "Google",
+        "description": "Collaborated to create a set of 24 animated stickers based on American Sign Language for Google Keyboard! I helped during the character conceptual phase, and then I created the rough and final animations for the characters, animating them signing the phrase accurately and exciting!",
+        "linkedInUrl": "https://www.linkedin.com/company/1441/",
+        "startEndDate": {
+          "end": { "year": 2018, "month": 8 },
+          "start": { "year": 2018, "month": 3 }
+        },
+        "companyLocation": "San Francisco Bay Area"
+      },
+      {
+        "title": "Freelance Storyboard Artist",
+        "linkedInId": "309694",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQFhfl32crIGIw/company-logo_400_400/company-logo_400_400/0/1630637496980/airbnb_logo?e=1737590400&v=beta&t=RXEitoZGYApHjQ3kXKLfoAqrICHrBR7Aj5EONNBCLlg",
+        "companyName": "Airbnb",
+        "description": "Designed and illustrated storyboard panels during one-week focuses showcasing new features of AirBnB. (During February and April.)\n\nI would receive various information about the product's goals and its theorized workflow, and visualize these concepts into fun and clear storyboards.",
+        "linkedInUrl": "https://www.linkedin.com/company/309694/",
+        "startEndDate": {
+          "end": { "year": 2018, "month": 4 },
+          "start": { "year": 2018, "month": 2 }
+        },
+        "companyLocation": "San Francisco Bay Area"
+      },
+      {
+        "title": "Doodler",
+        "linkedInId": "1929",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C4E0BAQF3CNVYVAnNaw/company-logo_400_400/company-logo_400_400/0/1657287300356/theadeccogroup_logo?e=1737590400&v=beta&t=wk6ajYijjwTo6tX9beS4OzAioGWJAcBrO4QSe5etAJ4",
+        "companyName": "Adecco Group",
+        "description": "Designed, illustrated and animated dozens of Google Doodles as part of the Doodle Team. My work ranged from illustrating static doodles highlighting national holidays, to conceptualizing and creating appealing stories for interactive games. I self-managed several projects at once, usually one large team-based project for one year and several small Doodles throughout the year. All projects required communicating between our local team, an international representative for the target country, and myself, to ensure the final product would satisfy everyone’s requirements and abide by Google’s image.",
+        "linkedInUrl": "https://www.linkedin.com/company/1929/",
+        "startEndDate": {
+          "end": { "year": 2018, "month": 2 },
+          "start": { "year": 2016, "month": 2 }
+        }
+      },
+      {
+        "title": "Freelance Illustrator",
+        "companyLogo": null,
+        "companyName": "Batterystaple Games",
+        "description": "Designed, illustrated, and animated in-game assets (such as power-ups and item drops) for the game 20XX.",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Batterystaple+Games",
+        "startEndDate": {
+          "end": { "year": 2017, "month": 12 },
+          "start": { "year": 2016, "month": 1 }
+        }
+      },
+      {
+        "title": "Adjunct Professor",
+        "linkedInId": "21246",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C4D0BAQG2CxkehYFmtQ/company-logo_400_400/company-logo_400_400/0/1631316132820?e=1737590400&v=beta&t=Fg1JSmsQOhQAvkFqMfdIsd5RVc1X0A55E7x59JxiY2Y",
+        "companyName": "Maryland Institute College of Art",
+        "description": "I taught Introduction to 2D Animation, a course designed to teach the basics of animation as well as introducing related technology to the industry.",
+        "linkedInUrl": "https://www.linkedin.com/company/21246/",
+        "startEndDate": {
+          "end": { "year": 2015, "month": 12 },
+          "start": { "year": 2015, "month": 1 }
+        }
+      },
+      {
+        "title": "Satellite Animator",
+        "linkedInId": "3486030",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQGYOn7EoERoSw/company-logo_400_400/company-logo_400_400/0/1631321099225?e=1737590400&v=beta&t=V0gy44MVD5yElBP-gR1M4_8an5JrY01_EUaDi5h21l0",
+        "companyName": "FOX Animation Domination High Definition",
+        "description": "Remote animator for the cartoon series Lucas Bros. Moving Co. I would animate characters set to audio tracks by shots, which ranged from 1-20 seconds at a time.",
+        "linkedInUrl": "https://www.linkedin.com/company/3486030/",
+        "startEndDate": {
+          "end": { "year": 2015, "month": 4 },
+          "start": { "year": 2015, "month": 1 }
+        }
+      },
+      {
+        "title": "Guest Gif Artist",
+        "linkedInId": "3486030",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C560BAQGYOn7EoERoSw/company-logo_400_400/company-logo_400_400/0/1631321099225?e=1737590400&v=beta&t=V0gy44MVD5yElBP-gR1M4_8an5JrY01_EUaDi5h21l0",
+        "companyName": "FOX Animation Domination High Definition",
+        "description": "I was a guest animator where I created silly gif animations weekly for FoxADHD's Tumblr page. They were generally about a weird T-shaped character getting into hijinks, and there were some based on current events.",
+        "linkedInUrl": "https://www.linkedin.com/company/3486030/",
+        "startEndDate": {
+          "end": { "year": 2015, "month": 1 },
+          "start": { "year": 2014, "month": 12 }
+        }
+      },
+      {
+        "title": "Freelance Illustrator",
+        "companyLogo": null,
+        "companyName": "Batterystaple Games",
+        "description": "I was commissioned to design and animate in-game items and power-ups for the Steam game 20XX.",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Batterystaple+Games",
+        "startEndDate": {
+          "end": { "year": 2015, "month": 1 },
+          "start": { "year": 2014, "month": 8 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "companyLogo": null,
+        "companyName": "Eisenstein Malanchuk LLP",
+        "description": "I was commissioned to storyboard and animate a holiday-themed greeting card that was to be sent to the firm's clients via email. It was about the demise of a snowman, but it had a happy ending.",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Eisenstein+Malanchuk+LLP",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 12 },
+          "start": { "year": 2014, "month": 10 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "companyLogo": null,
+        "companyName": "Nate Williams",
+        "description": "I storyboarded and animated a trailer for Nate William's children's book, Hank and snOliver in Put Down the Phone!",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Nate+Williams",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 12 },
+          "start": { "year": 2014, "month": 9 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "companyLogo": null,
+        "companyName": "Matthew Mellis",
+        "description": "Created and animated assets, and collaborated within a team under Matthew Mellis for Abigail Baird’s Aerial Animation semi-final performance on America’s Got Talent season 9.",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Matthew+Mellis",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 8 },
+          "start": { "year": 2014, "month": 7 }
+        }
+      },
+      {
+        "title": "Freelance Animator",
+        "companyLogo": null,
+        "companyName": "Michael Slack",
+        "description": "Storyboarded and animated a trailer for Michael Slack's children's book, Wazdot?",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=Michael+Slack",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 7 },
+          "start": { "year": 2014, "month": 5 }
+        }
+      },
+      {
+        "title": "AMP Mentor",
+        "linkedInId": "164970",
+        "companyLogo": null,
+        "companyName": "MICA",
+        "description": "Part of a student organized mentorship program for animation students, I provide mentoring services. I am also in charge of promoting our events through social media, and gave a lecture on animating within Adobe Flash and Photoshop at an event.",
+        "linkedInUrl": "https://www.linkedin.com/company/164970/",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 5 },
+          "start": { "year": 2013, "month": 11 }
+        },
+        "companyLocation": "Baltimore, Maryland"
+      },
+      {
+        "title": "Student Voice Association Representative (Animation Department)",
+        "linkedInId": "164970",
+        "companyLogo": null,
+        "companyName": "MICA",
+        "description": "I bring up concerns students and department heads have with academic related issues and present them at monthly student council-like meetings in the presence of the head of Academic Affairs.",
+        "linkedInUrl": "https://www.linkedin.com/company/164970/",
+        "startEndDate": {
+          "end": { "year": 2014, "month": 5 },
+          "start": { "year": 2012, "month": 9 }
+        }
+      },
+      {
+        "title": "Storyboard and Character Design Intern",
+        "companyLogo": null,
+        "companyName": "拂晓 (Dawn) Studios",
+        "description": "I storyboarded episodes within a group, and designed/redesigned characters for an upcoming animated series.",
+        "linkedInUrl": "https://www.linkedin.com/search/results/all/?keywords=%E6%8B%82%E6%99%93+%28Dawn%29+Studios",
+        "startEndDate": {
+          "end": { "year": 2013, "month": 8 },
+          "start": { "year": 2013, "month": 5 }
+        },
+        "companyLocation": "Ningbo, Zhejiang, China"
+      }
+    ]
+  },
+  "openToWork": false,
+  "linkedInUrl": "https://www.linkedin.com/in/chenjuliana",
+  "creationDate": { "year": 2012, "month": 3 },
+  "backgroundUrl": null,
+  "followerCount": 296,
+  "certifications": { "certificationsCount": 0, "certificationHistory": [] },
+  "recommendations": { "recommendationsCount": 0, "recommendationHistory": [] },
+  "memberIdentifier": "175542346",
+  "publicIdentifier": "chenjuliana",
+  "linkedInIdentifier": "ACoAAAp2kEoBZrweud6uUJdnhlEWxEIP3x2lREk"
+}
