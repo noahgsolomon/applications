@@ -19,67 +19,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function getEmbedding(text: string): Promise<number[]> {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-ada-002",
-    input: text,
-  });
-
-  return response.data[0].embedding;
-}
-
-async function getNormalizedLocation(location: string): Promise<string> {
-  try {
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are a location normalizer. Given a location, return the uppercase state name if it's a US location, or the uppercase country name if it's outside the US. If it's a city, return the state (for US) or country it's in. If unsure or the location is invalid, return "UNKNOWN".
-Examples:
-- New York City -> NEW YORK
-- New York -> NEW YORK
-- London -> UNITED KINGDOM
-- California -> CALIFORNIA
-- Tokyo -> JAPAN
-- Paris, France -> FRANCE
-- Sydney -> AUSTRALIA
-- 90210 -> CALIFORNIA
-- Earth -> UNKNOWN`,
-        },
-        {
-          role: "user",
-          content: location,
-        },
-      ],
-      model: "gpt-4o-mini",
-      temperature: 0,
-      max_tokens: 256,
-    });
-    return (
-      completion.choices[0].message.content?.trim().toUpperCase() || "UNKNOWN"
-    );
-  } catch (error) {
-    console.error(`Error normalizing location for "${location}":`, error);
-    return "UNKNOWN";
-  }
-}
-
-async function computeAverageEmbedding(
-  embeddings: number[][]
-): Promise<number[] | null> {
-  if (embeddings.length === 0) return null;
-  const vectorLength = embeddings[0].length;
-  const sumVector = new Array(vectorLength).fill(0);
-
-  embeddings.forEach((embedding) => {
-    for (let i = 0; i < vectorLength; i++) {
-      sumVector[i] += embedding[i];
-    }
-  });
-
-  return sumVector.map((val) => val / embeddings.length);
-}
-
 async function processLinkedInProfile(profileData: any) {
   try {
     await insertPersonFromLinkedin(profileData.person);
@@ -129,13 +68,16 @@ export const googleSearch = async (query: string) => {
 };
 
 async function searchAndProcessEmployees() {
-  const companies = await db.query.company.findMany({
+  let companies = await db.query.company.findMany({
     where: jsonArrayContains(schema.company.groups, ["60fps.design"]),
     columns: {
       name: true,
       linkedinUrl: true,
     },
   });
+
+  //randomly shuffle the companies
+  companies = companies.sort(() => Math.random() - 0.5);
 
   const processedUrls = new Set<string>();
   const BATCH_SIZE = 10;
