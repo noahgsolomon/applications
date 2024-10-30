@@ -2692,6 +2692,7 @@ export async function processFilterCriteria(filterCriteria: FilterCriteria) {
         activeGithub: candidate.activeGithub,
         activeGithubScore: candidate.rawScores.activeGithub,
         whopMutuals: candidate.rawScores.whopMutuals,
+        linkedinUrl: userData?.linkedinUrl || "",
       };
     })
     .filter((c) => c.data);
@@ -2730,11 +2731,27 @@ function mergeResults(...resultsArrays: any[][]): any[] {
           ].twitterUrl = `https://x.com/${item.twitterUsername}`;
         }
 
+        // Set linkedinUrl from either direct property or linkedinData
+        if (item.data.linkedinUrl) {
+          mergedResultsMap[id].linkedinUrl = item.data.linkedinUrl;
+        } else if (item.data.linkedinData && (item.data.linkedinData as any).linkedInUrl) {
+          mergedResultsMap[id].linkedinUrl = (item.data.linkedinData as any).linkedInUrl;
+        }
+
         // Ensure attributions is an array
         mergedResultsMap[id].attributions = item.attributions || [];
       } else {
         // If the user is already in the merged results, sum the scores and merge properties
         mergedResultsMap[id].score += item.score;
+
+        // Set linkedinUrl if not already set
+        if (!mergedResultsMap[id].linkedinUrl) {
+          if (item.data.linkedinUrl) {
+            mergedResultsMap[id].linkedinUrl = item.data.linkedinUrl;
+          } else if (item.data.linkedinData && (item.data.linkedinData as any).linkedInUrl) {
+            mergedResultsMap[id].linkedinUrl = (item.data.linkedinData as any).linkedInUrl;
+          }
+        }
 
         // Merge attributions
         mergedResultsMap[id].attributions = mergeAttributions(
@@ -2998,6 +3015,7 @@ export async function handler(event: any) {
             name: data.name || "",
             email: data.email || "",
             githubLogin: data.githubLogin || "",
+            linkedinUrl: data.linkedinUrl || "",
             githubUrl: data.githubLogin
               ? `https://github.com/${data.githubLogin}`
               : "",

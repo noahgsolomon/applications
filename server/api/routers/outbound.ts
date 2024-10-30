@@ -65,6 +65,7 @@ export const outboundRouter = createTRPCRouter({
               (data.githubLogin
                 ? `https://github.com/${data.githubLogin}`
                 : ""),
+            linkedinUrl: data.linkedinUrl || "",
             isWhopUser: data.isWhopUser || false,
             mostUsedLanguage: data.mostUsedLanguage || "",
             mostStarredLanguage: data.mostStarredLanguage || "",
@@ -92,6 +93,7 @@ export const outboundRouter = createTRPCRouter({
           "name",
           "email",
           "twitterUrl",
+          "linkedinUrl",
           "githubUrl",
           "isWhopUser",
           "mostUsedLanguage",

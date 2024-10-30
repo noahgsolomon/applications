@@ -193,6 +193,7 @@ export default function Page() {
       matchedSchools?: { score: number; school: string }[];
       matchedFieldsOfStudy?: { score: number; fieldOfStudy: string }[];
       twitterUrl?: string;
+      linkedinUrl?: string;
       githubUrl?: string;
       email?: string;
       name?: string;
@@ -789,6 +790,10 @@ export default function Page() {
     setLoading(true);
     findSimilarProfiles(profileUrls);
   };
+
+  useEffect(() => {
+    console.log(allIdsResponse);
+  }, [allIdsResponse]);
 
   useEffect(() => {
     if (
