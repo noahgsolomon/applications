@@ -563,6 +563,9 @@ If no company they mentioned is in the list, return an empty array for "companyN
         // Fetch companies from the database based on the extracted company names
         const companiesDB = await ctx.db.query.company.findMany({
           where: inArray(companyTable.name, responseCompanyNames),
+          columns: {
+            id: true,
+          },
         });
 
         if (!companiesDB || companiesDB.length === 0) {
@@ -604,7 +607,14 @@ If no company they mentioned is in the list, return an empty array for "companyN
       }
     }),
   allActiveCompanies: publicProcedure.query(async ({ ctx }) => {
-    const companies = await ctx.db.query.company.findMany();
+    const companies = await ctx.db.query.company.findMany({
+      columns: {
+        id: true,
+        name: true,
+        linkedinUrl: true,
+        logo: true,
+      },
+    });
 
     return companies.map((company) => ({
       id: company.id,
@@ -616,6 +626,12 @@ If no company they mentioned is in the list, return an empty array for "companyN
   all60fpsDesignCompanies: publicProcedure.query(async ({ ctx }) => {
     const companies = await ctx.db.query.company.findMany({
       where: jsonArrayContains(companyTable.groups, ["60fps.design"]),
+      columns: {
+        id: true,
+        name: true,
+        linkedinUrl: true,
+        logo: true,
+      },
     });
     return companies.map((company) => ({
       id: company.id,
@@ -627,6 +643,12 @@ If no company they mentioned is in the list, return an empty array for "companyN
   allAppleDesignAwardCompanies: publicProcedure.query(async ({ ctx }) => {
     const companies = await ctx.db.query.company.findMany({
       where: jsonArrayContainsAny(companyTable.groups, ["apple-design-award"]),
+      columns: {
+        id: true,
+        name: true,
+        linkedinUrl: true,
+        logo: true,
+      },
     });
     return companies.map((company) => ({
       id: company.id,
@@ -638,6 +660,12 @@ If no company they mentioned is in the list, return an empty array for "companyN
   allVcInvestorsToSearch: publicProcedure.query(async ({ ctx }) => {
     const vcInvestors = await ctx.db.query.company.findMany({
       where: eq(companyTable.isVcInvestor, true),
+      columns: {
+        id: true,
+        name: true,
+        linkedinUrl: true,
+        logo: true,
+      },
     });
     return vcInvestors.map((vc) => ({
       id: vc.id,
@@ -649,6 +677,12 @@ If no company they mentioned is in the list, return an empty array for "companyN
   allVcInvestorCompaniesToSearch: publicProcedure.query(async ({ ctx }) => {
     const vcInvestorCompanies = await ctx.db.query.company.findMany({
       where: isNotNull(companyTable.vcInvestors),
+      columns: {
+        id: true,
+        name: true,
+        linkedinUrl: true,
+        logo: true,
+      },
     });
     return vcInvestorCompanies.map((vc) => ({
       id: vc.id,
