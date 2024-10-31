@@ -6,7 +6,7 @@ import OpenAI from "openai";
 import axios from "axios";
 //@ts-ignore
 import { v4 as uuid } from "uuid";
-import { eq, or, sql } from "drizzle-orm";
+import { eq, isNotNull, or, sql } from "drizzle-orm";
 import { jsonArrayContains } from "@/lib/utils";
 import { insertPersonFromLinkedin, scrapeLinkedInProfile } from "@/src/sort";
 
@@ -14,10 +14,6 @@ dotenv.config({ path: "../.env" });
 
 const pool = new Pool({ connectionString: process.env.DB_URL });
 const db = drizzle(pool, { schema });
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 async function processLinkedInProfile(profileData: any) {
   try {
@@ -32,7 +28,7 @@ export const googleSearch = async (query: string) => {
   const apiKey = process.env.GOOGLE_API_KEY!;
   const cseId = process.env.GOOGLE_CSE_ID!;
   const resultsPerPage = 10;
-  const maxResults = 250;
+  const maxResults = 33;
   let allLinkedinUrls: string[] = [];
 
   for (let start = 1; start < maxResults; start += resultsPerPage) {
@@ -69,7 +65,7 @@ export const googleSearch = async (query: string) => {
 
 async function searchAndProcessEmployees() {
   let companies = await db.query.company.findMany({
-    where: jsonArrayContains(schema.company.groups, ["apple-design-award"]),
+    where: isNotNull(schema.company.vcInvestors),
     columns: {
       name: true,
       linkedinUrl: true,
@@ -83,7 +79,11 @@ async function searchAndProcessEmployees() {
   const BATCH_SIZE = 10;
 
   for (const company of companies) {
-    const queries = [`site:linkedin.com/in AND company:"${company.name}"`];
+    const queries = [
+      `site:linkedin.com/in AND company:"${company.name}"`,
+      `site:linkedin.com/in AND company:"${company.name}" AND title:"Product Designer"`,
+      `site:linkedin.com/in AND company:"${company.name}" AND title:"iOS Developer"`,
+    ];
 
     let linkedinUrls: string[] = [];
     for (const query of queries) {

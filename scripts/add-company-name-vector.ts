@@ -29,32 +29,8 @@ async function getEmbedding(text: string): Promise<number[]> {
 }
 
 const linkedinCompanyUrls = [
-  "https://www.linkedin.com/company/the-new-york-times/",
-  "https://www.linkedin.com/company/redgames/",
-  "https://www.linkedin.com/company/procreate-art/",
-  "https://www.linkedin.com/company/happy-juice-games/",
-  "https://www.linkedin.com/company/the-pixel-hunt/",
-  "https://www.linkedin.com/company/lykkestudios/",
-  "https://www.linkedin.com/company/duolingo/",
-  "https://www.linkedin.com/company/flighty/",
-  "https://www.linkedin.com/company/afterburngames/",
-  "https://www.linkedin.com/company/headspace-meditation-limited/",
-  "https://www.linkedin.com/company/handy-games/",
-  "https://www.linkedin.com/company/any-distance/",
-  "https://www.linkedin.com/company/capcom/",
-  "https://www.linkedin.com/company/swing-vision/",
-  "https://www.linkedin.com/company/seconddinner/",
-  "https://www.linkedin.com/company/jack-morton-worldwide/",
-  "https://www.linkedin.com/company/supercell/",
-  "https://www.linkedin.com/company/good-snooze/",
-  "https://www.linkedin.com/company/inkle/",
-  "https://www.linkedin.com/company/breakpoint-studio/",
-  "https://www.linkedin.com/company/rebelgirls/",
-  "https://www.linkedin.com/company/broken-rules/",
-  "https://www.linkedin.com/company/lux-optics/",
-  "https://www.linkedin.com/company/gameloft/",
-  "https://www.linkedin.com/company/netmarble-games/",
-  "https://www.linkedin.com/company/volst/",
+  "https://www.linkedin.com/company/sequoia/",
+  "https://www.linkedin.com/company/new-enterprise-associates/",
 ];
 
 async function scrapeLinkedInCompany(linkedinCompanyUrl: string) {
@@ -123,7 +99,7 @@ async function addCompanies() {
           .update(schema.company)
           .set({
             companyNameVector: companyNameVector,
-            groups: [...(existingCompany.groups ?? []), "apple-design-award"],
+            isVcInvestor: true,
           })
           .where(eq(schema.company.linkedinId, linkedinId));
 
@@ -155,7 +131,7 @@ async function addCompanies() {
         topFeatures: companyData.topFeatures || [],
         specialties: companyData.specialties || [],
         companyNameVector: companyNameVector,
-        groups: ["apple-design-award"],
+        isVcInvestor: true,
       };
 
       // Insert the company into the database
