@@ -70,6 +70,8 @@ export const company = pgTable(
     specialties: json("specialties").$type<string[]>().default([]),
     companyNameVector: vector("company_name_vector", { dimensions: 1536 }),
     groups: json("groups").$type<string[]>().default([]),
+    vcInvestors: json("vc_investors").$type<string[]>().default([]),
+    isVcInvestor: boolean("is_vc_investor").default(false),
   },
   (table) => ({
     companyNameVectorIndex: index("company_name_vector_index").using(
@@ -351,6 +353,22 @@ export const locationsVector = pgTable(
   },
   (table) => ({
     vectorIndex: index("locations_vector_index").using(
+      "hnsw",
+      table.vector.op("vector_cosine_ops")
+    ),
+  })
+);
+
+export const vcInvestorsVectors = pgTable(
+  "vc_investors_vectors",
+  {
+    id: serial("id").primaryKey(),
+    companyIds: jsonb("company_ids").$type<string[]>().default([]),
+    vcInvestor: varchar("vc_investor", { length: 255 }).notNull().unique(),
+    vector: vector("vector", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    vectorIndex: index("vc_investors_vectors_index").using(
       "hnsw",
       table.vector.op("vector_cosine_ops")
     ),

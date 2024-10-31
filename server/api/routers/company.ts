@@ -3,12 +3,14 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   company as companyTable,
   people,
+  vcInvestorsVectors,
 } from "@/server/db/schemas/users/schema";
 import OpenAI from "openai";
-import { inArray } from "drizzle-orm";
+import { cosineDistance, eq, inArray, isNotNull } from "drizzle-orm";
 import { InferResultType } from "@/utils/infer";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { jsonArrayContains } from "@/lib/utils";
+import { jsonArrayContains, jsonArrayContainsAny } from "@/lib/utils";
+import { gt, sql } from "drizzle-orm";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -17,6 +19,16 @@ const openai = new OpenAI({
 async function getEmbedding(text: string) {
   const response = await openai.embeddings.create({
     model: "text-embedding-3-large",
+    input: text,
+    encoding_format: "float",
+  });
+
+  return response.data[0].embedding;
+}
+
+async function getEmbeddingPgVector(text: string) {
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
     input: text,
     encoding_format: "float",
   });
@@ -111,47 +123,102 @@ async function querySimilarSpecialties(specialty: string) {
     return [];
   }
 }
+
+async function querySimilarVcInvestors(vcInvestor: string, db: any) {
+  try {
+    console.log(`Getting embedding for VC investor: ${vcInvestor}`);
+    const vcEmbedding = await getEmbeddingPgVector(vcInvestor);
+    console.log(`Got embedding for VC investor: ${vcInvestor}`);
+
+    const similarity = sql<number>`1 - (${cosineDistance(
+      vcInvestorsVectors.vector,
+      vcEmbedding
+    )})`;
+
+    const similarVcInvestors = await db
+      .select({
+        vcInvestor: vcInvestorsVectors.vcInvestor,
+        companyIds: vcInvestorsVectors.companyIds,
+        similarity,
+      })
+      .from(vcInvestorsVectors)
+      .where(gt(similarity, 0.8))
+      .orderBy(similarity)
+      .limit(200);
+
+    return similarVcInvestors.map((result: any) => ({
+      vcInvestor: result.vcInvestor,
+      score: result.similarity,
+      companyIds: result.companyIds,
+    }));
+  } catch (error) {
+    console.error("Error querying similar VC investors:", error);
+    return [];
+  }
+}
+
 export const companyRouter = createTRPCRouter({
   findRelevantCompanies: publicProcedure
     .input(z.object({ query: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const companies = await ctx.db.query.company.findMany();
-
       const companyNames = companies.map((company) => company.name);
 
-      // Step 1: Standardize the input query to technologies, specialties, and features
       const completion = await openai.chat.completions.create({
         messages: [
           {
             role: "system",
-            content: `
-You will be provided with multiple technology terms and or specialties/features. OR, you will be provided a list of company names. If any company is mentioned, find the company names from the following list: ${companyNames.join(
+            content: `You are a helpful assistant that processes search queries about companies and VC investors.
+You will be provided with multiple technology terms and or specialties/features, OR you will be provided a list of company names OR VC investor names. If any company is mentioned, find the company names from the following list: ${companyNames.join(
               ", "
             )}. 
-        If no company in this list is in their query or if their query has no mention of a company, then your task is to standardize it into three categories: technologies, specialties, and features.
+
+If no company in this list is in their query or if their query has no mention of a company, then your task is to standardize it into four categories: technologies, specialties, features, and vcInvestors.
+
 - Technologies are specific programming languages, frameworks, or tools (e.g., "JavaScript", "Ruby on Rails", "Next.js").
 - Specialties describe the type of company or domain (e.g., "Version control", "Web browser", "Open source project hosting").
 - Features are technical features being queried, such as "live messaging", "notifications", or "tab management".
+- VC Investors are venture capital firms or investment companies (e.g., "Andreessen Horowitz", "Sequoia Capital", "Y Combinator").
 
 If the input is already standardized, return it as is.
 
-Respond only with a JSON object that has four fields: "standardizedTechs", "standardizedSpecialties", and "standardizedFeatures", "companyNames". Each should be an array of standardized terms.
-        `,
+Return your response in this exact JSON format:
+{
+  "standardizedTechs": [],
+  "standardizedSpecialties": [],
+  "standardizedFeatures": [],
+  "standardizedVcInvestors": [],
+  "companyNames": []
+}
+
+Make sure to only include relevant terms in each category and leave arrays empty if no relevant terms are found.`,
           },
           {
             role: "user",
             content: input.query,
           },
         ],
-        response_format: { type: "json_object" },
-        model: "gpt-4o",
+        model: "gpt-4",
         temperature: 0,
         max_tokens: 1024,
       });
 
-      const standardizedResponse = JSON.parse(
-        completion.choices[0].message.content ?? "{}"
-      );
+      let standardizedResponse;
+      try {
+        standardizedResponse = JSON.parse(
+          completion.choices[0].message.content ?? "{}"
+        );
+      } catch (error) {
+        console.error("Error parsing GPT response:", error);
+        console.log("Raw response:", completion.choices[0].message.content);
+        standardizedResponse = {
+          standardizedTechs: [],
+          standardizedSpecialties: [],
+          standardizedFeatures: [],
+          standardizedVcInvestors: [],
+          companyNames: [],
+        };
+      }
 
       console.log(
         "Standardized response:",
@@ -162,32 +229,65 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         standardizedResponse.standardizedTechs?.map((tech: string) =>
           tech.toLowerCase()
         ) ?? [];
-      const standardizedSpecialties: string[] = [
-        ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
+      const standardizedSpecialties: string[] =
+        standardizedResponse.standardizedSpecialties?.map((specialty: string) =>
+          specialty.toLowerCase()
+        ) ?? [];
+      const standardizedFeatures: string[] =
+        standardizedResponse.standardizedFeatures?.map((feature: string) =>
           feature.toLowerCase()
-        ),
-        ...standardizedResponse.standardizedSpecialties?.map(
-          (specialty: string) => specialty.toLowerCase()
-        ),
-      ];
-      const standardizedFeatures: string[] = [
-        ...standardizedResponse.standardizedFeatures?.map((feature: string) =>
-          feature.toLowerCase()
-        ),
-        ...standardizedResponse.standardizedSpecialties?.map(
-          (specialty: string) => specialty.toLowerCase()
-        ),
-      ];
+        ) ?? [];
+      const standardizedVcInvestors: string[] =
+        standardizedResponse.standardizedVcInvestors?.map((vc: string) =>
+          vc.toLowerCase()
+        ) ?? [];
+
+      const allVcInvestorsToSearch = await Promise.all(
+        standardizedVcInvestors.map(
+          async (vc) => await querySimilarVcInvestors(vc, ctx.db)
+        )
+      );
+
+      console.log(
+        "All VC investors to search:",
+        JSON.stringify(allVcInvestorsToSearch, null, 2)
+      );
+
+      const vcCompanyIds = new Set<string>();
+      allVcInvestorsToSearch.forEach((vcGroup: any) => {
+        vcGroup.forEach(({ companyIds }: any) => {
+          companyIds.forEach((id: string) => {
+            console.log(`vcCompanyIds: ${id}`);
+            vcCompanyIds.add(id);
+          });
+        });
+      });
+
+      console.log(
+        `all vc investors to search: ${JSON.stringify(
+          Array.from(vcCompanyIds),
+          null,
+          2
+        )}`
+      );
+
+      const vcdCompanies = await ctx.db.query.company.findMany({
+        where: inArray(companyTable.id, Array.from(vcCompanyIds)),
+      });
 
       const companiesDB = await ctx.db.query.company.findMany({
-        where: inArray(companyTable.name, standardizedResponse.companyNames),
+        where: inArray(companyTable.name, [
+          ...standardizedResponse.companyNames,
+          ...vcdCompanies.map((c) => c.name),
+        ]),
       });
 
       if (
         companiesDB.length > 0 &&
         standardizedTechs.length === 0 &&
         standardizedSpecialties.length === 0 &&
-        standardizedFeatures.length === 0
+        standardizedFeatures.length === 0 &&
+        standardizedVcInvestors.length === 0
       ) {
         return {
           valid: true,
@@ -206,7 +306,6 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         JSON.stringify(standardizedTechs, null, 2)
       );
 
-      // Step 2: Query Pinecone to get the most similar technologies, specialties, and features for each standardized term
       const allTechnologiesToSearch: {
         score: number;
         technology: string;
@@ -238,7 +337,6 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         )
       );
 
-      // Step 3: Fetch all companies from the database without related candidates
       const companiesList = await ctx.db.query.company.findMany();
 
       const matchingCompanies: InferResultType<"company">[] = [];
@@ -261,12 +359,13 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
         )}`
       );
 
-      // Step 4: Iterate over the companies list and fetch related candidates as needed
       for (const company of companiesList) {
+        console.log(`company: ${company.name}`);
         let score = 0;
         let matchesAllTechs = true;
+        let matchesVcInvestors =
+          standardizedVcInvestors.length === 0 || vcCompanyIds.has(company.id);
 
-        // Ensure each technology has a match in the company
         for (const similarTechnologies of allTechnologiesToSearch) {
           const hasMatchingTechnology = similarTechnologies.some(
             ({ technology, score: techScore }) =>
@@ -285,7 +384,6 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           }
         }
 
-        // Ensure all specified features have a match if features are not empty
         let matchesAllFeatures = true;
         if (standardizedFeatures.length > 0) {
           let hasHadMatchingFeature = false;
@@ -306,7 +404,6 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           }
         }
 
-        // Ensure all specified specialties have a match if specialties are not empty
         let matchesAllSpecialties = true;
         if (standardizedSpecialties.length > 0) {
           let hasHadMatchingSpecialty = false;
@@ -329,14 +426,22 @@ Respond only with a JSON object that has four fields: "standardizedTechs", "stan
           }
         }
 
-        // Add company only if it matches all criteria
-        if (matchesAllTechs && (matchesAllFeatures || matchesAllSpecialties)) {
+        console.log(`matched vcInvestors: ${matchesVcInvestors}`);
+
+        if (
+          matchesAllTechs &&
+          matchesVcInvestors &&
+          (matchesAllFeatures || matchesAllSpecialties)
+        ) {
           matchingCompanies.push(company);
           companyScores[company.id] = score;
+
+          if (vcCompanyIds.has(company.id)) {
+            companyScores[company.id] += 1;
+          }
         }
       }
 
-      // Sort matching companies by score
       matchingCompanies.sort(
         (a, b) => companyScores[b.id] - companyScores[a.id]
       );
@@ -513,5 +618,23 @@ If no company they mentioned is in the list, return an empty array for "companyN
       where: jsonArrayContains(companyTable.groups, ["60fps.design"]),
     });
     return companies;
+  }),
+  allAppleDesignAwardCompanies: publicProcedure.query(async ({ ctx }) => {
+    const companies = await ctx.db.query.company.findMany({
+      where: jsonArrayContainsAny(companyTable.groups, ["apple-design-award"]),
+    });
+    return companies;
+  }),
+  allVcInvestorsToSearch: publicProcedure.query(async ({ ctx }) => {
+    const vcInvestors = await ctx.db.query.company.findMany({
+      where: eq(companyTable.isVcInvestor, true),
+    });
+    return vcInvestors;
+  }),
+  allVcInvestorCompaniesToSearch: publicProcedure.query(async ({ ctx }) => {
+    const vcInvestorCompanies = await ctx.db.query.company.findMany({
+      where: isNotNull(companyTable.vcInvestors),
+    });
+    return vcInvestorCompanies;
   }),
 });
