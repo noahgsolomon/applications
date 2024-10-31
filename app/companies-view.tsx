@@ -89,6 +89,7 @@ export default function CompaniesView() {
       onSuccess: (data) => {
         //@ts-ignore
         setCompanies(data.companies);
+        //@ts-ignore
         setScrapedFilters({
           ...scrapedFilters,
           //@ts-ignore
