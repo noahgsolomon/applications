@@ -224,6 +224,7 @@ export default function CompaniesView() {
               disabled={all60fpsDesignCompaniesLoading}
               style={{ cursor: "pointer" }}
               onClick={() => {
+                //@ts-ignore
                 setCompanies(all60fpsDesignCompanies || []);
                 setScrapedFilters({
                   ...scrapedFilters,
@@ -240,6 +241,7 @@ export default function CompaniesView() {
               disabled={allAppleDesignAwardCompaniesLoading}
               style={{ cursor: "pointer" }}
               onClick={() => {
+                //@ts-ignore
                 setCompanies(allAppleDesignAwardCompanies || []);
                 setScrapedFilters({
                   ...scrapedFilters,
@@ -256,6 +258,7 @@ export default function CompaniesView() {
               disabled={allVcInvestorCompaniesToSearchLoading}
               style={{ cursor: "pointer" }}
               onClick={() => {
+                //@ts-ignore
                 setCompanies(allVcInvestorCompaniesToSearch || []);
                 setScrapedFilters({
                   ...scrapedFilters,
@@ -272,6 +275,7 @@ export default function CompaniesView() {
               style={{ cursor: "pointer" }}
               disabled={allVcInvestorsToSearchLoading}
               onClick={() => {
+                //@ts-ignore
                 setCompanies(allVcInvestorsToSearch || []);
                 setScrapedFilters({
                   ...scrapedFilters,
