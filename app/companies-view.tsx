@@ -15,7 +15,7 @@ import {
   Text,
   Separator,
 } from "frosted-ui";
-import { Info, Loader, X } from "lucide-react";
+import { Info, Loader, Trash, X } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useScrapedDialogStore } from "./store/filter-store";
@@ -34,6 +34,28 @@ export default function CompaniesView() {
     data: all60fpsDesignCompanies,
     isLoading: all60fpsDesignCompaniesLoading,
   } = all60fpsDesignCompaniesQuery;
+
+  const allAppleDesignAwardCompaniesQuery =
+    api.company.allAppleDesignAwardCompanies.useQuery();
+  const {
+    data: allAppleDesignAwardCompanies,
+    isLoading: allAppleDesignAwardCompaniesLoading,
+  } = allAppleDesignAwardCompaniesQuery;
+
+  const allVcInvestorCompaniesToSearchQuery =
+    api.company.allVcInvestorCompaniesToSearch.useQuery();
+  const {
+    data: allVcInvestorCompaniesToSearch,
+    isLoading: allVcInvestorCompaniesToSearchLoading,
+  } = allVcInvestorCompaniesToSearchQuery;
+
+  const allVcInvestorsToSearchQuery =
+    api.company.allVcInvestorsToSearch.useQuery();
+  const {
+    data: allVcInvestorsToSearch,
+    isLoading: allVcInvestorsToSearchLoading,
+  } = allVcInvestorsToSearchQuery;
+
   const [filters, setFilters] = useState<string[]>([]);
   const [companies, setCompanies] = useState(
     scrapedFilters?.companies && scrapedFilters.companies.length > 0
@@ -85,6 +107,7 @@ export default function CompaniesView() {
     }
     setError(null);
     setLoading(true);
+    console.log("Searching for companies with query:", searchQuery);
     await relevantCompaniesMutation.mutateAsync({ query: searchQuery });
     setLoading(false);
     setCompaniesRemoved(false);
@@ -149,7 +172,7 @@ export default function CompaniesView() {
                 </TooltipTrigger>
                 <TooltipContent>
                   Enter company name(s), or tech(s) and feature(s) central to
-                  the company you are looking for.
+                  the company you are looking for or vc investors who fund them.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -164,7 +187,7 @@ export default function CompaniesView() {
               {error}
             </Text>
           )}
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             <Button
               disabled={loading}
               variant="classic"
@@ -191,6 +214,7 @@ export default function CompaniesView() {
                   setCompaniesRemoved(true);
                 }}
               >
+                <Trash className="size-4 dark:text-red-300 text-red-900" />
                 Remove all companies
               </Button>
             )}
@@ -209,6 +233,54 @@ export default function CompaniesView() {
               }}
             >
               60fps.design
+            </Button>
+            <Button
+              variant="surface"
+              color="purple"
+              disabled={allAppleDesignAwardCompaniesLoading}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setCompanies(allAppleDesignAwardCompanies || []);
+                setScrapedFilters({
+                  ...scrapedFilters,
+                  //@ts-ignore
+                  companies: allAppleDesignAwardCompanies,
+                });
+              }}
+            >
+              Apple Design Award
+            </Button>
+            <Button
+              variant="surface"
+              color="green"
+              disabled={allVcInvestorCompaniesToSearchLoading}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setCompanies(allVcInvestorCompaniesToSearch || []);
+                setScrapedFilters({
+                  ...scrapedFilters,
+                  //@ts-ignore
+                  companies: allVcInvestorCompaniesToSearch,
+                });
+              }}
+            >
+              VC-backed
+            </Button>
+            <Button
+              variant="surface"
+              color="orange"
+              style={{ cursor: "pointer" }}
+              disabled={allVcInvestorsToSearchLoading}
+              onClick={() => {
+                setCompanies(allVcInvestorsToSearch || []);
+                setScrapedFilters({
+                  ...scrapedFilters,
+                  //@ts-ignore
+                  companies: allVcInvestorsToSearch,
+                });
+              }}
+            >
+              VC Firms
             </Button>
             {companiesRemoved && (
               <Button
