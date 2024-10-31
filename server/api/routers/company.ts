@@ -617,24 +617,44 @@ If no company they mentioned is in the list, return an empty array for "companyN
     const companies = await ctx.db.query.company.findMany({
       where: jsonArrayContains(companyTable.groups, ["60fps.design"]),
     });
-    return companies;
+    return companies.map((company) => ({
+      id: company.id,
+      name: company.name,
+      linkedinUrl: company.linkedinUrl,
+      logo: company.logo,
+    }));
   }),
   allAppleDesignAwardCompanies: publicProcedure.query(async ({ ctx }) => {
     const companies = await ctx.db.query.company.findMany({
       where: jsonArrayContainsAny(companyTable.groups, ["apple-design-award"]),
     });
-    return companies;
+    return companies.map((company) => ({
+      id: company.id,
+      name: company.name,
+      linkedinUrl: company.linkedinUrl,
+      logo: company.logo,
+    }));
   }),
   allVcInvestorsToSearch: publicProcedure.query(async ({ ctx }) => {
     const vcInvestors = await ctx.db.query.company.findMany({
       where: eq(companyTable.isVcInvestor, true),
     });
-    return vcInvestors;
+    return vcInvestors.map((vc) => ({
+      id: vc.id,
+      name: vc.name,
+      linkedinUrl: vc.linkedinUrl,
+      logo: vc.logo,
+    }));
   }),
   allVcInvestorCompaniesToSearch: publicProcedure.query(async ({ ctx }) => {
     const vcInvestorCompanies = await ctx.db.query.company.findMany({
       where: isNotNull(companyTable.vcInvestors),
     });
-    return vcInvestorCompanies;
+    return vcInvestorCompanies.map((vc) => ({
+      id: vc.id,
+      name: vc.name,
+      linkedinUrl: vc.linkedinUrl,
+      logo: vc.logo,
+    }));
   }),
 });
